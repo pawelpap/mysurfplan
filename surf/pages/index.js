@@ -233,7 +233,7 @@ function LessonsList({ lessons, mode, onBook, student, filters, setFilters }){
   );
 }
 
-export default function App(){
+export default function App({ settings }){
   const [mode, setMode] = useState("coach");
   const [lessons, setLessons] = useState([]);
   const [student, setStudent] = useState({ name: "", email: "" });
@@ -260,7 +260,18 @@ export default function App(){
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="text-xl font-bold">🏄 Surf Lesson Booker</div>
+          <div className="flex items-center gap-2">
+            {settings?.logo?.url ? (
+              <img
+                src={settings.logo.url}
+                alt={settings.siteName || 'MyWavePlan'}
+                className="h-7 w-auto rounded-md"
+              />
+            ) : (
+              <span className="text-xl">🏄</span>
+            )}
+            <div className="text-xl font-bold">{settings?.siteName || 'MyWavePlan'}</div>
+          </div>
           <div className="ml-auto flex items-center gap-2">
             <span className={`text-sm ${mode==="coach"?"font-semibold":""}`}>Coach</span>
             <Button onClick={()=> setMode(m => m === "coach" ? "student" : "coach")} className="bg-black text-white border-black">
