@@ -1,5 +1,15 @@
 import React, { useMemo, useState, useEffect } from "react";
 
+export async function getServerSideProps() {
+  try {
+    const { getSettings } = await import('../lib/cms');
+    const settings = await getSettings();
+    return { props: { settings } };
+  } catch (e) {
+    return { props: { settings: { siteName: 'MyWavePlan', logo: null } } };
+  }
+}
+
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
 
