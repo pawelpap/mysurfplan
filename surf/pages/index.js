@@ -128,7 +128,7 @@ function StudentIdentity({ student, setStudent }){
   );
 }
 
-function LessonItem({ lesson, mode, onBook, student }){
+function LessonItem({ lesson, mode, onBook, onDelete, student }){
   const { id, startISO, durationMin, difficulty, place, attendees } = lesson;
   const booked = attendees?.some(a => a.email && a.email === student?.email);
   const [loading, setLoading] = useState(false);
@@ -154,21 +154,32 @@ function LessonItem({ lesson, mode, onBook, student }){
           <div className="text-gray-700">{difficulty} • {place}</div>
         </div>
         <div className="flex-1" />
-        <div className="flex flex-col items-start md:items-end gap-1">
+        <div className="flex flex-col items-start md:items-end gap-2">
           <div className="text-sm">Booked: <span className="font-semibold">{attendees?.length||0}</span></div>
+
           {mode === "coach" ? (
-            <details className="text-sm">
-              <summary className="cursor-pointer select-none">See attendees</summary>
-              <ul className="mt-1 list-disc ml-5">
-                {(attendees?.length||0) === 0 && <li className="list-none ml-0 text-gray-500">No bookings yet</li>}
-                {attendees?.map((a,i)=>(<li key={i}>{a.name || "(No name)"} — {a.email || "(No email)"} </li>))}
-              </ul>
-            </details>
+            <>
+              <details className="text-sm">
+                <summary className="cursor-pointer select-none">See attendees</summary>
+                <ul className="mt-1 list-disc ml-5">
+                  {(attendees?.length||0) === 0 && <li className="list-none ml-0 text-gray-500">No bookings yet</li>}
+                  {attendees?.map((a,i)=>(<li key={i}>{a.name || "(No name)"} — {a.email || "(No email)"} </li>))}
+                </ul>
+              </details>
+              <Button
+                onClick={() => onDelete(id)}
+                className="border-red-600 text-red-600 hover:bg-red-50"
+                title="Delete lesson"
+              >
+                Delete
+              </Button>
+            </>
           ) : (
             <Button disabled={!student?.email || booked || loading} onClick={book} className={`border-black ${booked?"bg-gray-200 text-gray-600 cursor-not-allowed":"bg-white hover:bg-gray-50"}`}>
               {booked ? "Already booked" : (loading ? "Booking..." : (student?.email ? "Book this lesson" : "Enter your details above"))}
             </Button>
           )}
+
           {err && <div className="text-xs text-rose-600">{err}</div>}
         </div>
       </div>
@@ -176,7 +187,7 @@ function LessonItem({ lesson, mode, onBook, student }){
   );
 }
 
-function LessonsList({ lessons, mode, onBook, student, filters, setFilters }){
+function LessonsList({ lessons, mode, onBook, onDelete, student, filters, setFilters }){
   const grouped = useMemo(()=>groupByDay(lessons), [lessons]);
   const days = Object.keys(grouped);
 
@@ -224,7 +235,14 @@ function LessonsList({ lessons, mode, onBook, student, filters, setFilters }){
           <section key={day} className="space-y-3">
             <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{day}</h4>
             {dayLessons.map(lesson => (
-              <LessonItem key={lesson.id} lesson={lesson} mode={mode} onBook={onBook} student={student} />
+              <LessonItem
+                key={lesson.id}
+                lesson={lesson}
+                mode={mode}
+                onBook={onBook}
+                onDelete={onDelete}
+                student={student}
+              />
             ))}
           </section>
         );
@@ -255,6 +273,22 @@ export default function App({ settings }){
 
   function handleCreated(l){ setLessons(prev => [...prev, l].sort((a,b)=> new Date(a.startISO)-new Date(b.startISO))); }
   function handleBooked(updated){ setLessons(prev => prev.map(l => l.id===updated.id? updated: l)); }
+
+  // NEW: deletion handler (coach)
+  async function handleDelete(id){
+    if (!window.confirm('Delete this lesson? This cannot be undone.')) return;
+
+    // Optimistic update
+    const prev = lessons;
+    setLessons(prev.filter(l => l.id !== id));
+
+    const res = await fetch(`/api/lessons/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      // Roll back if failed
+      setLessons(prev);
+      alert('Could not delete lesson. Please try again.');
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -307,7 +341,15 @@ export default function App({ settings }){
         {loading ? (
           <div className="text-gray-500">Loading…</div>
         ) : (
-          <LessonsList lessons={lessons} mode={mode} onBook={handleBooked} student={student} filters={filters} setFilters={setFilters} />
+          <LessonsList
+            lessons={lessons}
+            mode={mode}
+            onBook={handleBooked}
+            onDelete={handleDelete}
+            student={student}
+            filters={filters}
+            setFilters={setFilters}
+          />
         )}
 
         <footer className="pt-6 text-xs text-gray-500">
