@@ -168,10 +168,10 @@ function LessonItem({ lesson, mode, onBook, onDelete, student }){
               </details>
               <Button
                 onClick={() => onDelete(id)}
-                className="border-red-600 text-red-600 hover:bg-red-50"
-                title="Delete lesson"
+                className="bg-red-600 text-white border-red-700 hover:bg-red-700"
+                title="Delete this lesson"
               >
-                Delete
+                🗑️ Delete Lesson
               </Button>
             </>
           ) : (
@@ -274,19 +274,20 @@ export default function App({ settings }){
   function handleCreated(l){ setLessons(prev => [...prev, l].sort((a,b)=> new Date(a.startISO)-new Date(b.startISO))); }
   function handleBooked(updated){ setLessons(prev => prev.map(l => l.id===updated.id? updated: l)); }
 
-  // NEW: deletion handler (coach)
+  // Server-first deletion with real error messages
   async function handleDelete(id){
-    if (!window.confirm('Delete this lesson? This cannot be undone.')) return;
+    if (!window.confirm('Are you sure you want to delete this lesson? This cannot be undone.')) return;
 
-    // Optimistic update
-    const prev = lessons;
-    setLessons(prev.filter(l => l.id !== id));
-
-    const res = await fetch(`/api/lessons/${id}`, { method: 'DELETE' });
-    if (!res.ok) {
-      // Roll back if failed
-      setLessons(prev);
-      alert('Could not delete lesson. Please try again.');
+    try {
+      const res = await fetch(`/api/lessons/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data?.ok === false) {
+        throw new Error(data?.error || `Failed with status ${res.status}`);
+      }
+      // remove from UI only after server success
+      setLessons(prev => prev.filter(l => l.id !== id));
+    } catch (e) {
+      alert(`Error deleting lesson: ${e.message}`);
     }
   }
 
