@@ -173,7 +173,6 @@ function LessonItem({ lesson, mode, onBook, onDelete, student }){
                 className="inline-flex items-center justify-center gap-2 min-w-[150px] rounded-xl px-4 py-2 border border-red-700 bg-red-600 text-white hover:bg-red-700 transition"
                 title="Delete this lesson"
               >
-                {/* inline SVG so the icon always renders */}
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
                   <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4V4a1 1 0 0 1 1-1zm2 0v1h2V3h-2zM7 7v12h10V7H7zm3 3h2v8h-2v-8zm4 0h2v8h-2v-8z" />
                 </svg>
@@ -280,7 +279,7 @@ export default function App({ settings }){
   function handleCreated(l){ setLessons(prev => [...prev, l].sort((a,b)=> new Date(a.startISO)-new Date(b.startISO))); }
   function handleBooked(updated){ setLessons(prev => prev.map(l => l.id===updated.id? updated: l)); }
 
-  // Server-first deletion with real error messages
+  // Server-first deletion with full re-sync
   async function handleDelete(id){
     if (!window.confirm('Are you sure you want to delete this lesson? This cannot be undone.')) return;
 
@@ -290,7 +289,10 @@ export default function App({ settings }){
       if (!res.ok || data?.ok === false) {
         throw new Error(data?.error || `Failed with status ${res.status}`);
       }
+
+      // Remove locally for snappy UI, then re-sync from server
       setLessons(prev => prev.filter(l => l.id !== id));
+      await load(); // full re-sync from the API to catch cross-device changes
     } catch (e) {
       alert(`Error deleting lesson: ${e.message}`);
     }
