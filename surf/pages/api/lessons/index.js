@@ -1,21 +1,90 @@
-import { listLessons, createLesson } from "../../../lib/db";
+// surf/pages/api/lessons/index.js
+import { sql } from '@vercel/postgres';
+
+async function ensureTables() {
+  // Lessons (kept generic/safe – won’t change your existing data)
+  await sql`CREATE TABLE IF NOT EXISTS lessons (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    start_iso timestamptz NOT NULL,
+    duration_min integer NOT NULL DEFAULT 90,
+    difficulty text NOT NULL,
+    place text NOT NULL
+  );`;
+
+  // Bookings used by list & attendees
+  await sql`CREATE TABLE IF NOT EXISTS bookings (
+    lesson_id uuid NOT NULL,
+    name text,
+    email text NOT NULL,
+    UNIQUE(lesson_id, email)
+  );`;
+}
+
+function mapRow(r) {
+  return {
+    id: r.id,
+    startISO: r.start_iso instanceof Date ? r.start_iso.toISOString() : r.start_iso,
+    durationMin: r.duration_min,
+    difficulty: r.difficulty,
+    place: r.place,
+    attendees: r.attendees ?? [],
+  };
+}
 
 export default async function handler(req, res) {
+  const method = req.method;
+
   try {
-    if (req.method === "GET") {
-      const data = await listLessons();
-      return res.status(200).json({ ok: true, data });
+    if (method === 'GET') {
+      await ensureTables();
+
+      const { rows } = await sql`
+        SELECT
+          l.id,
+          l.start_iso,
+          l.duration_min,
+          l.difficulty,
+          l.place,
+          COALESCE(
+            json_agg(json_build_object('name', b.name, 'email', b.email))
+              FILTER (WHERE b.email IS NOT NULL),
+            '[]'
+          ) AS attendees
+        FROM lessons l
+        LEFT JOIN bookings b ON b.lesson_id = l.id
+        GROUP BY l.id
+        ORDER BY l.start_iso ASC;
+      `;
+
+      return res.status(200).json({ ok: true, data: rows.map(mapRow) });
     }
-    if (req.method === "POST") {
+
+    if (method === 'POST') {
+      await ensureTables();
+
       const { startISO, difficulty, place } = req.body || {};
-      if (!startISO || !difficulty || !place) return res.status(400).json({ ok:false, error:"Missing fields" });
-      const lesson = await createLesson({ startISO, difficulty, place });
-      return res.status(201).json({ ok: true, data: lesson });
+      if (!startISO || !difficulty || !place) {
+        return res.status(400).json({ ok: false, error: 'Missing fields' });
+      }
+
+      const durationMin = 90;
+      const insert = await sql`
+        INSERT INTO lessons (start_iso, duration_min, difficulty, place)
+        VALUES (${startISO}, ${durationMin}, ${difficulty}, ${place})
+        RETURNING id, start_iso, duration_min, difficulty, place;
+      `;
+
+      const row = insert.rows[0];
+      return res.status(200).json({
+        ok: true,
+        data: { ...mapRow(row), attendees: [] },
+      });
     }
-    res.setHeader('Allow', ['GET','POST']);
-    return res.status(405).end('Method Not Allowed');
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok:false, error: e.message });
+
+    res.setHeader('Allow', ['GET', 'POST']);
+    return res.status(405).end(`Method ${method} Not Allowed`);
+  } catch (err) {
+    console.error('lessons index error:', err);
+    return res.status(500).json({ ok: false, error: err?.message || 'Server error' });
   }
 }
