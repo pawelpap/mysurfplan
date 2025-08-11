@@ -1,19 +1,10 @@
 // surf/pages/api/lessons/index.js
 import { sql } from '@vercel/postgres';
 
-async function ensureTables() {
-  // Lessons (kept generic/safe – won’t change your existing data)
-  await sql`CREATE TABLE IF NOT EXISTS lessons (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    start_iso timestamptz NOT NULL,
-    duration_min integer NOT NULL DEFAULT 90,
-    difficulty text NOT NULL,
-    place text NOT NULL
-  );`;
-
-  // Bookings used by list & attendees
+// Only ensure the bookings table; do NOT touch the lessons table schema.
+async function ensureBookings() {
   await sql`CREATE TABLE IF NOT EXISTS bookings (
-    lesson_id uuid NOT NULL,
+    lesson_id text NOT NULL,
     name text,
     email text NOT NULL,
     UNIQUE(lesson_id, email)
@@ -22,7 +13,7 @@ async function ensureTables() {
 
 function mapRow(r) {
   return {
-    id: r.id,
+    id: r.id, // keep original type from DB
     startISO: r.start_iso instanceof Date ? r.start_iso.toISOString() : r.start_iso,
     durationMin: r.duration_min,
     difficulty: r.difficulty,
@@ -36,8 +27,9 @@ export default async function handler(req, res) {
 
   try {
     if (method === 'GET') {
-      await ensureTables();
+      await ensureBookings();
 
+      // Join by casting lessons.id to text so it matches bookings.lesson_id (text)
       const { rows } = await sql`
         SELECT
           l.id,
@@ -51,7 +43,7 @@ export default async function handler(req, res) {
             '[]'
           ) AS attendees
         FROM lessons l
-        LEFT JOIN bookings b ON b.lesson_id = l.id
+        LEFT JOIN bookings b ON b.lesson_id = l.id::text
         GROUP BY l.id
         ORDER BY l.start_iso ASC;
       `;
@@ -60,8 +52,7 @@ export default async function handler(req, res) {
     }
 
     if (method === 'POST') {
-      await ensureTables();
-
+      // Do NOT create/alter lessons table here; we assume it already exists with compatible columns.
       const { startISO, difficulty, place } = req.body || {};
       if (!startISO || !difficulty || !place) {
         return res.status(400).json({ ok: false, error: 'Missing fields' });
