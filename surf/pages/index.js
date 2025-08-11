@@ -47,7 +47,7 @@ function overlaps(a, b) {
   return aStart < bEnd && bStart < aEnd;
 }
 
-/* -------------------- Tiny UI primitives -------------------- */
+/* -------------------- Primitives -------------------- */
 const Card = ({ children }) => (
   <div className="rounded-2xl shadow p-4 bg-white border border-gray-100">{children}</div>
 );
@@ -67,46 +67,51 @@ const Select = (props) => (
   />
 );
 
-/** Consistent button system */
-function Btn({ children, variant = "neutral", className = "", ...rest }) {
-  const base = "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm border transition";
-  const styles = {
-    neutral: "border-gray-300 bg-white hover:bg-gray-50 text-gray-800",
-    primary: "border-green-700 bg-green-600 hover:bg-green-700 text-white",
-    destructive: "border-red-700 bg-red-600 hover:bg-red-700 text-white",
-    outlineDanger: "border-red-600 text-red-600 bg-white hover:bg-red-50",
-  }[variant];
+/** Robust button (labels/icons always visible) */
+function Btn({ children, variant = "neutral", className = "", style, ...rest }) {
+  const base =
+    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm border transition whitespace-nowrap";
+  const styles =
+    variant === "neutral"
+      ? "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
+      : variant === "primary"
+      ? "border-green-700 bg-green-600 hover:bg-green-700"
+      : variant === "destructive"
+      ? "border-red-700 bg-red-600 hover:bg-red-700"
+      : "border-gray-300 bg-white text-gray-800";
+  const forcedStyle =
+    variant === "primary" || variant === "destructive"
+      ? { color: "#fff", ...style }
+      : style;
   return (
-    <button {...rest} className={`${base} ${styles} ${className}`} />
+    <button {...rest} className={`${base} ${styles} ${className}`} style={forcedStyle}>
+      {children}
+    </button>
   );
 }
 
-/* -------------------- Header mode switch -------------------- */
-function ModeSwitch({ mode, onToggle }) {
-  const isCoach = mode === "coach";
+/* -------------------- Header segmented toggle -------------------- */
+function ModeToggle({ mode, setMode }) {
   return (
-    <div className="ml-auto flex items-center gap-3">
-      <span className={`text-sm ${isCoach ? "font-semibold" : ""}`}>Coach</span>
-
-      {/* Accessible switch */}
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isCoach}
-        onClick={onToggle}
-        className={`relative inline-flex h-8 w-16 items-center rounded-full transition ${
-          isCoach ? "bg-black" : "bg-gray-300"
-        }`}
-      >
-        <span
-          className={`inline-block h-7 w-7 transform rounded-full bg-white shadow transition ${
-            isCoach ? "translate-x-8" : "translate-x-1"
-          }`}
-        />
-        <span className="sr-only">Toggle mode</span>
-      </button>
-
-      <span className={`text-sm ${!isCoach ? "font-semibold" : ""}`}>Student</span>
+    <div className="ml-auto">
+      <div className="inline-flex rounded-full border border-gray-300 bg-white overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setMode("coach")}
+          className={`px-4 py-1.5 text-sm ${mode === "coach" ? "bg-black text-white" : "text-gray-700"}`}
+          aria-pressed={mode === "coach"}
+        >
+          Coach
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("student")}
+          className={`px-4 py-1.5 text-sm ${mode === "student" ? "bg-black text-white" : "text-gray-700"}`}
+          aria-pressed={mode === "student"}
+        >
+          Student
+        </button>
+      </div>
     </div>
   );
 }
@@ -121,7 +126,7 @@ function CreateLessonForm({ onCreate, existing }) {
   const [warn, setWarn] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Correct overlap detection (only when a real overlap exists)
+  // Show the warning only when there is a real overlap
   useEffect(() => {
     const candidateISO = new Date(startISOInput).toISOString();
     const draft = { startISO: candidateISO, durationMin: DURATION_MIN };
@@ -187,7 +192,7 @@ function CreateLessonForm({ onCreate, existing }) {
         </div>
 
         <div className="md:col-span-3 flex items-center gap-3">
-          <Btn type="submit" variant="primary" disabled={submitting}>
+          <Btn type="submit" variant="primary" disabled={submitting} className="min-w-[150px]">
             {/* check-circle icon */}
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
               <path d="M9 16.2l-3.5-3.6L4 14.1l5 5 11-11-1.4-1.4z" />
@@ -247,7 +252,7 @@ function LessonItem({ lesson, mode, student, reload }) {
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
-      await reload(); // refresh list to stay source-of-truth
+      await reload();
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -255,23 +260,17 @@ function LessonItem({ lesson, mode, student, reload }) {
     }
   }
 
-  async function unbook() {
-    if (!student?.email) return;
-    setBusy(true);
-    setErr("");
+  async function deleteLesson() {
+    if (!window.confirm("Are you sure you want to delete this lesson? This cannot be undone.")) return;
     try {
-      const res = await fetch(`/api/lessons/${id}/book`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: student.email }),
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Failed");
+      const res = await fetch(`/api/lessons/${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data?.ok === false) {
+        throw new Error(data?.error || `Failed with status ${res.status}`);
+      }
       await reload();
     } catch (e) {
-      setErr(e.message);
-    } finally {
-      setBusy(false);
+      alert(`Error deleting lesson: ${e.message}`);
     }
   }
 
@@ -312,23 +311,10 @@ function LessonItem({ lesson, mode, student, reload }) {
               </details>
 
               <Btn
-                onClick={async () => {
-                  if (!window.confirm("Are you sure you want to delete this lesson? This cannot be undone."))
-                    return;
-                  try {
-                    const res = await fetch(`/api/lessons/${id}`, { method: "DELETE" });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok || data?.ok === false) {
-                      throw new Error(data?.error || `Failed with status ${res.status}`);
-                    }
-                    await reload();
-                  } catch (e) {
-                    alert(`Error deleting lesson: ${e.message}`);
-                  }
-                }}
+                onClick={deleteLesson}
                 variant="destructive"
-                title="Delete this lesson"
                 className="min-w-[150px]"
+                title="Delete this lesson"
               >
                 {/* Trash icon */}
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
@@ -351,20 +337,6 @@ function LessonItem({ lesson, mode, student, reload }) {
                   <path d="M9 16.2l-3.5-3.6L4 14.1l5 5 11-11-1.4-1.4z" />
                 </svg>
                 <span>{booked ? "Booked" : busy ? "Booking…" : "Book Lesson"}</span>
-              </Btn>
-
-              <Btn
-                onClick={unbook}
-                disabled={!student?.email || !booked || busy}
-                variant="outlineDanger"
-                className="min-w-[120px]"
-                title="Cancel your booking"
-              >
-                {/* X icon */}
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                  <path d="M18.3 5.71L12 12.01l-6.29-6.3-1.42 1.42L10.59 13.4l-6.3 6.3 1.42 1.41 6.3-6.29 6.29 6.29 1.41-1.41-6.29-6.3 6.29-6.29z"/>
-                </svg>
-                <span>Unbook</span>
               </Btn>
             </div>
           )}
@@ -424,9 +396,7 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
       </Card>
 
       {days.length === 0 && (
-        <div className="text-gray-500">
-          No lessons yet.
-        </div>
+        <div className="text-gray-500">No lessons yet.</div>
       )}
 
       {days.map((day) => {
@@ -502,7 +472,7 @@ export default function App({ settings }) {
             <div className="text-xl font-bold">{settings?.siteName || "MyWavePlan"}</div>
           </div>
 
-          <ModeSwitch mode={mode} onToggle={() => setMode((m) => (m === "coach" ? "student" : "coach"))} />
+          <ModeToggle mode={mode} setMode={setMode} />
         </div>
       </header>
 
@@ -513,7 +483,6 @@ export default function App({ settings }) {
               <h2 className="text-2xl font-semibold">
                 {mode === "coach" ? "Coach" : "Student"} Workspace
               </h2>
-              {/* removed dev copy per request */}
             </div>
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
@@ -535,8 +504,6 @@ export default function App({ settings }) {
             setFilters={setFilters}
           />
         )}
-
-        {/* removed footer roadmap/dev notes */}
       </main>
     </div>
   );
