@@ -67,7 +67,7 @@ const Select = (props) => (
   />
 );
 
-/** Robust button (labels/icons always visible) */
+/** Robust button */
 function Btn({ children, variant = "neutral", className = "", style, ...rest }) {
   const base =
     "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm border transition whitespace-nowrap";
@@ -128,7 +128,6 @@ function CreateLessonForm({ onCreate, existing }) {
   const [warn, setWarn] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Show the warning only when there is a real overlap
   useEffect(() => {
     const candidateISO = new Date(startISOInput).toISOString();
     const draft = { startISO: candidateISO, durationMin: DURATION_MIN };
@@ -255,6 +254,7 @@ function LessonItem({ lesson, mode, student, reload }) {
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       await reload();
+      setErr(""); // clear after success
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -281,6 +281,7 @@ function LessonItem({ lesson, mode, student, reload }) {
         }
       } else {
         await reload();
+        setErr(""); // clear after success
       }
     } catch (e) {
       setErr(e.message);
@@ -366,7 +367,6 @@ function LessonItem({ lesson, mode, student, reload }) {
                 <span>{booked ? "Booked" : busy ? "Booking…" : "Book Lesson"}</span>
               </Btn>
 
-              {/* NEW: Unbook — enabled when an email is provided; shows clear message if not actually booked */}
               <Btn
                 onClick={unbook}
                 disabled={!student?.email || busy}
@@ -382,7 +382,10 @@ function LessonItem({ lesson, mode, student, reload }) {
             </div>
           )}
 
-          {err && <div className="text-xs text-rose-600">{err}</div>}
+          {/* Only show booking/unbooking errors to students */}
+          {mode === "student" && err && (
+            <div className="text-xs text-rose-600">{err}</div>
+          )}
         </div>
       </div>
     </Card>
