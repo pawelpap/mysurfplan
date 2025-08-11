@@ -2,8 +2,9 @@
 import { sql } from '@vercel/postgres';
 
 async function ensureBookings() {
+  // Flexible type: store as text so it matches any lessons.id type when compared via ::text
   await sql`CREATE TABLE IF NOT EXISTS bookings (
-    lesson_id uuid NOT NULL,
+    lesson_id text NOT NULL,
     name text,
     email text NOT NULL,
     UNIQUE(lesson_id, email)
@@ -39,7 +40,6 @@ export default async function handler(req, res) {
       const result = await sql`DELETE FROM bookings WHERE lesson_id = ${id} AND email = ${email};`;
 
       if (!result?.rowCount) {
-        // not booked -> tell client to show your message
         return res.status(404).json({ ok: false, error: 'Not booked' });
       }
 
