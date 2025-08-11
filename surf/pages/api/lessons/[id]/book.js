@@ -1,6 +1,15 @@
 // surf/pages/api/lessons/[id]/book.js
 import { sql } from '@vercel/postgres';
 
+async function ensureBookings() {
+  await sql`CREATE TABLE IF NOT EXISTS bookings (
+    lesson_id uuid NOT NULL,
+    name text,
+    email text NOT NULL,
+    UNIQUE(lesson_id, email)
+  );`;
+}
+
 export default async function handler(req, res) {
   const { id } = req.query;
   const method = req.method;
@@ -11,15 +20,9 @@ export default async function handler(req, res) {
 
   try {
     if (method === 'POST') {
+      await ensureBookings();
       const { name, email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
-
-      await sql`CREATE TABLE IF NOT EXISTS bookings (
-        lesson_id uuid NOT NULL,
-        name text,
-        email text NOT NULL,
-        UNIQUE(lesson_id, email)
-      );`;
 
       await sql`INSERT INTO bookings (lesson_id, name, email)
                 VALUES (${id}, ${name || null}, ${email})
@@ -29,13 +32,14 @@ export default async function handler(req, res) {
     }
 
     if (method === 'DELETE') {
+      await ensureBookings();
       const { email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
 
       const result = await sql`DELETE FROM bookings WHERE lesson_id = ${id} AND email = ${email};`;
 
-      // If nothing was deleted, the email wasn't booked for this lesson
       if (!result?.rowCount) {
+        // not booked -> tell client to show your message
         return res.status(404).json({ ok: false, error: 'Not booked' });
       }
 
