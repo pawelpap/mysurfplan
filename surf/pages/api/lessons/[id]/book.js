@@ -14,7 +14,6 @@ export default async function handler(req, res) {
       const { name, email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
 
-      // Ensure table exists (optional defensive)
       await sql`CREATE TABLE IF NOT EXISTS bookings (
         lesson_id uuid NOT NULL,
         name text,
@@ -22,7 +21,6 @@ export default async function handler(req, res) {
         UNIQUE(lesson_id, email)
       );`;
 
-      // Insert booking (unique by lesson_id + email)
       await sql`INSERT INTO bookings (lesson_id, name, email)
                 VALUES (${id}, ${name || null}, ${email})
                 ON CONFLICT (lesson_id, email) DO NOTHING;`;
@@ -34,8 +32,12 @@ export default async function handler(req, res) {
       const { email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
 
-      // Remove booking
-      await sql`DELETE FROM bookings WHERE lesson_id = ${id} AND email = ${email};`;
+      const result = await sql`DELETE FROM bookings WHERE lesson_id = ${id} AND email = ${email};`;
+
+      // If nothing was deleted, the email wasn't booked for this lesson
+      if (!result?.rowCount) {
+        return res.status(404).json({ ok: false, error: 'Not booked' });
+      }
 
       return res.status(200).json({ ok: true });
     }
@@ -44,7 +46,6 @@ export default async function handler(req, res) {
     return res.status(405).end(`Method ${method} Not Allowed`);
   } catch (err) {
     console.error('book route error:', err);
-    // 23505 = unique_violation
     if (err?.code === '23505') {
       return res.status(409).json({ ok: false, error: 'Already booked' });
     }
