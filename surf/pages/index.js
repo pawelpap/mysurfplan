@@ -14,7 +14,7 @@ export async function getServerSideProps() {
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
 
-// NEW: helpers for 30-minute rounding + local input formatting
+/* Half-hour helpers */
 const HALF_HOUR_MS = 30 * 60 * 1000;
 function roundToHalfHour(date) {
   const d = new Date(date);
@@ -23,7 +23,6 @@ function roundToHalfHour(date) {
   return d;
 }
 function toLocalInputValue(date) {
-  // "YYYY-MM-DDTHH:mm" in LOCAL time for <input type="datetime-local">
   const pad = (n) => String(n).padStart(2, "0");
   const d = new Date(date);
   const y = d.getFullYear();
@@ -32,6 +31,23 @@ function toLocalInputValue(date) {
   const hh = pad(d.getHours());
   const mm = pad(d.getMinutes());
   return `${y}-${m}-${day}T${hh}:${mm}`;
+}
+function buildISOFromLocal(dateStr, timeStr) {
+  // dateStr: YYYY-MM-DD, timeStr: HH:mm (local)
+  return new Date(`${dateStr}T${timeStr}`).toISOString();
+}
+function getInitLocalDateTime() {
+  const r = roundToHalfHour(new Date(Date.now() + 60 * 60 * 1000));
+  const v = toLocalInputValue(r);
+  return { initDate: v.slice(0, 10), initTime: v.slice(11, 16) };
+}
+function generateHalfHourOptions() {
+  const out = [];
+  for (let h = 0; h < 24; h++) {
+    out.push(`${String(h).padStart(2, "0")}:00`);
+    out.push(`${String(h).padStart(2, "0")}:30`);
+  }
+  return out;
 }
 
 const fmtDate = (iso) =>
@@ -60,12 +76,11 @@ function groupByDay(lessons) {
 }
 
 function overlaps(a, b) {
-  // robust interval test: [aStart, aEnd) vs [bStart, bEnd)
   const aStart = Date.parse(a.startISO);
   const aEnd = aStart + (a.durationMin ?? DURATION_MIN) * 60_000;
   const bStart = Date.parse(b.startISO);
   const bEnd = bStart + (b.durationMin ?? DURATION_MIN) * 60_000;
-  return aStart < bEnd && aEnd > bStart;
+  return aStart < bEnd && aEnd > bStart; // [start,end)
 }
 
 /* -------------------- Primitives -------------------- */
@@ -141,38 +156,34 @@ function ModeToggle({ mode, setMode }) {
 
 /* -------------------- Forms & Lists -------------------- */
 function CreateLessonForm({ onCreate, existing }) {
-  // CHANGED: initialize to nearest half hour, 1h from now, formatted for input
-  const [startISOInput, setStartISOInput] = useState(() =>
-    toLocalInputValue(roundToHalfHour(new Date(Date.now() + 60 * 60 * 1000)))
-  );
+  // Use explicit date + half-hour select (removes “every minute” UI)
+  const { initDate, initTime } = getInitLocalDateTime();
+  const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
+  const [timeStr, setTimeStr] = useState(initTime);  // HH:mm (00 or 30)
   const [difficulty, setDifficulty] = useState("Beginner");
   const [place, setPlace] = useState("");
   const [warn, setWarn] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // CHANGED: when user types/pastes a value, snap it to :00 / :30
-  function handleDateChange(e) {
-    const v = e.target.value;
-    if (!v) return setStartISOInput(v);
-    const snapped = toLocalInputValue(roundToHalfHour(new Date(v)));
-    setStartISOInput(snapped);
-  }
-
+  // Overlap warning based on current date/time selection
   useEffect(() => {
-    // keep overlap warning accurate
-    const candidateISO = new Date(startISOInput).toISOString();
+    if (!Array.isArray(existing) || existing.length === 0) {
+      setWarn(""); 
+      return;
+    }
+    const candidateISO = buildISOFromLocal(dateStr, timeStr);
     const draft = { startISO: candidateISO, durationMin: DURATION_MIN };
     const hasConflict = existing.some((l) => overlaps(l, draft));
     setWarn(hasConflict ? "Heads up: overlaps another lesson." : "");
-  }, [startISOInput, existing]);
+  }, [dateStr, timeStr, existing]);
 
   async function handleCreate(e) {
     e.preventDefault();
-    const startISO = new Date(startISOInput).toISOString(); // sending UTC ISO
     if (!place.trim()) {
       setWarn("Please enter a place.");
       return;
     }
+    const startISO = buildISOFromLocal(dateStr, timeStr);
     setSubmitting(true);
     try {
       const res = await fetch("/api/lessons", {
@@ -184,6 +195,7 @@ function CreateLessonForm({ onCreate, existing }) {
       if (!json.ok) throw new Error(json.error || "Failed");
       onCreate(json.data);
       setPlace("");
+      setWarn(""); // clear on success
     } catch (err) {
       setWarn(err.message);
     } finally {
@@ -191,18 +203,29 @@ function CreateLessonForm({ onCreate, existing }) {
     }
   }
 
+  const timeOptions = useMemo(() => generateHalfHourOptions(), []);
+
   return (
     <Card>
       <h3 className="text-lg font-semibold mb-3">Create a Lesson</h3>
       <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <Label>Date & time</Label>
-          <Input
-            type="datetime-local"
-            step={1800}                    // NEW: 30-minute steps in the picker
-            value={startISOInput}
-            onChange={handleDateChange}    // NEW: snap to :00/:30 on every change
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              type="date"
+              value={dateStr}
+              onChange={(e) => setDateStr(e.target.value)}
+            />
+            <Select
+              value={timeStr}
+              onChange={(e) => setTimeStr(e.target.value)}
+            >
+              {timeOptions.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </Select>
+          </div>
           <p className="text-xs text-gray-500 mt-1">Duration is fixed to 1h30m.</p>
         </div>
         <div>
@@ -286,7 +309,7 @@ function LessonItem({ lesson, mode, student, reload }) {
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       await reload();
-      setErr(""); // clear after success
+      setErr("");
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -313,7 +336,7 @@ function LessonItem({ lesson, mode, student, reload }) {
         }
       } else {
         await reload();
-        setErr(""); // clear after success
+        setErr("");
       }
     } catch (e) {
       setErr(e.message);
@@ -414,7 +437,6 @@ function LessonItem({ lesson, mode, student, reload }) {
             </div>
           )}
 
-          {/* Only show booking/unbooking errors to students */}
           {mode === "student" && err && (
             <div className="text-xs text-rose-600">{err}</div>
           )}
