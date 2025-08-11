@@ -78,6 +78,8 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
       ? "border-green-700 bg-green-600 hover:bg-green-700"
       : variant === "destructive"
       ? "border-red-700 bg-red-600 hover:bg-red-700"
+      : variant === "outlineDanger"
+      ? "border-red-600 text-red-600 bg-white hover:bg-red-50"
       : "border-gray-300 bg-white text-gray-800";
   const forcedStyle =
     variant === "primary" || variant === "destructive"
@@ -193,7 +195,6 @@ function CreateLessonForm({ onCreate, existing }) {
 
         <div className="md:col-span-3 flex items-center gap-3">
           <Btn type="submit" variant="primary" disabled={submitting} className="min-w-[150px]">
-            {/* check-circle icon */}
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
               <path d="M9 16.2l-3.5-3.6L4 14.1l5 5 11-11-1.4-1.4z" />
             </svg>
@@ -236,9 +237,10 @@ function StudentIdentity({ student, setStudent }) {
 
 function LessonItem({ lesson, mode, student, reload }) {
   const { id, startISO, durationMin, difficulty, place, attendees } = lesson;
-  const booked = attendees?.some((a) => a.email && a.email === student?.email);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+
+  const booked = attendees?.some((a) => a.email && a.email === student?.email);
 
   async function book() {
     if (!student?.email) return;
@@ -253,6 +255,33 @@ function LessonItem({ lesson, mode, student, reload }) {
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       await reload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function unbook() {
+    if (!student?.email) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/book`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: student.email }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        if (res.status === 404 || json.error === 'Not booked') {
+          setErr("No person with this email address booked for this lesson.");
+        } else {
+          throw new Error(json.error || "Failed");
+        }
+      } else {
+        await reload();
+      }
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -316,7 +345,6 @@ function LessonItem({ lesson, mode, student, reload }) {
                 className="min-w-[150px]"
                 title="Delete this lesson"
               >
-                {/* Trash icon */}
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
                   <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4V4a1 1 0 0 1 1-1zm2 0v1h2V3h-2zM7 7v12h10V7H7zm3 3h2v8h-2v-8zm4 0h2v8h-2v-8z" />
                 </svg>
@@ -332,11 +360,24 @@ function LessonItem({ lesson, mode, student, reload }) {
                 className="min-w-[150px]"
                 title={student?.email ? "Book this lesson" : "Enter your details above"}
               >
-                {/* check icon */}
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
                   <path d="M9 16.2l-3.5-3.6L4 14.1l5 5 11-11-1.4-1.4z" />
                 </svg>
                 <span>{booked ? "Booked" : busy ? "Booking…" : "Book Lesson"}</span>
+              </Btn>
+
+              {/* NEW: Unbook — enabled when an email is provided; shows clear message if not actually booked */}
+              <Btn
+                onClick={unbook}
+                disabled={!student?.email || busy}
+                variant="outlineDanger"
+                className="min-w-[120px]"
+                title="Cancel booking for this email"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                  <path d="M18.3 5.71L12 12.01l-6.29-6.3-1.42 1.42L10.59 13.4l-6.3 6.3 1.42 1.41 6.3-6.29 6.29 6.29 1.41-1.41-6.29-6.3 6.29-6.29z"/>
+                </svg>
+                <span>Unbook</span>
               </Btn>
             </div>
           )}
