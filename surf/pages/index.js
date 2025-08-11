@@ -75,14 +75,6 @@ function groupByDay(lessons) {
     }, {});
 }
 
-function overlaps(a, b) {
-  const aStart = Date.parse(a.startISO);
-  const aEnd = aStart + (a.durationMin ?? DURATION_MIN) * 60_000;
-  const bStart = Date.parse(b.startISO);
-  const bEnd = bStart + (b.durationMin ?? DURATION_MIN) * 60_000;
-  return aStart < bEnd && aEnd > bStart; // [start,end)
-}
-
 /* -------------------- Primitives -------------------- */
 const Card = ({ children }) => (
   <div className="rounded-2xl shadow p-4 bg-white border border-gray-100">{children}</div>
@@ -155,32 +147,21 @@ function ModeToggle({ mode, setMode }) {
 }
 
 /* -------------------- Forms & Lists -------------------- */
-function CreateLessonForm({ onCreate, existing }) {
-  // Use explicit date + half-hour select (removes “every minute” UI)
+function CreateLessonForm({ onCreate /* existing kept for signature compatibility */ }) {
+  // explicit date + 30-minute time select
   const { initDate, initTime } = getInitLocalDateTime();
   const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
   const [timeStr, setTimeStr] = useState(initTime);  // HH:mm (00 or 30)
   const [difficulty, setDifficulty] = useState("Beginner");
   const [place, setPlace] = useState("");
-  const [warn, setWarn] = useState("");
+  const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Overlap warning based on current date/time selection
-  useEffect(() => {
-    if (!Array.isArray(existing) || existing.length === 0) {
-      setWarn(""); 
-      return;
-    }
-    const candidateISO = buildISOFromLocal(dateStr, timeStr);
-    const draft = { startISO: candidateISO, durationMin: DURATION_MIN };
-    const hasConflict = existing.some((l) => overlaps(l, draft));
-    setWarn(hasConflict ? "Heads up: overlaps another lesson." : "");
-  }, [dateStr, timeStr, existing]);
 
   async function handleCreate(e) {
     e.preventDefault();
+    setErr("");
     if (!place.trim()) {
-      setWarn("Please enter a place.");
+      setErr("Please enter a place.");
       return;
     }
     const startISO = buildISOFromLocal(dateStr, timeStr);
@@ -195,9 +176,9 @@ function CreateLessonForm({ onCreate, existing }) {
       if (!json.ok) throw new Error(json.error || "Failed");
       onCreate(json.data);
       setPlace("");
-      setWarn(""); // clear on success
-    } catch (err) {
-      setWarn(err.message);
+      setErr("");
+    } catch (error) {
+      setErr(error.message);
     } finally {
       setSubmitting(false);
     }
@@ -254,7 +235,7 @@ function CreateLessonForm({ onCreate, existing }) {
             </svg>
             <span>{submitting ? "Creating…" : "Create Lesson"}</span>
           </Btn>
-          {warn && <span className="text-amber-600 text-sm">{warn}</span>}
+          {err && <span className="text-rose-600 text-sm">{err}</span>}
         </div>
       </form>
     </Card>
