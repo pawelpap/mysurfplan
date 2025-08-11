@@ -14,6 +14,26 @@ export async function getServerSideProps() {
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
 
+// NEW: helpers for 30-minute rounding + local input formatting
+const HALF_HOUR_MS = 30 * 60 * 1000;
+function roundToHalfHour(date) {
+  const d = new Date(date);
+  const rounded = Math.round(d.getTime() / HALF_HOUR_MS) * HALF_HOUR_MS;
+  d.setTime(rounded);
+  return d;
+}
+function toLocalInputValue(date) {
+  // "YYYY-MM-DDTHH:mm" in LOCAL time for <input type="datetime-local">
+  const pad = (n) => String(n).padStart(2, "0");
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+  return `${y}-${m}-${day}T${hh}:${mm}`;
+}
+
 const fmtDate = (iso) =>
   new Date(iso).toLocaleDateString(undefined, {
     weekday: "short",
@@ -40,11 +60,12 @@ function groupByDay(lessons) {
 }
 
 function overlaps(a, b) {
+  // robust interval test: [aStart, aEnd) vs [bStart, bEnd)
   const aStart = Date.parse(a.startISO);
   const aEnd = aStart + (a.durationMin ?? DURATION_MIN) * 60_000;
   const bStart = Date.parse(b.startISO);
   const bEnd = bStart + (b.durationMin ?? DURATION_MIN) * 60_000;
-  return aStart < bEnd && bStart < aEnd;
+  return aStart < bEnd && aEnd > bStart;
 }
 
 /* -------------------- Primitives -------------------- */
@@ -120,15 +141,25 @@ function ModeToggle({ mode, setMode }) {
 
 /* -------------------- Forms & Lists -------------------- */
 function CreateLessonForm({ onCreate, existing }) {
-  const [startISOInput, setStartISOInput] = useState(
-    () => new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16)
+  // CHANGED: initialize to nearest half hour, 1h from now, formatted for input
+  const [startISOInput, setStartISOInput] = useState(() =>
+    toLocalInputValue(roundToHalfHour(new Date(Date.now() + 60 * 60 * 1000)))
   );
   const [difficulty, setDifficulty] = useState("Beginner");
   const [place, setPlace] = useState("");
   const [warn, setWarn] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // CHANGED: when user types/pastes a value, snap it to :00 / :30
+  function handleDateChange(e) {
+    const v = e.target.value;
+    if (!v) return setStartISOInput(v);
+    const snapped = toLocalInputValue(roundToHalfHour(new Date(v)));
+    setStartISOInput(snapped);
+  }
+
   useEffect(() => {
+    // keep overlap warning accurate
     const candidateISO = new Date(startISOInput).toISOString();
     const draft = { startISO: candidateISO, durationMin: DURATION_MIN };
     const hasConflict = existing.some((l) => overlaps(l, draft));
@@ -137,7 +168,7 @@ function CreateLessonForm({ onCreate, existing }) {
 
   async function handleCreate(e) {
     e.preventDefault();
-    const startISO = new Date(startISOInput).toISOString();
+    const startISO = new Date(startISOInput).toISOString(); // sending UTC ISO
     if (!place.trim()) {
       setWarn("Please enter a place.");
       return;
@@ -168,8 +199,9 @@ function CreateLessonForm({ onCreate, existing }) {
           <Label>Date & time</Label>
           <Input
             type="datetime-local"
+            step={1800}                    // NEW: 30-minute steps in the picker
             value={startISOInput}
-            onChange={(e) => setStartISOInput(e.target.value)}
+            onChange={handleDateChange}    // NEW: snap to :00/:30 on every change
           />
           <p className="text-xs text-gray-500 mt-1">Duration is fixed to 1h30m.</p>
         </div>
