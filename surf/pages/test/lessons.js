@@ -1,133 +1,214 @@
-// surf/pages/test/lessons.js
-import { useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 export default function LessonsPlayground() {
-  const [school, setSchool] = useState(''); // slug or uuid
-  const [difficulty, setDifficulty] = useState('Beginner');
-  const [start, setStart] = useState(() => new Date(Date.now() + 3600_000).toISOString().slice(0,16));
-  const [duration, setDuration] = useState(90);
-  const [place, setPlace] = useState('');
-  const [coachIds, setCoachIds] = useState(''); // comma-separated UUIDs
+  // --- form state ---
+  const [schoolSlug, setSchoolSlug] = useState("angels-surf-school");
+  const [startLocal, setStartLocal] = useState(() => {
+    // default to now + 1h, formatted for <input type="datetime-local">
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+      d.getHours()
+    )}:${pad(d.getMinutes())}`;
+  });
+  const [durationMin, setDurationMin] = useState(90);
+  const [difficulty, setDifficulty] = useState("Beginner");
+  const [place, setPlace] = useState("Carcavelos");
+  const [coachIdsText, setCoachIdsText] = useState("");
+
+  // --- data / status ---
   const [list, setList] = useState([]);
-  const [msg, setMsg] = useState('');
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const difficulties = ["Beginner", "Intermediate", "Advanced"];
 
   async function refresh() {
-    setMsg('');
-    if (!school) { setMsg('Enter school slug or id, then refresh.'); return; }
-    const q = new URLSearchParams({ school }).toString();
-    const r = await fetch(`/api/lessons?${q}`);
-    const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error');
-    setList(j.data);
+    setLoading(true);
+    setMsg("");
+    try {
+      const url = `/api/public/lessons?school=${encodeURIComponent(schoolSlug)}`;
+      const r = await fetch(url);
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "Failed");
+      setList(j.data);
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function create() {
-    setMsg('');
-    const body = {
-      school,
-      startISO: new Date(start).toISOString(),
-      durationMin: Number(duration),
-      difficulty,
-      place,
-    };
-    const ids = coachIds.split(',').map(s => s.trim()).filter(Boolean);
-    if (ids.length > 0) body.coachIds = ids;
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const r = await fetch('/api/lessons', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(body),
-    });
-    const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error creating lesson');
-    await refresh();
-  }
+  async function createLesson() {
+    setMsg("");
+    // Convert the local datetime to a true ISO string in UTC
+    // Example: "2025-08-13T17:57" (local) -> "2025-08-13T16:57:00.000Z" (ISO)
+    const startAt = new Date(startLocal).toISOString();
 
-  async function remove(id) {
-    setMsg('');
-    const r = await fetch(`/api/lessons?id=${encodeURIComponent(id)}`, { method:'DELETE' });
-    const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error deleting lesson');
-    await refresh();
+    // Parse coach IDs (comma separated UUIDs)
+    const coachIds = coachIdsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    try {
+      const r = await fetch(
+        `/api/public/lessons?school=${encodeURIComponent(schoolSlug)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            startAt, // <-- REQUIRED by the API
+            durationMin: Number(durationMin) || 90,
+            difficulty,
+            place,
+            coachIds,
+          }),
+        }
+      );
+      const j = await r.json();
+      if (!j.ok) {
+        throw new Error(j.error || "Create failed");
+      }
+      setMsg("Created!");
+      await refresh();
+    } catch (e) {
+      setMsg(e.message);
+    }
   }
 
   return (
-    <div style={{maxWidth: 840, margin:'2rem auto', fontFamily:'Inter, system-ui, Arial'}}>
-      <h1>Lessons API Playground</h1>
-      {msg && <div style={{background:'#fee2e2', padding:12, borderRadius:8, margin:'12px 0'}}>{msg}</div>}
+    <div className="max-w-4xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Lessons API Playground</h1>
 
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16}}>
-        <h3>Scope</h3>
+      {msg && (
+        <div
+          className={`rounded-md p-3 ${
+            msg === "Created!" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+          }`}
+        >
+          {msg}
+        </div>
+      )}
+
+      {/* Scope */}
+      <section className="rounded-xl border p-4 space-y-3">
+        <label className="block text-sm font-medium">Scope</label>
         <input
-          placeholder="school slug or uuid (e.g. angels)"
-          value={school}
-          onChange={(e)=>setSchool(e.target.value)}
-          style={{width:'100%', padding:10, borderRadius:8, border:'1px solid #ddd'}}
+          className="w-full rounded border px-3 py-2"
+          value={schoolSlug}
+          onChange={(e) => setSchoolSlug(e.target.value)}
+          placeholder="school slug, e.g. angels-surf-school"
         />
-        <div style={{marginTop:10}}>
-          <button onClick={refresh} style={{padding:'8px 14px', borderRadius:8, background:'#eee'}}>Refresh list</button>
-        </div>
+        <button
+          onClick={refresh}
+          className="rounded bg-gray-800 text-white px-4 py-2"
+          disabled={loading}
+        >
+          Refresh list
+        </button>
       </section>
 
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16, marginTop:16}}>
-        <h3>Create a lesson</h3>
-        <div style={{display:'grid', gap:8}}>
-          <label>
-            <div style={{fontSize:12, color:'#666'}}>Start (local)</div>
-            <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)}
-              style={{padding:10, borderRadius:8, border:'1px solid #ddd', width:'100%'}} />
-          </label>
-          <label>
-            <div style={{fontSize:12, color:'#666'}}>Duration (min)</div>
-            <input type="number" min="30" step="30" value={duration} onChange={e=>setDuration(e.target.value)}
-              style={{padding:10, borderRadius:8, border:'1px solid #ddd', width:'100%'}} />
-          </label>
-          <label>
-            <div style={{fontSize:12, color:'#666'}}>Difficulty</div>
-            <select value={difficulty} onChange={e=>setDifficulty(e.target.value)}
-              style={{padding:10, borderRadius:8, border:'1px solid #ddd', width:'100%'}}>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
+      {/* Create */}
+      <section className="rounded-xl border p-4 space-y-3">
+        <h2 className="text-lg font-semibold">Create a lesson</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium">Start (local)</label>
+            <input
+              type="datetime-local"
+              className="w-full rounded border px-3 py-2"
+              value={startLocal}
+              onChange={(e) => setStartLocal(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Duration (min)</label>
+            <input
+              type="number"
+              className="w-full rounded border px-3 py-2"
+              value={durationMin}
+              onChange={(e) => setDurationMin(e.target.value)}
+              min={15}
+              step={15}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Difficulty</label>
+            <select
+              className="w-full rounded border px-3 py-2"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+            >
+              {difficulties.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
-          </label>
-          <label>
-            <div style={{fontSize:12, color:'#666'}}>Place</div>
-            <input value={place} onChange={e=>setPlace(e.target.value)}
-              style={{padding:10, borderRadius:8, border:'1px solid #ddd', width:'100%'}} />
-          </label>
-          <label>
-            <div style={{fontSize:12, color:'#666'}}>Coach IDs (optional, comma separated UUIDs)</div>
-            <input placeholder="uuid1, uuid2" value={coachIds} onChange={e=>setCoachIds(e.target.value)}
-              style={{padding:10, borderRadius:8, border:'1px solid #ddd', width:'100%'}} />
-          </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Place</label>
+            <input
+              className="w-full rounded border px-3 py-2"
+              value={place}
+              onChange={(e) => setPlace(e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium">
+              Coach IDs (optional, comma separated UUIDs)
+            </label>
+            <input
+              className="w-full rounded border px-3 py-2"
+              placeholder="uuid1, uuid2"
+              value={coachIdsText}
+              onChange={(e) => setCoachIdsText(e.target.value)}
+            />
+          </div>
         </div>
-        <div style={{marginTop:10}}>
-          <button onClick={create} style={{padding:'10px 16px', borderRadius:8, background:'#16a34a', color:'#fff'}}>Create</button>
-        </div>
+
+        <button
+          onClick={createLesson}
+          className="rounded bg-green-600 text-white px-4 py-2"
+        >
+          Create
+        </button>
       </section>
 
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16, marginTop:16}}>
-        <h3>Lessons ({list.length})</h3>
-        {list.length === 0 ? <div>No lessons yet.</div> : (
-          <ul>
-            {list.map(l => (
-              <li key={l.id} style={{margin:'10px 0', borderBottom:'1px solid #eee', paddingBottom:8}}>
-                <div><b>{new Date(l.startISO).toLocaleString()}</b> — {Math.round((l.durationMin||90)/60*10)/10}h — {l.difficulty} — {l.place}</div>
-                <div style={{color:'#666'}}>Coaches: {Array.isArray(l.coaches) && l.coaches.length ? l.coaches.join(', ') : '—'}</div>
-                <div style={{marginTop:6}}>
-                  <button onClick={()=>remove(l.id)} style={{padding:'6px 10px', borderRadius:8, background:'#ef4444', color:'#fff'}}>Delete</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+      {/* List */}
+      <section className="rounded-xl border p-4 space-y-2">
+        <h2 className="text-lg font-semibold">Lessons ({list.length})</h2>
+        {list.length === 0 && <div className="text-gray-500">No lessons yet.</div>}
+        <ul className="space-y-2">
+          {list.map((l) => (
+            <li key={l.id} className="rounded border p-3">
+              <div className="font-medium">
+                {new Date(l.startAt).toLocaleString()} • {l.difficulty} • {l.place}
+              </div>
+              <div className="text-sm text-gray-600">
+                Duration: {l.durationMin}m
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
-      <section style={{border:'1px dashed #ccc', borderRadius:12, padding:16, marginTop:16}}>
-        <h3>Public feed (read only)</h3>
-        <div style={{fontSize:13, color:'#555'}}>
-          GET <code>/api/public/lessons?school=&lt;slug&gt;</code> → subset for students, no auth.
+      <section className="rounded-xl border p-4 text-sm text-gray-600">
+        <div className="font-medium mb-1">Public feed (read only)</div>
+        <div>
+          GET <code>/api/public/lessons?school=&lt;slug&gt;</code> → subset for
+          students, no auth.
         </div>
       </section>
     </div>
