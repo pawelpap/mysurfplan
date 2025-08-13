@@ -1,82 +1,70 @@
-// surf/pages/api/schools/index.js
+// pages/api/schools/index.js
 import { sql } from '@vercel/postgres';
 
-function send(res, status, body) {
-  res.status(status).json(body);
-}
-
-function slugify(input) {
-  return String(input || '')
-    .trim()
+function toSlug(s) {
+  return s
+    ?.toString()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')   // non-alnum -> hyphen
-    .replace(/^-+|-+$/g, '')       // trim leading/trailing -
-    .slice(0, 80);                 // sensible max length
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 120);
 }
 
 export default async function handler(req, res) {
   try {
-    // Quick health check of env (useful during staging setup)
-    const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-    if (!url) {
-      return send(res, 500, {
-        ok: false,
-        error:
-          "Missing database connection string. Set POSTGRES_URL (or DATABASE_URL) in Vercel Project → Settings → Environment Variables.",
-      });
-    }
-
     if (req.method === 'GET') {
-      // List all schools (basic fields; extend as needed)
       const { rows } = await sql`
-        SELECT id, name, slug, contact_email, created_at
+        SELECT id, name, slug, contact_email, created_at, updated_at
         FROM schools
+        WHERE deleted_at IS NULL
         ORDER BY created_at DESC
+        LIMIT 100;
       `;
-      return send(res, 200, { ok: true, data: rows });
+      return res.json({ ok: true, data: rows });
     }
 
     if (req.method === 'POST') {
-      const { name, slug, contactEmail } = req.body || {};
+      const { name, slug: slugFromClient, contact_email } = req.body || {};
 
-      if (!name || typeof name !== 'string' || !name.trim()) {
-        return send(res, 400, { ok: false, error: 'Name is required.' });
+      if (!name || !name.trim()) {
+        return res.status(400).json({ ok: false, error: 'Name is required' });
       }
 
-      const finalSlug = (slug && slugify(slug)) || slugify(name);
-      if (!finalSlug) {
-        return send(res, 400, { ok: false, error: 'Unable to derive a valid slug.' });
-      }
+      // We must NOT try to write to a GENERATED ALWAYS column.
+      // Let Postgres compute slug. If your schema makes slug from name,
+      // just omit it from the insert.
+      const result = await sql`
+        INSERT INTO schools (name, contact_email)
+        VALUES (${name.trim()}, ${contact_email || null})
+        RETURNING id, name, slug, contact_email, created_at, updated_at;
+      `;
 
-      try {
-        const { rows } = await sql`
-          INSERT INTO schools (name, slug, contact_email)
-          VALUES (${name.trim()}, ${finalSlug}, ${contactEmail || null})
-          RETURNING id, name, slug, contact_email, created_at
-        `;
-        return send(res, 201, { ok: true, data: rows[0] });
-      } catch (err) {
-        // Unique violation (e.g., slug already exists)
-        if (err && (err.code === '23505' || /duplicate key/i.test(err.message))) {
-          return send(res, 409, {
-            ok: false,
-            error: `Slug "${finalSlug}" already exists. Please choose another.`,
-          });
-        }
-        // Other SQL errors
-        return send(res, 500, {
-          ok: false,
-          error: 'Database error creating school.',
-          detail: err?.message,
-        });
-      }
+      return res.status(201).json({ ok: true, data: result.rows[0] });
     }
 
-    // Method not allowed
-    res.setHeader('Allow', ['GET', 'POST']);
-    return send(res, 405, { ok: false, error: 'Method not allowed.' });
+    if (req.method === 'DELETE') {
+      const { id, slug } = req.query;
+      if (!id && !slug) {
+        return res.status(400).json({ ok: false, error: 'id or slug is required' });
+      }
+
+      let q;
+      if (id) {
+        q = sql`UPDATE schools SET deleted_at = now() WHERE id = ${id} AND deleted_at IS NULL RETURNING id`;
+      } else {
+        q = sql`UPDATE schools SET deleted_at = now() WHERE slug = ${slug} AND deleted_at IS NULL RETURNING id`;
+      }
+      const { rowCount } = await q;
+
+      return res.json({ ok: true, deleted: rowCount });
+    }
+
+    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+    return res.status(405).json({ ok: false, error: `Method ${req.method} not allowed` });
   } catch (e) {
-    // Last‑resort catch — return a readable message instead of a generic 500
-    return send(res, 500, { ok: false, error: 'Server error', detail: e?.message });
+    // Return detail to make debugging in staging easier
+    return res.status(500).json({ ok: false, error: 'Server error', detail: e.message });
   }
 }
