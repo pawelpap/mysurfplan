@@ -1,70 +1,46 @@
-// pages/api/schools/index.js
-import { sql } from '@vercel/postgres';
+// surf/pages/api/schools/index.js
+import { Pool } from 'pg';
+import slugify from 'slugify';
 
-function toSlug(s) {
-  return s
-    ?.toString()
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '') // strip accents
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 120);
-}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 export default async function handler(req, res) {
-  try {
-    if (req.method === 'GET') {
-      const { rows } = await sql`
-        SELECT id, name, slug, contact_email, created_at, updated_at
-        FROM schools
-        WHERE deleted_at IS NULL
-        ORDER BY created_at DESC
-        LIMIT 100;
-      `;
-      return res.json({ ok: true, data: rows });
-    }
+  if (req.method === 'POST') {
+    try {
+      const { name, description, location } = req.body;
 
-    if (req.method === 'POST') {
-      const { name, slug: slugFromClient, contact_email } = req.body || {};
-
-      if (!name || !name.trim()) {
-        return res.status(400).json({ ok: false, error: 'Name is required' });
+      if (!name) {
+        return res.status(400).json({ ok: false, error: 'School name is required' });
       }
 
-      // We must NOT try to write to a GENERATED ALWAYS column.
-      // Let Postgres compute slug. If your schema makes slug from name,
-      // just omit it from the insert.
-      const result = await sql`
-        INSERT INTO schools (name, contact_email)
-        VALUES (${name.trim()}, ${contact_email || null})
-        RETURNING id, name, slug, contact_email, created_at, updated_at;
+      const slug = slugify(name, { lower: true, strict: true });
+
+      const insertQuery = `
+        INSERT INTO schools (name, description, location, slug)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
       `;
 
-      return res.status(201).json({ ok: true, data: result.rows[0] });
+      const { rows } = await pool.query(insertQuery, [name, description || '', location || '', slug]);
+
+      return res.status(201).json({ ok: true, school: rows[0] });
+    } catch (error) {
+      console.error('Error creating school:', error);
+      return res.status(500).json({ ok: false, error: 'Server error', detail: error.message });
     }
-
-    if (req.method === 'DELETE') {
-      const { id, slug } = req.query;
-      if (!id && !slug) {
-        return res.status(400).json({ ok: false, error: 'id or slug is required' });
-      }
-
-      let q;
-      if (id) {
-        q = sql`UPDATE schools SET deleted_at = now() WHERE id = ${id} AND deleted_at IS NULL RETURNING id`;
-      } else {
-        q = sql`UPDATE schools SET deleted_at = now() WHERE slug = ${slug} AND deleted_at IS NULL RETURNING id`;
-      }
-      const { rowCount } = await q;
-
-      return res.json({ ok: true, deleted: rowCount });
-    }
-
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
-    return res.status(405).json({ ok: false, error: `Method ${req.method} not allowed` });
-  } catch (e) {
-    // Return detail to make debugging in staging easier
-    return res.status(500).json({ ok: false, error: 'Server error', detail: e.message });
   }
+
+  if (req.method === 'GET') {
+    try {
+      const { rows } = await pool.query(`SELECT * FROM schools ORDER BY created_at DESC`);
+      return res.status(200).json({ ok: true, schools: rows });
+    } catch (error) {
+      console.error('Error fetching schools:', error);
+      return res.status(500).json({ ok: false, error: 'Server error', detail: error.message });
+    }
+  }
+
+  return res.status(405).json({ ok: false, error: 'Method not allowed' });
 }
