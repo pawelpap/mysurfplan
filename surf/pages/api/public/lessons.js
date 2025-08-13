@@ -1,62 +1,91 @@
-import { sql } from '../../../lib/db';
-import { getSchoolBySlug } from '../../../lib/slug';
-import { ok, fail, sendJson } from '../../../lib/result';
+// surf/pages/api/public/lessons/index.js
+import { sql } from '@vercel/postgres';
 
-// Helper to map snake_case from SQL to camelCase for the UI
-function mapLessonRow(r) {
-  return {
-    id: r.id,
-    startAt: r.start_at,
-    durationMin: r.duration_min,
-    difficulty: r.difficulty,
-    place: r.place,
-    capacity: r.capacity,
-    bookedCount: r.booked_count ?? 0,
-    spotsLeft: r.spots_left ?? null,
-    coaches: Array.isArray(r.coaches) ? r.coaches : (r.coaches ? JSON.parse(r.coaches) : []),
-  };
-}
-
+/**
+ * GET /api/public/lessons?school=<slug>&difficulty=<opt>&from=<yyyy-mm-dd>&to=<yyyy-mm-dd>
+ * Returns upcoming lessons for a school (public view).
+ */
 export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
+  }
+
   try {
-    const { school, from, to, difficulty } = req.query || {};
-    if (!school) return sendJson(res, fail('Missing ?school=<slug>'), 400);
+    const { school, difficulty, from, to } = req.query;
 
-    const s = await getSchoolBySlug(school);
-    if (!s) return sendJson(res, fail('School not found', 404), 404);
+    if (!school || typeof school !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Missing or invalid "school" (slug) parameter.' });
+    }
 
-    // Build WHERE conditions dynamically
-    const where = [sql`l.school_id = ${s.id} AND l.deleted_at IS NULL`];
+    // 1) Resolve school by slug
+    const { rows: schools } = await sql`
+      SELECT id, slug, name
+      FROM schools
+      WHERE slug = ${school}
+      LIMIT 1;
+    `;
 
-    if (from) where.push(sql`l.start_at >= ${new Date(from)}`);
-    if (to)   where.push(sql`l.start_at <= ${new Date(to + 'T23:59:59')}`);
-    if (difficulty) where.push(sql`l.difficulty = ${difficulty}`);
+    if (schools.length === 0) {
+      return res.status(404).json({ ok: false, error: 'School not found.' });
+    }
+    const schoolId = schools[0].id;
 
-    const rows = await sql`
+    // 2) Build a plain parameterized SQL query (no sql.join / no array .join)
+    let text = `
       SELECT
         l.id,
-        l.start_at,
-        l.duration_min,
+        l.start_at       AS "startAt",
+        l.duration_min   AS "durationMin",
         l.difficulty,
         l.place,
         l.capacity,
-        ls.booked_count,
-        ls.spots_left,
-        lcl.coaches
+        (
+          SELECT COUNT(*)::int
+          FROM bookings b
+          WHERE b.lesson_id = l.id
+        ) AS "bookedCount"
       FROM lessons l
-      LEFT JOIN lesson_stats ls ON ls.lesson_id = l.id
-      LEFT JOIN lesson_coach_list lcl ON lcl.lesson_id = l.id
-      WHERE ${sql.join(where, sql` AND `)}
-      ORDER BY l.start_at ASC
-      LIMIT 500
+      WHERE l.school_id = $1
     `;
+    const values = [schoolId];
+    let i = 2;
 
-    return sendJson(res, ok(rows.map(mapLessonRow)));
+    if (difficulty) {
+      text += ` AND l.difficulty = $${i}`;
+      values.push(difficulty);
+      i++;
+    }
+    if (from) {
+      // normalize yyyy-mm-dd -> start of day
+      text += ` AND l.start_at >= $${i}`;
+      values.push(`${from}T00:00:00`);
+      i++;
+    }
+    if (to) {
+      // normalize yyyy-mm-dd -> end of day
+      text += ` AND l.start_at <= $${i}`;
+      values.push(`${to}T23:59:59`);
+      i++;
+    }
+
+    text += ` ORDER BY l.start_at ASC LIMIT 500;`;
+
+    // 3) Execute
+    const { rows } = await sql.query(text, values);
+
+    // Optionally: guarantee arrays for fields we’ll render later
+    const safeRows = rows.map((r) => ({
+      ...r,
+      // ensure numbers
+      durationMin: typeof r.durationMin === 'number' ? r.durationMin : 90,
+      bookedCount: typeof r.bookedCount === 'number' ? r.bookedCount : 0,
+    }));
+
+    return res.status(200).json({ ok: true, data: safeRows });
   } catch (e) {
-    return sendJson(res, fail(e.message || 'Server error', 500), 500);
+    // Return a friendly error string to the UI (and log the full error in functions logs)
+    console.error('Public lessons error:', e);
+    return res.status(500).json({ ok: false, error: 'Failed to load lessons.' });
   }
 }
-
-export const config = {
-  api: { bodyParser: false },
-};
