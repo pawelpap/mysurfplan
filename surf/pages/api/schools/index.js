@@ -1,46 +1,50 @@
 // surf/pages/api/schools/index.js
-import { Pool } from 'pg';
-import slugify from 'slugify';
+import pool from '../../../lib/db';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+// mini slugify (no external dependency)
+function toSlug(str) {
+  return String(str)
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')      // strip diacritics
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')          // non-alphanum -> hyphen
+    .replace(/^-+|-+$/g, '')              // trim hyphens
+    .substring(0, 80);
+}
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const { name, description, location } = req.body;
-
-      if (!name) {
+  try {
+    if (req.method === 'POST') {
+      const { name } = req.body || {};
+      if (!name || !name.trim()) {
         return res.status(400).json({ ok: false, error: 'School name is required' });
       }
+      const slug = toSlug(name);
 
-      const slug = slugify(name, { lower: true, strict: true });
-
-      const insertQuery = `
-        INSERT INTO schools (name, description, location, slug)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
+      // Insert only columns we’re sure exist (name, slug)
+      const insertSql = `
+        INSERT INTO schools (name, slug)
+        VALUES ($1, $2)
+        RETURNING id, name, slug, created_at, updated_at
       `;
-
-      const { rows } = await pool.query(insertQuery, [name, description || '', location || '', slug]);
-
+      const { rows } = await pool.query(insertSql, [name.trim(), slug]);
       return res.status(201).json({ ok: true, school: rows[0] });
-    } catch (error) {
-      console.error('Error creating school:', error);
-      return res.status(500).json({ ok: false, error: 'Server error', detail: error.message });
     }
-  }
 
-  if (req.method === 'GET') {
-    try {
-      const { rows } = await pool.query(`SELECT * FROM schools ORDER BY created_at DESC`);
+    if (req.method === 'GET') {
+      const listSql = `
+        SELECT id, name, slug, created_at, updated_at
+        FROM schools
+        WHERE deleted_at IS NULL
+        ORDER BY created_at DESC
+      `;
+      const { rows } = await pool.query(listSql);
       return res.status(200).json({ ok: true, schools: rows });
-    } catch (error) {
-      console.error('Error fetching schools:', error);
-      return res.status(500).json({ ok: false, error: 'Server error', detail: error.message });
     }
-  }
 
-  return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  } catch (err) {
+    console.error('SCHOOLS API error:', err);
+    return res.status(500).json({ ok: false, error: 'Server error', detail: err.message });
+  }
 }
