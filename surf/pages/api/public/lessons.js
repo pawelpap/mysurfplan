@@ -1,4 +1,7 @@
+// surf/pages/api/public/lessons.js
 import { sql } from '@vercel/postgres';
+
+const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -9,53 +12,49 @@ export default async function handler(req, res) {
   try {
     const { school, from, to, difficulty } = req.query;
 
+    // --- 1) Validate incoming params
     if (!school || typeof school !== 'string' || !school.trim()) {
       return res.status(400).json({ ok: false, error: 'Missing or invalid "school" slug' });
     }
 
-    // 1) Resolve school ID
+    let fromUtc = null;
+    if (from) {
+      fromUtc = new Date(`${from}T00:00:00Z`);
+      if (isNaN(+fromUtc)) {
+        return res.status(400).json({ ok: false, error: 'Invalid "from" date' });
+      }
+    }
+
+    let toUtc = null;
+    if (to) {
+      toUtc = new Date(`${to}T23:59:59Z`);
+      if (isNaN(+toUtc)) {
+        return res.status(400).json({ ok: false, error: 'Invalid "to" date' });
+      }
+    }
+
+    let diff = null;
+    if (difficulty) {
+      if (!DIFFICULTIES.includes(difficulty)) {
+        return res.status(400).json({ ok: false, error: 'Invalid "difficulty" value' });
+      }
+      diff = difficulty;
+    }
+
+    // --- 2) Resolve school -> id (ensures we never pass "{}")
     const schoolRow = await sql`
       SELECT id
       FROM schools
       WHERE slug = ${school} AND deleted_at IS NULL
       LIMIT 1
     `;
-
     if (schoolRow.rowCount === 0) {
       return res.status(404).json({ ok: false, error: 'School not found' });
     }
+    const schoolId = schoolRow.rows[0].id;
 
-    const schoolId = schoolRow.rows[0].id; // guaranteed UUID now
-
-    // 2) Build WHERE clause incrementally
-    let where = sql`l.school_id = ${schoolId} AND l.deleted_at IS NULL`;
-
-    if (from) {
-      const fromUtc = new Date(`${from}T00:00:00Z`);
-      if (isNaN(+fromUtc)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "from" date' });
-      }
-      where = sql`${where} AND l.start_at >= ${fromUtc}`;
-    }
-
-    if (to) {
-      const toUtc = new Date(`${to}T23:59:59Z`);
-      if (isNaN(+toUtc)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "to" date' });
-      }
-      where = sql`${where} AND l.start_at <= ${toUtc}`;
-    }
-
-    if (difficulty) {
-      const allowed = ['Beginner', 'Intermediate', 'Advanced'];
-      if (!allowed.includes(difficulty)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "difficulty" value' });
-      }
-      where = sql`${where} AND l.difficulty::text = ${difficulty}`;
-    }
-
-    // 3) Query lessons
-    const { rows } = await sql`
+    // --- 3) Query lessons with inline conditional fragments
+    const result = await sql`
       SELECT
         l.id,
         l.start_at,
@@ -71,13 +70,17 @@ export default async function handler(req, res) {
       FROM lessons l
       LEFT JOIN lesson_coaches lc ON lc.lesson_id = l.id
       LEFT JOIN coaches c ON c.id = lc.coach_id AND c.deleted_at IS NULL
-      WHERE ${where}
+      WHERE l.school_id = ${schoolId}
+        AND l.deleted_at IS NULL
+        ${fromUtc ? sql` AND l.start_at >= ${fromUtc}` : sql``}
+        ${toUtc   ? sql` AND l.start_at <= ${toUtc}`   : sql``}
+        ${diff    ? sql` AND l.difficulty::text = ${diff}` : sql``}
       GROUP BY l.id
       ORDER BY l.start_at ASC
       LIMIT 500
     `;
 
-    return res.status(200).json({ ok: true, data: rows });
+    return res.status(200).json({ ok: true, data: result.rows });
   } catch (err) {
     console.error('Public lessons error:', err);
     return res.status(500).json({
