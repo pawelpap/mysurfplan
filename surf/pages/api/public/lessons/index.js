@@ -1,134 +1,227 @@
-// surf/pages/api/public/lessons/index.js
-import { sql } from '../../../lib/db'; // <-- your Neon pg client wrapper that exports `sql`
-import { v4 as uuidv4 } from 'uuid';
+// pages/api/public/lessons/index.js
+import { Pool } from "pg";
 
-function safeJson(body) {
-  if (!body) return {};
-  if (typeof body === 'object') return body;
-  try {
-    return JSON.parse(body);
-  } catch {
-    return {};
-  }
+// --- Create (or reuse) a singleton Pool (safe for serverless) ---
+const pool =
+  global._neonPool ||
+  new Pool({
+    connectionString:
+      process.env.DATABASE_URL ||
+      process.env.POSTGRES_URL || // fallback if you used this name before
+      process.env.POSTGRES_PRISMA_URL, // just in case
+    ssl: { rejectUnauthorized: false },
+  });
+if (!global._neonPool) global._neonPool = pool;
+
+// Small helpers
+function bad(res, msg, code = 400, extra = {}) {
+  return res.status(code).json({ ok: false, error: msg, ...extra });
 }
-
-// util: coerce difficulty to one of the three
-const DIFF = new Set(['Beginner', 'Intermediate', 'Advanced']);
-function normDifficulty(x) {
-  if (typeof x !== 'string') return 'Beginner';
-  const clean = x.trim();
-  return DIFF.has(clean) ? clean : 'Beginner';
+function ok(res, data) {
+  return res.status(200).json({ ok: true, data });
+}
+function toISODateOnly(d) {
+  // Input like "2025-08-01" -> "2025-08-01T00:00:00.000Z"
+  if (!d) return null;
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return null;
+  // Keep as UTC midnight on the given date
+  return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate())).toISOString();
 }
 
 export default async function handler(req, res) {
+  // Health check quick return
+  if (req.method === "HEAD" || req.method === "OPTIONS") {
+    res.setHeader("Allow", "GET,POST,OPTIONS,HEAD");
+    return res.status(204).end();
+  }
+
   try {
-    if (req.method === 'GET') {
-      // GET /api/public/lessons?school=<slug>&from=YYYY-MM-DD&to=YYYY-MM-DD&difficulty=<opt>
+    if (req.method === "GET") {
+      // /api/public/lessons?school=<slug>&from=YYYY-MM-DD&to=YYYY-MM-DD&difficulty=Beginner
       const { school, from, to, difficulty } = req.query;
-      if (!school) {
-        return res.status(400).json({ ok: false, error: 'Missing ?school=<slug>' });
+
+      if (!school || typeof school !== "string" || !school.trim()) {
+        return bad(res, "Missing query.school (school slug).");
       }
 
-      // Resolve school id
-      const schoolRows = await sql`
-        SELECT id FROM schools
-        WHERE slug = ${school} AND deleted_at IS NULL
-        LIMIT 1
-      `;
-      if (schoolRows.length === 0) {
-        return res.status(404).json({ ok: false, error: 'School not found' });
+      const params = [];
+      const where = [];
+
+      // Must match school by slug and skip soft-deleted lessons
+      where.push(`s.slug = $${params.push(school.trim())}`);
+      where.push(`l.deleted_at IS NULL`);
+
+      if (from) {
+        const fromISO = toISODateOnly(from);
+        if (!fromISO) return bad(res, "Invalid 'from' date. Use YYYY-MM-DD.");
+        where.push(`l.start_at >= $${params.push(fromISO)}`);
       }
-      const schoolId = schoolRows[0].id;
+      if (to) {
+        // End of the 'to' day: add 1 day, then '<' next-day midnight
+        const toISO = toISODateOnly(to);
+        if (!toISO) return bad(res, "Invalid 'to' date. Use YYYY-MM-DD.");
+        const dt = new Date(toISO);
+        const next = new Date(dt.getTime() + 24 * 60 * 60 * 1000);
+        where.push(`l.start_at < $${params.push(next.toISOString())}`);
+      }
+      if (difficulty) {
+        where.push(`l.difficulty = $${params.push(difficulty)}`);
+      }
 
-      // Build filters
-      const filters = [sql`l.school_id = ${schoolId}`, sql`l.deleted_at IS NULL`];
-      if (from) filters.push(sql`l.start_at >= ${from}::date`);
-      if (to) filters.push(sql`l.start_at < (${to}::date + INTERVAL '1 day')`);
-      if (difficulty) filters.push(sql`l.difficulty = ${normDifficulty(difficulty)}`);
-
-      const rows = await sql`
+      const sql = `
         SELECT
           l.id,
-          l.school_id as "schoolId",
-          l.start_at   as "startAt",
-          l.duration_min as "durationMin",
+          l.school_id,
+          l.start_at,
+          l.duration_min,
           l.difficulty,
-          l.place
+          l.place,
+          l.capacity,
+          l.created_at,
+          l.updated_at
         FROM lessons l
-        WHERE ${sql.join(filters, sql` AND `)}
-        ORDER BY l.start_at ASC
+        JOIN schools s ON s.id = l.school_id
+        WHERE ${where.join(" AND ")}
+        ORDER BY l.start_at ASC, l.created_at ASC
         LIMIT 500
       `;
+      const { rows } = await pool.query(sql, params);
 
-      return res.json({ ok: true, data: rows });
+      // Return ISO strings for dates
+      const data = rows.map((r) => ({
+        id: r.id,
+        schoolId: r.school_id,
+        startAt: r.start_at ? new Date(r.start_at).toISOString() : null,
+        durationMin: r.duration_min,
+        difficulty: r.difficulty,
+        place: r.place,
+        capacity: r.capacity,
+        createdAt: r.created_at ? new Date(r.created_at).toISOString() : null,
+        updatedAt: r.updated_at ? new Date(r.updated_at).toISOString() : null,
+      }));
+
+      return ok(res, data);
     }
 
-    if (req.method === 'POST') {
-      // POST /api/public/lessons?school=<slug>
-      // body: { startAt: ISO, durationMin?, difficulty?, place?, coachIds?[] }
-      const { school } = req.query;
-      if (!school) {
-        return res.status(400).json({ ok: false, error: 'Missing ?school=<slug>' });
+    if (req.method === "POST") {
+      // Create a lesson (admin/school tooling can call this)
+      if (!req.headers["content-type"]?.includes("application/json")) {
+        return bad(res, "Content-Type must be application/json");
       }
 
-      const body = safeJson(req.body);
-      const { startAt, durationMin, difficulty, place, coachIds } = body;
+      const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : req.body || {};
+      const {
+        schoolSlug,
+        startAt,
+        durationMin = 90,
+        difficulty = "Beginner",
+        place = "",
+        coachIds, // optional: array or comma-separated string
+      } = body;
 
-      if (!startAt) {
-        return res
-          .status(400)
-          .json({ ok: false, error: 'Missing body.startAt (ISO string)' });
+      if (!schoolSlug || typeof schoolSlug !== "string") {
+        return bad(res, "Missing body.schoolSlug (school slug).");
       }
-
-      // Validate & normalize inputs
+      if (!startAt || typeof startAt !== "string") {
+        return bad(res, "Missing body.startAt (ISO string)");
+      }
       const startDate = new Date(startAt);
       if (isNaN(startDate.getTime())) {
-        return res
-          .status(400)
-          .json({ ok: false, error: 'Invalid startAt; must be ISO date-time' });
+        return bad(res, "Invalid body.startAt (must be ISO date string).");
       }
-      const dur = Number.isFinite(Number(durationMin)) ? Number(durationMin) : 90;
-      const diff = normDifficulty(difficulty);
-      const plc = (place || '').toString().trim();
 
-      // Resolve school id
-      const schoolRows = await sql`
-        SELECT id FROM schools
-        WHERE slug = ${school} AND deleted_at IS NULL
-        LIMIT 1
-      `;
-      if (schoolRows.length === 0) {
-        return res.status(404).json({ ok: false, error: 'School not found' });
-      }
-      const schoolId = schoolRows[0].id;
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
 
-      // Insert lesson
-      const inserted = await sql`
-        INSERT INTO lessons (id, school_id, start_at, duration_min, difficulty, place)
-        VALUES (${uuidv4()}, ${schoolId}, ${startDate.toISOString()}, ${dur}, ${diff}, ${plc})
-        RETURNING id, school_id as "schoolId", start_at as "startAt",
-                  duration_min as "durationMin", difficulty, place
-      `;
-      const lesson = inserted[0];
-
-      // Optionally assign coaches (coachIds: array of uuids)
-      if (Array.isArray(coachIds) && coachIds.length) {
-        for (const cid of coachIds) {
-          // silently ignore invalid uuids here for simplicity
-          await sql`
-            INSERT INTO lesson_coaches (lesson_id, coach_id)
-            VALUES (${lesson.id}, ${cid})
-            ON CONFLICT DO NOTHING
-          `;
+        // Resolve school id from slug
+        const schoolRow = await client.query(
+          `SELECT id FROM schools WHERE slug = $1 AND deleted_at IS NULL`,
+          [schoolSlug.trim()]
+        );
+        if (schoolRow.rowCount === 0) {
+          await client.query("ROLLBACK");
+          return bad(res, "School not found.", 404);
         }
-      }
+        const schoolId = schoolRow.rows[0].id;
 
-      return res.status(201).json({ ok: true, data: lesson });
+        // Insert lesson
+        const insertLesson = `
+          INSERT INTO lessons
+            (school_id, start_at, duration_min, difficulty, place)
+          VALUES
+            ($1, $2, $3, $4, $5)
+          RETURNING id, school_id, start_at, duration_min, difficulty, place, created_at, updated_at
+        `;
+        const inserted = await client.query(insertLesson, [
+          schoolId,
+          startDate.toISOString(),
+          durationMin,
+          difficulty,
+          place,
+        ]);
+        const lesson = inserted.rows[0];
+
+        // Optional: link coaches
+        let linkedCoaches = [];
+        let coachList = [];
+        if (typeof coachIds === "string" && coachIds.trim()) {
+          coachList = coachIds.split(",").map((s) => s.trim()).filter(Boolean);
+        } else if (Array.isArray(coachIds)) {
+          coachList = coachIds.map(String).map((s) => s.trim()).filter(Boolean);
+        }
+
+        if (coachList.length) {
+          const values = [];
+          const params = [];
+          coachList.forEach((cId, idx) => {
+            // (lesson_id, coach_id) pairs
+            params.push(lesson.id, cId);
+            values.push(`($${params.length - 1}, $${params.length})`);
+          });
+          const sqlLC = `
+            INSERT INTO lesson_coaches (lesson_id, coach_id)
+            VALUES ${values.join(",")}
+            ON CONFLICT DO NOTHING
+            RETURNING coach_id
+          `;
+          const lc = await client.query(sqlLC, params);
+          linkedCoaches = lc.rows.map((r) => r.coach_id);
+        }
+
+        await client.query("COMMIT");
+
+        return ok(res, {
+          id: lesson.id,
+          schoolId: lesson.school_id,
+          startAt: new Date(lesson.start_at).toISOString(),
+          durationMin: lesson.duration_min,
+          difficulty: lesson.difficulty,
+          place: lesson.place,
+          createdAt: new Date(lesson.created_at).toISOString(),
+          updatedAt: new Date(lesson.updated_at).toISOString(),
+          coachIds: linkedCoaches,
+        });
+      } catch (e) {
+        try {
+          await pool.query("ROLLBACK");
+        } catch {}
+        // surface pg error message to help debugging
+        return bad(res, "Database error creating lesson.", 500, { detail: e.message });
+      } finally {
+        // With serverless, release safely
+        try {
+          // if we used a dedicated client:
+          // client?.release();
+        } catch {}
+      }
     }
 
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    // Method not allowed
+    res.setHeader("Allow", "GET,POST,OPTIONS,HEAD");
+    return bad(res, "Method not allowed", 405);
   } catch (e) {
-    // Surface useful details during setup
-    return res.status(500).json({ ok: false, error: 'Server error', detail: e.message });
+    return bad(res, "Server error", 500, { detail: e.message });
   }
 }
