@@ -16,17 +16,15 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Normalize date filters *before* building SQL
+  // Normalize date filters first
   let fromTs = null;
   let toTs = null;
   try {
     if (from) {
-      // Begin of day UTC
       fromTs = new Date(`${from}T00:00:00.000Z`);
       if (isNaN(fromTs.getTime())) throw new Error('Invalid from date');
     }
     if (to) {
-      // End of day UTC
       toTs = new Date(`${to}T23:59:59.999Z`);
       if (isNaN(toTs.getTime())) throw new Error('Invalid to date');
     }
@@ -36,17 +34,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Build WHERE conditions incrementally with safe bound params
-    let where = sql`s.slug = ${school} AND l.deleted_at IS NULL`;
-    if (difficulty) {
-      where = sql`${where} AND l.difficulty = ${difficulty}`;
-    }
-    if (fromTs) {
-      where = sql`${where} AND l.start_at >= ${fromTs}`;
-    }
-    if (toTs) {
-      where = sql`${where} AND l.start_at <= ${toTs}`;
-    }
+    // Build WHERE with sql.join so it becomes inline SQL, not a single bound param
+    const cond = [sql`s.slug = ${school}`, sql`l.deleted_at IS NULL`];
+    if (difficulty) cond.push(sql`l.difficulty = ${difficulty}`);
+    if (fromTs)    cond.push(sql`l.start_at >= ${fromTs}`);
+    if (toTs)      cond.push(sql`l.start_at <= ${toTs}`);
+
+    const where = sql.join(cond, sql` AND `);
 
     const { rows } = await sql`
       SELECT
