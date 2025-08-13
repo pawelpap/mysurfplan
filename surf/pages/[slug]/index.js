@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { getSchoolBySlug } from '../../lib/slug';
+
+// ❗ No server-only imports at the top of this file.
+// We will import `getSchoolBySlug` only inside getServerSideProps.
 
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
 
 export async function getServerSideProps(ctx) {
   const { slug } = ctx.params || {};
   try {
+    // Safe: this runs only on the server
     const { getSchoolBySlug } = await import('../../lib/slug');
     const school = await getSchoolBySlug(slug);
     if (!school) return { notFound: true };
@@ -63,7 +66,7 @@ export default function PublicSchoolPage({ school }) {
     }
   }
   useEffect(() => { load(); }, []); // initial
-  useEffect(() => { load(); /* reload on filter changes */ }, [filters.from, filters.to, filters.difficulty]);
+  useEffect(() => { load(); }, [filters.from, filters.to, filters.difficulty]);
 
   // group by day for display
   const grouped = useMemo(() => {
@@ -101,7 +104,7 @@ export default function PublicSchoolPage({ school }) {
                   onChange={(e)=> setFilters(f => ({ ...f, difficulty: e.target.value }))}
                 >
                   <option value="">All</option>
-                  {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+                  {['Beginner','Intermediate','Advanced'].map(d => <option key={d} value={d}>{d}</option>)}
                 </Select>
               </div>
               <div>
