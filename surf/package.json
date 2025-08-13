@@ -1,17 +1,16 @@
 {
   "name": "surf-lesson-booker",
   "private": true,
+  "version": "0.1.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "contentful": "^10.8.6",
-    "@vercel/postgres": "^0.8.0",
-    "next": "^14.2.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "next": "14.2.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "pg": "^8.11.5"
   }
 }
