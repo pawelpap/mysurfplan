@@ -11,25 +11,41 @@ export default async function handler(req, res) {
   }
 
   const { school, difficulty, from, to } = req.query;
-
   if (!school) {
     res.status(400).json({ ok: false, error: 'Missing ?school=<slug>' });
     return;
   }
 
+  // Normalize date filters *before* building SQL
+  let fromTs = null;
+  let toTs = null;
   try {
-    // Build WHERE conditions incrementally
+    if (from) {
+      // Begin of day UTC
+      fromTs = new Date(`${from}T00:00:00.000Z`);
+      if (isNaN(fromTs.getTime())) throw new Error('Invalid from date');
+    }
+    if (to) {
+      // End of day UTC
+      toTs = new Date(`${to}T23:59:59.999Z`);
+      if (isNaN(toTs.getTime())) throw new Error('Invalid to date');
+    }
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message || 'Invalid date filter' });
+    return;
+  }
+
+  try {
+    // Build WHERE conditions incrementally with safe bound params
     let where = sql`s.slug = ${school} AND l.deleted_at IS NULL`;
     if (difficulty) {
       where = sql`${where} AND l.difficulty = ${difficulty}`;
     }
-    if (from) {
-      // inclusive from date
-      where = sql`${where} AND l.start_at >= ${from}`;
+    if (fromTs) {
+      where = sql`${where} AND l.start_at >= ${fromTs}`;
     }
-    if (to) {
-      // inclusive to date end-of-day
-      where = sql`${where} AND l.start_at <= (${to}::date + interval '1 day' - interval '1 second')`;
+    if (toTs) {
+      where = sql`${where} AND l.start_at <= ${toTs}`;
     }
 
     const { rows } = await sql`
@@ -56,7 +72,6 @@ export default async function handler(req, res) {
       LIMIT 200;
     `;
 
-    // camelCase response
     const data = rows.map(r => ({
       id: r.id,
       schoolId: r.school_id,
@@ -69,6 +84,10 @@ export default async function handler(req, res) {
 
     res.status(200).json({ ok: true, data });
   } catch (err) {
-    res.status(500).json({ ok: false, error: 'Server error', detail: err?.detail || err?.message });
+    res.status(500).json({
+      ok: false,
+      error: 'Server error',
+      detail: err?.detail || err?.message
+    });
   }
 }
