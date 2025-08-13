@@ -1,92 +1,64 @@
-// surf/pages/api/public/lessons.js
-import { sql } from '@vercel/postgres';
+// surf/pages/api/public/lessons/index.js
+import { Pool } from 'pg';
 
-const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced'];
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {
     const { school, from, to, difficulty } = req.query;
 
-    // --- 1) Validate incoming params
-    if (!school || typeof school !== 'string' || !school.trim()) {
-      return res.status(400).json({ ok: false, error: 'Missing or invalid "school" slug' });
+    if (!school) {
+      return res.status(400).json({ ok: false, error: 'Missing required parameter: school' });
     }
 
-    let fromUtc = null;
-    if (from) {
-      fromUtc = new Date(`${from}T00:00:00Z`);
-      if (isNaN(+fromUtc)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "from" date' });
-      }
-    }
-
-    let toUtc = null;
-    if (to) {
-      toUtc = new Date(`${to}T23:59:59Z`);
-      if (isNaN(+toUtc)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "to" date' });
-      }
-    }
-
-    let diff = null;
-    if (difficulty) {
-      if (!DIFFICULTIES.includes(difficulty)) {
-        return res.status(400).json({ ok: false, error: 'Invalid "difficulty" value' });
-      }
-      diff = difficulty;
-    }
-
-    // --- 2) Resolve school -> id (ensures we never pass "{}")
-    const schoolRow = await sql`
-      SELECT id
-      FROM schools
-      WHERE slug = ${school} AND deleted_at IS NULL
-      LIMIT 1
-    `;
-    if (schoolRow.rowCount === 0) {
-      return res.status(404).json({ ok: false, error: 'School not found' });
-    }
-    const schoolId = schoolRow.rows[0].id;
-
-    // --- 3) Query lessons with inline conditional fragments
-    const result = await sql`
-      SELECT
-        l.id,
-        l.start_at,
-        l.duration_min,
-        l.difficulty::text AS difficulty,
-        l.place,
-        COALESCE(
-          json_agg(
-            DISTINCT jsonb_build_object('id', c.id, 'name', c.name)
-          ) FILTER (WHERE c.id IS NOT NULL),
-          '[]'
-        ) AS coaches
+    // Build query dynamically
+    let query = `
+      SELECT l.id, l.title, l.description, l.difficulty, l.start_time_utc, l.end_time_utc,
+             array_agg(c.name) AS coaches
       FROM lessons l
+      JOIN schools s ON l.school_id = s.id
       LEFT JOIN lesson_coaches lc ON lc.lesson_id = l.id
-      LEFT JOIN coaches c ON c.id = lc.coach_id AND c.deleted_at IS NULL
-      WHERE l.school_id = ${schoolId}
-        AND l.deleted_at IS NULL
-        ${fromUtc ? sql` AND l.start_at >= ${fromUtc}` : sql``}
-        ${toUtc   ? sql` AND l.start_at <= ${toUtc}`   : sql``}
-        ${diff    ? sql` AND l.difficulty::text = ${diff}` : sql``}
-      GROUP BY l.id
-      ORDER BY l.start_at ASC
-      LIMIT 500
+      LEFT JOIN coaches c ON lc.coach_id = c.id
+      WHERE s.slug = $1
     `;
 
-    return res.status(200).json({ ok: true, data: result.rows });
-  } catch (err) {
-    console.error('Public lessons error:', err);
-    return res.status(500).json({
-      ok: false,
-      error: 'Server error',
-      detail: String(err.message || err),
-    });
+    const params = [school];
+    let paramIndex = 2;
+
+    if (from) {
+      query += ` AND l.start_time_utc >= $${paramIndex}`;
+      params.push(from);
+      paramIndex++;
+    }
+
+    if (to) {
+      query += ` AND l.end_time_utc <= $${paramIndex}`;
+      params.push(to);
+      paramIndex++;
+    }
+
+    if (difficulty) {
+      query += ` AND l.difficulty = $${paramIndex}`;
+      params.push(difficulty);
+      paramIndex++;
+    }
+
+    query += `
+      GROUP BY l.id
+      ORDER BY l.start_time_utc ASC
+    `;
+
+    const { rows } = await pool.query(query, params);
+
+    return res.status(200).json({ ok: true, lessons: rows });
+  } catch (error) {
+    console.error('Error fetching lessons:', error);
+    return res.status(500).json({ ok: false, error: 'Server error', detail: error.message });
   }
 }
