@@ -1,5 +1,5 @@
 // Simple health check: verifies DB connectivity and shows a couple env flags
-import { sql } from '../../lib/db';
+import { sql, tx } from 'lib/db';
 
 export default async function handler(req, res) {
   try {
