@@ -1,298 +1,206 @@
 // surf/pages/test/schools.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-function Field({ label, ...props }) {
+function Field({ label, children }) {
   return (
-    <label style={{ display: "block", marginBottom: 8 }}>
-      <div style={{ fontSize: 12, color: "#555" }}>{label}</div>
-      <input
-        {...props}
-        style={{
-          width: "100%",
-          padding: "8px 10px",
-          borderRadius: 8,
-          border: "1px solid #ddd",
-        }}
-      />
+    <label style={{ display: 'block', marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>{label}</div>
+      {children}
     </label>
   );
 }
 
-function Button({ children, variant = "default", ...props }) {
-  const styles =
-    variant === "danger"
-      ? { background: "#ef4444", color: "#fff" }
-      : variant === "secondary"
-      ? { background: "#f3f4f6", color: "#111" }
-      : { background: "#10b981", color: "#fff" };
-  return (
-    <button
-      {...props}
-      style={{
-        ...styles,
-        border: "1px solid transparent",
-        borderRadius: 8,
-        padding: "8px 12px",
-        fontWeight: 600,
-        cursor: "pointer",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
 export default function SchoolsPlayground() {
-  const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
-  const [form, setForm] = useState({ name: "", slug: "", contactEmail: "" });
+  const [name, setName] = useState('Angels Surf School');
+  const [slug, setSlug] = useState('angels-surf-school');
+  const [contactEmail, setContactEmail] = useState('hello@angels.com');
+  const [schools, setSchools] = useState([]);
+  const [banner, setBanner] = useState(null); // { type: 'error'|'success', text: string }
 
-  const [edit, setEdit] = useState(null); // {id, name, slug, contact_email}
+  async function load() {
+    setBanner(null);
+    const res = await fetch('/api/schools');
+    const json = await res.json().catch(() => ({}));
+    if (!json.ok) {
+      setBanner({ type: 'error', text: json.detail || json.error || 'Server error' });
+      setSchools([]);
+    } else {
+      setSchools(json.data || []);
+    }
+  }
 
-  async function fetchList() {
-    setLoading(true);
-    setErr("");
-    try {
-      const res = await fetch("/api/schools");
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Failed");
-      setList(json.data);
-    } catch (e) {
-      setErr(e.message);
-    } finally {
-      setLoading(false);
+  async function create() {
+    setBanner(null);
+    const res = await fetch('/api/schools', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name || '',
+        slug: slug || undefined,           // optional; will auto-generate if omitted
+        contactEmail: contactEmail || undefined,
+      }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!json.ok) {
+      setBanner({ type: 'error', text: json.detail || json.error || 'Server error' });
+    } else {
+      setBanner({ type: 'success', text: 'School created.' });
+      setName('');
+      // leave slug/email as-is for convenience
+      await load();
+    }
+  }
+
+  async function remove(id) {
+    setBanner(null);
+    const res = await fetch(`/api/schools?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (res.status !== 204) {
+      const json = await res.json().catch(() => ({}));
+      setBanner({ type: 'error', text: json.detail || json.error || 'Server error' });
+    } else {
+      setBanner({ type: 'success', text: 'School deleted.' });
+      await load();
     }
   }
 
   useEffect(() => {
-    fetchList();
+    load();
   }, []);
 
-  async function createSchool(e) {
-    e.preventDefault();
-    setErr("");
-    try {
-      const res = await fetch("/api/schools", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          slug: form.slug || undefined,
-          contactEmail: form.contactEmail || undefined,
-        }),
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Create failed");
-      setForm({ name: "", slug: "", contactEmail: "" });
-      await fetchList();
-      alert(`Created: ${json.data.name} (${json.data.slug})`);
-    } catch (e) {
-      setErr(e.message);
-    }
-  }
-
-  async function viewSchool(id) {
-    setErr("");
-    try {
-      const res = await fetch(`/api/schools/${id}`);
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Not found");
-      alert(JSON.stringify(json.data, null, 2));
-    } catch (e) {
-      setErr(e.message);
-    }
-  }
-
-  async function updateSchool() {
-    if (!edit) return;
-    setErr("");
-    try {
-      const res = await fetch(`/api/schools/${edit.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: edit.name,
-          slug: edit.slug,
-          contactEmail: edit.contact_email || null,
-        }),
-      });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Update failed");
-      setEdit(null);
-      await fetchList();
-      alert("Updated.");
-    } catch (e) {
-      setErr(e.message);
-    }
-  }
-
-  async function deleteSchool(id) {
-    if (!confirm("Delete this school?")) return;
-    setErr("");
-    try {
-      const res = await fetch(`/api/schools/${id}`, { method: "DELETE" });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || "Delete failed");
-      await fetchList();
-    } catch (e) {
-      setErr(e.message);
-    }
-  }
-
   return (
-    <div style={{ maxWidth: 900, margin: "40px auto", padding: 20 }}>
-      <h1 style={{ marginBottom: 8 }}>Schools API Playground</h1>
-      <p style={{ color: "#555", marginTop: 0 }}>
-        No CLI needed. Create, list, update, and delete schools with buttons.
-      </p>
+    <main style={{ maxWidth: 800, margin: '24px auto', padding: '0 16px' }}>
+      <h1>Schools API Playground</h1>
 
-      {err && (
+      {banner && (
         <div
           style={{
-            background: "#fee2e2",
-            border: "1px solid #fca5a5",
-            color: "#991b1b",
-            padding: 12,
+            margin: '12px 0',
+            padding: '10px 12px',
             borderRadius: 8,
-            marginBottom: 12,
+            color: banner.type === 'error' ? '#7f1d1d' : '#065f46',
+            background: banner.type === 'error' ? '#fee2e2' : '#d1fae5',
+            border: `1px solid ${banner.type === 'error' ? '#fecaca' : '#a7f3d0'}`,
           }}
         >
-          {err}
+          {banner.text}
         </div>
       )}
 
       <section
         style={{
-          border: "1px solid #eee",
+          border: '1px solid #eee',
           padding: 16,
           borderRadius: 12,
-          marginBottom: 20,
+          marginBottom: 24,
         }}
       >
-        <h3>Create a school</h3>
-        <form onSubmit={createSchool} style={{ display: "grid", gap: 8 }}>
-          <Field
-            label="Name (required)"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            placeholder="Atlantic Surf Academy"
-            required
+        <h3 style={{ marginTop: 0 }}>Create a school</h3>
+
+        <Field label="Name (required)">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Surf School Name"
+            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
           />
-          <Field
-            label="Slug (optional; defaults from name)"
-            value={form.slug}
-            onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-            placeholder="atlantic-surf"
+        </Field>
+
+        <Field label="Slug (optional; generated if empty)">
+          <input
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="surf-school-slug"
+            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
           />
-          <Field
-            label="Contact email (optional)"
-            type="email"
-            value={form.contactEmail}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, contactEmail: e.target.value }))
-            }
-            placeholder="hello@atlantic.example"
+        </Field>
+
+        <Field label="Contact email (optional)">
+          <input
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+            placeholder="hello@example.com"
+            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1px solid #ddd' }}
           />
-          <div style={{ display: "flex", gap: 8 }}>
-            <Button type="submit">Create</Button>
-            <Button type="button" variant="secondary" onClick={fetchList}>
-              Refresh list
-            </Button>
-          </div>
-        </form>
+        </Field>
+
+        <button
+          onClick={create}
+          style={{
+            padding: '10px 14px',
+            borderRadius: 10,
+            border: '1px solid #16a34a',
+            background: '#22c55e',
+            color: '#fff',
+            fontWeight: 600,
+          }}
+        >
+          Create
+        </button>
+
+        <button
+          onClick={load}
+          style={{
+            marginLeft: 8,
+            padding: '10px 14px',
+            borderRadius: 10,
+            border: '1px solid #ddd',
+            background: '#fff',
+            fontWeight: 600,
+          }}
+        >
+          Refresh list
+        </button>
       </section>
 
       <section
         style={{
-          border: "1px solid #eee",
+          border: '1px solid #eee',
           padding: 16,
           borderRadius: 12,
         }}
       >
-        <h3 style={{ marginBottom: 8 }}>
-          Schools {loading ? "…" : `(${list.length})`}
-        </h3>
-        {list.length === 0 && <div>No schools yet.</div>}
-
-        {list.map((s) => (
-          <div
-            key={s.id}
-            style={{
-              padding: 12,
-              border: "1px solid #eee",
-              borderRadius: 10,
-              marginBottom: 10,
-            }}
-          >
-            {edit?.id === s.id ? (
-              <>
-                <Field
-                  label="Name"
-                  value={edit.name || ""}
-                  onChange={(e) =>
-                    setEdit((v) => ({ ...v, name: e.target.value }))
-                  }
-                />
-                <Field
-                  label="Slug"
-                  value={edit.slug || ""}
-                  onChange={(e) =>
-                    setEdit((v) => ({ ...v, slug: e.target.value }))
-                  }
-                />
-                <Field
-                  label="Contact email"
-                  value={edit.contact_email || ""}
-                  onChange={(e) =>
-                    setEdit((v) => ({ ...v, contact_email: e.target.value }))
-                  }
-                />
-                <div style={{ display: "flex", gap: 8 }}>
-                  <Button onClick={updateSchool}>Save</Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setEdit(null)}
-                    type="button"
-                  >
-                    Cancel
-                  </Button>
+        <h3 style={{ marginTop: 0 }}>Schools ({schools.length})</h3>
+        {schools.length === 0 ? (
+          <div style={{ color: '#666' }}>No schools yet.</div>
+        ) : (
+          <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
+            {schools.map((s) => (
+              <li
+                key={s.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 0',
+                  borderBottom: '1px solid #f1f1f1',
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600 }}>{s.name}</div>
+                  <div style={{ fontSize: 12, color: '#666' }}>
+                    slug: <code>{s.slug}</code> • {s.contact_email || '—'}
+                  </div>
                 </div>
-              </>
-            ) : (
-              <>
-                <div style={{ fontWeight: 700 }}>
-                  {s.name} <span style={{ color: "#6b7280" }}>({s.slug})</span>
-                </div>
-                <div style={{ color: "#6b7280", fontSize: 14 }}>
-                  id: {s.id} • {s.contact_email || "no email"}
-                </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <Button variant="secondary" onClick={() => viewSchool(s.id)}>
-                    View
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      setEdit({
-                        id: s.id,
-                        name: s.name,
-                        slug: s.slug,
-                        contact_email: s.contact_email || "",
-                      })
-                    }
-                  >
-                    Edit
-                  </Button>
-                  <Button variant="danger" onClick={() => deleteSchool(s.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
+                <button
+                  onClick={() => remove(s.id)}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: 10,
+                    border: '1px solid #b91c1c',
+                    background: '#ef4444',
+                    color: '#fff',
+                    fontWeight: 600,
+                  }}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
-    </div>
+    </main>
   );
 }
