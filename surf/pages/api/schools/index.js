@@ -1,19 +1,18 @@
 // surf/pages/api/schools/index.js
-import { sql } from '@/lib/db'; // this comes from your Neon client in lib/db
+import { sql } from '@/lib/db'; // your Neon client must export { sql }
 
 function slugify(input) {
   return String(input || '')
     .toLowerCase()
     .trim()
-    .replace(/['’]/g, '')            // drop quotes
-    .replace(/[^a-z0-9]+/g, '-')     // non-alnum -> hyphen
-    .replace(/^-+|-+$/g, '');        // trim hyphens
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      // List schools
       const rows = await sql`
         SELECT id, name, slug, contact_email, created_at
         FROM schools
@@ -23,13 +22,19 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      // Create a school
-      const { name, slug, contactEmail } = (req.body || {});
+      // Expect JSON: { name, slug?, contactEmail? }
+      // We also accept "schoolSlug" (legacy) for convenience.
+      const body =
+        typeof req.body === 'string'
+          ? (() => { try { return JSON.parse(req.body); } catch { return {}; } })()
+          : (req.body || {});
+      const { name, slug, schoolSlug, contactEmail } = body;
+
       if (!name || !String(name).trim()) {
         return res.status(400).json({ ok: false, error: 'Missing body.name' });
       }
 
-      const finalSlug = (slug && String(slug).trim()) || slugify(name);
+      const finalSlug = (slug || schoolSlug || slugify(name)).trim();
       const contact = contactEmail ? String(contactEmail).trim() : null;
 
       try {
@@ -40,8 +45,8 @@ export default async function handler(req, res) {
         `;
         return res.status(201).json({ ok: true, data: rows[0] });
       } catch (err) {
-        // 23505 = unique_violation
         if (err?.code === '23505') {
+          // unique_violation
           return res
             .status(409)
             .json({ ok: false, error: 'Slug already exists', detail: err.detail });
@@ -51,7 +56,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      // Optional: delete by id (hard delete)
+      // Expect query: /api/schools?id=<uuid>
+      // (The test page below calls it exactly like this.)
       const { id } = req.query;
       if (!id) {
         return res.status(400).json({ ok: false, error: 'Missing query.id' });
@@ -63,10 +69,10 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
     return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
   } catch (err) {
-    // Neon errors expose .message and sometimes .detail and .code
     return res.status(500).json({
       ok: false,
       error: 'Server error',
+      code: err?.code,
       detail: err?.detail || err?.message || String(err),
     });
   }
