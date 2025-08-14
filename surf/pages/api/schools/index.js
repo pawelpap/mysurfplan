@@ -1,7 +1,7 @@
 // surf/pages/api/schools/index.js
-import { sql } from '@/lib/db';
+import { sql } from '../../../lib/db'; // <-- relative path (no @ alias)
 
-// very small slugger to avoid extra deps
+// small slugger
 function slugify(name = '') {
   return name
     .toString()
@@ -16,7 +16,6 @@ function slugify(name = '') {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      // list visible schools
       const rows = await sql(
         `
         SELECT id, name, slug, contact_email, created_at
@@ -36,7 +35,6 @@ export default async function handler(req, res) {
       }
       const slug = slugRaw?.trim() || slugify(name);
 
-      // uniqueness (soft delete aware)
       const exists = await sql(
         `SELECT 1 FROM schools WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
         [slug]
