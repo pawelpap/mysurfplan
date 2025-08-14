@@ -1,5 +1,5 @@
 // surf/pages/api/lessons/[id]/book.js
-import sql from '../../../lib/db';
+import { sql, tx } from 'lib/db';
 
 async function ensureTables() {
   await sql/*sql*/`
