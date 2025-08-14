@@ -1,5 +1,5 @@
 // surf/pages/api/coaches/index.js
-import sql from '../../../lib/db';
+import { sql, tx } from 'lib/db';
 
 // Helpers
 function bad(res, msg = 'Bad request', code = 400) {
