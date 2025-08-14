@@ -1,17 +1,13 @@
 // surf/lib/db.js
-import { Pool } from "pg";
+import { neon } from "@neondatabase/serverless";
 
-// Reuse a single Pool across lambda invocations
-const pool =
-  global._neonPool ||
-  new Pool({
-    connectionString:
-      process.env.DATABASE_URL ||
-      process.env.POSTGRES_URL ||
-      process.env.POSTGRES_PRISMA_URL,
-    ssl: { rejectUnauthorized: false },
-  });
+// Neon query function bound to the DATABASE_URL
+export const db = neon(process.env.DATABASE_URL);
 
-if (!global._neonPool) global._neonPool = pool;
-
-export default pool;
+/**
+ * Simple helper for parameterized SQL.
+ * Usage: await q("select * from table where id = $1", [id])
+ */
+export function q(text, params = []) {
+  return db(text, params);
+}
