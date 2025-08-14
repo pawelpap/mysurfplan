@@ -1,5 +1,5 @@
 // surf/pages/api/public/lessons.js
-import { sql } from "../../../lib/db";
+import { q } from "../../../lib/db";
 
 /**
  * Public lessons API (school-scoped)
@@ -12,38 +12,42 @@ export default async function handler(req, res) {
   const json = (status, data) => res.status(status).json(data);
 
   try {
-    const { school: schoolSlug } = req.query || {};
-    if (!schoolSlug || typeof schoolSlug !== "string") {
+    const schoolSlug = typeof req.query.school === "string" ? req.query.school : null;
+    if (!schoolSlug) {
       return json(400, { ok: false, error: "Missing query.school (school slug)" });
     }
 
-    // Resolve school once
-    const schoolRow = await sql/*sql*/`
-      SELECT id, slug
-      FROM schools
-      WHERE slug = ${schoolSlug}
-        AND deleted_at IS NULL
-      LIMIT 1
-    `;
-    if (schoolRow.length === 0) {
+    // Resolve the school once
+    const schoolRows = await q(
+      `SELECT id, slug FROM schools WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
+      [schoolSlug]
+    );
+    if (schoolRows.length === 0) {
       return json(404, { ok: false, error: "School not found" });
     }
-    const schoolId = schoolRow[0].id;
+    const schoolId = schoolRows[0].id;
 
     if (req.method === "GET") {
       const { from, to, difficulty } = req.query;
 
-      const where = [
-        sql/*sql*/`l.school_id = ${schoolId}`,
-        sql/*sql*/`l.deleted_at IS NULL`,
-      ];
-      if (from) where.push(sql/*sql*/`l.start_at >= ${from}::timestamptz`);
-      if (to)   where.push(sql/*sql*/`l.start_at < (${to}::date + INTERVAL '1 day')`);
+      const clauses = [`l.school_id = $1`, `l.deleted_at IS NULL`];
+      const params = [schoolId];
+
+      if (from) {
+        clauses.push(`l.start_at >= $${params.length + 1}`);
+        params.push(from);
+      }
+      if (to) {
+        // include the whole "to" day
+        clauses.push(`l.start_at < ($${params.length + 1}::date + INTERVAL '1 day')`);
+        params.push(to);
+      }
       if (difficulty && difficulty !== "All") {
-        where.push(sql/*sql*/`l.difficulty = ${difficulty}`);
+        clauses.push(`l.difficulty = $${params.length + 1}`);
+        params.push(difficulty);
       }
 
-      const rows = await sql/*sql*/`
+      const sql = `
         SELECT
           l.id,
           l.start_at,
@@ -55,9 +59,11 @@ export default async function handler(req, res) {
           l.created_at,
           l.updated_at
         FROM lessons l
-        WHERE ${sql.join(where, sql/*sql*/` AND `)}
+        WHERE ${clauses.join(" AND ")}
         ORDER BY l.start_at ASC
       `;
+
+      const rows = await q(sql, params);
       return json(200, { ok: true, data: rows });
     }
 
@@ -71,28 +77,28 @@ export default async function handler(req, res) {
       if (!difficulty) return json(400, { ok: false, error: "Missing body.difficulty" });
       if (!place) return json(400, { ok: false, error: "Missing body.place" });
 
-      const ins = await sql/*sql*/`
-        INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)
-        VALUES (${schoolId}, ${startAt}::timestamptz, ${durationMin}, ${difficulty}, ${place})
-        RETURNING id, start_at, duration_min, difficulty, place, created_at, updated_at
-      `;
+      // Insert lesson
+      const ins = await q(
+        `INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)
+         VALUES ($1, $2::timestamptz, $3, $4, $5)
+         RETURNING id, start_at, duration_min, difficulty, place, created_at, updated_at`,
+        [schoolId, startAt, Number(durationMin), difficulty, place]
+      );
       const lesson = ins[0];
 
-      // ---- FIXED BULK INSERT FOR lesson_coaches ----
+      // Optional coaches: use UNNEST to bulk-insert
       if (Array.isArray(coachIds) && coachIds.length > 0) {
-        const values = coachIds
-          .filter((c) => typeof c === "string" && c.trim() !== "")
-          .map((coachId) => sql/*sql*/`(${lesson.id}, ${coachId})`);
-
-        if (values.length > 0) {
-          await sql/*sql*/`
-            INSERT INTO lesson_coaches (lesson_id, coach_id)
-            VALUES ${sql.join(values, sql/*sql*/`, `)}
-            ON CONFLICT DO NOTHING
-          `;
+        // Filter to non-empty strings to be safe
+        const ids = coachIds.filter((c) => typeof c === "string" && c.trim() !== "");
+        if (ids.length > 0) {
+          await q(
+            `INSERT INTO lesson_coaches (lesson_id, coach_id)
+             SELECT $1, UNNEST($2::uuid[])
+             ON CONFLICT DO NOTHING`,
+            [lesson.id, ids]
+          );
         }
       }
-      // ----------------------------------------------
 
       return json(201, { ok: true, data: lesson });
     }
