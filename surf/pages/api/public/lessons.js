@@ -1,5 +1,5 @@
 // surf/pages/api/public/lessons.js
-import sql from '../../../lib/db';
+import { sql, tx } from 'lib/db';
 
 function bad(res, msg) {
   return res.status(400).json({ ok: false, error: msg });
