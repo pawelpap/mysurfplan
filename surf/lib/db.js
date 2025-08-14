@@ -1,15 +1,12 @@
 // surf/lib/db.js
-import { neon, neonConfig } from '@neondatabase/serverless';
+import postgres from 'postgres';
 
-neonConfig.fetchConnectionCache = true;
+// In Neon, SSL is required. 'require' string works for postgres@3.x
+const sql = postgres(process.env.DATABASE_URL, {
+  ssl: 'require',
+  max: 1, // safe for serverless – Neon multiplexes
+});
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('Missing DATABASE_URL');
-}
-
-export const sql = neon(process.env.DATABASE_URL);
-
-// transaction helper
-export async function tx(run) {
-  return sql.begin(run);
-}
+// Export both default and named so either import style works.
+export default sql;
+export { sql };
