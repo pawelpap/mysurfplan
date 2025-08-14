@@ -1,113 +1,156 @@
 // surf/pages/api/public/lessons.js
-import { q } from "../../../lib/db";
+import { sql, tx } from '@/lib/db';
 
 /**
- * Public lessons API (school-scoped)
+ * GET  /api/public/lessons?school=<slug>&from=YYYY-MM-DD&to=YYYY-MM-DD&difficulty=<optional>
+ *      → public feed (no auth)
  *
- * GET  /api/public/lessons?school=<slug>&from=YYYY-MM-DD&to=YYYY-MM-DD&difficulty=Beginner|Intermediate|Advanced|All
  * POST /api/public/lessons?school=<slug>
- *      { startAt: ISO string, durationMin: number, difficulty: string, place: string, coachIds?: string[] }
+ *      body: { startAt, durationMin, difficulty, place, coachIds?: string[] }
+ *      → convenience creator for the playground (no auth gate yet)
  */
+
 export default async function handler(req, res) {
-  const json = (status, data) => res.status(status).json(data);
-
   try {
-    const schoolSlug = typeof req.query.school === "string" ? req.query.school : null;
-    if (!schoolSlug) {
-      return json(400, { ok: false, error: "Missing query.school (school slug)" });
-    }
+    if (req.method === 'GET') {
+      const { school: schoolSlug, from, to, difficulty } = req.query || {};
+      if (!schoolSlug) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'Missing query.school (school slug).' });
+      }
 
-    // Resolve the school once
-    const schoolRows = await q(
-      `SELECT id, slug FROM schools WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
-      [schoolSlug]
-    );
-    if (schoolRows.length === 0) {
-      return json(404, { ok: false, error: "School not found" });
-    }
-    const schoolId = schoolRows[0].id;
-
-    if (req.method === "GET") {
-      const { from, to, difficulty } = req.query;
-
-      const clauses = [`l.school_id = $1`, `l.deleted_at IS NULL`];
-      const params = [schoolId];
+      // dynamic WHERE using text + params to avoid sql.join
+      const params = [schoolSlug];
+      let where = `s.slug = $1 AND l.deleted_at IS NULL`;
+      let p = 2;
 
       if (from) {
-        clauses.push(`l.start_at >= $${params.length + 1}`);
-        params.push(from);
+        where += ` AND l.start_at >= $${p++}`;
+        params.push(new Date(from).toISOString());
       }
       if (to) {
-        // include the whole "to" day
-        clauses.push(`l.start_at < ($${params.length + 1}::date + INTERVAL '1 day')`);
-        params.push(to);
+        where += ` AND l.start_at < $${p++}`;
+        // exclusive upper bound: end-of-day + 1
+        const end = new Date(to);
+        end.setDate(end.getDate() + 1);
+        params.push(end.toISOString());
       }
-      if (difficulty && difficulty !== "All") {
-        clauses.push(`l.difficulty = $${params.length + 1}`);
+      if (difficulty) {
+        where += ` AND l.difficulty = $${p++}`;
         params.push(difficulty);
       }
 
-      const sql = `
+      const text = `
         SELECT
           l.id,
           l.start_at,
           l.duration_min,
           l.difficulty,
           l.place,
-          l.capacity,
-          l.notes,
-          l.created_at,
-          l.updated_at
+          COALESCE(
+            JSON_AGG(JSON_BUILD_OBJECT('id', c.id, 'name', c.name))
+            FILTER (WHERE c.id IS NOT NULL),
+            '[]'
+          ) AS coaches
         FROM lessons l
-        WHERE ${clauses.join(" AND ")}
+        JOIN schools s ON s.id = l.school_id
+        LEFT JOIN lesson_coaches lc ON lc.lesson_id = l.id
+        LEFT JOIN coaches c ON c.id = lc.coach_id
+        WHERE ${where}
+        GROUP BY l.id
         ORDER BY l.start_at ASC
       `;
 
-      const rows = await q(sql, params);
-      return json(200, { ok: true, data: rows });
+      const rows = await sql(text, params);
+      return res.status(200).json({ ok: true, data: rows });
     }
 
-    if (req.method === "POST") {
+    if (req.method === 'POST') {
+      const { school: schoolSlug } = req.query || {};
+      if (!schoolSlug) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'Missing query.school (school slug).' });
+      }
+
       const { startAt, durationMin, difficulty, place, coachIds } = req.body || {};
-
-      if (!startAt) return json(400, { ok: false, error: "Missing body.startAt (ISO string)" });
-      if (!durationMin || Number.isNaN(Number(durationMin))) {
-        return json(400, { ok: false, error: "Missing/invalid body.durationMin" });
+      if (!startAt) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'Missing body.startAt (ISO string)' });
       }
-      if (!difficulty) return json(400, { ok: false, error: "Missing body.difficulty" });
-      if (!place) return json(400, { ok: false, error: "Missing body.place" });
+      if (!place || !place.trim()) {
+        return res
+          .status(400)
+          .json({ ok: false, error: 'Missing body.place' });
+      }
 
-      // Insert lesson
-      const ins = await q(
-        `INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)
-         VALUES ($1, $2::timestamptz, $3, $4, $5)
-         RETURNING id, start_at, duration_min, difficulty, place, created_at, updated_at`,
-        [schoolId, startAt, Number(durationMin), difficulty, place]
+      // find school id first
+      const schoolRows = await sql(
+        `SELECT id FROM schools WHERE slug = $1 AND deleted_at IS NULL`,
+        [schoolSlug]
       );
-      const lesson = ins[0];
-
-      // Optional coaches: use UNNEST to bulk-insert
-      if (Array.isArray(coachIds) && coachIds.length > 0) {
-        // Filter to non-empty strings to be safe
-        const ids = coachIds.filter((c) => typeof c === "string" && c.trim() !== "");
-        if (ids.length > 0) {
-          await q(
-            `INSERT INTO lesson_coaches (lesson_id, coach_id)
-             SELECT $1, UNNEST($2::uuid[])
-             ON CONFLICT DO NOTHING`,
-            [lesson.id, ids]
-          );
-        }
+      if (!schoolRows.length) {
+        return res.status(404).json({ ok: false, error: 'School not found' });
       }
+      const schoolId = schoolRows[0].id;
 
-      return json(201, { ok: true, data: lesson });
+      const created = await tx(async (q) => {
+        const ins = await q(
+          `
+          INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING id, school_id, start_at, duration_min, difficulty, place
+          `,
+          [
+            schoolId,
+            new Date(startAt).toISOString(),
+            Number(durationMin ?? 90),
+            difficulty || 'Beginner',
+            place.trim(),
+          ]
+        );
+        const lesson = ins[0];
+
+        // optional coaches
+        const ids =
+          Array.isArray(coachIds)
+            ? coachIds
+            : (typeof coachIds === 'string'
+                ? coachIds.split(',').map(s => s.trim()).filter(Boolean)
+                : []);
+
+        if (ids.length) {
+          // only attach those that exist under this school
+          const found = await q(
+            `SELECT id FROM coaches WHERE id = ANY($1::uuid[]) AND school_id = $2 AND deleted_at IS NULL`,
+            [ids, schoolId]
+          );
+          if (found.length) {
+            const valuesClause = found
+              .map((_, i) => `($1, $${i + 2})`)
+              .join(', ');
+            const params = [lesson.id, ...found.map(f => f.id)];
+            await q(
+              `INSERT INTO lesson_coaches (lesson_id, coach_id) VALUES ${valuesClause}`,
+              params
+            );
+          }
+        }
+
+        return lesson;
+      });
+
+      return res.status(201).json({ ok: true, data: created });
     }
 
-    res.setHeader("Allow", "GET, POST");
-    return json(405, { ok: false, error: "Method not allowed" });
-  } catch (err) {
+    res.setHeader('Allow', 'GET, POST');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  } catch (e) {
+    console.error('Public lessons API error:', e);
     return res
       .status(500)
-      .json({ ok: false, error: "Server error", detail: err?.detail || err?.message || String(err) });
+      .json({ ok: false, error: 'Server error', detail: e?.message });
   }
 }
