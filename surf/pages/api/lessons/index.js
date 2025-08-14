@@ -1,5 +1,5 @@
 // /pages/api/lessons/index.js
-import sql from '../../lib/db';
+import { sql, tx } from 'lib/db';
 
 /**
  * GET /api/lessons?school=<slug>
