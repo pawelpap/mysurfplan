@@ -1,5 +1,5 @@
 // surf/pages/api/coaches/index.js
-import { sql } from '@vercel/postgres';
+import sql from '../../../lib/db';
 
 // Helpers
 function bad(res, msg = 'Bad request', code = 400) {
