@@ -15,7 +15,7 @@
 
   "@vercel/postgres": "0.9.0",
   "pg": "^8.11.5",
-  "postgres": "^3.4.3"
+  "postgres": "^3.4.3",
 
   "contentful": "^10.11.6",
 
