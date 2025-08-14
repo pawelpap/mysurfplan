@@ -1,5 +1,5 @@
 // /pages/api/lessons/index.js
-import { sql } from '@vercel/postgres';
+import sql from '../../lib/db';
 
 /**
  * GET /api/lessons?school=<slug>
