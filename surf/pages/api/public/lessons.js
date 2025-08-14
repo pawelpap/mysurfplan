@@ -78,18 +78,21 @@ export default async function handler(req, res) {
       `;
       const lesson = ins[0];
 
+      // ---- FIXED BULK INSERT FOR lesson_coaches ----
       if (Array.isArray(coachIds) && coachIds.length > 0) {
-        const pairs = coachIds
+        const values = coachIds
           .filter((c) => typeof c === "string" && c.trim() !== "")
-          .map((c) => [lesson.id, c]);
-        if (pairs.length > 0) {
+          .map((coachId) => sql/*sql*/`(${lesson.id}, ${coachId})`);
+
+        if (values.length > 0) {
           await sql/*sql*/`
             INSERT INTO lesson_coaches (lesson_id, coach_id)
-            VALUES ${sql(pairs)}
+            VALUES ${sql.join(values, sql/*sql*/`, `)}
             ON CONFLICT DO NOTHING
           `;
         }
       }
+      // ----------------------------------------------
 
       return json(201, { ok: true, data: lesson });
     }
