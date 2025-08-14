@@ -1,5 +1,5 @@
 // surf/pages/api/lessons/[id]/book.js
-import { sql } from '@vercel/postgres';
+import sql from '../../../lib/db';
 
 async function ensureTables() {
   await sql/*sql*/`
