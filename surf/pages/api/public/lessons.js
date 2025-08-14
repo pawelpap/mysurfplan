@@ -1,14 +1,5 @@
 // surf/pages/api/public/lessons.js
-import { sql, tx } from '@/lib/db';
-
-/**
- * GET  /api/public/lessons?school=<slug>&from=YYYY-MM-DD&to=YYYY-MM-DD&difficulty=<optional>
- *      → public feed (no auth)
- *
- * POST /api/public/lessons?school=<slug>
- *      body: { startAt, durationMin, difficulty, place, coachIds?: string[] }
- *      → convenience creator for the playground (no auth gate yet)
- */
+import { sql, tx } from '../../../lib/db'; // <-- relative path
 
 export default async function handler(req, res) {
   try {
@@ -20,7 +11,6 @@ export default async function handler(req, res) {
           .json({ ok: false, error: 'Missing query.school (school slug).' });
       }
 
-      // dynamic WHERE using text + params to avoid sql.join
       const params = [schoolSlug];
       let where = `s.slug = $1 AND l.deleted_at IS NULL`;
       let p = 2;
@@ -31,9 +21,8 @@ export default async function handler(req, res) {
       }
       if (to) {
         where += ` AND l.start_at < $${p++}`;
-        // exclusive upper bound: end-of-day + 1
         const end = new Date(to);
-        end.setDate(end.getDate() + 1);
+        end.setDate(end.getDate() + 1); // exclusive upper bound
         params.push(end.toISOString());
       }
       if (difficulty) {
@@ -86,7 +75,6 @@ export default async function handler(req, res) {
           .json({ ok: false, error: 'Missing body.place' });
       }
 
-      // find school id first
       const schoolRows = await sql(
         `SELECT id FROM schools WHERE slug = $1 AND deleted_at IS NULL`,
         [schoolSlug]
@@ -113,7 +101,6 @@ export default async function handler(req, res) {
         );
         const lesson = ins[0];
 
-        // optional coaches
         const ids =
           Array.isArray(coachIds)
             ? coachIds
@@ -122,15 +109,12 @@ export default async function handler(req, res) {
                 : []);
 
         if (ids.length) {
-          // only attach those that exist under this school
           const found = await q(
             `SELECT id FROM coaches WHERE id = ANY($1::uuid[]) AND school_id = $2 AND deleted_at IS NULL`,
             [ids, schoolId]
           );
           if (found.length) {
-            const valuesClause = found
-              .map((_, i) => `($1, $${i + 2})`)
-              .join(', ');
+            const valuesClause = found.map((_, i) => `($1, $${i + 2})`).join(', ');
             const params = [lesson.id, ...found.map(f => f.id)];
             await q(
               `INSERT INTO lesson_coaches (lesson_id, coach_id) VALUES ${valuesClause}`,
