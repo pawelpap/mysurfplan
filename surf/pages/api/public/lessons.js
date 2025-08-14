@@ -67,11 +67,9 @@ async function getLessons(req, res) {
     return bad(res, "Invalid difficulty.");
   }
 
-  // Build parameterized SQL
   const params = [];
   let idx = 1;
 
-  // Base: scope to a single school; hide soft-deleted records
   let sql = `
     SELECT
       l.id,
@@ -98,7 +96,6 @@ async function getLessons(req, res) {
   }
   const toDate = toDateOrNull(to);
   if (toDate) {
-    // inclusive end-of-day
     const end = new Date(toDate);
     end.setHours(23, 59, 59, 999);
     sql += ` AND l.start_at <= $${idx++}`;
@@ -120,8 +117,8 @@ async function getLessons(req, res) {
 }
 
 /* ------------------------------ POST --------------------------------
-   Body JSON:
-     - schoolSlug | scope : school slug (required; `scope` is accepted too)
+   Body JSON (or query fallbacks):
+     - schoolSlug | scope | (query) school | (query) scope  ← required
      - startAt             : ISO string (required)
      - durationMin         : integer minutes (default 90)
      - difficulty          : Beginner|Intermediate|Advanced (default Beginner)
@@ -131,13 +128,19 @@ async function getLessons(req, res) {
 async function createLesson(req, res) {
   let body = {};
   try {
-    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
+    body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
   } catch {
-    return bad(res, "Invalid JSON body.");
+    // continue with empty body; we also read from req.query below
+    body = {};
   }
 
-  // accept both schoolSlug and scope to match the current form
-  const schoolSlug = body.schoolSlug || body.scope;
+  // NEW: be lenient — accept slug from body or query
+  const schoolSlug =
+    body.schoolSlug ||
+    body.scope ||
+    req.query.school ||
+    req.query.scope;
+
   if (!schoolSlug || typeof schoolSlug !== "string") {
     return bad(res, "Missing body.schoolSlug (school slug).");
   }
@@ -169,7 +172,6 @@ async function createLesson(req, res) {
   try {
     await client.query("BEGIN");
 
-    // Find school
     const sRes = await client.query(
       "SELECT id FROM schools WHERE slug = $1 AND deleted_at IS NULL",
       [schoolSlug]
@@ -180,7 +182,6 @@ async function createLesson(req, res) {
     }
     const schoolId = sRes.rows[0].id;
 
-    // Insert lesson
     const ins = await client.query(
       `INSERT INTO lessons
          (school_id, start_at, duration_min, difficulty, place)
@@ -196,7 +197,6 @@ async function createLesson(req, res) {
     );
     const lesson = ins.rows[0];
 
-    // Optional: attach coaches
     if (coachIds.length > 0) {
       await client.query(
         `INSERT INTO lesson_coaches (lesson_id, coach_id)
@@ -209,11 +209,7 @@ async function createLesson(req, res) {
     await client.query("COMMIT");
     return ok(res, lesson);
   } catch (err) {
-    try {
-      await client.query("ROLLBACK");
-    } catch (_) {
-      /* ignore */
-    }
+    try { await client.query("ROLLBACK"); } catch {}
     return boom(res, err);
   } finally {
     client.release();
