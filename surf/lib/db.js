@@ -1,20 +1,17 @@
 // surf/lib/db.js
-import postgres from 'postgres';
+import { neon } from '@neondatabase/serverless';
 
-const url =
-  process.env.DATABASE_URL ||
-  process.env.POSTGRES_URL ||
-  process.env.NEON_DATABASE_URL;
-
-if (!url) {
-  throw new Error('DATABASE_URL (or POSTGRES_URL) is not set');
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set');
 }
 
-// Works with Neon pooled URL on Vercel (serverless).
-export const sql = postgres(url, {
-  ssl: 'require',
-  max: 1,
-});
+// Tagged-template executor: sql`SELECT 1`
+export const sql = neon(process.env.DATABASE_URL);
 
-// Optional transactional helper
-export const tx = (fn) => sql.begin(fn);
+// Small helper so we can build dynamic WHEREs safely
+export function andWhere(clauses) {
+  // clauses is an array of strings that already contain placeholders like ${...}
+  // We simply join them with ' AND ' while skipping falsy parts.
+  const parts = clauses.filter(Boolean);
+  return parts.length ? ' WHERE ' + parts.join(' AND ') : '';
+}
