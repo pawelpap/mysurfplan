@@ -1,100 +1,75 @@
 // surf/pages/api/coaches/index.js
-import { sql, tx } from 'lib/db';
-
-// Helpers
-function bad(res, msg = 'Bad request', code = 400) {
-  return res.status(code).json({ ok: false, error: msg });
-}
-function ok(res, data) {
-  return res.status(200).json({ ok: true, data });
-}
-
-// Convert either a school UUID or a slug to a school id
-async function resolveSchoolId({ school_id, school }) {
-  if (school_id) return school_id;
-  if (!school) return null;
-  const { rows } = await sql`
-    SELECT id FROM schools
-    WHERE (id::text = ${school} OR slug = ${school}) AND deleted_at IS NULL
-    LIMIT 1
-  `;
-  return rows[0]?.id ?? null;
-}
+import { sql } from '../../../lib/db';
 
 export default async function handler(req, res) {
   try {
-    const method = req.method;
+    if (req.method === 'GET') {
+      const { school } = req.query;
+      if (!school) {
+        return res.status(400).json({ ok: false, error: 'Missing school (slug or id)' });
+      }
 
-    // -------- GET /api/coaches?school=<slug|uuid> --------
-    if (method === 'GET') {
-      const { school_id, school } = req.query;
-      const sid = await resolveSchoolId({ school_id, school });
-      if (!sid) return ok(res, []); // no school filter -> empty list
+      const schoolRow = await fetchSchool(school);
+      if (!schoolRow) {
+        return res.status(404).json({ ok: false, error: 'School not found' });
+      }
 
-      const { rows } = await sql`
-        SELECT c.id, c.name, c.email, c.created_at
-        FROM coaches c
-        WHERE c.school_id = ${sid} AND c.deleted_at IS NULL
-        ORDER BY c.created_at DESC
+      const rows = await sql`
+        SELECT id, name, email, created_at
+        FROM coaches
+        WHERE school_id = ${schoolRow.id}
+        ORDER BY created_at DESC
       `;
-      return ok(res, rows);
+      return res.status(200).json({ ok: true, data: rows });
     }
 
-    // -------- POST /api/coaches --------
-    // body: { school: <slug|uuid> OR school_id, name, email? }
-    if (method === 'POST') {
-      const { school_id, school, name, email } = req.body || {};
-      if (!name) return bad(res, 'name is required');
+    if (req.method === 'POST') {
+      const { school, name, email } = await readJSON(req);
+      if (!school) return res.status(400).json({ ok: false, error: 'Missing school (slug or id)' });
+      if (!name) return res.status(400).json({ ok: false, error: 'Missing name' });
 
-      const sid = await resolveSchoolId({ school_id, school });
-      if (!sid) return bad(res, 'school or school_id is required');
+      const schoolRow = await fetchSchool(school);
+      if (!schoolRow) return res.status(404).json({ ok: false, error: 'School not found' });
 
-      const { rows } = await sql`
+      const rows = await sql`
         INSERT INTO coaches (school_id, name, email)
-        VALUES (${sid}, ${name}, ${email ?? null})
-        RETURNING id, school_id, name, email, created_at
+        VALUES (${schoolRow.id}, ${name}, ${email || null})
+        RETURNING id, name, email, created_at
       `;
-      return ok(res, rows[0]);
+      return res.status(201).json({ ok: true, data: rows[0] });
     }
 
-    // -------- PATCH /api/coaches --------
-    // body: { id, name?, email? }
-    if (method === 'PATCH') {
-      const { id, name, email } = req.body || {};
-      if (!id) return bad(res, 'id is required');
-      if (!name && !email) return bad(res, 'nothing to update');
+    if (req.method === 'DELETE') {
+      const body = await readJSON(req).catch(() => ({}));
+      const id = body?.id || req.query.id;
+      if (!id) return res.status(400).json({ ok: false, error: 'Missing id' });
 
-      const { rows } = await sql`
-        UPDATE coaches
-        SET
-          name  = COALESCE(${name},  name),
-          email = COALESCE(${email}, email)
-        WHERE id = ${id} AND deleted_at IS NULL
-        RETURNING id, school_id, name, email, created_at, updated_at
-      `;
-      if (rows.length === 0) return bad(res, 'not found', 404);
-      return ok(res, rows[0]);
+      await sql`DELETE FROM coaches WHERE id = ${id}`;
+      return res.status(200).json({ ok: true });
     }
 
-    // -------- DELETE /api/coaches?id=<uuid> --------
-    if (method === 'DELETE') {
-      const { id } = req.query;
-      if (!id) return bad(res, 'id is required');
-
-      const { rows } = await sql`
-        UPDATE coaches
-        SET deleted_at = NOW()
-        WHERE id = ${id} AND deleted_at IS NULL
-        RETURNING id
-      `;
-      if (rows.length === 0) return bad(res, 'not found', 404);
-      return ok(res, true);
-    }
-
-    res.setHeader('Allow', 'GET,POST,PATCH,DELETE');
-    return bad(res, 'Method not allowed', 405);
+    res.setHeader('Allow', 'GET,POST,DELETE');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   } catch (err) {
-    console.error('Coaches API error:', err);
-    return res.status(500).json({ ok: false, error: 'Server error' });
+    console.error('coaches api error:', err);
+    return res.status(500).json({ ok: false, error: 'Server error', detail: cleanErr(err) });
   }
+}
+
+async function fetchSchool(slugOrId) {
+  // Try id (uuid) first, then slug
+  const byId = await sql`SELECT id, name, slug FROM schools WHERE id = ${slugOrId} AND deleted_at IS NULL`;
+  if (byId.length) return byId[0];
+  const bySlug = await sql`SELECT id, name, slug FROM schools WHERE slug = ${slugOrId} AND deleted_at IS NULL`;
+  return bySlug[0] || null;
+}
+
+async function readJSON(req) {
+  const chunks = [];
+  for await (const c of req) chunks.push(c);
+  return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+}
+
+function cleanErr(e) {
+  return e?.detail || e?.message || String(e);
 }
