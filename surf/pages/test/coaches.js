@@ -1,23 +1,24 @@
 // surf/pages/test/coaches.js
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-export default function CoachesPlayground() {
-  const [school, setSchool] = useState(''); // slug or uuid
+export default function TestCoaches() {
+  const [school, setSchool] = useState('angels-surf-school'); // slug or uuid
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [list, setList] = useState([]);
+  const [rows, setRows] = useState([]);
   const [msg, setMsg] = useState('');
 
-  async function refresh() {
+  async function load() {
     setMsg('');
-    const q = school ? `?school=${encodeURIComponent(school)}` : '';
-    const r = await fetch(`/api/coaches${q}`);
+    const r = await fetch(`/api/coaches?school=${encodeURIComponent(school)}`);
     const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error');
-    setList(j.data);
+    if (j.ok) setRows(j.data);
+    else setMsg(j.error || 'Server error');
   }
 
-  async function create() {
+  useEffect(() => { load(); }, []);
+
+  async function createCoach() {
     setMsg('');
     const r = await fetch('/api/coaches', {
       method: 'POST',
@@ -25,64 +26,57 @@ export default function CoachesPlayground() {
       body: JSON.stringify({ school, name, email }),
     });
     const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error creating coach');
+    if (!j.ok) setMsg(j.error || 'Server error');
+    await load();
     setName(''); setEmail('');
-    await refresh();
   }
 
-  async function remove(id) {
+  async function del(id) {
     setMsg('');
-    const r = await fetch(`/api/coaches?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+    const r = await fetch('/api/coaches', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
     const j = await r.json();
-    if (!j.ok) return setMsg(j.error || 'Error deleting coach');
-    await refresh();
+    if (!j.ok) setMsg(j.error || 'Server error');
+    await load();
   }
 
   return (
-    <div style={{maxWidth: 760, margin: '2rem auto', fontFamily: 'Inter, system-ui, Arial'}}>
+    <div style={{ maxWidth: 760, margin: '40px auto', padding: 16 }}>
       <h1>Coaches API Playground</h1>
-      <p>Enter a <b>school slug or id</b> to scope the list. Use your school slug from <code>/test/schools</code>.</p>
+      {msg && <p style={{ color: '#c00' }}>{msg}</p>}
 
-      {msg && <div style={{background:'#fee2e2', padding:12, borderRadius:8, margin:'12px 0'}}> {msg} </div>}
-
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16, marginTop:12}}>
-        <h3>Scope</h3>
-        <input
-          placeholder="school slug or uuid (e.g. angels)"
-          value={school}
-          onChange={(e)=>setSchool(e.target.value)}
-          style={{width:'100%', padding:10, borderRadius:8, border:'1px solid #ddd'}}
-        />
-        <div style={{marginTop:10}}>
-          <button onClick={refresh} style={{padding:'8px 14px', borderRadius:8, background:'#eee'}}>Refresh list</button>
-        </div>
+      <section style={{ border: '1px solid #eee', padding: 16, borderRadius: 12 }}>
+        <label>Scope (school slug or id)</label>
+        <input value={school} onChange={e => setSchool(e.target.value)} />
+        <button onClick={load} style={{ marginLeft: 8 }}>Refresh list</button>
       </section>
 
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16, marginTop:16}}>
+      <section style={{ marginTop: 20, border: '1px solid #eee', padding: 16, borderRadius: 12 }}>
         <h3>Create a coach</h3>
-        <div style={{display:'grid', gap:8}}>
-          <input placeholder="Coach name" value={name} onChange={e=>setName(e.target.value)}
-                 style={{padding:10, borderRadius:8, border:'1px solid #ddd'}} />
-          <input placeholder="Email (optional)" value={email} onChange={e=>setEmail(e.target.value)}
-                 style={{padding:10, borderRadius:8, border:'1px solid #ddd'}} />
-        </div>
-        <div style={{marginTop:10}}>
-          <button onClick={create} style={{padding:'10px 16px', borderRadius:8, background:'#16a34a', color:'#fff'}}>Create</button>
+        <label>Name</label>
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Joao" />
+        <label style={{ marginTop: 8 }}>Email</label>
+        <input value={email} onChange={e => setEmail(e.target.value)} placeholder="j@school.com" />
+        <div style={{ marginTop: 12 }}>
+          <button onClick={createCoach}>Create</button>
         </div>
       </section>
 
-      <section style={{border:'1px solid #eee', borderRadius:12, padding:16, marginTop:16}}>
-        <h3>Coaches ({list.length})</h3>
-        {list.length === 0 ? <div>No coaches yet.</div> : (
-          <ul>
-            {list.map(c => (
-              <li key={c.id} style={{margin:'6px 0', display:'flex', gap:8, alignItems:'center'}}>
-                <span style={{flex:1}}>{c.name} <span style={{color:'#666'}}>— {c.email || 'no email'}</span></span>
-                <button onClick={()=>remove(c.id)} style={{padding:'6px 10px', borderRadius:8, background:'#ef4444', color:'#fff'}}>Delete</button>
-              </li>
-            ))}
-          </ul>
-        )}
+      <section style={{ marginTop: 24, border: '1px solid #eee', padding: 16, borderRadius: 12 }}>
+        <h3>Coaches ({rows.length})</h3>
+        {!rows.length && <div>No coaches yet.</div>}
+        {rows.map(r => (
+          <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 600 }}>{r.name}</div>
+              <div style={{ fontSize: 12, color: '#555' }}>{r.email || '—'}</div>
+            </div>
+            <button onClick={() => del(r.id)} style={{ background: '#e44', color: '#fff' }}>Delete</button>
+          </div>
+        ))}
       </section>
     </div>
   );
