@@ -8,19 +8,16 @@ export default async function handler(req, res) {
       return res.status(405).json({ ok: false, error: 'Method not allowed' });
     }
 
-    const { school, from, to, difficulty } = req.query;
+    const school = Array.isArray(req.query.school) ? req.query.school[0] : req.query.school;
+    const { from, to, difficulty } = req.query;
     if (!school) return res.status(400).json({ ok: false, error: 'Missing school' });
 
-    // Resolve school id from slug (or accept direct uuid)
-    let schoolId;
     const byId = await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
-    if (byId.length) {
-      schoolId = byId[0].id;
-    } else {
-      const bySlug = await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
-      if (!bySlug.length) return res.status(404).json({ ok: false, error: 'School not found' });
-      schoolId = bySlug[0].id;
-    }
+    const bySlug = byId.length
+      ? []
+      : await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
+    const schoolId = byId[0]?.id || bySlug[0]?.id;
+    if (!schoolId) return res.status(404).json({ ok: false, error: 'School not found' });
 
     const params = [];
     let where = `WHERE l.school_id = $1 AND l.deleted_at IS NULL`;
@@ -39,26 +36,39 @@ export default async function handler(req, res) {
       where += ` AND l.difficulty = $${params.length}`;
     }
 
-    // Build one query using parametrized text
     const text = `
       SELECT
-        l.id, l.start_at, l.duration_min, l.place, l.difficulty,
-        COALESCE(
-          (
-            SELECT json_agg(json_build_object('id', c.id, 'name', c.name, 'email', c.email))
-            FROM lesson_coaches lc
-            JOIN coaches c ON c.id = lc.coach_id
-            WHERE lc.lesson_id = l.id
-          ), '[]'::json
-        ) AS coaches
+        l.id,
+        l.start_at,
+        l.duration_min,
+        l.place,
+        l.difficulty,
+        l.capacity,
+        COALESCE(lc.coaches, '[]'::json) AS coaches,
+        COALESCE(ls.booked_count, 0) AS booked_count,
+        COALESCE(ls.spots_left, 0) AS spots_left
       FROM lessons l
+      LEFT JOIN lesson_coach_list lc ON lc.lesson_id = l.id
+      LEFT JOIN lesson_stats ls ON ls.lesson_id = l.id
       ${where}
       ORDER BY l.start_at ASC
       LIMIT 500
     `;
     const rows = await sql(text, params);
 
-    return res.status(200).json({ ok: true, data: rows });
+    const data = rows.map((r) => ({
+      id: r.id,
+      startAt: r.start_at,
+      durationMin: r.duration_min,
+      place: r.place,
+      difficulty: r.difficulty,
+      capacity: r.capacity,
+      coaches: r.coaches || [],
+      bookedCount: r.booked_count,
+      spotsLeft: r.spots_left,
+    }));
+
+    return res.status(200).json({ ok: true, data });
   } catch (err) {
     console.error('public lessons api error:', err);
     return res.status(500).json({ ok: false, error: 'Server error', detail: cleanErr(err) });

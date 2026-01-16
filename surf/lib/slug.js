@@ -1,5 +1,5 @@
 // Helpers to resolve school by slug
-import { sql, tx } from 'lib/db';
+import { sql } from 'lib/db';
 
 export async function getSchoolBySlug(slug) {
   const rows = await sql`
