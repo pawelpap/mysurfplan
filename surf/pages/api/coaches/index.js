@@ -58,8 +58,13 @@ export default async function handler(req, res) {
 
 async function fetchSchool(slugOrId) {
   // Try id (uuid) first, then slug
-  const byId = await sql`SELECT id, name, slug FROM schools WHERE id = ${slugOrId} AND deleted_at IS NULL`;
-  if (byId.length) return byId[0];
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    slugOrId
+  );
+  if (isUuid) {
+    const byId = await sql`SELECT id, name, slug FROM schools WHERE id = ${slugOrId} AND deleted_at IS NULL`;
+    if (byId.length) return byId[0];
+  }
   const bySlug = await sql`SELECT id, name, slug FROM schools WHERE slug = ${slugOrId} AND deleted_at IS NULL`;
   return bySlug[0] || null;
 }

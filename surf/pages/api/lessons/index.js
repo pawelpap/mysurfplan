@@ -15,9 +15,17 @@ export default async function handler(req, res) {
   res.status(405).json({ ok: false, error: 'Method not allowed' });
 }
 
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value
+  );
+}
+
 async function resolveSchoolId(school) {
-  const byId = await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
-  if (byId.length) return byId[0].id;
+  if (isUuid(school)) {
+    const byId = await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
+    if (byId.length) return byId[0].id;
+  }
   const bySlug = await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
   return bySlug[0]?.id || null;
 }

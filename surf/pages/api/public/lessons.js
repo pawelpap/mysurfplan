@@ -12,7 +12,12 @@ export default async function handler(req, res) {
     const { from, to, difficulty } = req.query;
     if (!school) return res.status(400).json({ ok: false, error: 'Missing school' });
 
-    const byId = await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      school
+    );
+    const byId = isUuid
+      ? await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`
+      : [];
     const bySlug = byId.length
       ? []
       : await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
