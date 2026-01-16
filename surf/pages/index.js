@@ -13,6 +13,12 @@ export async function getServerSideProps() {
 /* -------------------- Constants & utils -------------------- */
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
+const ROLES = [
+  { id: "admin", label: "Admin" },
+  { id: "school_admin", label: "School Admin" },
+  { id: "coach", label: "Coach" },
+  { id: "student", label: "Student" },
+];
 
 /* Half-hour helpers */
 const HALF_HOUR_MS = 30 * 60 * 1000;
@@ -121,25 +127,24 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
 }
 
 /* -------------------- Header segmented toggle -------------------- */
-function ModeToggle({ mode, setMode }) {
+function RoleMenu({ role, setRole }) {
   return (
-    <div className="inline-flex rounded-full border border-gray-300 bg-white overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setMode("coach")}
-        className={`px-4 py-1.5 text-sm ${mode === "coach" ? "bg-black text-white" : "text-gray-700"}`}
-        aria-pressed={mode === "coach"}
-      >
-        Coach
-      </button>
-      <button
-        type="button"
-        onClick={() => setMode("student")}
-        className={`px-4 py-1.5 text-sm ${mode === "student" ? "bg-black text-white" : "text-gray-700"}`}
-        aria-pressed={mode === "student"}
-      >
-        Student
-      </button>
+    <div className="space-y-2">
+      {ROLES.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          onClick={() => setRole(r.id)}
+          className={`w-full text-left rounded-lg px-3 py-2 text-sm border transition ${
+            role === r.id
+              ? "bg-black text-white border-black"
+              : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
+          }`}
+          aria-pressed={role === r.id}
+        >
+          {r.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -511,7 +516,7 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
 
 /* -------------------- Page -------------------- */
 export default function App({ settings }) {
-  const [mode, setMode] = useState("coach");
+  const [role, setRole] = useState("coach");
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
@@ -578,29 +583,34 @@ export default function App({ settings }) {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            {settings?.logo?.url ? (
-              <img
-                src={settings.logo.url}
-                alt={settings.siteName || "MyWavePlan"}
-                className="h-7 w-auto rounded-md"
-              />
-            ) : (
-              <span className="text-xl">🏄</span>
-            )}
-            <div className="text-xl font-bold">{settings?.siteName || "MyWavePlan"}</div>
-          </div>
-
-          <div className="ml-auto flex items-center gap-3">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
+        <aside className="w-64 shrink-0 space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">School</span>
+              {settings?.logo?.url ? (
+                <img
+                  src={settings.logo.url}
+                  alt={settings.siteName || "MyWavePlan"}
+                  className="h-7 w-auto rounded-md"
+                />
+              ) : (
+                <span className="text-xl">🏄</span>
+              )}
+              <div className="text-lg font-bold">{settings?.siteName || "MyWavePlan"}</div>
+            </div>
+
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Role</div>
+              <RoleMenu role={role} setRole={setRole} />
+            </div>
+
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">School</div>
               <Select
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
-                className="min-w-[200px]"
+                className="w-full"
                 disabled={schoolsLoading}
               >
                 {!school && <option value="">Select a school</option>}
@@ -611,17 +621,15 @@ export default function App({ settings }) {
                 ))}
               </Select>
             </div>
-            <ModeToggle mode={mode} setMode={setMode} />
           </div>
-        </div>
-      </header>
+        </aside>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <main className="flex-1 space-y-6">
         <Card>
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <div className="flex-1">
               <h2 className="text-2xl font-semibold">
-                {mode === "coach" ? "Coach" : "Student"} Workspace
+                {ROLES.find((r) => r.id === role)?.label || "Workspace"}
               </h2>
             </div>
           </div>
@@ -632,25 +640,30 @@ export default function App({ settings }) {
           )}
         </Card>
 
-        {mode === "coach" && (
+        {role === "coach" && (
           <CreateLessonForm school={school} onCreate={handleCreated} existing={lessons} />
         )}
 
-        {mode === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
+        {role === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
 
-        {loading ? (
+        {role === "admin" || role === "school_admin" ? (
+          <Card>
+            <div className="text-gray-600">Role-specific management views are coming next.</div>
+          </Card>
+        ) : loading ? (
           <div className="text-gray-500">Loading…</div>
         ) : (
           <LessonsList
             lessons={lessons}
-            mode={mode}
+            mode={role}
             student={student}
             reload={load}
             filters={filters}
             setFilters={setFilters}
           />
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
