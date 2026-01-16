@@ -493,17 +493,48 @@ function CoachesManager({ school, coaches, onReload }) {
   );
 }
 
-function LessonItem({ lesson, role, student, reload }) {
+function CoachesList({ coaches }) {
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Coaches</h3>
+      <div className="space-y-2">
+        {coaches.map((c) => (
+          <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{c.name}</div>
+              <div className="text-xs text-gray-500">{c.email || "no email"}</div>
+            </div>
+          </div>
+        ))}
+        {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function LessonItem({ lesson, role, student, reload, allCoaches }) {
   const { id, startAt, startISO, durationMin, difficulty, place, attendees, coaches } = lesson;
   const start = startAt || startISO;
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [coachIds, setCoachIds] = useState([]);
+  const [coachBusy, setCoachBusy] = useState(false);
+  const [coachMsg, setCoachMsg] = useState("");
+  const [staffName, setStaffName] = useState("");
+  const [staffEmail, setStaffEmail] = useState("");
+  const [staffBusy, setStaffBusy] = useState(false);
+  const [staffMsg, setStaffMsg] = useState("");
 
   const booked = attendees?.some((a) => a.email && a.email === student?.email);
   const isStaff = role !== "student";
   const coachNames = Array.isArray(coaches)
     ? coaches.map((c) => c?.name).filter(Boolean).join(", ")
     : "";
+
+  useEffect(() => {
+    const next = Array.isArray(coaches) ? coaches.map((c) => c?.id).filter(Boolean) : [];
+    setCoachIds(next);
+  }, [id, coaches]);
 
   async function book() {
     if (!student?.email) return;
@@ -568,6 +599,72 @@ function LessonItem({ lesson, role, student, reload }) {
     }
   }
 
+  async function saveCoaches() {
+    setCoachBusy(true);
+    setCoachMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/coaches`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coachIds }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setCoachMsg("Coaches updated.");
+      await reload();
+    } catch (e) {
+      setCoachMsg(e.message);
+    } finally {
+      setCoachBusy(false);
+    }
+  }
+
+  async function staffAddStudent() {
+    if (!staffEmail) return;
+    setStaffBusy(true);
+    setStaffMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/book`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: staffName, email: staffEmail }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setStaffName("");
+      setStaffEmail("");
+      setStaffMsg("Student added.");
+      await reload();
+    } catch (e) {
+      setStaffMsg(e.message);
+    } finally {
+      setStaffBusy(false);
+    }
+  }
+
+  async function staffRemoveStudent() {
+    if (!staffEmail) return;
+    setStaffBusy(true);
+    setStaffMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/book`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: staffEmail }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setStaffName("");
+      setStaffEmail("");
+      setStaffMsg("Student removed.");
+      await reload();
+    } catch (e) {
+      setStaffMsg(e.message);
+    } finally {
+      setStaffBusy(false);
+    }
+  }
+
   return (
     <Card>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -603,6 +700,63 @@ function LessonItem({ lesson, role, student, reload }) {
                     </li>
                   ))}
                 </ul>
+              </details>
+
+              <details className="text-sm">
+                <summary className="cursor-pointer select-none">Assign coaches</summary>
+                <div className="mt-2 space-y-2">
+                  <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
+                    {!allCoaches?.length && (
+                      <div className="text-xs text-gray-500">No coaches available.</div>
+                    )}
+                    {allCoaches?.map((c) => (
+                      <label key={c.id} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={coachIds.includes(c.id)}
+                          onChange={(e) => {
+                            setCoachIds((prev) =>
+                              e.target.checked ? [...prev, c.id] : prev.filter((cid) => cid !== c.id)
+                            );
+                          }}
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Btn onClick={saveCoaches} disabled={coachBusy} variant="neutral">
+                      {coachBusy ? "Saving…" : "Save coaches"}
+                    </Btn>
+                    {coachMsg && <span className="text-xs text-gray-500">{coachMsg}</span>}
+                  </div>
+                </div>
+              </details>
+
+              <details className="text-sm">
+                <summary className="cursor-pointer select-none">Manage students</summary>
+                <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <Input
+                    placeholder="Student name"
+                    value={staffName}
+                    onChange={(e) => setStaffName(e.target.value)}
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Student email"
+                    value={staffEmail}
+                    onChange={(e) => setStaffEmail(e.target.value)}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Btn onClick={staffAddStudent} disabled={staffBusy} variant="primary">
+                      Add
+                    </Btn>
+                    <Btn onClick={staffRemoveStudent} disabled={staffBusy} variant="outlineDanger">
+                      Remove
+                    </Btn>
+                  </div>
+                </div>
+                {staffMsg && <div className="text-xs text-gray-500 mt-2">{staffMsg}</div>}
               </details>
 
               <Btn
@@ -656,7 +810,7 @@ function LessonItem({ lesson, role, student, reload }) {
   );
 }
 
-function LessonsList({ lessons, role, student, reload, filters, setFilters }) {
+function LessonsList({ lessons, role, student, reload, filters, setFilters, coaches }) {
   const grouped = useMemo(() => groupByDay(lessons), [lessons]);
   const days = Object.keys(grouped);
 
@@ -726,6 +880,7 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters }) {
                 role={role}
                 student={student}
                 reload={reload}
+                allCoaches={coaches}
               />
             ))}
           </section>
@@ -833,17 +988,19 @@ export default function App({ settings }) {
       <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
         <aside className="w-64 shrink-0 space-y-6">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
-            <div className="flex items-center gap-2">
-              {settings?.logo?.url ? (
-                <img
-                  src={settings.logo.url}
-                  alt={settings.siteName || "MyWavePlan"}
-                  className="h-7 w-auto rounded-md"
-                />
-              ) : (
-                <span className="text-xl">🏄</span>
-              )}
-              <div className="text-lg font-bold">{settings?.siteName || "MyWavePlan"}</div>
+            <div className="space-y-3">
+              <div className="w-full h-12 flex items-center justify-start">
+                {settings?.logo?.url ? (
+                  <img
+                    src={settings.logo.url}
+                    alt="Surf School Guru"
+                    className="h-10 w-full object-contain rounded-md"
+                  />
+                ) : (
+                  <span className="text-2xl">🏄</span>
+                )}
+              </div>
+              <div className="text-lg font-bold">Surf School Guru</div>
             </div>
 
             <div>
@@ -903,6 +1060,7 @@ export default function App({ settings }) {
         )}
 
         {role === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
+        {role === "student" && <CoachesList coaches={coaches} />}
 
         {loading ? (
           <div className="text-gray-500">Loading…</div>
@@ -914,6 +1072,7 @@ export default function App({ settings }) {
             reload={load}
             filters={filters}
             setFilters={setFilters}
+            coaches={coaches}
           />
         )}
         </main>
