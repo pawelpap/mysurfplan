@@ -150,13 +150,14 @@ function RoleMenu({ role, setRole }) {
 }
 
 /* -------------------- Forms & Lists -------------------- */
-function CreateLessonForm({ school, onCreate /* existing kept for signature compatibility */ }) {
+function CreateLessonForm({ school, coaches, onCreate /* existing kept for signature compatibility */ }) {
   // explicit date + 30-minute time select
   const { initDate, initTime } = getInitLocalDateTime();
   const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
   const [timeStr, setTimeStr] = useState(initTime);  // HH:mm (00 or 30)
   const [difficulty, setDifficulty] = useState("Beginner");
   const [place, setPlace] = useState("");
+  const [coachIds, setCoachIds] = useState([]);
   const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -171,18 +172,23 @@ function CreateLessonForm({ school, onCreate /* existing kept for signature comp
       setErr("Please enter a place.");
       return;
     }
+    if (!coachIds.length) {
+      setErr("Please select at least one coach.");
+      return;
+    }
     const startAt = buildISOFromLocal(dateStr, timeStr);
     setSubmitting(true);
     try {
       const res = await fetch("/api/lessons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ school, startAt, difficulty, place: place.trim() }),
+        body: JSON.stringify({ school, startAt, difficulty, place: place.trim(), coachIds }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       onCreate(json.data);
       setPlace("");
+      setCoachIds([]);
       setErr("");
     } catch (error) {
       setErr(error.message);
@@ -234,6 +240,28 @@ function CreateLessonForm({ school, onCreate /* existing kept for signature comp
             onChange={(e) => setPlace(e.target.value)}
           />
         </div>
+        <div>
+          <Label>Coaches</Label>
+          <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
+            {!coaches?.length && (
+              <div className="text-sm text-gray-500">Add a coach to assign them.</div>
+            )}
+            {coaches?.map((c) => (
+              <label key={c.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={coachIds.includes(c.id)}
+                  onChange={(e) => {
+                    setCoachIds((prev) =>
+                      e.target.checked ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                    );
+                  }}
+                />
+                <span>{c.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
         <div className="md:col-span-3 flex items-center gap-3">
           <Btn type="submit" variant="primary" disabled={submitting} className="min-w-[150px]">
@@ -277,13 +305,205 @@ function StudentIdentity({ student, setStudent }) {
   );
 }
 
-function LessonItem({ lesson, mode, student, reload }) {
-  const { id, startAt, startISO, durationMin, difficulty, place, attendees } = lesson;
+function SchoolsManager({ schools, onReload }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function createSchool(e) {
+    e.preventDefault();
+    setErr("");
+    if (!name.trim()) {
+      setErr("Please enter a school name.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/schools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), contactEmail: email.trim() || null }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeSchool(id) {
+    if (!window.confirm("Delete this school? This cannot be undone.")) return;
+    setErr("");
+    try {
+      const res = await fetch("/api/schools", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Schools</h3>
+      <form onSubmit={createSchool} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="School name" />
+        </div>
+        <div>
+          <Label>Contact email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@school.com"
+          />
+        </div>
+        <div className="md:pt-6">
+          <Btn type="submit" variant="primary" disabled={busy}>
+            {busy ? "Creating…" : "Add school"}
+          </Btn>
+        </div>
+      </form>
+      {err && <div className="text-sm text-rose-600 mt-2">{err}</div>}
+
+      <div className="mt-4 space-y-2">
+        {schools.map((s) => (
+          <div key={s.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{s.name}</div>
+              <div className="text-xs text-gray-500">{s.slug}</div>
+            </div>
+            <Btn variant="outlineDanger" onClick={() => removeSchool(s.id)}>
+              Delete
+            </Btn>
+          </div>
+        ))}
+        {!schools.length && <div className="text-sm text-gray-500">No schools yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function CoachesManager({ school, coaches, onReload }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function createCoach(e) {
+    e.preventDefault();
+    setErr("");
+    if (!school) {
+      setErr("Select a school first.");
+      return;
+    }
+    if (!name.trim()) {
+      setErr("Please enter a coach name.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/coaches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ school, name: name.trim(), email: email.trim() || null }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeCoach(id) {
+    if (!window.confirm("Delete this coach?")) return;
+    setErr("");
+    try {
+      const res = await fetch("/api/coaches", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Coaches</h3>
+      <form onSubmit={createCoach} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Coach name" />
+        </div>
+        <div>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="coach@school.com"
+          />
+        </div>
+        <div className="md:pt-6">
+          <Btn type="submit" variant="primary" disabled={busy}>
+            {busy ? "Creating…" : "Add coach"}
+          </Btn>
+        </div>
+      </form>
+      {err && <div className="text-sm text-rose-600 mt-2">{err}</div>}
+
+      <div className="mt-4 space-y-2">
+        {coaches.map((c) => (
+          <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{c.name}</div>
+              <div className="text-xs text-gray-500">{c.email || "no email"}</div>
+            </div>
+            <Btn variant="outlineDanger" onClick={() => removeCoach(c.id)}>
+              Delete
+            </Btn>
+          </div>
+        ))}
+        {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function LessonItem({ lesson, role, student, reload }) {
+  const { id, startAt, startISO, durationMin, difficulty, place, attendees, coaches } = lesson;
   const start = startAt || startISO;
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   const booked = attendees?.some((a) => a.email && a.email === student?.email);
+  const isStaff = role !== "student";
+  const coachNames = Array.isArray(coaches)
+    ? coaches.map((c) => c?.name).filter(Boolean).join(", ")
+    : "";
 
   async function book() {
     if (!student?.email) return;
@@ -358,6 +578,7 @@ function LessonItem({ lesson, mode, student, reload }) {
           </div>
           <div className="text-gray-700">
             {difficulty} • {place}
+            {coachNames && <span className="text-gray-500"> • {coachNames}</span>}
           </div>
         </div>
 
@@ -368,7 +589,7 @@ function LessonItem({ lesson, mode, student, reload }) {
             Booked: <span className="font-semibold">{attendees?.length || 0}</span>
           </div>
 
-          {mode === "coach" ? (
+          {isStaff ? (
             <>
               <details className="text-sm">
                 <summary className="cursor-pointer select-none">See attendees</summary>
@@ -426,7 +647,7 @@ function LessonItem({ lesson, mode, student, reload }) {
             </div>
           )}
 
-          {mode === "student" && err && (
+          {role === "student" && err && (
             <div className="text-xs text-rose-600">{err}</div>
           )}
         </div>
@@ -435,7 +656,7 @@ function LessonItem({ lesson, mode, student, reload }) {
   );
 }
 
-function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
+function LessonsList({ lessons, role, student, reload, filters, setFilters }) {
   const grouped = useMemo(() => groupByDay(lessons), [lessons]);
   const days = Object.keys(grouped);
 
@@ -502,7 +723,7 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
               <LessonItem
                 key={lesson.id}
                 lesson={lesson}
-                mode={mode}
+                role={role}
                 student={student}
                 reload={reload}
               />
@@ -521,6 +742,9 @@ export default function App({ settings }) {
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
   const [schoolsError, setSchoolsError] = useState("");
+  const [coaches, setCoaches] = useState([]);
+  const [coachesLoading, setCoachesLoading] = useState(true);
+  const [coachesError, setCoachesError] = useState("");
   const [lessons, setLessons] = useState([]);
   const [student, setStudent] = useState({ name: "", email: "" });
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
@@ -555,6 +779,7 @@ export default function App({ settings }) {
     try {
       if (!school) {
         setLessons([]);
+        setLoading(false);
         return;
       }
       const res = await fetch(`/api/lessons?school=${encodeURIComponent(school)}`);
@@ -568,12 +793,33 @@ export default function App({ settings }) {
     }
   }
 
+  async function loadCoaches() {
+    setCoachesLoading(true);
+    setCoachesError("");
+    try {
+      if (!school) {
+        setCoaches([]);
+        setCoachesLoading(false);
+        return;
+      }
+      const res = await fetch(`/api/coaches?school=${encodeURIComponent(school)}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setCoaches(Array.isArray(json.data) ? json.data : []);
+    } catch (e) {
+      setCoachesError(e.message);
+    } finally {
+      setCoachesLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadSchools();
   }, []);
 
   useEffect(() => {
     if (school) load();
+    loadCoaches();
   }, [school]);
 
   function handleCreated(l) {
@@ -635,27 +881,35 @@ export default function App({ settings }) {
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
           {schoolsError && <div className="text-sm text-rose-600 mt-2">{schoolsError}</div>}
+          {coachesError && <div className="text-sm text-rose-600 mt-2">{coachesError}</div>}
           {!schoolsLoading && !school && !schoolsError && (
             <div className="text-sm text-gray-500 mt-2">Select a school to load lessons.</div>
           )}
         </Card>
 
-        {role === "coach" && (
-          <CreateLessonForm school={school} onCreate={handleCreated} existing={lessons} />
+        {role === "admin" && <SchoolsManager schools={schools} onReload={loadSchools} />}
+
+        {(role === "admin" || role === "school_admin") && (
+          <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} />
+        )}
+
+        {(role === "admin" || role === "school_admin" || role === "coach") && (
+          <CreateLessonForm
+            school={school}
+            coaches={coaches}
+            onCreate={handleCreated}
+            existing={lessons}
+          />
         )}
 
         {role === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
 
-        {role === "admin" || role === "school_admin" ? (
-          <Card>
-            <div className="text-gray-600">Role-specific management views are coming next.</div>
-          </Card>
-        ) : loading ? (
+        {loading ? (
           <div className="text-gray-500">Loading…</div>
         ) : (
           <LessonsList
             lessons={lessons}
-            mode={role}
+            role={role}
             student={student}
             reload={load}
             filters={filters}
