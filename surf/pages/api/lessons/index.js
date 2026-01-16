@@ -50,21 +50,27 @@ async function getLessons(req, res) {
         l.difficulty,
         l.place,
         l.capacity,
-        COALESCE(lc.coaches, '[]'::json) AS coaches,
-        COALESCE(ls.booked_count, 0) AS booked_count,
         COALESCE(
-          JSON_AGG(
-            JSON_BUILD_OBJECT('id', s.id, 'name', s.name, 'email', s.email)
-          ) FILTER (WHERE s.id IS NOT NULL),
+          (SELECT lc.coaches FROM lesson_coach_list lc WHERE lc.lesson_id = l.id),
+          '[]'::json
+        ) AS coaches,
+        COALESCE(
+          (SELECT ls.booked_count FROM lesson_stats ls WHERE ls.lesson_id = l.id),
+          0
+        ) AS booked_count,
+        COALESCE(
+          (
+            SELECT JSON_AGG(
+              JSON_BUILD_OBJECT('id', s.id, 'name', s.name, 'email', s.email)
+            )
+            FROM bookings b
+            JOIN students s ON s.id = b.student_id
+            WHERE b.lesson_id = l.id AND b.status = 'booked'
+          ),
           '[]'::json
         ) AS attendees
       FROM lessons l
-      LEFT JOIN lesson_coach_list lc ON lc.lesson_id = l.id
-      LEFT JOIN lesson_stats ls ON ls.lesson_id = l.id
-      LEFT JOIN bookings b ON b.lesson_id = l.id AND b.status = 'booked'
-      LEFT JOIN students s ON s.id = b.student_id
       WHERE l.school_id = ${schoolId} AND l.deleted_at IS NULL
-      GROUP BY l.id, lc.coaches, ls.booked_count
       ORDER BY l.start_at ASC;
     `;
 
