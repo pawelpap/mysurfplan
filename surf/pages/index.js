@@ -1000,7 +1000,6 @@ export default function App({ settings }) {
                   <span className="text-2xl">🏄</span>
                 )}
               </div>
-              <div className="text-lg font-bold">Surf School Guru</div>
             </div>
 
             <div>

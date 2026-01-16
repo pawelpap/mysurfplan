@@ -14,7 +14,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { name, contactEmail } = await readJSON(req);
+      const body = await getBody(req);
+      const { name, contactEmail } = body || {};
       if (!name || !name.trim()) {
         return res.status(400).json({ ok: false, error: 'Missing name' });
       }
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const body = await readJSON(req).catch(() => ({}));
+      const body = await getBody(req).catch(() => ({}));
       const id = body?.id || req.query.id;
       if (!id) {
         return res.status(400).json({ ok: false, error: 'Missing id' });
@@ -51,6 +52,11 @@ async function readJSON(req) {
   const chunks = [];
   for await (const c of req) chunks.push(c);
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+}
+
+async function getBody(req) {
+  if (req.body && Object.keys(req.body).length) return req.body;
+  return readJSON(req);
 }
 
 function cleanErr(e) {
