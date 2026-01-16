@@ -1,24 +1,25 @@
 // surf/pages/api/lessons/[id]/book.js
-import { sql } from '@vercel/postgres';
+import { sql } from 'lib/db';
 
-async function ensureTables() {
-  await sql/*sql*/`
-    CREATE TABLE IF NOT EXISTS surf_lessons (
-      id        text PRIMARY KEY DEFAULT gen_random_uuid()::text,
-      start_iso timestamptz NOT NULL,
-      duration_min integer NOT NULL DEFAULT 90,
-      difficulty text NOT NULL,
-      place      text NOT NULL
-    );
+async function getLesson(id) {
+  const rows = await sql`
+    SELECT id, school_id
+    FROM lessons
+    WHERE id = ${id} AND deleted_at IS NULL
+    LIMIT 1
   `;
-  await sql/*sql*/`
-    CREATE TABLE IF NOT EXISTS surf_bookings (
-      lesson_id text NOT NULL,
-      name      text,
-      email     text NOT NULL,
-      UNIQUE (lesson_id, email)
-    );
+  return rows[0] || null;
+}
+
+async function upsertStudent(schoolId, name, email) {
+  const rows = await sql`
+    INSERT INTO students (school_id, name, email)
+    VALUES (${schoolId}, ${name || null}, ${email})
+    ON CONFLICT (school_id, email)
+    DO UPDATE SET name = COALESCE(EXCLUDED.name, students.name), updated_at = now()
+    RETURNING id, name, email;
   `;
+  return rows[0];
 }
 
 export default async function handler(req, res) {
@@ -28,17 +29,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    await ensureTables();
+    const lesson = await getLesson(id);
+    if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
 
     if (req.method === 'POST') {
       const { name, email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
 
-      await sql/*sql*/`
-        INSERT INTO surf_bookings (lesson_id, name, email)
-        VALUES (${id}, ${name || null}, ${email})
-        ON CONFLICT (lesson_id, email) DO NOTHING;
+      const student = await upsertStudent(lesson.school_id, name, email);
+
+      const updated = await sql`
+        UPDATE bookings
+        SET status = 'booked', cancelled_at = NULL, updated_at = now()
+        WHERE lesson_id = ${id} AND student_id = ${student.id}
+        RETURNING id;
       `;
+
+      if (!updated.length) {
+        await sql`
+          INSERT INTO bookings (lesson_id, student_id, status)
+          VALUES (${id}, ${student.id}, 'booked');
+        `;
+      }
+
       return res.status(200).json({ ok: true });
     }
 
@@ -46,19 +59,32 @@ export default async function handler(req, res) {
       const { email } = req.body || {};
       if (!email) return res.status(400).json({ ok: false, error: 'Missing email' });
 
-      const resDel = await sql/*sql*/`
-        DELETE FROM surf_bookings WHERE lesson_id = ${id} AND email = ${email};
+      const students = await sql`
+        SELECT id
+        FROM students
+        WHERE school_id = ${lesson.school_id} AND email = ${email} AND deleted_at IS NULL
+        LIMIT 1
       `;
-      if (!resDel.rowCount) {
+      const student = students[0];
+      if (!student) return res.status(404).json({ ok: false, error: 'Not booked' });
+
+      const cancelled = await sql`
+        UPDATE bookings
+        SET status = 'cancelled', cancelled_at = now(), updated_at = now()
+        WHERE lesson_id = ${id} AND student_id = ${student.id} AND status = 'booked'
+        RETURNING id;
+      `;
+      if (!cancelled.length) {
         return res.status(404).json({ ok: false, error: 'Not booked' });
       }
+
       return res.status(200).json({ ok: true });
     }
 
     res.setHeader('Allow', ['POST', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (e) {
-    console.error('surf_bookings error:', e);
+    console.error('bookings error:', e);
     return res.status(500).json({ ok: false, error: e?.message || 'Server error' });
   }
 }

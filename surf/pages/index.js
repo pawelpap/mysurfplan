@@ -67,9 +67,9 @@ const fmtTime = (iso) =>
 function groupByDay(lessons) {
   return lessons
     .slice()
-    .sort((a, b) => new Date(a.startISO) - new Date(b.startISO))
+    .sort((a, b) => new Date(a.startAt || a.startISO) - new Date(b.startAt || b.startISO))
     .reduce((acc, l) => {
-      const key = new Date(l.startISO).toDateString();
+      const key = new Date(l.startAt || l.startISO).toDateString();
       (acc[key] ||= []).push(l);
       return acc;
     }, {});
@@ -123,31 +123,29 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
 /* -------------------- Header segmented toggle -------------------- */
 function ModeToggle({ mode, setMode }) {
   return (
-    <div className="ml-auto">
-      <div className="inline-flex rounded-full border border-gray-300 bg-white overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setMode("coach")}
-          className={`px-4 py-1.5 text-sm ${mode === "coach" ? "bg-black text-white" : "text-gray-700"}`}
-          aria-pressed={mode === "coach"}
-        >
-          Coach
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("student")}
-          className={`px-4 py-1.5 text-sm ${mode === "student" ? "bg-black text-white" : "text-gray-700"}`}
-          aria-pressed={mode === "student"}
-        >
-          Student
-        </button>
-      </div>
+    <div className="inline-flex rounded-full border border-gray-300 bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setMode("coach")}
+        className={`px-4 py-1.5 text-sm ${mode === "coach" ? "bg-black text-white" : "text-gray-700"}`}
+        aria-pressed={mode === "coach"}
+      >
+        Coach
+      </button>
+      <button
+        type="button"
+        onClick={() => setMode("student")}
+        className={`px-4 py-1.5 text-sm ${mode === "student" ? "bg-black text-white" : "text-gray-700"}`}
+        aria-pressed={mode === "student"}
+      >
+        Student
+      </button>
     </div>
   );
 }
 
 /* -------------------- Forms & Lists -------------------- */
-function CreateLessonForm({ onCreate /* existing kept for signature compatibility */ }) {
+function CreateLessonForm({ school, onCreate /* existing kept for signature compatibility */ }) {
   // explicit date + 30-minute time select
   const { initDate, initTime } = getInitLocalDateTime();
   const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
@@ -160,17 +158,21 @@ function CreateLessonForm({ onCreate /* existing kept for signature compatibilit
   async function handleCreate(e) {
     e.preventDefault();
     setErr("");
+    if (!school) {
+      setErr("Please select a school.");
+      return;
+    }
     if (!place.trim()) {
       setErr("Please enter a place.");
       return;
     }
-    const startISO = buildISOFromLocal(dateStr, timeStr);
+    const startAt = buildISOFromLocal(dateStr, timeStr);
     setSubmitting(true);
     try {
       const res = await fetch("/api/lessons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startISO, difficulty, place: place.trim() }),
+        body: JSON.stringify({ school, startAt, difficulty, place: place.trim() }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
@@ -271,7 +273,8 @@ function StudentIdentity({ student, setStudent }) {
 }
 
 function LessonItem({ lesson, mode, student, reload }) {
-  const { id, startISO, durationMin, difficulty, place, attendees } = lesson;
+  const { id, startAt, startISO, durationMin, difficulty, place, attendees } = lesson;
+  const start = startAt || startISO;
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -344,9 +347,9 @@ function LessonItem({ lesson, mode, student, reload }) {
     <Card>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <div className="text-sm text-gray-500">{fmtDate(startISO)}</div>
+          <div className="text-sm text-gray-500">{fmtDate(start)}</div>
           <div className="text-xl font-semibold">
-            {fmtTime(startISO)} • {Math.round((durationMin ?? DURATION_MIN) / 60 * 10) / 10}h
+            {fmtTime(start)} • {Math.round((durationMin ?? DURATION_MIN) / 60 * 10) / 10}h
           </div>
           <div className="text-gray-700">
             {difficulty} • {place}
@@ -480,9 +483,10 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
 
       {days.map((day) => {
         const dayLessons = grouped[day].filter((l) => {
+          const start = l.startAt || l.startISO;
           if (filters.difficulty && l.difficulty !== filters.difficulty) return false;
-          if (filters.from && new Date(l.startISO) < new Date(filters.from)) return false;
-          if (filters.to && new Date(l.startISO) > new Date(filters.to + "T23:59:59")) return false;
+          if (filters.from && new Date(start) < new Date(filters.from)) return false;
+          if (filters.to && new Date(start) > new Date(filters.to + "T23:59:59")) return false;
           return true;
         });
         if (dayLessons.length === 0) return null;
@@ -508,17 +512,47 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
 /* -------------------- Page -------------------- */
 export default function App({ settings }) {
   const [mode, setMode] = useState("coach");
+  const [schools, setSchools] = useState([]);
+  const [school, setSchool] = useState("");
+  const [schoolsLoading, setSchoolsLoading] = useState(true);
+  const [schoolsError, setSchoolsError] = useState("");
   const [lessons, setLessons] = useState([]);
   const [student, setStudent] = useState({ name: "", email: "" });
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  async function loadSchools() {
+    setSchoolsLoading(true);
+    setSchoolsError("");
+    try {
+      const res = await fetch("/api/schools");
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      const list = Array.isArray(json.data) ? json.data : [];
+      setSchools(list);
+      if (!school && list.length) {
+        setSchool(list[0].slug);
+      }
+      if (!list.length) {
+        setLoading(false);
+      }
+    } catch (e) {
+      setSchoolsError(e.message);
+    } finally {
+      setSchoolsLoading(false);
+    }
+  }
+
   async function load() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/lessons");
+      if (!school) {
+        setLessons([]);
+        return;
+      }
+      const res = await fetch(`/api/lessons?school=${encodeURIComponent(school)}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       setLessons(json.data);
@@ -528,10 +562,19 @@ export default function App({ settings }) {
       setLoading(false);
     }
   }
-  useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    loadSchools();
+  }, []);
+
+  useEffect(() => {
+    if (school) load();
+  }, [school]);
 
   function handleCreated(l) {
-    setLessons((prev) => [...prev, l].sort((a, b) => new Date(a.startISO) - new Date(b.startISO)));
+    setLessons((prev) =>
+      [...prev, l].sort((a, b) => new Date(a.startAt || a.startISO) - new Date(b.startAt || b.startISO))
+    );
   }
 
   return (
@@ -551,7 +594,25 @@ export default function App({ settings }) {
             <div className="text-xl font-bold">{settings?.siteName || "MyWavePlan"}</div>
           </div>
 
-          <ModeToggle mode={mode} setMode={setMode} />
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">School</span>
+              <Select
+                value={school}
+                onChange={(e) => setSchool(e.target.value)}
+                className="min-w-[200px]"
+                disabled={schoolsLoading}
+              >
+                {!school && <option value="">Select a school</option>}
+                {schools.map((s) => (
+                  <option key={s.id} value={s.slug}>
+                    {s.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <ModeToggle mode={mode} setMode={setMode} />
+          </div>
         </div>
       </header>
 
@@ -565,9 +626,15 @@ export default function App({ settings }) {
             </div>
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
+          {schoolsError && <div className="text-sm text-rose-600 mt-2">{schoolsError}</div>}
+          {!schoolsLoading && !school && !schoolsError && (
+            <div className="text-sm text-gray-500 mt-2">Select a school to load lessons.</div>
+          )}
         </Card>
 
-        {mode === "coach" && <CreateLessonForm onCreate={handleCreated} existing={lessons} />}
+        {mode === "coach" && (
+          <CreateLessonForm school={school} onCreate={handleCreated} existing={lessons} />
+        )}
 
         {mode === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
 
