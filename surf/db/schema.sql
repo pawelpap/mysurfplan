@@ -26,6 +26,7 @@ END $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS schools (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL,
+  contact_email TEXT,
   slug          TEXT GENERATED ALWAYS AS (
                    regexp_replace(lower(name), '[^a-z0-9]+', '-', 'g')
                  ) STORED,
@@ -33,6 +34,8 @@ CREATE TABLE IF NOT EXISTS schools (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at    TIMESTAMPTZ
 );
+ALTER TABLE schools
+  ADD COLUMN IF NOT EXISTS contact_email TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_schools_slug ON schools(slug) WHERE deleted_at IS NULL;
 DO $$ BEGIN
   CREATE TRIGGER trg_touch_schools BEFORE UPDATE ON schools
