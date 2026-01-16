@@ -127,14 +127,17 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
 }
 
 /* -------------------- Header segmented toggle -------------------- */
-function RoleMenu({ role, setRole }) {
+function RoleMenu({ role, setRole, onSelect }) {
   return (
     <div className="space-y-2">
       {ROLES.map((r) => (
         <button
           key={r.id}
           type="button"
-          onClick={() => setRole(r.id)}
+          onClick={() => {
+            setRole(r.id);
+            if (onSelect) onSelect();
+          }}
           className={`w-full text-left rounded-lg px-3 py-2 text-sm border transition ${
             role === r.id
               ? "bg-black text-white border-black"
@@ -893,6 +896,7 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
 /* -------------------- Page -------------------- */
 export default function App({ settings }) {
   const [role, setRole] = useState("coach");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
@@ -985,15 +989,53 @@ export default function App({ settings }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
+        <div className="px-4 py-3 flex items-center gap-3">
+          <button
+            type="button"
+            className="rounded-lg border border-gray-200 p-2"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+            </svg>
+          </button>
+          <div className="flex-1">
+            {settings?.logo?.url ? (
+              <img
+                src={settings.logo.url}
+                alt="Surf School"
+                className="h-8 w-auto object-contain"
+              />
+            ) : (
+              <span className="text-xl">🏄</span>
+            )}
+          </div>
+          <div className="text-xs text-gray-500">{ROLES.find((r) => r.id === role)?.label}</div>
+        </div>
+      </div>
+
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
-        <aside className="w-64 shrink-0 space-y-6">
+        <aside
+          className={`fixed md:static inset-y-0 left-0 z-40 w-72 md:w-64 shrink-0 space-y-6 bg-white md:bg-transparent p-4 md:p-0 transform transition ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
+        >
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
             <div className="space-y-3">
               <div className="w-full h-12 flex items-center justify-start">
                 {settings?.logo?.url ? (
                   <img
                     src={settings.logo.url}
-                    alt="Surf School Guru"
+                    alt="Surf School"
                     className="h-10 w-full object-contain rounded-md"
                   />
                 ) : (
@@ -1004,14 +1046,21 @@ export default function App({ settings }) {
 
             <div>
               <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Role</div>
-              <RoleMenu role={role} setRole={setRole} />
+              <RoleMenu
+                role={role}
+                setRole={setRole}
+                onSelect={() => setSidebarOpen(false)}
+              />
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">School</div>
               <Select
                 value={school}
-                onChange={(e) => setSchool(e.target.value)}
+                onChange={(e) => {
+                  setSchool(e.target.value);
+                  setSidebarOpen(false);
+                }}
                 className="w-full"
                 disabled={schoolsLoading}
               >
