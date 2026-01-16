@@ -13,6 +13,12 @@ export async function getServerSideProps() {
 /* -------------------- Constants & utils -------------------- */
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
+const ROLES = [
+  { id: "admin", label: "Admin" },
+  { id: "school_admin", label: "School Admin" },
+  { id: "coach", label: "Coach" },
+  { id: "student", label: "Student" },
+];
 
 /* Half-hour helpers */
 const HALF_HOUR_MS = 30 * 60 * 1000;
@@ -121,37 +127,37 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
 }
 
 /* -------------------- Header segmented toggle -------------------- */
-function ModeToggle({ mode, setMode }) {
+function RoleMenu({ role, setRole }) {
   return (
-    <div className="inline-flex rounded-full border border-gray-300 bg-white overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setMode("coach")}
-        className={`px-4 py-1.5 text-sm ${mode === "coach" ? "bg-black text-white" : "text-gray-700"}`}
-        aria-pressed={mode === "coach"}
-      >
-        Coach
-      </button>
-      <button
-        type="button"
-        onClick={() => setMode("student")}
-        className={`px-4 py-1.5 text-sm ${mode === "student" ? "bg-black text-white" : "text-gray-700"}`}
-        aria-pressed={mode === "student"}
-      >
-        Student
-      </button>
+    <div className="space-y-2">
+      {ROLES.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          onClick={() => setRole(r.id)}
+          className={`w-full text-left rounded-lg px-3 py-2 text-sm border transition ${
+            role === r.id
+              ? "bg-black text-white border-black"
+              : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
+          }`}
+          aria-pressed={role === r.id}
+        >
+          {r.label}
+        </button>
+      ))}
     </div>
   );
 }
 
 /* -------------------- Forms & Lists -------------------- */
-function CreateLessonForm({ school, onCreate /* existing kept for signature compatibility */ }) {
+function CreateLessonForm({ school, coaches, onCreate /* existing kept for signature compatibility */ }) {
   // explicit date + 30-minute time select
   const { initDate, initTime } = getInitLocalDateTime();
   const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
   const [timeStr, setTimeStr] = useState(initTime);  // HH:mm (00 or 30)
   const [difficulty, setDifficulty] = useState("Beginner");
   const [place, setPlace] = useState("");
+  const [coachIds, setCoachIds] = useState([]);
   const [err, setErr] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -166,18 +172,23 @@ function CreateLessonForm({ school, onCreate /* existing kept for signature comp
       setErr("Please enter a place.");
       return;
     }
+    if (!coachIds.length) {
+      setErr("Please select at least one coach.");
+      return;
+    }
     const startAt = buildISOFromLocal(dateStr, timeStr);
     setSubmitting(true);
     try {
       const res = await fetch("/api/lessons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ school, startAt, difficulty, place: place.trim() }),
+        body: JSON.stringify({ school, startAt, difficulty, place: place.trim(), coachIds }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
       onCreate(json.data);
       setPlace("");
+      setCoachIds([]);
       setErr("");
     } catch (error) {
       setErr(error.message);
@@ -229,6 +240,28 @@ function CreateLessonForm({ school, onCreate /* existing kept for signature comp
             onChange={(e) => setPlace(e.target.value)}
           />
         </div>
+        <div>
+          <Label>Coaches</Label>
+          <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
+            {!coaches?.length && (
+              <div className="text-sm text-gray-500">Add a coach to assign them.</div>
+            )}
+            {coaches?.map((c) => (
+              <label key={c.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={coachIds.includes(c.id)}
+                  onChange={(e) => {
+                    setCoachIds((prev) =>
+                      e.target.checked ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                    );
+                  }}
+                />
+                <span>{c.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
         <div className="md:col-span-3 flex items-center gap-3">
           <Btn type="submit" variant="primary" disabled={submitting} className="min-w-[150px]">
@@ -272,13 +305,236 @@ function StudentIdentity({ student, setStudent }) {
   );
 }
 
-function LessonItem({ lesson, mode, student, reload }) {
-  const { id, startAt, startISO, durationMin, difficulty, place, attendees } = lesson;
-  const start = startAt || startISO;
+function SchoolsManager({ schools, onReload }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
+  async function createSchool(e) {
+    e.preventDefault();
+    setErr("");
+    if (!name.trim()) {
+      setErr("Please enter a school name.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/schools", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), contactEmail: email.trim() || null }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeSchool(id) {
+    if (!window.confirm("Delete this school? This cannot be undone.")) return;
+    setErr("");
+    try {
+      const res = await fetch("/api/schools", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Schools</h3>
+      <form onSubmit={createSchool} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="School name" />
+        </div>
+        <div>
+          <Label>Contact email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@school.com"
+          />
+        </div>
+        <div className="md:pt-6">
+          <Btn type="submit" variant="primary" disabled={busy}>
+            {busy ? "Creating…" : "Add school"}
+          </Btn>
+        </div>
+      </form>
+      {err && <div className="text-sm text-rose-600 mt-2">{err}</div>}
+
+      <div className="mt-4 space-y-2">
+        {schools.map((s) => (
+          <div key={s.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{s.name}</div>
+              <div className="text-xs text-gray-500">{s.slug}</div>
+            </div>
+            <Btn variant="outlineDanger" onClick={() => removeSchool(s.id)}>
+              Delete
+            </Btn>
+          </div>
+        ))}
+        {!schools.length && <div className="text-sm text-gray-500">No schools yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function CoachesManager({ school, coaches, onReload }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function createCoach(e) {
+    e.preventDefault();
+    setErr("");
+    if (!school) {
+      setErr("Select a school first.");
+      return;
+    }
+    if (!name.trim()) {
+      setErr("Please enter a coach name.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/coaches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ school, name: name.trim(), email: email.trim() || null }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeCoach(id) {
+    if (!window.confirm("Delete this coach?")) return;
+    setErr("");
+    try {
+      const res = await fetch("/api/coaches", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Coaches</h3>
+      <form onSubmit={createCoach} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Coach name" />
+        </div>
+        <div>
+          <Label>Email</Label>
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="coach@school.com"
+          />
+        </div>
+        <div className="md:pt-6">
+          <Btn type="submit" variant="primary" disabled={busy}>
+            {busy ? "Creating…" : "Add coach"}
+          </Btn>
+        </div>
+      </form>
+      {err && <div className="text-sm text-rose-600 mt-2">{err}</div>}
+
+      <div className="mt-4 space-y-2">
+        {coaches.map((c) => (
+          <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{c.name}</div>
+              <div className="text-xs text-gray-500">{c.email || "no email"}</div>
+            </div>
+            <Btn variant="outlineDanger" onClick={() => removeCoach(c.id)}>
+              Delete
+            </Btn>
+          </div>
+        ))}
+        {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function CoachesList({ coaches }) {
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Coaches</h3>
+      <div className="space-y-2">
+        {coaches.map((c) => (
+          <div key={c.id} className="flex items-center justify-between border rounded-xl px-3 py-2">
+            <div>
+              <div className="font-medium">{c.name}</div>
+              <div className="text-xs text-gray-500">{c.email || "no email"}</div>
+            </div>
+          </div>
+        ))}
+        {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function LessonItem({ lesson, role, student, reload, allCoaches }) {
+  const { id, startAt, startISO, durationMin, difficulty, place, attendees, coaches } = lesson;
+  const start = startAt || startISO;
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [coachIds, setCoachIds] = useState([]);
+  const [coachBusy, setCoachBusy] = useState(false);
+  const [coachMsg, setCoachMsg] = useState("");
+  const [staffName, setStaffName] = useState("");
+  const [staffEmail, setStaffEmail] = useState("");
+  const [staffBusy, setStaffBusy] = useState(false);
+  const [staffMsg, setStaffMsg] = useState("");
+
   const booked = attendees?.some((a) => a.email && a.email === student?.email);
+  const isStaff = role !== "student";
+  const coachNames = Array.isArray(coaches)
+    ? coaches.map((c) => c?.name).filter(Boolean).join(", ")
+    : "";
+
+  useEffect(() => {
+    const next = Array.isArray(coaches) ? coaches.map((c) => c?.id).filter(Boolean) : [];
+    setCoachIds(next);
+  }, [id, coaches]);
 
   async function book() {
     if (!student?.email) return;
@@ -343,6 +599,72 @@ function LessonItem({ lesson, mode, student, reload }) {
     }
   }
 
+  async function saveCoaches() {
+    setCoachBusy(true);
+    setCoachMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/coaches`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coachIds }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setCoachMsg("Coaches updated.");
+      await reload();
+    } catch (e) {
+      setCoachMsg(e.message);
+    } finally {
+      setCoachBusy(false);
+    }
+  }
+
+  async function staffAddStudent() {
+    if (!staffEmail) return;
+    setStaffBusy(true);
+    setStaffMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/book`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: staffName, email: staffEmail }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setStaffName("");
+      setStaffEmail("");
+      setStaffMsg("Student added.");
+      await reload();
+    } catch (e) {
+      setStaffMsg(e.message);
+    } finally {
+      setStaffBusy(false);
+    }
+  }
+
+  async function staffRemoveStudent() {
+    if (!staffEmail) return;
+    setStaffBusy(true);
+    setStaffMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${id}/book`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: staffEmail }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setStaffName("");
+      setStaffEmail("");
+      setStaffMsg("Student removed.");
+      await reload();
+    } catch (e) {
+      setStaffMsg(e.message);
+    } finally {
+      setStaffBusy(false);
+    }
+  }
+
   return (
     <Card>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -353,6 +675,7 @@ function LessonItem({ lesson, mode, student, reload }) {
           </div>
           <div className="text-gray-700">
             {difficulty} • {place}
+            {coachNames && <span className="text-gray-500"> • {coachNames}</span>}
           </div>
         </div>
 
@@ -363,7 +686,7 @@ function LessonItem({ lesson, mode, student, reload }) {
             Booked: <span className="font-semibold">{attendees?.length || 0}</span>
           </div>
 
-          {mode === "coach" ? (
+          {isStaff ? (
             <>
               <details className="text-sm">
                 <summary className="cursor-pointer select-none">See attendees</summary>
@@ -377,6 +700,63 @@ function LessonItem({ lesson, mode, student, reload }) {
                     </li>
                   ))}
                 </ul>
+              </details>
+
+              <details className="text-sm">
+                <summary className="cursor-pointer select-none">Assign coaches</summary>
+                <div className="mt-2 space-y-2">
+                  <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
+                    {!allCoaches?.length && (
+                      <div className="text-xs text-gray-500">No coaches available.</div>
+                    )}
+                    {allCoaches?.map((c) => (
+                      <label key={c.id} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={coachIds.includes(c.id)}
+                          onChange={(e) => {
+                            setCoachIds((prev) =>
+                              e.target.checked ? [...prev, c.id] : prev.filter((cid) => cid !== c.id)
+                            );
+                          }}
+                        />
+                        <span>{c.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Btn onClick={saveCoaches} disabled={coachBusy} variant="neutral">
+                      {coachBusy ? "Saving…" : "Save coaches"}
+                    </Btn>
+                    {coachMsg && <span className="text-xs text-gray-500">{coachMsg}</span>}
+                  </div>
+                </div>
+              </details>
+
+              <details className="text-sm">
+                <summary className="cursor-pointer select-none">Manage students</summary>
+                <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <Input
+                    placeholder="Student name"
+                    value={staffName}
+                    onChange={(e) => setStaffName(e.target.value)}
+                  />
+                  <Input
+                    type="email"
+                    placeholder="Student email"
+                    value={staffEmail}
+                    onChange={(e) => setStaffEmail(e.target.value)}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Btn onClick={staffAddStudent} disabled={staffBusy} variant="primary">
+                      Add
+                    </Btn>
+                    <Btn onClick={staffRemoveStudent} disabled={staffBusy} variant="outlineDanger">
+                      Remove
+                    </Btn>
+                  </div>
+                </div>
+                {staffMsg && <div className="text-xs text-gray-500 mt-2">{staffMsg}</div>}
               </details>
 
               <Btn
@@ -421,7 +801,7 @@ function LessonItem({ lesson, mode, student, reload }) {
             </div>
           )}
 
-          {mode === "student" && err && (
+          {role === "student" && err && (
             <div className="text-xs text-rose-600">{err}</div>
           )}
         </div>
@@ -430,7 +810,7 @@ function LessonItem({ lesson, mode, student, reload }) {
   );
 }
 
-function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
+function LessonsList({ lessons, role, student, reload, filters, setFilters, coaches }) {
   const grouped = useMemo(() => groupByDay(lessons), [lessons]);
   const days = Object.keys(grouped);
 
@@ -497,9 +877,10 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
               <LessonItem
                 key={lesson.id}
                 lesson={lesson}
-                mode={mode}
+                role={role}
                 student={student}
                 reload={reload}
+                allCoaches={coaches}
               />
             ))}
           </section>
@@ -511,11 +892,14 @@ function LessonsList({ lessons, mode, student, reload, filters, setFilters }) {
 
 /* -------------------- Page -------------------- */
 export default function App({ settings }) {
-  const [mode, setMode] = useState("coach");
+  const [role, setRole] = useState("coach");
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
   const [schoolsError, setSchoolsError] = useState("");
+  const [coaches, setCoaches] = useState([]);
+  const [coachesLoading, setCoachesLoading] = useState(true);
+  const [coachesError, setCoachesError] = useState("");
   const [lessons, setLessons] = useState([]);
   const [student, setStudent] = useState({ name: "", email: "" });
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
@@ -550,6 +934,7 @@ export default function App({ settings }) {
     try {
       if (!school) {
         setLessons([]);
+        setLoading(false);
         return;
       }
       const res = await fetch(`/api/lessons?school=${encodeURIComponent(school)}`);
@@ -563,12 +948,33 @@ export default function App({ settings }) {
     }
   }
 
+  async function loadCoaches() {
+    setCoachesLoading(true);
+    setCoachesError("");
+    try {
+      if (!school) {
+        setCoaches([]);
+        setCoachesLoading(false);
+        return;
+      }
+      const res = await fetch(`/api/coaches?school=${encodeURIComponent(school)}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setCoaches(Array.isArray(json.data) ? json.data : []);
+    } catch (e) {
+      setCoachesError(e.message);
+    } finally {
+      setCoachesLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadSchools();
   }, []);
 
   useEffect(() => {
     if (school) load();
+    loadCoaches();
   }, [school]);
 
   function handleCreated(l) {
@@ -578,29 +984,35 @@ export default function App({ settings }) {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            {settings?.logo?.url ? (
-              <img
-                src={settings.logo.url}
-                alt={settings.siteName || "MyWavePlan"}
-                className="h-7 w-auto rounded-md"
-              />
-            ) : (
-              <span className="text-xl">🏄</span>
-            )}
-            <div className="text-xl font-bold">{settings?.siteName || "MyWavePlan"}</div>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
+        <aside className="w-64 shrink-0 space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
+            <div className="space-y-3">
+              <div className="w-full h-12 flex items-center justify-start">
+                {settings?.logo?.url ? (
+                  <img
+                    src={settings.logo.url}
+                    alt="Surf School Guru"
+                    className="h-10 w-full object-contain rounded-md"
+                  />
+                ) : (
+                  <span className="text-2xl">🏄</span>
+                )}
+              </div>
+            </div>
 
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">School</span>
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Role</div>
+              <RoleMenu role={role} setRole={setRole} />
+            </div>
+
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">School</div>
               <Select
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
-                className="min-w-[200px]"
+                className="w-full"
                 disabled={schoolsLoading}
               >
                 {!school && <option value="">Select a school</option>}
@@ -611,46 +1023,59 @@ export default function App({ settings }) {
                 ))}
               </Select>
             </div>
-            <ModeToggle mode={mode} setMode={setMode} />
           </div>
-        </div>
-      </header>
+        </aside>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <main className="flex-1 space-y-6">
         <Card>
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <div className="flex-1">
               <h2 className="text-2xl font-semibold">
-                {mode === "coach" ? "Coach" : "Student"} Workspace
+                {ROLES.find((r) => r.id === role)?.label || "Workspace"}
               </h2>
             </div>
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
           {schoolsError && <div className="text-sm text-rose-600 mt-2">{schoolsError}</div>}
+          {coachesError && <div className="text-sm text-rose-600 mt-2">{coachesError}</div>}
           {!schoolsLoading && !school && !schoolsError && (
             <div className="text-sm text-gray-500 mt-2">Select a school to load lessons.</div>
           )}
         </Card>
 
-        {mode === "coach" && (
-          <CreateLessonForm school={school} onCreate={handleCreated} existing={lessons} />
+        {role === "admin" && <SchoolsManager schools={schools} onReload={loadSchools} />}
+
+        {(role === "admin" || role === "school_admin") && (
+          <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} />
         )}
 
-        {mode === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
+        {(role === "admin" || role === "school_admin" || role === "coach") && (
+          <CreateLessonForm
+            school={school}
+            coaches={coaches}
+            onCreate={handleCreated}
+            existing={lessons}
+          />
+        )}
+
+        {role === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
+        {role === "student" && <CoachesList coaches={coaches} />}
 
         {loading ? (
           <div className="text-gray-500">Loading…</div>
         ) : (
           <LessonsList
             lessons={lessons}
-            mode={mode}
+            role={role}
             student={student}
             reload={load}
             filters={filters}
             setFilters={setFilters}
+            coaches={coaches}
           />
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
