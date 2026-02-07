@@ -1123,7 +1123,6 @@ export default function App({ settings }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap");
         :root {
           --brand-ink: #0b1220;
           --brand-sky: #d7f5ff;
@@ -1131,14 +1130,7 @@ export default function App({ settings }) {
           --brand-sand: #f6f0e6;
         }
         body {
-          font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
           background: radial-gradient(circle at 20% 0%, #e7f9ff 0%, #f6f0e6 38%, #f8fafc 100%);
-        }
-        h1,
-        h2,
-        h3,
-        h4 {
-          font-family: "Fraunces", "Space Grotesk", serif;
         }
       `}</style>
 
