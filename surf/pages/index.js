@@ -34,7 +34,7 @@ const STUDENT_SCREENS = [
 
 function getAvailableScreens(role) {
   if (role === "student") return STUDENT_SCREENS;
-  if (role === "coach") return STAFF_SCREENS.filter((s) => s.id === "lessons");
+  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "students"].includes(s.id));
   if (role === "school_admin") {
     return STAFF_SCREENS.filter((s) => ["coaches", "lessons", "students"].includes(s.id));
   }
@@ -505,6 +505,136 @@ function CoachesList({ coaches }) {
           </div>
         ))}
         {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function StudentsManager({ lessons, reload }) {
+  const [lessonId, setLessonId] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const selected = lessons.find((l) => String(l.id) === String(lessonId));
+  const attendees = selected?.attendees || [];
+
+  useEffect(() => {
+    if (!lessonId && lessons.length) {
+      setLessonId(String(lessons[0].id));
+    }
+  }, [lessonId, lessons]);
+
+  async function addStudent() {
+    if (!lessonId || !email) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}/book`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      setMsg("Student added.");
+      await reload();
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeStudent() {
+    if (!lessonId || !email) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await fetch(`/api/lessons/${lessonId}/book`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setName("");
+      setEmail("");
+      setMsg("Student removed.");
+      await reload();
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card>
+      <div className="flex flex-col gap-4">
+        <div>
+          <h3 className="text-lg font-semibold">Students</h3>
+          <p className="text-sm text-slate-600">
+            Add or remove bookings for a lesson using the same flow as self-booking.
+          </p>
+        </div>
+
+        {!lessons.length ? (
+          <div className="text-sm text-slate-500">Create a lesson first to manage students.</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <Label>Lesson</Label>
+                <Select value={lessonId} onChange={(e) => setLessonId(e.target.value)}>
+                  {lessons.map((l) => {
+                    const start = l.startAt || l.startISO;
+                    return (
+                      <option key={l.id} value={l.id}>
+                        {fmtDate(start)} • {fmtTime(start)} • {l.place || "Session"}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Current bookings
+                </div>
+                <div className="mt-2 space-y-1 text-sm text-slate-700">
+                  {!attendees.length && <div className="text-slate-500">No students yet.</div>}
+                  {attendees.map((a, i) => (
+                    <div key={i}>
+                      {a.name || "(No name)"} — {a.email || "(No email)"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <Label>Student name</Label>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div>
+                <Label>Student email</Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div className="flex items-end gap-2">
+                <Btn onClick={addStudent} disabled={busy} variant="primary">
+                  Add
+                </Btn>
+                <Btn onClick={removeStudent} disabled={busy} variant="outlineDanger">
+                  Remove
+                </Btn>
+              </div>
+            </div>
+            {msg && <div className="text-xs text-slate-500">{msg}</div>}
+          </>
+        )}
       </div>
     </Card>
   );
@@ -991,7 +1121,7 @@ export default function App({ settings }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <style jsx global>{`
         @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap");
         :root {
@@ -1030,7 +1160,7 @@ export default function App({ settings }) {
                 <img
                   src={settings.logo.url}
                   alt="Surf School"
-                  className="h-10 w-10 object-cover rounded-xl shadow-sm"
+                  className="h-10 w-auto max-w-[140px] object-contain"
                 />
               ) : (
                 <span className="text-2xl">🏄</span>
@@ -1156,17 +1286,10 @@ export default function App({ settings }) {
           <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} />
         )}
 
-        {activeScreen === "students" && (role === "admin" || role === "school_admin") && (
-          <Card>
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold text-slate-900">Students</h3>
-              <p className="text-sm text-slate-600">
-                Student management will live here. We can add enrollment, profiles, and permissions
-                once authentication lands.
-              </p>
-            </div>
-          </Card>
-        )}
+        {activeScreen === "students" &&
+          (role === "admin" || role === "school_admin" || role === "coach") && (
+            <StudentsManager lessons={lessons} reload={load} />
+          )}
 
         {activeScreen === "profile" && role === "student" && (
           <StudentIdentity student={student} setStudent={setStudent} />
