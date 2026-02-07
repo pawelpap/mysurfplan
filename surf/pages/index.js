@@ -20,6 +20,27 @@ const ROLES = [
   { id: "student", label: "Student" },
 ];
 
+const STAFF_SCREENS = [
+  { id: "schools", label: "Schools" },
+  { id: "coaches", label: "Coaches" },
+  { id: "lessons", label: "Lessons" },
+  { id: "students", label: "Students" },
+];
+const STUDENT_SCREENS = [
+  { id: "profile", label: "Profile" },
+  { id: "coaches", label: "Coaches" },
+  { id: "lessons", label: "Lessons" },
+];
+
+function getAvailableScreens(role) {
+  if (role === "student") return STUDENT_SCREENS;
+  if (role === "coach") return STAFF_SCREENS.filter((s) => s.id === "lessons");
+  if (role === "school_admin") {
+    return STAFF_SCREENS.filter((s) => ["coaches", "lessons", "students"].includes(s.id));
+  }
+  return STAFF_SCREENS;
+}
+
 /* Half-hour helpers */
 const HALF_HOUR_MS = 30 * 60 * 1000;
 function roundToHalfHour(date) {
@@ -123,32 +144,6 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
     <button {...rest} className={`${base} ${styles} ${className}`} style={forcedStyle}>
       {children}
     </button>
-  );
-}
-
-/* -------------------- Header segmented toggle -------------------- */
-function RoleMenu({ role, setRole, onSelect }) {
-  return (
-    <div className="space-y-2">
-      {ROLES.map((r) => (
-        <button
-          key={r.id}
-          type="button"
-          onClick={() => {
-            setRole(r.id);
-            if (onSelect) onSelect();
-          }}
-          className={`w-full text-left rounded-lg px-3 py-2 text-sm border transition ${
-            role === r.id
-              ? "bg-black text-white border-black"
-              : "bg-white text-gray-700 border-gray-200 hover:border-gray-300"
-          }`}
-          aria-pressed={role === r.id}
-        >
-          {r.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
@@ -897,6 +892,7 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
 export default function App({ settings }) {
   const [role, setRole] = useState("coach");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeScreen, setActiveScreen] = useState("lessons");
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
@@ -981,6 +977,13 @@ export default function App({ settings }) {
     loadCoaches();
   }, [school]);
 
+  useEffect(() => {
+    const available = getAvailableScreens(role);
+    if (!available.find((s) => s.id === activeScreen)) {
+      setActiveScreen(available[0]?.id || "lessons");
+    }
+  }, [role, activeScreen]);
+
   function handleCreated(l) {
     setLessons((prev) =>
       [...prev, l].sort((a, b) => new Date(a.startAt || a.startISO) - new Date(b.startAt || b.startISO))
@@ -988,31 +991,92 @@ export default function App({ settings }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur border-b">
-        <div className="px-4 py-3 flex items-center gap-3">
-          <button
-            type="button"
-            className="rounded-lg border border-gray-200 p-2"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-              <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
-            </svg>
-          </button>
-          <div className="flex-1">
-            {settings?.logo?.url ? (
-              <img
-                src={settings.logo.url}
-                alt="Surf School"
-                className="h-8 w-auto object-contain"
-              />
-            ) : (
-              <span className="text-xl">🏄</span>
-            )}
+    <div className="min-h-screen bg-slate-950 text-slate-900">
+      <style jsx global>{`
+        @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;700&display=swap");
+        :root {
+          --brand-ink: #0b1220;
+          --brand-sky: #d7f5ff;
+          --brand-ocean: #0ea5b7;
+          --brand-sand: #f6f0e6;
+        }
+        body {
+          font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+          background: radial-gradient(circle at 20% 0%, #e7f9ff 0%, #f6f0e6 38%, #f8fafc 100%);
+        }
+        h1,
+        h2,
+        h3,
+        h4 {
+          font-family: "Fraunces", "Space Grotesk", serif;
+        }
+      `}</style>
+
+      <div className="sticky top-0 z-30 border-b border-white/50 bg-white/80 backdrop-blur">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center">
+          <div className="flex items-center gap-3 flex-1">
+            <button
+              type="button"
+              className="md:hidden rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+              </svg>
+            </button>
+            <div className="flex items-center gap-3">
+              {settings?.logo?.url ? (
+                <img
+                  src={settings.logo.url}
+                  alt="Surf School"
+                  className="h-10 w-10 object-cover rounded-xl shadow-sm"
+                />
+              ) : (
+                <span className="text-2xl">🏄</span>
+              )}
+              <div>
+                <div className="text-sm uppercase tracking-[0.2em] text-slate-500">
+                  Workspace
+                </div>
+                <div className="text-lg font-semibold text-slate-900">
+                  {settings?.siteName || "Surf School"}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="text-xs text-gray-500">{ROLES.find((r) => r.id === role)?.label}</div>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="min-w-[180px]">
+              <Label>Role</Label>
+              <Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="bg-white"
+              >
+                {ROLES.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="min-w-[220px]">
+              <Label>School</Label>
+              <Select
+                value={school}
+                onChange={(e) => setSchool(e.target.value)}
+                className="bg-white"
+                disabled={schoolsLoading}
+              >
+                {!school && <option value="">Select a school</option>}
+                {schools.map((s) => (
+                  <option key={s.id} value={s.slug}>
+                    {s.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1029,99 +1093,112 @@ export default function App({ settings }) {
             sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
         >
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-4">
-            <div className="space-y-3">
-              <div className="w-full h-12 flex items-center justify-start">
-                {settings?.logo?.url ? (
-                  <img
-                    src={settings.logo.url}
-                    alt="Surf School"
-                    className="h-10 w-full object-contain rounded-md"
-                  />
-                ) : (
-                  <span className="text-2xl">🏄</span>
-                )}
+          <div className="bg-white rounded-3xl border border-white/60 p-4 shadow-xl space-y-5">
+            <div className="px-2">
+              <div className="text-xs uppercase tracking-[0.24em] text-slate-400 mb-2">
+                Navigation
+              </div>
+              <div className="text-sm font-medium text-slate-700">
+                {ROLES.find((r) => r.id === role)?.label || "Workspace"}
               </div>
             </div>
 
-            <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Role</div>
-              <RoleMenu
-                role={role}
-                setRole={setRole}
-                onSelect={() => setSidebarOpen(false)}
-              />
-            </div>
-
-            <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">School</div>
-              <Select
-                value={school}
-                onChange={(e) => {
-                  setSchool(e.target.value);
-                  setSidebarOpen(false);
-                }}
-                className="w-full"
-                disabled={schoolsLoading}
-              >
-                {!school && <option value="">Select a school</option>}
-                {schools.map((s) => (
-                  <option key={s.id} value={s.slug}>
-                    {s.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            <nav className="space-y-2">
+              {getAvailableScreens(role).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveScreen(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full text-left rounded-2xl px-4 py-3 text-sm font-medium border transition ${
+                    activeScreen === item.id
+                      ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20"
+                      : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </nav>
           </div>
         </aside>
 
         <main className="flex-1 space-y-6">
         <Card>
-          <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="flex-1">
-              <h2 className="text-2xl font-semibold">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
                 {ROLES.find((r) => r.id === role)?.label || "Workspace"}
+              </div>
+              <h2 className="text-3xl font-semibold text-slate-900">
+                {getAvailableScreens(role).find((s) => s.id === activeScreen)?.label || "Overview"}
               </h2>
+            </div>
+            <div className="text-sm text-slate-500">
+              {school ? `Active school: ${school}` : "Pick a school to continue"}
             </div>
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
           {schoolsError && <div className="text-sm text-rose-600 mt-2">{schoolsError}</div>}
           {coachesError && <div className="text-sm text-rose-600 mt-2">{coachesError}</div>}
           {!schoolsLoading && !school && !schoolsError && (
-            <div className="text-sm text-gray-500 mt-2">Select a school to load lessons.</div>
+            <div className="text-sm text-slate-500 mt-2">Select a school to load data.</div>
           )}
         </Card>
 
-        {role === "admin" && <SchoolsManager schools={schools} onReload={loadSchools} />}
+        {activeScreen === "schools" && role === "admin" && (
+          <SchoolsManager schools={schools} onReload={loadSchools} />
+        )}
 
-        {(role === "admin" || role === "school_admin") && (
+        {activeScreen === "coaches" && (role === "admin" || role === "school_admin") && (
           <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} />
         )}
 
-        {(role === "admin" || role === "school_admin" || role === "coach") && (
-          <CreateLessonForm
-            school={school}
-            coaches={coaches}
-            onCreate={handleCreated}
-            existing={lessons}
-          />
+        {activeScreen === "students" && (role === "admin" || role === "school_admin") && (
+          <Card>
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-slate-900">Students</h3>
+              <p className="text-sm text-slate-600">
+                Student management will live here. We can add enrollment, profiles, and permissions
+                once authentication lands.
+              </p>
+            </div>
+          </Card>
         )}
 
-        {role === "student" && <StudentIdentity student={student} setStudent={setStudent} />}
-        {role === "student" && <CoachesList coaches={coaches} />}
+        {activeScreen === "profile" && role === "student" && (
+          <StudentIdentity student={student} setStudent={setStudent} />
+        )}
 
-        {loading ? (
-          <div className="text-gray-500">Loading…</div>
-        ) : (
-          <LessonsList
-            lessons={lessons}
-            role={role}
-            student={student}
-            reload={load}
-            filters={filters}
-            setFilters={setFilters}
-            coaches={coaches}
-          />
+        {activeScreen === "coaches" && role === "student" && <CoachesList coaches={coaches} />}
+
+        {activeScreen === "lessons" && (
+          <>
+            {(role === "admin" || role === "school_admin" || role === "coach") && (
+              <CreateLessonForm
+                school={school}
+                coaches={coaches}
+                onCreate={handleCreated}
+                existing={lessons}
+              />
+            )}
+
+            {loading ? (
+              <div className="text-slate-500">Loading…</div>
+            ) : (
+              <LessonsList
+                lessons={lessons}
+                role={role}
+                student={student}
+                reload={load}
+                filters={filters}
+                setFilters={setFilters}
+                coaches={coaches}
+              />
+            )}
+          </>
         )}
         </main>
       </div>
