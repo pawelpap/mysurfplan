@@ -148,7 +148,7 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
 }
 
 /* -------------------- Forms & Lists -------------------- */
-function CreateLessonForm({ school, coaches, onCreate /* existing kept for signature compatibility */ }) {
+function CreateLessonForm({ school, coaches, onCreate, ensureAuth /* existing kept for signature compatibility */ }) {
   // explicit date + 30-minute time select
   const { initDate, initTime } = getInitLocalDateTime();
   const [dateStr, setDateStr] = useState(initDate);  // YYYY-MM-DD
@@ -177,6 +177,7 @@ function CreateLessonForm({ school, coaches, onCreate /* existing kept for signa
     const startAt = buildISOFromLocal(dateStr, timeStr);
     setSubmitting(true);
     try {
+      await ensureAuth();
       const res = await fetch("/api/lessons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -275,6 +276,19 @@ function CreateLessonForm({ school, coaches, onCreate /* existing kept for signa
   );
 }
 
+async function syncAuthSession({ role, school, student }) {
+  const res = await fetch("/api/auth/session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, school, student }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.ok === false) {
+    throw new Error(json.error || "Authentication failed");
+  }
+  return json.data;
+}
+
 function StudentIdentity({ student, setStudent }) {
   return (
     <Card>
@@ -303,7 +317,7 @@ function StudentIdentity({ student, setStudent }) {
   );
 }
 
-function SchoolsManager({ schools, onReload }) {
+function SchoolsManager({ schools, onReload, ensureAuth }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -318,6 +332,7 @@ function SchoolsManager({ schools, onReload }) {
     }
     setBusy(true);
     try {
+      await ensureAuth();
       const res = await fetch("/api/schools", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -339,6 +354,7 @@ function SchoolsManager({ schools, onReload }) {
     if (!window.confirm("Delete this school? This cannot be undone.")) return;
     setErr("");
     try {
+      await ensureAuth();
       const res = await fetch("/api/schools", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -395,7 +411,7 @@ function SchoolsManager({ schools, onReload }) {
   );
 }
 
-function CoachesManager({ school, coaches, onReload }) {
+function CoachesManager({ school, coaches, onReload, ensureAuth }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -414,6 +430,7 @@ function CoachesManager({ school, coaches, onReload }) {
     }
     setBusy(true);
     try {
+      await ensureAuth();
       const res = await fetch("/api/coaches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -435,6 +452,7 @@ function CoachesManager({ school, coaches, onReload }) {
     if (!window.confirm("Delete this coach?")) return;
     setErr("");
     try {
+      await ensureAuth();
       const res = await fetch("/api/coaches", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -510,7 +528,7 @@ function CoachesList({ coaches }) {
   );
 }
 
-function StudentsManager({ lessons, reload }) {
+function StudentsManager({ lessons, reload, ensureAuth }) {
   const [lessonId, setLessonId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -530,6 +548,7 @@ function StudentsManager({ lessons, reload }) {
     setBusy(true);
     setMsg("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${lessonId}/book`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -553,6 +572,7 @@ function StudentsManager({ lessons, reload }) {
     setBusy(true);
     setMsg("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${lessonId}/book`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -640,7 +660,7 @@ function StudentsManager({ lessons, reload }) {
   );
 }
 
-function LessonItem({ lesson, role, student, reload, allCoaches }) {
+function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
   const { id, startAt, startISO, durationMin, difficulty, place, attendees, coaches } = lesson;
   const start = startAt || startISO;
   const [busy, setBusy] = useState(false);
@@ -669,6 +689,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
     setBusy(true);
     setErr("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}/book`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -690,6 +711,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
     setBusy(true);
     setErr("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}/book`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -716,6 +738,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
   async function deleteLesson() {
     if (!window.confirm("Are you sure you want to delete this lesson? This cannot be undone.")) return;
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}`, { method: "DELETE" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data?.ok === false) {
@@ -731,6 +754,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
     setCoachBusy(true);
     setCoachMsg("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}/coaches`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -752,6 +776,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
     setStaffBusy(true);
     setStaffMsg("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}/book`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -775,6 +800,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
     setStaffBusy(true);
     setStaffMsg("");
     try {
+      await ensureAuth();
       const res = await fetch(`/api/lessons/${id}/book`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -938,7 +964,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches }) {
   );
 }
 
-function LessonsList({ lessons, role, student, reload, filters, setFilters, coaches }) {
+function LessonsList({ lessons, role, student, reload, filters, setFilters, coaches, ensureAuth }) {
   const grouped = useMemo(() => groupByDay(lessons), [lessons]);
   const days = Object.keys(grouped);
 
@@ -1009,6 +1035,7 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
                 student={student}
                 reload={reload}
                 allCoaches={coaches}
+                ensureAuth={ensureAuth}
               />
             ))}
           </section>
@@ -1035,6 +1062,14 @@ export default function App({ settings }) {
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  async function ensureAuth(overrides = {}) {
+    return syncAuthSession({
+      role: overrides.role ?? role,
+      school: overrides.school ?? school,
+      student: overrides.student ?? student,
+    });
+  }
 
   async function loadSchools() {
     setSchoolsLoading(true);
@@ -1067,6 +1102,7 @@ export default function App({ settings }) {
         setLoading(false);
         return;
       }
+      await ensureAuth();
       const res = await fetch(`/api/lessons?school=${encodeURIComponent(school)}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
@@ -1087,6 +1123,7 @@ export default function App({ settings }) {
         setCoachesLoading(false);
         return;
       }
+      await ensureAuth();
       const res = await fetch(`/api/coaches?school=${encodeURIComponent(school)}`);
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || "Failed");
@@ -1271,16 +1308,16 @@ export default function App({ settings }) {
         </Card>
 
         {activeScreen === "schools" && role === "admin" && (
-          <SchoolsManager schools={schools} onReload={loadSchools} />
+          <SchoolsManager schools={schools} onReload={loadSchools} ensureAuth={ensureAuth} />
         )}
 
         {activeScreen === "coaches" && (role === "admin" || role === "school_admin") && (
-          <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} />
+          <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} ensureAuth={ensureAuth} />
         )}
 
         {activeScreen === "students" &&
           (role === "admin" || role === "school_admin" || role === "coach") && (
-            <StudentsManager lessons={lessons} reload={load} />
+            <StudentsManager lessons={lessons} reload={load} ensureAuth={ensureAuth} />
           )}
 
         {activeScreen === "profile" && role === "student" && (
@@ -1297,6 +1334,7 @@ export default function App({ settings }) {
                 coaches={coaches}
                 onCreate={handleCreated}
                 existing={lessons}
+                ensureAuth={ensureAuth}
               />
             )}
 
@@ -1311,6 +1349,7 @@ export default function App({ settings }) {
                 filters={filters}
                 setFilters={setFilters}
                 coaches={coaches}
+                ensureAuth={ensureAuth}
               />
             )}
           </>

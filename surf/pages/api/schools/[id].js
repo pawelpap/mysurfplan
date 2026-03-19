@@ -1,11 +1,13 @@
 // surf/pages/api/schools/[id].js
 import { sql } from '../../../lib/db';
+import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
     if (req.method === 'GET') {
+      if (!requireAuth(req, res, { roles: ['admin'] })) return;
       const rows = await sql`
         SELECT id, name, slug, contact_email, created_at, updated_at
         FROM schools
@@ -19,17 +21,14 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT' || req.method === 'PATCH') {
-      const { name, slug, contactEmail } = req.body || {};
+      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      const { name, contactEmail } = req.body || {};
       const fields = [];
       const values = [];
 
       if (name !== undefined) {
         fields.push(`name = $${fields.length + 1}`);
         values.push(name);
-      }
-      if (slug !== undefined) {
-        fields.push(`slug = $${fields.length + 1}`);
-        values.push(slug);
       }
       if (contactEmail !== undefined) {
         fields.push(`contact_email = $${fields.length + 1}`);
@@ -44,7 +43,7 @@ export default async function handler(req, res) {
         const text = `
           UPDATE schools
           SET ${fields.join(', ')}, updated_at = NOW()
-          WHERE id = $${fields.length + 1}
+          WHERE id = $${fields.length + 1} AND deleted_at IS NULL
           RETURNING id, name, slug, contact_email, created_at, updated_at
         `;
         const rows = await sql(text, [...values, id]);
@@ -61,7 +60,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const rows = await sql`DELETE FROM schools WHERE id = ${id} RETURNING id;`;
+      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      const rows = await sql`
+        UPDATE schools
+        SET deleted_at = now(), updated_at = now()
+        WHERE id = ${id} AND deleted_at IS NULL
+        RETURNING id;
+      `;
       if (!rows.length) {
         return res.status(404).json({ ok: false, error: 'Not found' });
       }

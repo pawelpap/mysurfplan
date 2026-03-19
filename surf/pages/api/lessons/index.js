@@ -1,5 +1,6 @@
 // /pages/api/lessons/index.js
 import { sql } from 'lib/db';
+import { requireAuth } from '../../../lib/auth';
 
 /**
  * GET /api/lessons?school=<slug|id>
@@ -40,6 +41,7 @@ async function getLessons(req, res) {
   try {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId) return res.status(404).json({ ok: false, error: 'School not found' });
+    if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach', 'student'], schoolId })) return;
 
     const rows = await sql`
       SELECT
@@ -116,6 +118,7 @@ async function createLesson(req, res) {
     if (!schoolId) {
       return res.status(404).json({ ok: false, error: 'School not found' });
     }
+    if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach'], schoolId })) return;
 
     const inserted = await sql`
       INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)

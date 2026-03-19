@@ -1,5 +1,6 @@
 // surf/pages/api/lessons/[id]/coaches.js
 import { sql } from 'lib/db';
+import { requireAuth } from '../../../../lib/auth';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
     `;
     const lesson = lessonRows[0];
     if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
+    if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach'], schoolId: lesson.school_id })) return;
 
     const uniqIds = [...new Set(coachIds.filter(Boolean))];
     if (uniqIds.length) {

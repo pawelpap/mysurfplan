@@ -1,5 +1,6 @@
 // surf/pages/api/schools/index.js
 import { sql } from '../../../lib/db';
+import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
   try {
@@ -14,6 +15,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (!requireAuth(req, res, { roles: ['admin'] })) return;
       const body = await getBody(req);
       const { name, contactEmail } = body || {};
       if (!name || !name.trim()) {
@@ -30,14 +32,23 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+      if (!requireAuth(req, res, { roles: ['admin'] })) return;
       const body = await getBody(req).catch(() => ({}));
       const id = body?.id || req.query.id;
       if (!id) {
         return res.status(400).json({ ok: false, error: 'Missing id' });
       }
 
-      await sql`DELETE FROM schools WHERE id = ${id}`;
-      return res.status(200).json({ ok: true });
+      const rows = await sql`
+        UPDATE schools
+        SET deleted_at = now(), updated_at = now()
+        WHERE id = ${id} AND deleted_at IS NULL
+        RETURNING id
+      `;
+      if (!rows.length) {
+        return res.status(404).json({ ok: false, error: 'School not found' });
+      }
+      return res.status(200).json({ ok: true, data: { id: rows[0].id, deleted: true } });
     }
 
     res.setHeader('Allow', 'GET,POST,DELETE');
