@@ -1,5 +1,5 @@
 -- db/schema.sql
--- MyWavePlan – canonical schema (schools, coaches, students, lessons, bookings)
+-- MyWavePlan – canonical schema (schools, users, coaches, students, lessons, bookings)
 -- Safe to run multiple times (IF NOT EXISTS + idempotent constructs)
 
 -- 0) Extensions
@@ -12,6 +12,10 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
   CREATE TYPE booking_status AS ENUM ('booked','cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE user_role AS ENUM ('platform_admin','school_admin','coach','student');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- 2) Helper: keep updated_at fresh
@@ -42,7 +46,52 @@ DO $$ BEGIN
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 4) Coaches
+-- 4) Users
+CREATE TABLE IF NOT EXISTS users (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  school_id         UUID REFERENCES schools(id) ON DELETE CASCADE,
+  name              TEXT NOT NULL,
+  email             TEXT NOT NULL,
+  phone             TEXT,
+  role              user_role NOT NULL,
+  password_hash     TEXT,
+  email_verified_at TIMESTAMPTZ,
+  last_login_at     TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at        TIMESTAMPTZ
+);
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS school_id UUID REFERENCES schools(id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS name TEXT,
+  ADD COLUMN IF NOT EXISTS email TEXT,
+  ADD COLUMN IF NOT EXISTS phone TEXT,
+  ADD COLUMN IF NOT EXISTS role user_role,
+  ADD COLUMN IF NOT EXISTS password_hash TEXT,
+  ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email_active
+  ON users(lower(email)) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_school ON users(school_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role) WHERE deleted_at IS NULL;
+DO $$ BEGIN
+  ALTER TABLE users
+    ADD CONSTRAINT chk_users_role_school_scope
+    CHECK (
+      (role = 'platform_admin' AND school_id IS NULL)
+      OR
+      (role <> 'platform_admin' AND school_id IS NOT NULL)
+    );
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TRIGGER trg_touch_users BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- 5) Coaches
 CREATE TABLE IF NOT EXISTS coaches (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id     UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
@@ -59,7 +108,7 @@ DO $$ BEGIN
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 5) Students
+-- 6) Students
 CREATE TABLE IF NOT EXISTS students (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id     UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
@@ -76,7 +125,7 @@ DO $$ BEGIN
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 6) Lessons
+-- 7) Lessons
 CREATE TABLE IF NOT EXISTS lessons (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id     UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
@@ -97,7 +146,7 @@ DO $$ BEGIN
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 7) Lesson ↔ Coaches (many-to-many)
+-- 8) Lesson ↔ Coaches (many-to-many)
 CREATE TABLE IF NOT EXISTS lesson_coaches (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lesson_id    UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
@@ -108,7 +157,7 @@ CREATE TABLE IF NOT EXISTS lesson_coaches (
 CREATE INDEX IF NOT EXISTS idx_lc_lesson ON lesson_coaches(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_lc_coach  ON lesson_coaches(coach_id);
 
--- 8) Bookings
+-- 9) Bookings
 CREATE TABLE IF NOT EXISTS bookings (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lesson_id     UUID NOT NULL REFERENCES lessons(id) ON DELETE CASCADE,
@@ -129,7 +178,7 @@ DO $$ BEGIN
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- 9) Views
+-- 10) Views
 CREATE OR REPLACE VIEW lesson_coach_list AS
 SELECT
   l.id AS lesson_id,
