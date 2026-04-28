@@ -123,6 +123,7 @@ Create `/login` with:
 
 - Email.
 - Password.
+- Optional telephone number when registering or completing a user profile.
 - Optional registration path for students.
 - Redirect support with `next`.
 - School context support with `school`.
@@ -141,7 +142,7 @@ Use authenticated role and school scope to drive navigation.
 Pages or screens to add:
 
 - Schools: list, create, edit, soft delete.
-- Users: list, create, edit, deactivate, assign role.
+- Users: list, create, edit, deactivate, assign role, capture optional telephone number.
 - Coaches: list, create, edit, soft delete, link to user.
 - Students: list, create, edit, soft delete, link to user.
 - Lessons: list/calendar, create, edit, delete, capacity, coaches.
@@ -201,6 +202,7 @@ Refactor shared helpers:
 - [x] Add `user_id` columns to `coaches` and `students`.
 - [ ] Add password hashing dependency or use a runtime-safe built-in strategy.
 - [ ] Build `/login`.
+- [ ] Add optional telephone number fields to login/signup and user profile/admin UI.
 - [ ] Add `POST /api/auth/login`.
 - [ ] Change `/api/auth/session` to stop accepting arbitrary role creation.
 - [ ] Update `/` workspace to use the real session.
@@ -214,6 +216,7 @@ Refactor shared helpers:
 
 - Telephone number should be an optional user field.
 - Telephone number is stored on `users.phone`; do not mirror it onto `students` unless a later workflow needs offline student phone numbers without user accounts.
+- Telephone number is not captured in the current UI yet; add it when building login/signup, user profile, and admin user forms.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -234,3 +237,4 @@ Refactor shared helpers:
 - 2026-04-28: Added nullable `user_id` links from `coaches` and `students` to `users` in `surf/db/schema.sql`, with active-profile indexes and uniqueness guards.
 - 2026-04-28: Applied the coach/student `user_id` schema update to the Neon staging database and verified columns plus indexes exist.
 - 2026-04-28: Applied the coach/student `user_id` schema update to the Neon production database and verified columns plus indexes exist.
+- 2026-04-28: Recorded that optional telephone number still needs to be added to login/signup, profile, and admin user UI.
