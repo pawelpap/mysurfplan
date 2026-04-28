@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { token, name, email, phone, password } = req.body || {};
+    const { token, name, familyName, family_name, email, phone, password } = req.body || {};
     if (!tokenMatches(token, expectedToken)) {
       return res.status(403).json({ ok: false, error: 'Forbidden' });
     }
@@ -38,6 +38,12 @@ export default async function handler(req, res) {
     const normalizedEmail = normalizeEmail(email);
     const normalizedPhone = normalizePhone(phone);
     const trimmedName = typeof name === 'string' ? name.trim() : '';
+    const trimmedFamilyName =
+      typeof familyName === 'string'
+        ? familyName.trim()
+        : typeof family_name === 'string'
+        ? family_name.trim()
+        : '';
     const passwordError = validatePassword(password);
     if (!trimmedName) return res.status(400).json({ ok: false, error: 'Name is required' });
     if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
@@ -54,9 +60,9 @@ export default async function handler(req, res) {
 
     const passwordHash = await hashPassword(password);
     const inserted = await sql`
-      INSERT INTO users (school_id, name, email, phone, role, password_hash, email_verified_at)
-      VALUES (NULL, ${trimmedName}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
-      RETURNING id, school_id, name, email, phone, role, NULL::text AS school_slug
+      INSERT INTO users (school_id, name, family_name, email, phone, role, password_hash, email_verified_at)
+      VALUES (NULL, ${trimmedName}, ${trimmedFamilyName || null}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
+      RETURNING id, school_id, name, family_name, email, phone, role, NULL::text AS school_slug
     `;
     const user = inserted[0];
     const session = setUserAuthSession(res, user);
@@ -70,6 +76,7 @@ export default async function handler(req, res) {
           schoolId: user.school_id,
           schoolSlug: user.school_slug,
           name: user.name,
+          familyName: user.family_name,
           email: user.email,
           phone: user.phone,
           role: user.role,

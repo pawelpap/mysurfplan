@@ -20,9 +20,10 @@ This file is the persistent working plan for the app. Update it after each meani
 - Neon staging database has been updated with nullable `coaches.user_id` and `students.user_id` links.
 - Neon production database has been updated with nullable `coaches.user_id` and `students.user_id` links.
 - Neon staging database has been updated with the `user_role` enum, `users` table, and `users.phone`.
+- Neon staging database has been updated with `users.family_name`.
 - Neon production database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Public school schedule pages exist at `/:slug`.
-- Public booking currently links to `/login`, but `/login` does not exist yet.
+- Public booking links to `/login`.
 
 ## Guiding Direction
 
@@ -45,6 +46,7 @@ Proposed fields:
 - `id UUID PRIMARY KEY`
 - `school_id UUID NULL REFERENCES schools(id)`
 - `name TEXT NOT NULL`
+- `family_name TEXT NULL`
 - `email TEXT NOT NULL`
 - `phone TEXT NULL`
 - `role user_role NOT NULL`
@@ -192,9 +194,16 @@ Suggested path structure:
 Path decision:
 
 - Keep `/:slug` for public school schedule pages.
-- Move staff/admin tools to `/admin` over time.
-- Use `/` as a role-aware app entry point: logged-out users go to `/login`, staff users go to `/admin`, students go to their student dashboard or relevant school page.
-- The current `/` workspace can remain during transition, but it should not be the permanent staff-admin URL.
+- Keep the current `/` workspace for now.
+- Revisit `/admin` later when the admin workspace is more mature and route splitting is worth the extra structure.
+- Do not prioritize moving staff tools to `/admin` in the current milestone.
+
+Current admin screen structure:
+
+- `Schools`: platform-level school management.
+- `People`: user accounts, coaches, and student/booking administration grouped together.
+- `Lessons`: lesson creation, coach assignment, attendance visibility, and booking operations until those are split into more focused workflows.
+- `Attendance`: coach and admin attendance/booking operations, with coach scope limited to assigned lessons in a later permission pass.
 
 ## API Plan
 
@@ -245,18 +254,20 @@ Refactor shared helpers:
 - [x] Update `/` workspace to use the real session.
 - [x] Remove role selector from production UI.
 - [x] Add admin user management.
+- [x] Group admin people management into a clearer `People` screen.
+- [x] Add `family_name` to the user schema and user-management UI/API.
 - [ ] Add multi-school membership table and approval workflow.
 - [ ] Add immediate student self-registration.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
 - [ ] Wire public booking redirect back from `/login`.
-- [ ] Move staff workspace toward `/admin` and make `/` a role-aware entry point.
+- [ ] Revisit `/admin` route split later; keep `/` as the workspace for now.
 
 ## Decisions Made
 
 - Telephone number should be an optional user field.
 - Telephone number is stored on `users.phone`; do not mirror it onto `students` unless a later workflow needs offline student phone numbers without user accounts.
-- Telephone number is not captured in the current UI yet; add it when building login/signup, user profile, and admin user forms.
+- Telephone number is captured in the current user-management UI and should also be carried through future signup/profile forms.
 - Password hashing uses built-in Node `crypto.scrypt`, with versioned hash strings from `surf/lib/auth.js`; no password hashing dependency is currently needed.
 - First real admin user should be created through `POST /api/auth/bootstrap`, guarded by `BOOTSTRAP_ADMIN_TOKEN` and disabled after the first active user exists.
 - Students should be able to self-register immediately.
@@ -265,7 +276,9 @@ Refactor shared helpers:
 - Authentication should use passwords for now; magic links are not needed in the first version.
 - Coaches should only manage attendance for assigned lessons; they should not create lessons or create bookings in the normal workflow.
 - School admins can create lessons and manage bookings for their school.
-- Staff/admin tools should move toward `/admin`; `/` should become a role-aware entry point rather than the permanent admin workspace.
+- For now, keep `/` as the workspace to avoid route churn while we validate screen structure.
+- Admin screen structure should group users, coaches, and student administration under `People` rather than exposing all three as separate primary nav items.
+- User profiles need both `name` and `family_name`.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -276,7 +289,7 @@ Refactor shared helpers:
 - Password authentication is enough for the first authentication version.
 - Coaches should manage attendance only for assigned lessons.
 - Users should be able to belong to multiple schools in version one.
-- Staff tools should move toward `/admin`; `/` should become a role-aware entry point.
+- Keep `/` as the workspace for now; revisit `/admin` after the admin screens stabilize.
 
 ## Open Questions
 
@@ -298,4 +311,6 @@ Refactor shared helpers:
 - 2026-04-28: Added password validation, hashing, and verification helpers in `surf/lib/auth.js` using Node `crypto.scrypt`.
 - 2026-04-28: Added `/login`, `POST /api/auth/login`, and token-gated `POST /api/auth/bootstrap` for creating the first `platform_admin`.
 - 2026-04-28: Updated the workspace to require a real login session, removed role self-selection, added role-based navigation, disabled arbitrary session creation, and added basic user management APIs/UI.
-- 2026-04-28: Resolved product decisions around student self-registration, multi-school membership, password-only auth, coach permissions, and moving staff tools toward `/admin`.
+- 2026-04-28: Resolved product decisions around student self-registration, multi-school membership, password-only auth, coach permissions, and staff workspace routing.
+- 2026-04-28: Decided to keep `/` as the workspace for now, grouped admin people operations under `People`, and added planned/current `family_name` support for users.
+- 2026-04-28: Applied `users.family_name` to the Neon staging database and verified the column exists.

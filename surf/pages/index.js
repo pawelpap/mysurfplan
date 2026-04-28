@@ -22,10 +22,9 @@ const ROLES = [
 
 const STAFF_SCREENS = [
   { id: "schools", label: "Schools" },
-  { id: "users", label: "Users" },
-  { id: "coaches", label: "Coaches" },
+  { id: "people", label: "People" },
   { id: "lessons", label: "Lessons" },
-  { id: "students", label: "Students" },
+  { id: "attendance", label: "Attendance" },
 ];
 const STUDENT_SCREENS = [
   { id: "profile", label: "Profile" },
@@ -35,9 +34,9 @@ const STUDENT_SCREENS = [
 
 function getAvailableScreens(role) {
   if (role === "student") return STUDENT_SCREENS;
-  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "students"].includes(s.id));
+  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "attendance"].includes(s.id));
   if (role === "school_admin") {
-    return STAFF_SCREENS.filter((s) => ["users", "coaches", "lessons", "students"].includes(s.id));
+    return STAFF_SCREENS.filter((s) => ["people", "lessons", "attendance"].includes(s.id));
   }
   if (role === "platform_admin" || role === "admin") return STAFF_SCREENS;
   return STAFF_SCREENS;
@@ -290,13 +289,21 @@ function StudentIdentity({ student, setStudent }) {
   return (
     <Card>
       <h3 className="text-lg font-semibold mb-3">Your details</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <Label>Name</Label>
           <Input
             value={student.name}
             onChange={(e) => setStudent((s) => ({ ...s, name: e.target.value }))}
             placeholder="Your name"
+          />
+        </div>
+        <div>
+          <Label>Family name</Label>
+          <Input
+            value={student.familyName || ""}
+            onChange={(e) => setStudent((s) => ({ ...s, familyName: e.target.value }))}
+            placeholder="Your family name"
           />
         </div>
         <div>
@@ -419,6 +426,7 @@ function SchoolsManager({ schools, onReload, ensureAuth }) {
 function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
   const [form, setForm] = useState({
     name: "",
+    familyName: "",
     email: "",
     phone: "",
     role: "student",
@@ -439,6 +447,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
     e.preventDefault();
     setErr("");
     if (!form.name.trim()) return setErr("Please enter a name.");
+    if (!form.familyName.trim()) return setErr("Please enter a family name.");
     if (!form.email.trim()) return setErr("Please enter an email.");
     if (!form.password) return setErr("Please enter a password.");
     setBusy(true);
@@ -449,6 +458,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name.trim(),
+          familyName: form.familyName.trim(),
           email: form.email.trim(),
           phone: form.phone.trim() || null,
           role: form.role,
@@ -458,7 +468,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
-      setForm((prev) => ({ ...prev, name: "", email: "", phone: "", password: "" }));
+      setForm((prev) => ({ ...prev, name: "", familyName: "", email: "", phone: "", password: "" }));
       await onReload();
     } catch (e) {
       setErr(e.message);
@@ -484,10 +494,14 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
   return (
     <Card>
       <h3 className="text-lg font-semibold mb-3">Users</h3>
-      <form onSubmit={createUser} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <form onSubmit={createUser} className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <Label>Name</Label>
           <Input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+        </div>
+        <div>
+          <Label>Family name</Label>
+          <Input value={form.familyName} onChange={(e) => setForm((s) => ({ ...s, familyName: e.target.value }))} />
         </div>
         <div>
           <Label>Email</Label>
@@ -527,7 +541,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
             placeholder="At least 8 characters"
           />
         </div>
-        <div className="md:col-span-3 flex items-center gap-3">
+        <div className="md:col-span-4 flex items-center gap-3">
           <Btn type="submit" variant="primary" disabled={busy}>
             {busy ? "Creating..." : "Add user"}
           </Btn>
@@ -539,7 +553,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
         {users.map((u) => (
           <div key={u.id} className="flex flex-col gap-2 border rounded-xl px-3 py-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <div className="font-medium">{u.name}</div>
+              <div className="font-medium">{[u.name, u.familyName].filter(Boolean).join(" ")}</div>
               <div className="text-xs text-gray-500">
                 {u.email} {u.phone ? `• ${u.phone}` : ""} • {getRoleLabel(u.role)}
                 {u.schoolName ? ` • ${u.schoolName}` : ""}
@@ -651,6 +665,43 @@ function CoachesManager({ school, coaches, onReload, ensureAuth }) {
         {!coaches.length && <div className="text-sm text-gray-500">No coaches yet.</div>}
       </div>
     </Card>
+  );
+}
+
+function PeopleManager({
+  school,
+  schools,
+  users,
+  coaches,
+  lessons,
+  reloadUsers,
+  reloadCoaches,
+  reloadLessons,
+  ensureAuth,
+  role,
+}) {
+  return (
+    <div className="space-y-6">
+      {(isPlatformAdmin(role) || role === "school_admin") && (
+        <UsersManager
+          school={school}
+          schools={schools}
+          users={users}
+          onReload={reloadUsers}
+          ensureAuth={ensureAuth}
+          role={role}
+        />
+      )}
+      {(isPlatformAdmin(role) || role === "school_admin") && (
+        <CoachesManager
+          school={school}
+          coaches={coaches}
+          onReload={reloadCoaches}
+          ensureAuth={ensureAuth}
+        />
+      )}
+      <StudentsManager lessons={lessons} reload={reloadLessons} ensureAuth={ensureAuth} />
+    </div>
   );
 }
 
@@ -1207,7 +1258,7 @@ export default function App({ settings }) {
   const [coachesLoading, setCoachesLoading] = useState(true);
   const [coachesError, setCoachesError] = useState("");
   const [lessons, setLessons] = useState([]);
-  const [student, setStudent] = useState({ name: "", email: "", phone: "" });
+  const [student, setStudent] = useState({ name: "", familyName: "", email: "", phone: "" });
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1329,6 +1380,7 @@ export default function App({ settings }) {
         if (nextSession.role === "student") {
           setStudent({
             name: nextSession.name || nextSession.studentName || "",
+            familyName: nextSession.familyName || "",
             email: nextSession.email || nextSession.studentEmail || "",
             phone: nextSession.phone || "",
           });
@@ -1523,26 +1575,26 @@ export default function App({ settings }) {
           <SchoolsManager schools={schools} onReload={loadSchools} ensureAuth={ensureAuth} />
         )}
 
-        {activeScreen === "users" && (isPlatformAdmin(role) || role === "school_admin") && (
-          usersLoading ? (
+        {activeScreen === "people" && (isPlatformAdmin(role) || role === "school_admin") && (
+          usersLoading || coachesLoading ? (
             <div className="text-slate-500">Loading...</div>
           ) : (
-            <UsersManager
+            <PeopleManager
               school={school}
               schools={schools}
               users={users}
-              onReload={loadUsers}
+              coaches={coaches}
+              lessons={lessons}
+              reloadUsers={loadUsers}
+              reloadCoaches={loadCoaches}
+              reloadLessons={load}
               ensureAuth={ensureAuth}
               role={role}
             />
           )
         )}
 
-        {activeScreen === "coaches" && (isPlatformAdmin(role) || role === "school_admin") && (
-          <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} ensureAuth={ensureAuth} />
-        )}
-
-        {activeScreen === "students" &&
+        {activeScreen === "attendance" &&
           (isPlatformAdmin(role) || role === "school_admin" || role === "coach") && (
             <StudentsManager lessons={lessons} reload={load} ensureAuth={ensureAuth} />
           )}

@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS users (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id         UUID REFERENCES schools(id) ON DELETE CASCADE,
   name              TEXT NOT NULL,
+  family_name       TEXT,
   email             TEXT NOT NULL,
   phone             TEXT,
   role              user_role NOT NULL,
@@ -64,6 +65,7 @@ CREATE TABLE IF NOT EXISTS users (
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS school_id UUID REFERENCES schools(id) ON DELETE CASCADE,
   ADD COLUMN IF NOT EXISTS name TEXT,
+  ADD COLUMN IF NOT EXISTS family_name TEXT,
   ADD COLUMN IF NOT EXISTS email TEXT,
   ADD COLUMN IF NOT EXISTS phone TEXT,
   ADD COLUMN IF NOT EXISTS role user_role,

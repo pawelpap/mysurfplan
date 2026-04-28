@@ -22,6 +22,7 @@ function cleanUser(row) {
     schoolSlug: row.school_slug,
     schoolName: row.school_name,
     name: row.name,
+    familyName: row.family_name,
     email: row.email,
     phone: row.phone,
     role: row.role,
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
           if (!scope) return res.status(404).json({ ok: false, error: 'School not found' });
           rows = await sql`
             SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                   u.name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                   u.name, u.family_name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
             FROM users u
             LEFT JOIN schools s ON s.id = u.school_id
             WHERE u.deleted_at IS NULL AND u.school_id = ${scope.id}
@@ -61,7 +62,7 @@ export default async function handler(req, res) {
         } else {
           rows = await sql`
             SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                   u.name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                   u.name, u.family_name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
             FROM users u
             LEFT JOIN schools s ON s.id = u.school_id
             WHERE u.deleted_at IS NULL
@@ -71,7 +72,7 @@ export default async function handler(req, res) {
       } else {
         rows = await sql`
           SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                 u.name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                 u.name, u.family_name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
           FROM users u
           LEFT JOIN schools s ON s.id = u.school_id
           WHERE u.deleted_at IS NULL AND u.school_id = ${session.schoolId}
@@ -85,13 +86,20 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       if (!requireAuth(req, res, { roles: ['school_admin'] })) return;
       const session = getAuthSession(req);
-      const { name, email, phone, role, school, password } = req.body || {};
+      const { name, familyName, family_name, email, phone, role, school, password } = req.body || {};
       const trimmedName = typeof name === 'string' ? name.trim() : '';
+      const trimmedFamilyName =
+        typeof familyName === 'string'
+          ? familyName.trim()
+          : typeof family_name === 'string'
+          ? family_name.trim()
+          : '';
       const normalizedEmail = normalizeEmail(email);
       const normalizedPhone = normalizePhone(phone);
       const requestedRole = typeof role === 'string' ? role : '';
 
       if (!trimmedName) return res.status(400).json({ ok: false, error: 'Name is required' });
+      if (!trimmedFamilyName) return res.status(400).json({ ok: false, error: 'Family name is required' });
       if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
       if (!USER_ROLES.has(requestedRole)) {
         return res.status(400).json({ ok: false, error: 'Invalid role' });
@@ -110,9 +118,9 @@ export default async function handler(req, res) {
 
       const passwordHash = await hashPassword(password);
       const rows = await sql`
-        INSERT INTO users (school_id, name, email, phone, role, password_hash)
-        VALUES (${schoolId}, ${trimmedName}, ${normalizedEmail}, ${normalizedPhone || null}, ${requestedRole}, ${passwordHash})
-        RETURNING id, school_id, name, email, phone, role, created_at, updated_at, last_login_at
+        INSERT INTO users (school_id, name, family_name, email, phone, role, password_hash)
+        VALUES (${schoolId}, ${trimmedName}, ${trimmedFamilyName}, ${normalizedEmail}, ${normalizedPhone || null}, ${requestedRole}, ${passwordHash})
+        RETURNING id, school_id, name, family_name, email, phone, role, created_at, updated_at, last_login_at
       `;
       return res.status(201).json({ ok: true, data: cleanUser(rows[0]) });
     }
