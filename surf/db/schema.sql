@@ -95,6 +95,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 CREATE TABLE IF NOT EXISTS coaches (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id     UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  user_id       UUID REFERENCES users(id) ON DELETE SET NULL,
   name          TEXT NOT NULL,
   email         TEXT,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -102,7 +103,12 @@ CREATE TABLE IF NOT EXISTS coaches (
   deleted_at    TIMESTAMPTZ,
   UNIQUE (school_id, email)
 );
+ALTER TABLE coaches
+  ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_coaches_school ON coaches(school_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_coaches_user ON coaches(user_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_coaches_user_active
+  ON coaches(user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
 DO $$ BEGIN
   CREATE TRIGGER trg_touch_coaches BEFORE UPDATE ON coaches
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
@@ -112,6 +118,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 CREATE TABLE IF NOT EXISTS students (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id     UUID NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  user_id       UUID REFERENCES users(id) ON DELETE SET NULL,
   name          TEXT,
   email         TEXT NOT NULL,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -119,7 +126,12 @@ CREATE TABLE IF NOT EXISTS students (
   deleted_at    TIMESTAMPTZ,
   UNIQUE (school_id, email)
 );
+ALTER TABLE students
+  ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_students_school ON students(school_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_students_user ON students(user_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_students_user_active
+  ON students(user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
 DO $$ BEGIN
   CREATE TRIGGER trg_touch_students BEFORE UPDATE ON students
   FOR EACH ROW EXECUTE FUNCTION touch_updated_at();

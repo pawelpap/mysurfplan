@@ -15,6 +15,8 @@ This file is the persistent working plan for the app. Update it after each meani
 - Existing auth is a prototype signed-cookie flow where the frontend can choose a role.
 - Existing core entities: schools, coaches, students, lessons, lesson coaches, bookings.
 - Schema now includes `user_role` and `users` as the future source of login identity.
+- `coaches` and `students` now have nullable `user_id` links to `users` in the code schema.
+- Neon staging database has been updated with nullable `coaches.user_id` and `students.user_id` links.
 - Neon staging database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Neon production database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Public school schedule pages exist at `/:slug`.
@@ -195,7 +197,7 @@ Refactor shared helpers:
 
 - [x] Add database schema for `user_role` and `users`.
 - [x] Add optional `phone` to users, and decide whether to also mirror it on `students`.
-- [ ] Add `user_id` columns to `coaches` and `students`.
+- [x] Add `user_id` columns to `coaches` and `students`.
 - [ ] Add password hashing dependency or use a runtime-safe built-in strategy.
 - [ ] Build `/login`.
 - [ ] Add `POST /api/auth/login`.
@@ -228,3 +230,5 @@ Refactor shared helpers:
 - 2026-04-28: Added `user_role` enum and `users` table to `surf/db/schema.sql`, including optional `phone`, school scope constraint, active email uniqueness, role/school indexes, and update trigger.
 - 2026-04-28: Applied `surf/db/schema.sql` to the Neon staging database and verified `user_role`, `users`, and `users.phone` exist.
 - 2026-04-28: Applied `surf/db/schema.sql` to the Neon production database and verified `user_role`, `users`, and `users.phone` exist.
+- 2026-04-28: Added nullable `user_id` links from `coaches` and `students` to `users` in `surf/db/schema.sql`, with active-profile indexes and uniqueness guards.
+- 2026-04-28: Applied the coach/student `user_id` schema update to the Neon staging database and verified columns plus indexes exist.
