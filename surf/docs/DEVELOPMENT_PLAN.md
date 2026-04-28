@@ -59,16 +59,42 @@ Notes:
 
 - Telephone number is optional.
 - Email should be normalized to lower case before storage.
-- A user belongs to one school except `platform_admin`, which can have `school_id = NULL`.
-- Later, if one user needs access to multiple schools, add a `user_school_roles` join table.
+- A user can belong to multiple schools.
+- `users.school_id` is a temporary compatibility field from the first auth iteration and should not be treated as the final membership model.
+- Add a `user_school_roles` join table so a user can have different roles/statuses per school.
+
+### School Memberships
+
+Add a school membership model for users who belong to one or more schools.
+
+Proposed table:
+
+- `id UUID PRIMARY KEY`
+- `user_id UUID NOT NULL REFERENCES users(id)`
+- `school_id UUID NOT NULL REFERENCES schools(id)`
+- `role user_role NOT NULL`
+- `status TEXT NOT NULL DEFAULT 'pending'`
+- `requested_at TIMESTAMPTZ NOT NULL DEFAULT now()`
+- `approved_at TIMESTAMPTZ NULL`
+- `approved_by UUID NULL REFERENCES users(id)`
+- `created_at TIMESTAMPTZ NOT NULL DEFAULT now()`
+- `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`
+- `deleted_at TIMESTAMPTZ NULL`
+
+Initial statuses:
+
+- `pending`: student requested to join a school.
+- `active`: school admin approved the membership.
+- `rejected`: school admin rejected the request.
+- `suspended`: access is disabled without deleting history.
 
 ### Roles
 
 Initial roles:
 
 - `platform_admin`: manages all schools, users, and global configuration.
-- `school_admin`: manages one school, coaches, students, lessons, and bookings.
-- `coach`: views assigned lessons and manages attendance/bookings where allowed.
+- `school_admin`: manages one or more schools through approved school memberships.
+- `coach`: views assigned lessons and manages attendance for assigned lessons only.
 - `student`: views, books, and cancels their own lessons.
 
 Optional later roles:
@@ -127,7 +153,7 @@ Create `/login` with:
 - Email.
 - Password.
 - Optional telephone number when registering or completing a user profile.
-- Optional registration path for students.
+- Student registration path.
 - Redirect support with `next`.
 - School context support with `school`.
 
@@ -136,7 +162,10 @@ Public booking flow:
 1. Student opens `/:slug`.
 2. Student clicks a lesson.
 3. If logged out, redirect to `/login?school=<slug>&next=/<slug>#lesson=<lessonId>`.
-4. After login or signup, return to the lesson and book.
+4. If the student is new, they can register immediately.
+5. If the student is not yet approved for that school, create a pending school membership request.
+6. School admin approves the school membership.
+7. After approval, the student can book lessons for that school.
 
 ### Admin Workspace
 
@@ -160,7 +189,12 @@ Suggested path structure:
 - `/admin/students`
 - `/admin/lessons`
 
-The current `/` workspace can either become `/admin` or redirect based on role after login.
+Path decision:
+
+- Keep `/:slug` for public school schedule pages.
+- Move staff/admin tools to `/admin` over time.
+- Use `/` as a role-aware app entry point: logged-out users go to `/login`, staff users go to `/admin`, students go to their student dashboard or relevant school page.
+- The current `/` workspace can remain during transition, but it should not be the permanent staff-admin URL.
 
 ## API Plan
 
@@ -211,9 +245,12 @@ Refactor shared helpers:
 - [x] Update `/` workspace to use the real session.
 - [x] Remove role selector from production UI.
 - [x] Add admin user management.
+- [ ] Add multi-school membership table and approval workflow.
+- [ ] Add immediate student self-registration.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
 - [ ] Wire public booking redirect back from `/login`.
+- [ ] Move staff workspace toward `/admin` and make `/` a role-aware entry point.
 
 ## Decisions Made
 
@@ -222,16 +259,31 @@ Refactor shared helpers:
 - Telephone number is not captured in the current UI yet; add it when building login/signup, user profile, and admin user forms.
 - Password hashing uses built-in Node `crypto.scrypt`, with versioned hash strings from `surf/lib/auth.js`; no password hashing dependency is currently needed.
 - First real admin user should be created through `POST /api/auth/bootstrap`, guarded by `BOOTSTRAP_ADMIN_TOKEN` and disabled after the first active user exists.
+- Students should be able to self-register immediately.
+- Students can belong to multiple schools.
+- Student membership in a school should use a school-admin approval workflow.
+- Authentication should use passwords for now; magic links are not needed in the first version.
+- Coaches should only manage attendance for assigned lessons; they should not create lessons or create bookings in the normal workflow.
+- School admins can create lessons and manage bookings for their school.
+- Staff/admin tools should move toward `/admin`; `/` should become a role-aware entry point rather than the permanent admin workspace.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
+## Resolved Questions
+
+- Students should be able to self-register immediately, and can request membership in one or more schools.
+- School membership should require school admin approval.
+- Password authentication is enough for the first authentication version.
+- Coaches should manage attendance only for assigned lessons.
+- Users should be able to belong to multiple schools in version one.
+- Staff tools should move toward `/admin`; `/` should become a role-aware entry point.
+
 ## Open Questions
 
-- Should students be able to self-register immediately, or should schools invite/create them first?
-- Should the first authentication version use passwords, magic links, or both?
-- Should a coach be allowed to create bookings, or only manage attendance for assigned lessons?
-- Should a user be able to belong to multiple schools in version one?
-- Should production keep the current `/` workspace path, or move staff tools to `/admin`?
+- What should the student dashboard path be: `/app`, `/student`, or `/me`?
+- Should a student be able to request school membership from the public school page before choosing a lesson?
+- Should school admins approve student memberships manually only, or should schools be able to enable auto-approval later?
+- What exact attendance states should coaches manage: present, absent, late, no-show, cancelled?
 
 ## Change Log
 
@@ -246,3 +298,4 @@ Refactor shared helpers:
 - 2026-04-28: Added password validation, hashing, and verification helpers in `surf/lib/auth.js` using Node `crypto.scrypt`.
 - 2026-04-28: Added `/login`, `POST /api/auth/login`, and token-gated `POST /api/auth/bootstrap` for creating the first `platform_admin`.
 - 2026-04-28: Updated the workspace to require a real login session, removed role self-selection, added role-based navigation, disabled arbitrary session creation, and added basic user management APIs/UI.
+- 2026-04-28: Resolved product decisions around student self-registration, multi-school membership, password-only auth, coach permissions, and moving staff tools toward `/admin`.
