@@ -206,6 +206,7 @@ export function setUserAuthSession(res, user) {
     schoolSlug: user.school_slug || null,
     email: email || null,
     name: name || null,
+    phone: normalizePhone(user.phone) || null,
     studentEmail: role === 'student' ? email || null : null,
     studentName: role === 'student' ? name || null : null,
   };

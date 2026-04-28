@@ -14,7 +14,7 @@ export async function getServerSideProps() {
 const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
 const DURATION_MIN = 90;
 const ROLES = [
-  { id: "admin", label: "Admin" },
+  { id: "platform_admin", label: "Platform Admin" },
   { id: "school_admin", label: "School Admin" },
   { id: "coach", label: "Coach" },
   { id: "student", label: "Student" },
@@ -22,6 +22,7 @@ const ROLES = [
 
 const STAFF_SCREENS = [
   { id: "schools", label: "Schools" },
+  { id: "users", label: "Users" },
   { id: "coaches", label: "Coaches" },
   { id: "lessons", label: "Lessons" },
   { id: "students", label: "Students" },
@@ -36,9 +37,18 @@ function getAvailableScreens(role) {
   if (role === "student") return STUDENT_SCREENS;
   if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "students"].includes(s.id));
   if (role === "school_admin") {
-    return STAFF_SCREENS.filter((s) => ["coaches", "lessons", "students"].includes(s.id));
+    return STAFF_SCREENS.filter((s) => ["users", "coaches", "lessons", "students"].includes(s.id));
   }
+  if (role === "platform_admin" || role === "admin") return STAFF_SCREENS;
   return STAFF_SCREENS;
+}
+
+function getRoleLabel(role) {
+  return ROLES.find((r) => r.id === role)?.label || "Workspace";
+}
+
+function isPlatformAdmin(role) {
+  return role === "platform_admin" || role === "admin";
 }
 
 /* Half-hour helpers */
@@ -276,24 +286,11 @@ function CreateLessonForm({ school, coaches, onCreate, ensureAuth /* existing ke
   );
 }
 
-async function syncAuthSession({ role, school, student }) {
-  const res = await fetch("/api/auth/session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ role, school, student }),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok || json.ok === false) {
-    throw new Error(json.error || "Authentication failed");
-  }
-  return json.data;
-}
-
 function StudentIdentity({ student, setStudent }) {
   return (
     <Card>
       <h3 className="text-lg font-semibold mb-3">Your details</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <Label>Name</Label>
           <Input
@@ -309,6 +306,14 @@ function StudentIdentity({ student, setStudent }) {
             value={student.email}
             onChange={(e) => setStudent((s) => ({ ...s, email: e.target.value }))}
             placeholder="you@example.com"
+          />
+        </div>
+        <div>
+          <Label>Phone</Label>
+          <Input
+            value={student.phone || ""}
+            onChange={(e) => setStudent((s) => ({ ...s, phone: e.target.value }))}
+            placeholder="Optional"
           />
         </div>
       </div>
@@ -406,6 +411,146 @@ function SchoolsManager({ schools, onReload, ensureAuth }) {
           </div>
         ))}
         {!schools.length && <div className="text-sm text-gray-500">No schools yet.</div>}
+      </div>
+    </Card>
+  );
+}
+
+function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "student",
+    school: school || "",
+    password: "",
+  });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const canChooseSchool = isPlatformAdmin(role);
+  const canCreatePlatformAdmin = isPlatformAdmin(role);
+  const availableRoles = ROLES.filter((r) => canCreatePlatformAdmin || r.id !== "platform_admin");
+
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, school: prev.school || school || "" }));
+  }, [school]);
+
+  async function createUser(e) {
+    e.preventDefault();
+    setErr("");
+    if (!form.name.trim()) return setErr("Please enter a name.");
+    if (!form.email.trim()) return setErr("Please enter an email.");
+    if (!form.password) return setErr("Please enter a password.");
+    setBusy(true);
+    try {
+      await ensureAuth();
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim() || null,
+          role: form.role,
+          school: form.role === "platform_admin" ? null : form.school || school,
+          password: form.password,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      setForm((prev) => ({ ...prev, name: "", email: "", phone: "", password: "" }));
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeUser(id) {
+    if (!window.confirm("Deactivate this user?")) return;
+    setErr("");
+    try {
+      await ensureAuth();
+      const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      await onReload();
+    } catch (e) {
+      setErr(e.message);
+    }
+  }
+
+  return (
+    <Card>
+      <h3 className="text-lg font-semibold mb-3">Users</h3>
+      <form onSubmit={createUser} className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <Label>Name</Label>
+          <Input value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} />
+        </div>
+        <div>
+          <Label>Email</Label>
+          <Input type="email" value={form.email} onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))} />
+        </div>
+        <div>
+          <Label>Phone</Label>
+          <Input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Optional" />
+        </div>
+        <div>
+          <Label>Role</Label>
+          <Select value={form.role} onChange={(e) => setForm((s) => ({ ...s, role: e.target.value }))}>
+            {availableRoles.map((r) => (
+              <option key={r.id} value={r.id}>{r.label}</option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label>School</Label>
+          <Select
+            value={form.school}
+            onChange={(e) => setForm((s) => ({ ...s, school: e.target.value }))}
+            disabled={!canChooseSchool || form.role === "platform_admin"}
+          >
+            {!form.school && <option value="">Select a school</option>}
+            {schools.map((s) => (
+              <option key={s.id} value={s.slug}>{s.name}</option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <Label>Password</Label>
+          <Input
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}
+            placeholder="At least 8 characters"
+          />
+        </div>
+        <div className="md:col-span-3 flex items-center gap-3">
+          <Btn type="submit" variant="primary" disabled={busy}>
+            {busy ? "Creating..." : "Add user"}
+          </Btn>
+          {err && <span className="text-sm text-rose-600">{err}</span>}
+        </div>
+      </form>
+
+      <div className="mt-4 space-y-2">
+        {users.map((u) => (
+          <div key={u.id} className="flex flex-col gap-2 border rounded-xl px-3 py-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="font-medium">{u.name}</div>
+              <div className="text-xs text-gray-500">
+                {u.email} {u.phone ? `• ${u.phone}` : ""} • {getRoleLabel(u.role)}
+                {u.schoolName ? ` • ${u.schoolName}` : ""}
+              </div>
+            </div>
+            <Btn variant="outlineDanger" onClick={() => removeUser(u.id)}>
+              Deactivate
+            </Btn>
+          </div>
+        ))}
+        {!users.length && <div className="text-sm text-gray-500">No users yet.</div>}
       </div>
     </Card>
   );
@@ -1047,28 +1192,38 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
 
 /* -------------------- Page -------------------- */
 export default function App({ settings }) {
-  const [role, setRole] = useState("coach");
+  const [session, setSession] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeScreen, setActiveScreen] = useState("lessons");
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState("");
   const [schoolsLoading, setSchoolsLoading] = useState(true);
   const [schoolsError, setSchoolsError] = useState("");
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState("");
   const [coaches, setCoaches] = useState([]);
   const [coachesLoading, setCoachesLoading] = useState(true);
   const [coachesError, setCoachesError] = useState("");
   const [lessons, setLessons] = useState([]);
-  const [student, setStudent] = useState({ name: "", email: "" });
+  const [student, setStudent] = useState({ name: "", email: "", phone: "" });
   const [filters, setFilters] = useState({ difficulty: "", from: "", to: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const role = session?.role || "";
 
-  async function ensureAuth(overrides = {}) {
-    return syncAuthSession({
-      role: overrides.role ?? role,
-      school: overrides.school ?? school,
-      student: overrides.student ?? student,
-    });
+  async function ensureAuth() {
+    if (!session) {
+      window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+      throw new Error("Authentication required");
+    }
+    return session;
+  }
+
+  async function logout() {
+    await fetch("/api/auth/session", { method: "DELETE" });
+    window.location.href = `/login?next=${encodeURIComponent("/")}`;
   }
 
   async function loadSchools() {
@@ -1080,7 +1235,10 @@ export default function App({ settings }) {
       if (!json.ok) throw new Error(json.error || "Failed");
       const list = Array.isArray(json.data) ? json.data : [];
       setSchools(list);
-      if (!school && list.length) {
+      if (session && !isPlatformAdmin(session.role)) {
+        const scopedSchool = session.schoolSlug || session.schoolId || "";
+        setSchool(scopedSchool);
+      } else if (!school && list.length) {
         setSchool(list[0].slug);
       }
       if (!list.length) {
@@ -1090,6 +1248,28 @@ export default function App({ settings }) {
       setSchoolsError(e.message);
     } finally {
       setSchoolsLoading(false);
+    }
+  }
+
+  async function loadUsers() {
+    setUsersLoading(true);
+    setUsersError("");
+    try {
+      if (!session || !["platform_admin", "admin", "school_admin"].includes(role)) {
+        setUsers([]);
+        return;
+      }
+      const params = new URLSearchParams();
+      if (school && !isPlatformAdmin(role)) params.set("school", school);
+      if (school && isPlatformAdmin(role)) params.set("school", school);
+      const res = await fetch(`/api/users${params.toString() ? `?${params.toString()}` : ""}`);
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setUsers(Array.isArray(json.data) ? json.data : []);
+    } catch (e) {
+      setUsersError(e.message);
+    } finally {
+      setUsersLoading(false);
     }
   }
 
@@ -1136,15 +1316,47 @@ export default function App({ settings }) {
   }
 
   useEffect(() => {
-    loadSchools();
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        const json = await res.json().catch(() => ({}));
+        const nextSession = json.ok ? json.data : null;
+        if (!nextSession) {
+          window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+          return;
+        }
+        setSession(nextSession);
+        if (nextSession.role === "student") {
+          setStudent({
+            name: nextSession.name || nextSession.studentName || "",
+            email: nextSession.email || nextSession.studentEmail || "",
+            phone: nextSession.phone || "",
+          });
+        }
+        if (nextSession.schoolSlug || nextSession.schoolId) {
+          setSchool(nextSession.schoolSlug || nextSession.schoolId);
+        }
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setAuthChecked(true);
+      }
+    })();
   }, []);
 
   useEffect(() => {
-    if (school) load();
-    loadCoaches();
-  }, [school]);
+    if (session) loadSchools();
+  }, [session]);
 
   useEffect(() => {
+    if (!session) return;
+    if (school) load();
+    loadCoaches();
+    loadUsers();
+  }, [session, school]);
+
+  useEffect(() => {
+    if (!role) return;
     const available = getAvailableScreens(role);
     if (!available.find((s) => s.id === activeScreen)) {
       setActiveScreen(available[0]?.id || "lessons");
@@ -1154,6 +1366,14 @@ export default function App({ settings }) {
   function handleCreated(l) {
     setLessons((prev) =>
       [...prev, l].sort((a, b) => new Date(a.startAt || a.startISO) - new Date(b.startAt || b.startISO))
+    );
+  }
+
+  if (!authChecked || !session) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
+        <div className="text-sm text-slate-500">Loading...</div>
+      </div>
     );
   }
 
@@ -1205,27 +1425,13 @@ export default function App({ settings }) {
             </div>
           </div>
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="min-w-[180px]">
-              <Label>Role</Label>
-              <Select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="bg-white"
-              >
-                {ROLES.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.label}
-                  </option>
-                ))}
-              </Select>
-            </div>
             <div className="min-w-[220px]">
               <Label>School</Label>
               <Select
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
                 className="bg-white"
-                disabled={schoolsLoading}
+                disabled={schoolsLoading || !isPlatformAdmin(role)}
               >
                 {!school && <option value="">Select a school</option>}
                 {schools.map((s) => (
@@ -1235,6 +1441,11 @@ export default function App({ settings }) {
                 ))}
               </Select>
             </div>
+            <div className="text-sm text-slate-600 md:min-w-[180px]">
+              <div className="font-medium text-slate-900">{session.name || session.email}</div>
+              <div>{getRoleLabel(role)}</div>
+            </div>
+            <Btn variant="neutral" onClick={logout}>Log out</Btn>
           </div>
         </div>
       </div>
@@ -1258,7 +1469,7 @@ export default function App({ settings }) {
                 Navigation
               </div>
               <div className="text-sm font-medium text-slate-700">
-                {ROLES.find((r) => r.id === role)?.label || "Workspace"}
+                {getRoleLabel(role)}
               </div>
             </div>
 
@@ -1289,7 +1500,7 @@ export default function App({ settings }) {
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                {ROLES.find((r) => r.id === role)?.label || "Workspace"}
+                {getRoleLabel(role)}
               </div>
               <h2 className="text-3xl font-semibold text-slate-900">
                 {getAvailableScreens(role).find((s) => s.id === activeScreen)?.label || "Overview"}
@@ -1301,22 +1512,38 @@ export default function App({ settings }) {
           </div>
           {error && <div className="text-sm text-rose-600 mt-2">{error}</div>}
           {schoolsError && <div className="text-sm text-rose-600 mt-2">{schoolsError}</div>}
+          {usersError && <div className="text-sm text-rose-600 mt-2">{usersError}</div>}
           {coachesError && <div className="text-sm text-rose-600 mt-2">{coachesError}</div>}
           {!schoolsLoading && !school && !schoolsError && (
             <div className="text-sm text-slate-500 mt-2">Select a school to load data.</div>
           )}
         </Card>
 
-        {activeScreen === "schools" && role === "admin" && (
+        {activeScreen === "schools" && isPlatformAdmin(role) && (
           <SchoolsManager schools={schools} onReload={loadSchools} ensureAuth={ensureAuth} />
         )}
 
-        {activeScreen === "coaches" && (role === "admin" || role === "school_admin") && (
+        {activeScreen === "users" && (isPlatformAdmin(role) || role === "school_admin") && (
+          usersLoading ? (
+            <div className="text-slate-500">Loading...</div>
+          ) : (
+            <UsersManager
+              school={school}
+              schools={schools}
+              users={users}
+              onReload={loadUsers}
+              ensureAuth={ensureAuth}
+              role={role}
+            />
+          )
+        )}
+
+        {activeScreen === "coaches" && (isPlatformAdmin(role) || role === "school_admin") && (
           <CoachesManager school={school} coaches={coaches} onReload={loadCoaches} ensureAuth={ensureAuth} />
         )}
 
         {activeScreen === "students" &&
-          (role === "admin" || role === "school_admin" || role === "coach") && (
+          (isPlatformAdmin(role) || role === "school_admin" || role === "coach") && (
             <StudentsManager lessons={lessons} reload={load} ensureAuth={ensureAuth} />
           )}
 
@@ -1328,7 +1555,7 @@ export default function App({ settings }) {
 
         {activeScreen === "lessons" && (
           <>
-            {(role === "admin" || role === "school_admin" || role === "coach") && (
+            {(isPlatformAdmin(role) || role === "school_admin" || role === "coach") && (
               <CreateLessonForm
                 school={school}
                 coaches={coaches}

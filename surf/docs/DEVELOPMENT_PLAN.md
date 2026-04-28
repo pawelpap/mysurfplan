@@ -13,6 +13,7 @@ This file is the persistent working plan for the app. Update it after each meani
 - Data uses Neon/Postgres-style SQL through `surf/lib/db.js`.
 - Contentful provides global settings through `surf/lib/cms.js`.
 - Existing auth is a prototype signed-cookie flow where the frontend can choose a role.
+- Workspace access is now intended to be driven by real login sessions instead of the role selector.
 - Existing core entities: schools, coaches, students, lessons, lesson coaches, bookings.
 - Schema now includes `user_role` and `users` as the future source of login identity.
 - `coaches` and `students` now have nullable `user_id` links to `users` in the code schema.
@@ -101,7 +102,7 @@ Initial approach:
 - Add `POST /api/auth/bootstrap` as a temporary, token-gated first-admin path. It only works when `BOOTSTRAP_ADMIN_TOKEN` is set and no active users exist.
 - Keep signed HTTP-only cookie sessions for now.
 - Use `hashPassword`, `verifyPassword`, and `validatePassword` from `surf/lib/auth.js` for password handling.
-- Change `/api/auth/session` so it only returns, refreshes, or clears a real session.
+- Change `/api/auth/session` so it only returns or clears a real session.
 - Remove the production ability to choose arbitrary roles from the frontend.
 - Require `SESSION_SECRET` outside development.
 
@@ -204,12 +205,12 @@ Refactor shared helpers:
 - [x] Add `user_id` columns to `coaches` and `students`.
 - [x] Add password hashing dependency or use a runtime-safe built-in strategy.
 - [x] Build `/login`.
-- [ ] Add optional telephone number fields to login/signup and user profile/admin UI.
+- [x] Add optional telephone number fields to login/signup and user profile/admin UI.
 - [x] Add `POST /api/auth/login`.
-- [ ] Change `/api/auth/session` to stop accepting arbitrary role creation.
-- [ ] Update `/` workspace to use the real session.
-- [ ] Remove role selector from production UI.
-- [ ] Add admin user management.
+- [x] Change `/api/auth/session` to stop accepting arbitrary role creation.
+- [x] Update `/` workspace to use the real session.
+- [x] Remove role selector from production UI.
+- [x] Add admin user management.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
 - [ ] Wire public booking redirect back from `/login`.
@@ -244,3 +245,4 @@ Refactor shared helpers:
 - 2026-04-28: Recorded that optional telephone number still needs to be added to login/signup, profile, and admin user UI.
 - 2026-04-28: Added password validation, hashing, and verification helpers in `surf/lib/auth.js` using Node `crypto.scrypt`.
 - 2026-04-28: Added `/login`, `POST /api/auth/login`, and token-gated `POST /api/auth/bootstrap` for creating the first `platform_admin`.
+- 2026-04-28: Updated the workspace to require a real login session, removed role self-selection, added role-based navigation, disabled arbitrary session creation, and added basic user management APIs/UI.
