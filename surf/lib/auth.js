@@ -1,10 +1,24 @@
 import crypto from 'crypto';
+import { promisify } from 'util';
 import { sql } from './db';
 
 const SESSION_COOKIE = 'msp_session';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-insecure-session-secret';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const ROLES = new Set(['admin', 'school_admin', 'coach', 'student']);
+const scryptAsync = promisify(crypto.scrypt);
+
+const PASSWORD_HASH_VERSION = 'msp-scrypt-v1';
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 256;
+const PASSWORD_SALT_BYTES = 16;
+const PASSWORD_KEY_BYTES = 64;
+const PASSWORD_SCRYPT_OPTIONS = {
+  N: 16384,
+  r: 8,
+  p: 1,
+  maxmem: 64 * 1024 * 1024,
+};
 
 function base64url(input) {
   return Buffer.from(input).toString('base64url');
@@ -49,6 +63,70 @@ function decodeSession(raw) {
 
 export function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
+}
+
+export function validatePassword(password) {
+  if (typeof password !== 'string') return 'Password is required';
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  }
+  if (password.length > PASSWORD_MAX_LENGTH) {
+    return `Password must be ${PASSWORD_MAX_LENGTH} characters or fewer`;
+  }
+  return '';
+}
+
+export async function hashPassword(password) {
+  const validationError = validatePassword(password);
+  if (validationError) {
+    const err = new Error(validationError);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const salt = crypto.randomBytes(PASSWORD_SALT_BYTES);
+  const derivedKey = await scryptAsync(
+    password,
+    salt,
+    PASSWORD_KEY_BYTES,
+    PASSWORD_SCRYPT_OPTIONS
+  );
+
+  return [
+    PASSWORD_HASH_VERSION,
+    PASSWORD_SCRYPT_OPTIONS.N,
+    PASSWORD_SCRYPT_OPTIONS.r,
+    PASSWORD_SCRYPT_OPTIONS.p,
+    salt.toString('base64url'),
+    Buffer.from(derivedKey).toString('base64url'),
+  ].join('$');
+}
+
+export async function verifyPassword(password, passwordHash) {
+  if (typeof password !== 'string' || typeof passwordHash !== 'string') return false;
+
+  const [version, n, r, p, saltValue, hashValue] = passwordHash.split('$');
+  if (version !== PASSWORD_HASH_VERSION || !n || !r || !p || !saltValue || !hashValue) {
+    return false;
+  }
+
+  const expected = Buffer.from(hashValue, 'base64url');
+  if (!expected.length) return false;
+
+  try {
+    const actual = await scryptAsync(password, Buffer.from(saltValue, 'base64url'), expected.length, {
+      N: Number(n),
+      r: Number(r),
+      p: Number(p),
+      maxmem: PASSWORD_SCRYPT_OPTIONS.maxmem,
+    });
+    return (
+      actual.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(actual), expected)
+    );
+  } catch {
+    return false;
+  }
 }
 
 export async function resolveSchoolScope(school) {

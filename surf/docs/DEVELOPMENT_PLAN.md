@@ -99,13 +99,14 @@ Initial approach:
 - Add `/login`.
 - Add `POST /api/auth/login`.
 - Keep signed HTTP-only cookie sessions for now.
+- Use `hashPassword`, `verifyPassword`, and `validatePassword` from `surf/lib/auth.js` for password handling.
 - Change `/api/auth/session` so it only returns, refreshes, or clears a real session.
 - Remove the production ability to choose arbitrary roles from the frontend.
 - Require `SESSION_SECRET` outside development.
 
 Password approach options:
 
-- Short term: password login with `password_hash`.
+- Short term: password login with `password_hash` using Node `crypto.scrypt`.
 - Later: magic links or email verification.
 
 Security requirements:
@@ -200,7 +201,7 @@ Refactor shared helpers:
 - [x] Add database schema for `user_role` and `users`.
 - [x] Add optional `phone` to users, and decide whether to also mirror it on `students`.
 - [x] Add `user_id` columns to `coaches` and `students`.
-- [ ] Add password hashing dependency or use a runtime-safe built-in strategy.
+- [x] Add password hashing dependency or use a runtime-safe built-in strategy.
 - [ ] Build `/login`.
 - [ ] Add optional telephone number fields to login/signup and user profile/admin UI.
 - [ ] Add `POST /api/auth/login`.
@@ -217,6 +218,7 @@ Refactor shared helpers:
 - Telephone number should be an optional user field.
 - Telephone number is stored on `users.phone`; do not mirror it onto `students` unless a later workflow needs offline student phone numbers without user accounts.
 - Telephone number is not captured in the current UI yet; add it when building login/signup, user profile, and admin user forms.
+- Password hashing uses built-in Node `crypto.scrypt`, with versioned hash strings from `surf/lib/auth.js`; no password hashing dependency is currently needed.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -238,3 +240,4 @@ Refactor shared helpers:
 - 2026-04-28: Applied the coach/student `user_id` schema update to the Neon staging database and verified columns plus indexes exist.
 - 2026-04-28: Applied the coach/student `user_id` schema update to the Neon production database and verified columns plus indexes exist.
 - 2026-04-28: Recorded that optional telephone number still needs to be added to login/signup, profile, and admin user UI.
+- 2026-04-28: Added password validation, hashing, and verification helpers in `surf/lib/auth.js` using Node `crypto.scrypt`.
