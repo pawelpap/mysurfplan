@@ -16,6 +16,7 @@ This file is the persistent working plan for the app. Update it after each meani
 - Existing core entities: schools, coaches, students, lessons, lesson coaches, bookings.
 - Schema now includes `user_role` and `users` as the future source of login identity.
 - Neon staging database has been updated with the `user_role` enum, `users` table, and `users.phone`.
+- Neon production database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Public school schedule pages exist at `/:slug`.
 - Public booking currently links to `/login`, but `/login` does not exist yet.
 
@@ -226,3 +227,4 @@ Refactor shared helpers:
 - 2026-04-28: Created this plan. Added optional telephone number to the proposed user model.
 - 2026-04-28: Added `user_role` enum and `users` table to `surf/db/schema.sql`, including optional `phone`, school scope constraint, active email uniqueness, role/school indexes, and update trigger.
 - 2026-04-28: Applied `surf/db/schema.sql` to the Neon staging database and verified `user_role`, `users`, and `users.phone` exist.
+- 2026-04-28: Applied `surf/db/schema.sql` to the Neon production database and verified `user_role`, `users`, and `users.phone` exist.
