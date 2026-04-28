@@ -5,7 +5,7 @@ import { sql } from './db';
 const SESSION_COOKIE = 'msp_session';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-insecure-session-secret';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
-const ROLES = new Set(['admin', 'school_admin', 'coach', 'student']);
+const ROLES = new Set(['admin', 'platform_admin', 'school_admin', 'coach', 'student']);
 const scryptAsync = promisify(crypto.scrypt);
 
 const PASSWORD_HASH_VERSION = 'msp-scrypt-v1';
@@ -63,6 +63,14 @@ function decodeSession(raw) {
 
 export function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
+}
+
+export function normalizePhone(phone) {
+  return typeof phone === 'string' ? phone.trim() : '';
+}
+
+function isGlobalAdmin(role) {
+  return role === 'admin' || role === 'platform_admin';
 }
 
 export function validatePassword(password) {
@@ -168,6 +176,43 @@ export function clearAuthSession(res) {
   );
 }
 
+export function setAuthSessionCookie(res, payload) {
+  const cookieValue = encodeSession({
+    ...payload,
+    iat: Math.floor(Date.now() / 1000),
+  });
+  res.setHeader(
+    'Set-Cookie',
+    `${SESSION_COOKIE}=${encodeURIComponent(
+      cookieValue
+    )}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`
+  );
+}
+
+export function setUserAuthSession(res, user) {
+  const role = typeof user?.role === 'string' ? user.role : '';
+  if (!ROLES.has(role)) {
+    const err = new Error('Invalid role');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const email = normalizeEmail(user?.email);
+  const name = typeof user?.name === 'string' ? user.name.trim() : '';
+  const payload = {
+    role,
+    userId: user.id,
+    schoolId: user.school_id || null,
+    schoolSlug: user.school_slug || null,
+    email: email || null,
+    name: name || null,
+    studentEmail: role === 'student' ? email || null : null,
+    studentName: role === 'student' ? name || null : null,
+  };
+  setAuthSessionCookie(res, payload);
+  return payload;
+}
+
 export async function setAuthSession(res, input) {
   const role = typeof input?.role === 'string' ? input.role : '';
   if (!ROLES.has(role)) {
@@ -189,7 +234,7 @@ export async function setAuthSession(res, input) {
     schoolSlug = scope.slug;
   }
 
-  if (role !== 'admin' && !schoolId) {
+  if (!isGlobalAdmin(role) && !schoolId) {
     const err = new Error('School is required for this role');
     err.statusCode = 400;
     throw err;
@@ -203,17 +248,8 @@ export async function setAuthSession(res, input) {
     schoolSlug,
     studentEmail: studentEmail || null,
     studentName: studentName || null,
-    iat: Math.floor(Date.now() / 1000),
   };
-
-  const cookieValue = encodeSession(payload);
-  res.setHeader(
-    'Set-Cookie',
-    `${SESSION_COOKIE}=${encodeURIComponent(
-      cookieValue
-    )}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`
-  );
-
+  setAuthSessionCookie(res, payload);
   return payload;
 }
 
@@ -224,12 +260,12 @@ export function requireAuth(req, res, options = {}) {
     return null;
   }
 
-  if (options.roles?.length && !options.roles.includes(session.role)) {
+  if (options.roles?.length && !isGlobalAdmin(session.role) && !options.roles.includes(session.role)) {
     res.status(403).json({ ok: false, error: 'Forbidden' });
     return null;
   }
 
-  if (options.schoolId && session.role !== 'admin' && session.schoolId !== options.schoolId) {
+  if (options.schoolId && !isGlobalAdmin(session.role) && session.schoolId !== options.schoolId) {
     res.status(403).json({ ok: false, error: 'Forbidden for this school' });
     return null;
   }

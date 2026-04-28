@@ -98,6 +98,7 @@ Initial approach:
 
 - Add `/login`.
 - Add `POST /api/auth/login`.
+- Add `POST /api/auth/bootstrap` as a temporary, token-gated first-admin path. It only works when `BOOTSTRAP_ADMIN_TOKEN` is set and no active users exist.
 - Keep signed HTTP-only cookie sessions for now.
 - Use `hashPassword`, `verifyPassword`, and `validatePassword` from `surf/lib/auth.js` for password handling.
 - Change `/api/auth/session` so it only returns, refreshes, or clears a real session.
@@ -202,9 +203,9 @@ Refactor shared helpers:
 - [x] Add optional `phone` to users, and decide whether to also mirror it on `students`.
 - [x] Add `user_id` columns to `coaches` and `students`.
 - [x] Add password hashing dependency or use a runtime-safe built-in strategy.
-- [ ] Build `/login`.
+- [x] Build `/login`.
 - [ ] Add optional telephone number fields to login/signup and user profile/admin UI.
-- [ ] Add `POST /api/auth/login`.
+- [x] Add `POST /api/auth/login`.
 - [ ] Change `/api/auth/session` to stop accepting arbitrary role creation.
 - [ ] Update `/` workspace to use the real session.
 - [ ] Remove role selector from production UI.
@@ -219,6 +220,7 @@ Refactor shared helpers:
 - Telephone number is stored on `users.phone`; do not mirror it onto `students` unless a later workflow needs offline student phone numbers without user accounts.
 - Telephone number is not captured in the current UI yet; add it when building login/signup, user profile, and admin user forms.
 - Password hashing uses built-in Node `crypto.scrypt`, with versioned hash strings from `surf/lib/auth.js`; no password hashing dependency is currently needed.
+- First real admin user should be created through `POST /api/auth/bootstrap`, guarded by `BOOTSTRAP_ADMIN_TOKEN` and disabled after the first active user exists.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -241,3 +243,4 @@ Refactor shared helpers:
 - 2026-04-28: Applied the coach/student `user_id` schema update to the Neon production database and verified columns plus indexes exist.
 - 2026-04-28: Recorded that optional telephone number still needs to be added to login/signup, profile, and admin user UI.
 - 2026-04-28: Added password validation, hashing, and verification helpers in `surf/lib/auth.js` using Node `crypto.scrypt`.
+- 2026-04-28: Added `/login`, `POST /api/auth/login`, and token-gated `POST /api/auth/bootstrap` for creating the first `platform_admin`.
