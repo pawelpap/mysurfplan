@@ -1,6 +1,6 @@
 # MyWavePlan Development Plan
 
-Last updated: 2026-04-28
+Last updated: 2026-04-29
 
 This file is the persistent working plan for the app. Update it after each meaningful code change so a future session can resume without relying on chat context.
 
@@ -49,6 +49,8 @@ Proposed fields:
 - `family_name TEXT NULL`
 - `email TEXT NOT NULL`
 - `phone TEXT NULL`
+- `photo_url TEXT NULL`
+- `description TEXT NULL`
 - `role user_role NOT NULL`
 - `password_hash TEXT NULL`
 - `email_verified_at TIMESTAMPTZ NULL`
@@ -201,9 +203,39 @@ Path decision:
 Current admin screen structure:
 
 - `Schools`: platform-level school management.
-- `People`: user accounts, coaches, and student/booking administration grouped together.
-- `Lessons`: lesson creation, coach assignment, attendance visibility, and booking operations until those are split into more focused workflows.
-- `Attendance`: coach and admin attendance/booking operations, with coach scope limited to assigned lessons in a later permission pass.
+- `People`: alphabetically sorted user list with role/type labels and an edit action.
+- `Person profile`: a single shared edit view for every person type, with the same profile fields for platform admins, school admins, coaches, and students.
+- `Lessons`: list/calendar of lessons with edit/detail actions; attendance is managed inside the lesson detail/edit flow.
+
+People screen requirements:
+
+- Show one alphabetically sorted list of all visible users.
+- Sort by `family_name`, then `name`, then email.
+- Show user type/role clearly: platform admin, school admin, coach, student.
+- Show school memberships/status once multi-school membership is implemented.
+- Provide an `Edit` action for each user.
+- `Edit` opens the actual person profile page/view, not an inline partial editor.
+- All user types share the same profile fields and editing layout.
+
+Shared person profile fields:
+
+- Photo/picture.
+- Name.
+- Family name.
+- Email.
+- Telephone number.
+- Description/bio.
+- Role/type.
+- School memberships and approval status.
+- Password/reset password controls for authorized admins.
+
+Lessons screen requirements:
+
+- Show a list/calendar of lessons with an edit/detail action.
+- `Edit` opens the actual lesson profile/detail page/view.
+- Lesson detail includes date/time, place, difficulty, capacity, assigned coaches, attendees/bookings, and attendance.
+- Attendance must be associated with the lesson, not a separate primary screen.
+- Coaches should only see/manage attendance for lessons they are assigned to.
 
 ## API Plan
 
@@ -221,6 +253,7 @@ Add or update endpoints:
 - `PUT /api/coaches/[id]`
 - `PUT /api/students/[id]`
 - `PUT /api/lessons/[id]`
+- lesson attendance endpoints or lesson-detail mutation endpoints, to be designed with the lesson detail flow.
 
 Refactor shared helpers:
 
@@ -256,10 +289,15 @@ Refactor shared helpers:
 - [x] Add admin user management.
 - [x] Group admin people management into a clearer `People` screen.
 - [x] Add `family_name` to the user schema and user-management UI/API.
+- [ ] Add shared user profile fields: `photo_url` and `description`.
+- [ ] Replace inline People creation/editing with alphabetic list -> person profile edit flow.
+- [ ] Make all person types use the same profile edit layout.
 - [ ] Add multi-school membership table and approval workflow.
 - [ ] Add immediate student self-registration.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
+- [ ] Replace lesson inline controls with list/calendar -> lesson detail/edit flow.
+- [ ] Move attendance into lesson detail/edit flow and remove `Attendance` as a separate primary screen.
 - [ ] Wire public booking redirect back from `/login`.
 - [ ] Revisit `/admin` route split later; keep `/` as the workspace for now.
 
@@ -279,6 +317,11 @@ Refactor shared helpers:
 - For now, keep `/` as the workspace to avoid route churn while we validate screen structure.
 - Admin screen structure should group users, coaches, and student administration under `People` rather than exposing all three as separate primary nav items.
 - User profiles need both `name` and `family_name`.
+- All person types should share the same profile fields and profile edit flow.
+- User profiles should include a picture/photo and description/bio.
+- People should be shown as an alphabetically sorted list with role/type labels and an edit action.
+- Lessons should follow the same pattern: list/calendar first, then a lesson detail/edit page or view.
+- Attendance should belong to the lesson detail/edit workflow, not a separate primary navigation screen.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -297,6 +340,7 @@ Refactor shared helpers:
 - Should a student be able to request school membership from the public school page before choosing a lesson?
 - Should school admins approve student memberships manually only, or should schools be able to enable auto-approval later?
 - What exact attendance states should coaches manage: present, absent, late, no-show, cancelled?
+- Should person and lesson edit flows be separate routes later, or modal/detail panels inside the current `/` workspace during the transition?
 
 ## Change Log
 
@@ -314,3 +358,4 @@ Refactor shared helpers:
 - 2026-04-28: Resolved product decisions around student self-registration, multi-school membership, password-only auth, coach permissions, and staff workspace routing.
 - 2026-04-28: Decided to keep `/` as the workspace for now, grouped admin people operations under `People`, and added planned/current `family_name` support for users.
 - 2026-04-28: Applied `users.family_name` to the Neon staging database and verified the column exists.
+- 2026-04-29: Refined target admin structure: `People` should be an alphabetic user list with shared person profile edit flow, lessons should have a list/detail edit flow, and attendance should live inside lesson details.
