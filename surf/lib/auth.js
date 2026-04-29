@@ -200,6 +200,8 @@ export function setUserAuthSession(res, user) {
   const email = normalizeEmail(user?.email);
   const name = typeof user?.name === 'string' ? user.name.trim() : '';
   const familyName = typeof user?.family_name === 'string' ? user.family_name.trim() : '';
+  const photoUrl = typeof user?.photo_url === 'string' ? user.photo_url.trim() : '';
+  const description = typeof user?.description === 'string' ? user.description.trim() : '';
   const payload = {
     role,
     userId: user.id,
@@ -208,6 +210,8 @@ export function setUserAuthSession(res, user) {
     email: email || null,
     name: name || null,
     familyName: familyName || null,
+    photoUrl: photoUrl || null,
+    description: description || null,
     phone: normalizePhone(user.phone) || null,
     studentEmail: role === 'student' ? email || null : null,
     studentName: role === 'student' ? name || null : null,

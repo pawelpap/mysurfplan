@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       `;
       const lesson = lessonRows[0];
       if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
-      if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach'], schoolId: lesson.school_id })) return;
+      if (!requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId: lesson.school_id })) return;
 
       const rows = await sql`
         UPDATE lessons

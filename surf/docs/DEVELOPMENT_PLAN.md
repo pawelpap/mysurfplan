@@ -289,15 +289,15 @@ Refactor shared helpers:
 - [x] Add admin user management.
 - [x] Group admin people management into a clearer `People` screen.
 - [x] Add `family_name` to the user schema and user-management UI/API.
-- [ ] Add shared user profile fields: `photo_url` and `description`.
-- [ ] Replace inline People creation/editing with alphabetic list -> person profile edit flow.
-- [ ] Make all person types use the same profile edit layout.
+- [x] Add shared user profile fields: `photo_url` and `description`.
+- [x] Replace inline People creation/editing with alphabetic list -> person profile edit flow.
+- [x] Make all person types use the same profile edit layout.
 - [ ] Add multi-school membership table and approval workflow.
 - [ ] Add immediate student self-registration.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
-- [ ] Replace lesson inline controls with list/calendar -> lesson detail/edit flow.
-- [ ] Move attendance into lesson detail/edit flow and remove `Attendance` as a separate primary screen.
+- [x] Replace lesson inline controls with list/calendar -> lesson detail/edit flow.
+- [x] Move attendance into lesson detail/edit flow and remove `Attendance` as a separate primary screen.
 - [ ] Wire public booking redirect back from `/login`.
 - [ ] Revisit `/admin` route split later; keep `/` as the workspace for now.
 
@@ -359,3 +359,4 @@ Refactor shared helpers:
 - 2026-04-28: Decided to keep `/` as the workspace for now, grouped admin people operations under `People`, and added planned/current `family_name` support for users.
 - 2026-04-28: Applied `users.family_name` to the Neon staging database and verified the column exists.
 - 2026-04-29: Refined target admin structure: `People` should be an alphabetic user list with shared person profile edit flow, lessons should have a list/detail edit flow, and attendance should live inside lesson details.
+- 2026-04-29: Implemented the staging UI structure for People and Lessons, added shared `users.photo_url` and `users.description` fields in code and Neon staging, and restricted lesson creation/deletion/coach assignment to admins while keeping coaches focused on assigned-lesson attendance.

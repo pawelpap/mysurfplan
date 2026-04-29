@@ -24,7 +24,6 @@ const STAFF_SCREENS = [
   { id: "schools", label: "Schools" },
   { id: "people", label: "People" },
   { id: "lessons", label: "Lessons" },
-  { id: "attendance", label: "Attendance" },
 ];
 const STUDENT_SCREENS = [
   { id: "profile", label: "Profile" },
@@ -34,9 +33,9 @@ const STUDENT_SCREENS = [
 
 function getAvailableScreens(role) {
   if (role === "student") return STUDENT_SCREENS;
-  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "attendance"].includes(s.id));
+  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons"].includes(s.id));
   if (role === "school_admin") {
-    return STAFF_SCREENS.filter((s) => ["people", "lessons", "attendance"].includes(s.id));
+    return STAFF_SCREENS.filter((s) => ["people", "lessons"].includes(s.id));
   }
   if (role === "platform_admin" || role === "admin") return STAFF_SCREENS;
   return STAFF_SCREENS;
@@ -100,17 +99,6 @@ const fmtTime = (iso) =>
     minute: "2-digit",
   });
 
-function groupByDay(lessons) {
-  return lessons
-    .slice()
-    .sort((a, b) => new Date(a.startAt || a.startISO) - new Date(b.startAt || b.startISO))
-    .reduce((acc, l) => {
-      const key = new Date(l.startAt || l.startISO).toDateString();
-      (acc[key] ||= []).push(l);
-      return acc;
-    }, {});
-}
-
 /* -------------------- Primitives -------------------- */
 const Card = ({ children }) => (
   <div className="rounded-2xl shadow p-4 bg-white border border-gray-100">{children}</div>
@@ -130,6 +118,25 @@ const Select = (props) => (
     className={`w-full rounded-xl border px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-black/10 ${props.className || ""}`}
   />
 );
+const Textarea = (props) => (
+  <textarea
+    {...props}
+    className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 ${props.className || ""}`}
+  />
+);
+
+function getFullName(person) {
+  return [person?.name, person?.familyName].filter(Boolean).join(" ").trim() || person?.email || "Untitled";
+}
+
+function getInitials(person) {
+  const parts = [person?.name, person?.familyName].filter(Boolean);
+  if (!parts.length && person?.email) parts.push(person.email);
+  return parts
+    .slice(0, 2)
+    .map((part) => String(part).trim().charAt(0).toUpperCase())
+    .join("") || "?";
+}
 
 /** Robust button */
 function Btn({ children, variant = "neutral", className = "", style, ...rest }) {
@@ -427,21 +434,62 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
   const [form, setForm] = useState({
     name: "",
     familyName: "",
+    photoUrl: "",
+    description: "",
     email: "",
     phone: "",
     role: "student",
     school: school || "",
     password: "",
   });
+  const [selectedId, setSelectedId] = useState("");
+  const [editing, setEditing] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [profileMsg, setProfileMsg] = useState("");
   const canChooseSchool = isPlatformAdmin(role);
   const canCreatePlatformAdmin = isPlatformAdmin(role);
   const availableRoles = ROLES.filter((r) => canCreatePlatformAdmin || r.id !== "platform_admin");
+  const sortedUsers = useMemo(
+    () =>
+      users
+        .slice()
+        .sort((a, b) =>
+          `${a.familyName || ""} ${a.name || ""} ${a.email || ""}`.localeCompare(
+            `${b.familyName || ""} ${b.name || ""} ${b.email || ""}`,
+            undefined,
+            { sensitivity: "base" }
+          )
+        ),
+    [users]
+  );
 
   useEffect(() => {
     setForm((prev) => ({ ...prev, school: prev.school || school || "" }));
   }, [school]);
+
+  useEffect(() => {
+    if (!sortedUsers.length) {
+      setSelectedId("");
+      setEditing(null);
+      return;
+    }
+    const next = sortedUsers.find((u) => u.id === selectedId) || sortedUsers[0];
+    setSelectedId(next.id);
+    setEditing({
+      id: next.id,
+      name: next.name || "",
+      familyName: next.familyName || "",
+      photoUrl: next.photoUrl || "",
+      description: next.description || "",
+      email: next.email || "",
+      phone: next.phone || "",
+      role: next.role || "student",
+      school: next.schoolSlug || next.schoolId || school || "",
+      password: "",
+    });
+  }, [sortedUsers, selectedId, school]);
 
   async function createUser(e) {
     e.preventDefault();
@@ -459,6 +507,8 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
         body: JSON.stringify({
           name: form.name.trim(),
           familyName: form.familyName.trim(),
+          photoUrl: form.photoUrl.trim() || null,
+          description: form.description.trim() || null,
           email: form.email.trim(),
           phone: form.phone.trim() || null,
           role: form.role,
@@ -468,12 +518,56 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
-      setForm((prev) => ({ ...prev, name: "", familyName: "", email: "", phone: "", password: "" }));
+      setForm((prev) => ({
+        ...prev,
+        name: "",
+        familyName: "",
+        photoUrl: "",
+        description: "",
+        email: "",
+        phone: "",
+        password: "",
+      }));
       await onReload();
+      if (json.data?.id) setSelectedId(json.data.id);
     } catch (e) {
       setErr(e.message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    if (!editing?.id) return;
+    setProfileBusy(true);
+    setProfileMsg("");
+    try {
+      await ensureAuth();
+      const res = await fetch(`/api/users/${editing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editing.name.trim(),
+          familyName: editing.familyName.trim(),
+          photoUrl: editing.photoUrl.trim() || null,
+          description: editing.description.trim() || null,
+          email: editing.email.trim(),
+          phone: editing.phone.trim() || null,
+          role: editing.role,
+          school: editing.role === "platform_admin" ? null : editing.school || school,
+          password: editing.password || undefined,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      setProfileMsg("Profile saved.");
+      setEditing((prev) => ({ ...prev, password: "" }));
+      await onReload();
+    } catch (e) {
+      setProfileMsg(e.message);
+    } finally {
+      setProfileBusy(false);
     }
   }
 
@@ -485,6 +579,7 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
       const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.ok === false) throw new Error(json.error || "Failed");
+      if (selectedId === id) setSelectedId("");
       await onReload();
     } catch (e) {
       setErr(e.message);
@@ -492,8 +587,9 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
   }
 
   return (
-    <Card>
-      <h3 className="text-lg font-semibold mb-3">Users</h3>
+    <div className="space-y-6">
+      <Card>
+      <h3 className="text-lg font-semibold mb-3">Add person</h3>
       <form onSubmit={createUser} className="grid grid-cols-1 md:grid-cols-4 gap-3">
         <div>
           <Label>Name</Label>
@@ -510,6 +606,14 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
         <div>
           <Label>Phone</Label>
           <Input value={form.phone} onChange={(e) => setForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Optional" />
+        </div>
+        <div className="md:col-span-2">
+          <Label>Photo URL</Label>
+          <Input value={form.photoUrl} onChange={(e) => setForm((s) => ({ ...s, photoUrl: e.target.value }))} placeholder="Optional" />
+        </div>
+        <div className="md:col-span-2">
+          <Label>Description</Label>
+          <Textarea rows={2} value={form.description} onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))} placeholder="Optional" />
         </div>
         <div>
           <Label>Role</Label>
@@ -548,25 +652,138 @@ function UsersManager({ school, schools, users, onReload, ensureAuth, role }) {
           {err && <span className="text-sm text-rose-600">{err}</span>}
         </div>
       </form>
+      </Card>
 
-      <div className="mt-4 space-y-2">
-        {users.map((u) => (
-          <div key={u.id} className="flex flex-col gap-2 border rounded-xl px-3 py-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="font-medium">{[u.name, u.familyName].filter(Boolean).join(" ")}</div>
-              <div className="text-xs text-gray-500">
-                {u.email} {u.phone ? `• ${u.phone}` : ""} • {getRoleLabel(u.role)}
-                {u.schoolName ? ` • ${u.schoolName}` : ""}
-              </div>
-            </div>
-            <Btn variant="outlineDanger" onClick={() => removeUser(u.id)}>
-              Deactivate
-            </Btn>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.35fr)] gap-6">
+        <Card>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-lg font-semibold">People</h3>
+            <div className="text-sm text-slate-500">{sortedUsers.length} total</div>
           </div>
-        ))}
-        {!users.length && <div className="text-sm text-gray-500">No users yet.</div>}
+          <div className="space-y-2">
+            {sortedUsers.map((u) => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => setSelectedId(u.id)}
+                className={`w-full text-left rounded-xl border px-3 py-3 transition ${
+                  selectedId === u.id ? "border-slate-900 bg-slate-50" : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {u.photoUrl ? (
+                    <img src={u.photoUrl} alt="" className="h-11 w-11 rounded-full object-cover border" />
+                  ) : (
+                    <div className="h-11 w-11 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm font-semibold">
+                      {getInitials(u)}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium truncate">{getFullName(u)}</div>
+                    <div className="text-xs text-gray-500 truncate">
+                      {getRoleLabel(u.role)} • {u.email}
+                      {u.schoolName ? ` • ${u.schoolName}` : ""}
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-slate-600">Edit</span>
+                </div>
+              </button>
+            ))}
+            {!sortedUsers.length && <div className="text-sm text-gray-500">No people yet.</div>}
+          </div>
+        </Card>
+
+        <Card>
+          <h3 className="text-lg font-semibold mb-3">Profile</h3>
+          {!editing ? (
+            <div className="text-sm text-gray-500">Select a person to edit their profile.</div>
+          ) : (
+            <form onSubmit={saveProfile} className="space-y-4">
+              <div className="flex items-center gap-3">
+                {editing.photoUrl ? (
+                  <img src={editing.photoUrl} alt="" className="h-16 w-16 rounded-full object-cover border" />
+                ) : (
+                  <div className="h-16 w-16 rounded-full bg-slate-900 text-white flex items-center justify-center text-lg font-semibold">
+                    {getInitials(editing)}
+                  </div>
+                )}
+                <div>
+                  <div className="font-semibold">{getFullName(editing)}</div>
+                  <div className="text-sm text-slate-500">{getRoleLabel(editing.role)}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={editing.name} onChange={(e) => setEditing((s) => ({ ...s, name: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Family name</Label>
+                  <Input value={editing.familyName} onChange={(e) => setEditing((s) => ({ ...s, familyName: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input type="email" value={editing.email} onChange={(e) => setEditing((s) => ({ ...s, email: e.target.value }))} />
+                </div>
+                <div>
+                  <Label>Phone</Label>
+                  <Input value={editing.phone} onChange={(e) => setEditing((s) => ({ ...s, phone: e.target.value }))} placeholder="Optional" />
+                </div>
+                <div>
+                  <Label>Role</Label>
+                  <Select value={editing.role} onChange={(e) => setEditing((s) => ({ ...s, role: e.target.value }))}>
+                    {availableRoles.map((r) => (
+                      <option key={r.id} value={r.id}>{r.label}</option>
+                    ))}
+                  </Select>
+                </div>
+                <div>
+                  <Label>School</Label>
+                  <Select
+                    value={editing.school}
+                    onChange={(e) => setEditing((s) => ({ ...s, school: e.target.value }))}
+                    disabled={!canChooseSchool || editing.role === "platform_admin"}
+                  >
+                    {!editing.school && <option value="">Select a school</option>}
+                    {schools.map((s) => (
+                      <option key={s.id} value={s.slug}>{s.name}</option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Photo URL</Label>
+                  <Input value={editing.photoUrl} onChange={(e) => setEditing((s) => ({ ...s, photoUrl: e.target.value }))} placeholder="Optional" />
+                </div>
+                <div className="md:col-span-2">
+                  <Label>Description</Label>
+                  <Textarea rows={4} value={editing.description} onChange={(e) => setEditing((s) => ({ ...s, description: e.target.value }))} placeholder="Optional" />
+                </div>
+                <div className="md:col-span-2">
+                  <Label>New password</Label>
+                  <Input
+                    type="password"
+                    value={editing.password}
+                    onChange={(e) => setEditing((s) => ({ ...s, password: e.target.value }))}
+                    placeholder="Leave blank to keep current password"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <Btn type="submit" variant="primary" disabled={profileBusy}>
+                  {profileBusy ? "Saving..." : "Save profile"}
+                </Btn>
+                <Btn type="button" variant="outlineDanger" onClick={() => removeUser(editing.id)}>
+                  Deactivate
+                </Btn>
+                {profileMsg && <span className="text-sm text-slate-500">{profileMsg}</span>}
+              </div>
+            </form>
+          )}
+        </Card>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -672,35 +889,20 @@ function PeopleManager({
   school,
   schools,
   users,
-  coaches,
-  lessons,
   reloadUsers,
-  reloadCoaches,
-  reloadLessons,
   ensureAuth,
   role,
 }) {
   return (
     <div className="space-y-6">
-      {(isPlatformAdmin(role) || role === "school_admin") && (
-        <UsersManager
-          school={school}
-          schools={schools}
-          users={users}
-          onReload={reloadUsers}
-          ensureAuth={ensureAuth}
-          role={role}
-        />
-      )}
-      {(isPlatformAdmin(role) || role === "school_admin") && (
-        <CoachesManager
-          school={school}
-          coaches={coaches}
-          onReload={reloadCoaches}
-          ensureAuth={ensureAuth}
-        />
-      )}
-      <StudentsManager lessons={lessons} reload={reloadLessons} ensureAuth={ensureAuth} />
+      <UsersManager
+        school={school}
+        schools={schools}
+        users={users}
+        onReload={reloadUsers}
+        ensureAuth={ensureAuth}
+        role={role}
+      />
     </div>
   );
 }
@@ -871,6 +1073,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
 
   const booked = attendees?.some((a) => a.email && a.email === student?.email);
   const isStaff = role !== "student";
+  const canManageLesson = isPlatformAdmin(role) || role === "school_admin";
   const coachNames = Array.isArray(coaches)
     ? coaches.map((c) => c?.name).filter(Boolean).join(", ")
     : "";
@@ -1052,6 +1255,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
                 </ul>
               </details>
 
+              {canManageLesson && (
               <details className="text-sm">
                 <summary className="cursor-pointer select-none">Assign coaches</summary>
                 <div className="mt-2 space-y-2">
@@ -1082,9 +1286,10 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
                   </div>
                 </div>
               </details>
+              )}
 
               <details className="text-sm">
-                <summary className="cursor-pointer select-none">Manage students</summary>
+                <summary className="cursor-pointer select-none">Attendance</summary>
                 <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
                   <Input
                     placeholder="Student name"
@@ -1109,6 +1314,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
                 {staffMsg && <div className="text-xs text-gray-500 mt-2">{staffMsg}</div>}
               </details>
 
+              {canManageLesson && (
               <Btn
                 onClick={deleteLesson}
                 variant="destructive"
@@ -1120,6 +1326,7 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
                 </svg>
                 <span>Delete Lesson</span>
               </Btn>
+              )}
             </>
           ) : (
             <div className="flex items-center gap-2">
@@ -1161,16 +1368,37 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
 }
 
 function LessonsList({ lessons, role, student, reload, filters, setFilters, coaches, ensureAuth }) {
-  const grouped = useMemo(() => groupByDay(lessons), [lessons]);
-  const days = Object.keys(grouped);
+  const [selectedLessonId, setSelectedLessonId] = useState("");
+  const filteredLessons = useMemo(
+    () =>
+      lessons.filter((l) => {
+        const start = l.startAt || l.startISO;
+        if (filters.difficulty && l.difficulty !== filters.difficulty) return false;
+        if (filters.from && new Date(start) < new Date(filters.from)) return false;
+        if (filters.to && new Date(start) > new Date(filters.to + "T23:59:59")) return false;
+        return true;
+      }),
+    [lessons, filters]
+  );
+  const selectedLesson = filteredLessons.find((l) => l.id === selectedLessonId) || filteredLessons[0] || null;
+
+  useEffect(() => {
+    if (!selectedLesson) {
+      setSelectedLessonId("");
+      return;
+    }
+    if (selectedLesson.id !== selectedLessonId) {
+      setSelectedLessonId(selectedLesson.id);
+    }
+  }, [selectedLesson, selectedLessonId]);
 
   return (
     <div className="space-y-6">
       <Card>
         <div className="flex flex-col md:flex-row md:items-end gap-3">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold">Calendar</h3>
-            <p className="text-sm text-gray-500">Grouped by day. Use filters to narrow results.</p>
+            <h3 className="text-lg font-semibold">Lessons</h3>
+            <p className="text-sm text-gray-500">Select a lesson to manage coaches, bookings, and attendance.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full md:w-auto">
             <div>
@@ -1207,36 +1435,57 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
         </div>
       </Card>
 
-      {days.length === 0 && (
+      {filteredLessons.length === 0 && (
         <div className="text-gray-500">No lessons yet.</div>
       )}
 
-      {days.map((day) => {
-        const dayLessons = grouped[day].filter((l) => {
-          const start = l.startAt || l.startISO;
-          if (filters.difficulty && l.difficulty !== filters.difficulty) return false;
-          if (filters.from && new Date(start) < new Date(filters.from)) return false;
-          if (filters.to && new Date(start) > new Date(filters.to + "T23:59:59")) return false;
-          return true;
-        });
-        if (dayLessons.length === 0) return null;
-        return (
-          <section key={day} className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{day}</h4>
-            {dayLessons.map((lesson) => (
-              <LessonItem
-                key={lesson.id}
-                lesson={lesson}
-                role={role}
-                student={student}
-                reload={reload}
-                allCoaches={coaches}
-                ensureAuth={ensureAuth}
-              />
-            ))}
-          </section>
-        );
-      })}
+      {!!filteredLessons.length && (
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] gap-6">
+          <Card>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h3 className="text-lg font-semibold">Lesson list</h3>
+              <div className="text-sm text-slate-500">{filteredLessons.length} total</div>
+            </div>
+            <div className="space-y-2">
+              {filteredLessons.map((lesson) => {
+                const start = lesson.startAt || lesson.startISO;
+                const coachNames = Array.isArray(lesson.coaches)
+                  ? lesson.coaches.map((c) => c?.name).filter(Boolean).join(", ")
+                  : "";
+                return (
+                  <button
+                    key={lesson.id}
+                    type="button"
+                    onClick={() => setSelectedLessonId(lesson.id)}
+                    className={`w-full text-left rounded-xl border px-3 py-3 transition ${
+                      selectedLesson?.id === lesson.id
+                        ? "border-slate-900 bg-slate-50"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="font-medium">{fmtDate(start)} • {fmtTime(start)}</div>
+                    <div className="text-xs text-slate-500">
+                      {lesson.difficulty} • {lesson.place || "No place"} • {lesson.attendees?.length || 0} booked
+                    </div>
+                    {coachNames && <div className="text-xs text-slate-500 truncate">{coachNames}</div>}
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+
+          {selectedLesson && (
+            <LessonItem
+              lesson={selectedLesson}
+              role={role}
+              student={student}
+              reload={reload}
+              allCoaches={coaches}
+              ensureAuth={ensureAuth}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1583,21 +1832,12 @@ export default function App({ settings }) {
               school={school}
               schools={schools}
               users={users}
-              coaches={coaches}
-              lessons={lessons}
               reloadUsers={loadUsers}
-              reloadCoaches={loadCoaches}
-              reloadLessons={load}
               ensureAuth={ensureAuth}
               role={role}
             />
           )
         )}
-
-        {activeScreen === "attendance" &&
-          (isPlatformAdmin(role) || role === "school_admin" || role === "coach") && (
-            <StudentsManager lessons={lessons} reload={load} ensureAuth={ensureAuth} />
-          )}
 
         {activeScreen === "profile" && role === "student" && (
           <StudentIdentity student={student} setStudent={setStudent} />
@@ -1607,7 +1847,7 @@ export default function App({ settings }) {
 
         {activeScreen === "lessons" && (
           <>
-            {(isPlatformAdmin(role) || role === "school_admin" || role === "coach") && (
+            {(isPlatformAdmin(role) || role === "school_admin") && (
               <CreateLessonForm
                 school={school}
                 coaches={coaches}

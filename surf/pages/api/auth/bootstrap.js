@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { token, name, familyName, family_name, email, phone, password } = req.body || {};
+    const { token, name, familyName, family_name, photoUrl, photo_url, description, email, phone, password } = req.body || {};
     if (!tokenMatches(token, expectedToken)) {
       return res.status(403).json({ ok: false, error: 'Forbidden' });
     }
@@ -44,6 +44,13 @@ export default async function handler(req, res) {
         : typeof family_name === 'string'
         ? family_name.trim()
         : '';
+    const normalizedPhotoUrl =
+      typeof photoUrl === 'string'
+        ? photoUrl.trim()
+        : typeof photo_url === 'string'
+        ? photo_url.trim()
+        : '';
+    const normalizedDescription = typeof description === 'string' ? description.trim() : '';
     const passwordError = validatePassword(password);
     if (!trimmedName) return res.status(400).json({ ok: false, error: 'Name is required' });
     if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
@@ -60,9 +67,9 @@ export default async function handler(req, res) {
 
     const passwordHash = await hashPassword(password);
     const inserted = await sql`
-      INSERT INTO users (school_id, name, family_name, email, phone, role, password_hash, email_verified_at)
-      VALUES (NULL, ${trimmedName}, ${trimmedFamilyName || null}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
-      RETURNING id, school_id, name, family_name, email, phone, role, NULL::text AS school_slug
+      INSERT INTO users (school_id, name, family_name, photo_url, description, email, phone, role, password_hash, email_verified_at)
+      VALUES (NULL, ${trimmedName}, ${trimmedFamilyName || null}, ${normalizedPhotoUrl || null}, ${normalizedDescription || null}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
+      RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, NULL::text AS school_slug
     `;
     const user = inserted[0];
     const session = setUserAuthSession(res, user);
@@ -77,6 +84,8 @@ export default async function handler(req, res) {
           schoolSlug: user.school_slug,
           name: user.name,
           familyName: user.family_name,
+          photoUrl: user.photo_url,
+          description: user.description,
           email: user.email,
           phone: user.phone,
           role: user.role,

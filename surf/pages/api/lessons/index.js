@@ -1,6 +1,6 @@
 // /pages/api/lessons/index.js
 import { sql } from 'lib/db';
-import { requireAuth } from '../../../lib/auth';
+import { getAuthSession, requireAuth } from '../../../lib/auth';
 
 /**
  * GET /api/lessons?school=<slug|id>
@@ -42,8 +42,9 @@ async function getLessons(req, res) {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId) return res.status(404).json({ ok: false, error: 'School not found' });
     if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach', 'student'], schoolId })) return;
+    const session = getAuthSession(req);
 
-    const rows = await sql`
+    let rows = await sql`
       SELECT
         l.id,
         l.school_id,
@@ -75,6 +76,19 @@ async function getLessons(req, res) {
       WHERE l.school_id = ${schoolId} AND l.deleted_at IS NULL
       ORDER BY l.start_at ASC;
     `;
+
+    if (session?.role === 'coach') {
+      const assigned = await sql`
+        SELECT lc.lesson_id
+        FROM lesson_coaches lc
+        JOIN coaches c ON c.id = lc.coach_id
+        WHERE c.school_id = ${schoolId}
+          AND c.user_id = ${session.userId}
+          AND c.deleted_at IS NULL
+      `;
+      const assignedLessonIds = new Set(assigned.map((row) => row.lesson_id));
+      rows = rows.filter((row) => assignedLessonIds.has(row.id));
+    }
 
     const data = rows.map((r) => ({
       id: r.id,
@@ -118,7 +132,7 @@ async function createLesson(req, res) {
     if (!schoolId) {
       return res.status(404).json({ ok: false, error: 'School not found' });
     }
-    if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach'], schoolId })) return;
+    if (!requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId })) return;
 
     const inserted = await sql`
       INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)

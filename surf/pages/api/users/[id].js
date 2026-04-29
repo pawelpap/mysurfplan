@@ -23,6 +23,8 @@ function cleanUser(row) {
     schoolName: row.school_name,
     name: row.name,
     familyName: row.family_name,
+    photoUrl: row.photo_url,
+    description: row.description,
     email: row.email,
     phone: row.phone,
     role: row.role,
@@ -35,7 +37,8 @@ function cleanUser(row) {
 async function getEditableUser(id, session) {
   const rows = await sql`
     SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-           u.name, u.family_name, u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+           u.name, u.family_name, u.photo_url, u.description,
+           u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
     FROM users u
     LEFT JOIN schools s ON s.id = u.school_id
     WHERE u.id = ${id} AND u.deleted_at IS NULL
@@ -97,6 +100,14 @@ export default async function handler(req, res) {
           : existing.family_name || '';
       const nextEmail = body.email !== undefined ? normalizeEmail(body.email) : existing.email;
       const nextPhone = body.phone !== undefined ? normalizePhone(body.phone) : existing.phone;
+      const nextPhotoUrl =
+        body.photoUrl !== undefined
+          ? String(body.photoUrl).trim()
+          : body.photo_url !== undefined
+          ? String(body.photo_url).trim()
+          : existing.photo_url || '';
+      const nextDescription =
+        body.description !== undefined ? String(body.description).trim() : existing.description || '';
       const nextRole = body.role !== undefined ? String(body.role) : existing.role;
 
       if (!nextName) return res.status(400).json({ ok: false, error: 'Name is required' });
@@ -121,13 +132,15 @@ export default async function handler(req, res) {
           SET school_id = ${schoolId},
               name = ${nextName},
               family_name = ${nextFamilyName},
+              photo_url = ${nextPhotoUrl || null},
+              description = ${nextDescription || null},
               email = ${nextEmail},
               phone = ${nextPhone || null},
               role = ${nextRole},
               password_hash = ${passwordHash},
               updated_at = now()
           WHERE id = ${id}
-          RETURNING id, school_id, name, family_name, email, phone, role, created_at, updated_at, last_login_at
+          RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at
         `;
         return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
       }
@@ -137,12 +150,14 @@ export default async function handler(req, res) {
         SET school_id = ${schoolId},
             name = ${nextName},
             family_name = ${nextFamilyName},
+            photo_url = ${nextPhotoUrl || null},
+            description = ${nextDescription || null},
             email = ${nextEmail},
             phone = ${nextPhone || null},
             role = ${nextRole},
             updated_at = now()
         WHERE id = ${id}
-        RETURNING id, school_id, name, family_name, email, phone, role, created_at, updated_at, last_login_at
+        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at
       `;
       return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
     }

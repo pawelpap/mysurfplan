@@ -96,6 +96,21 @@ async function bookLesson(lessonId, schoolId, name, email) {
   return rows[0] || null;
 }
 
+async function coachIsAssigned(lessonId, schoolId, userId) {
+  if (!userId) return false;
+  const rows = await sql`
+    SELECT 1
+    FROM lesson_coaches lc
+    JOIN coaches c ON c.id = lc.coach_id
+    WHERE lc.lesson_id = ${lessonId}
+      AND c.school_id = ${schoolId}
+      AND c.user_id = ${userId}
+      AND c.deleted_at IS NULL
+    LIMIT 1
+  `;
+  return rows.length > 0;
+}
+
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!id || typeof id !== 'string') {
@@ -117,6 +132,9 @@ export default async function handler(req, res) {
         studentEmail: normalizedEmail,
       });
       if (!session) return;
+      if (session.role === 'coach' && !(await coachIsAssigned(id, lesson.school_id, session.userId))) {
+        return res.status(403).json({ ok: false, error: 'Forbidden' });
+      }
 
       const result = await bookLesson(id, lesson.school_id, normalizedName, normalizedEmail);
       if (!result) {
@@ -147,6 +165,9 @@ export default async function handler(req, res) {
         studentEmail: normalizedEmail,
       });
       if (!session) return;
+      if (session.role === 'coach' && !(await coachIsAssigned(id, lesson.school_id, session.userId))) {
+        return res.status(403).json({ ok: false, error: 'Forbidden' });
+      }
 
       const students = await sql`
         SELECT id
