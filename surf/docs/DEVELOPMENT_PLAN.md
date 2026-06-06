@@ -1,6 +1,6 @@
 # MyWavePlan Development Plan
 
-Last updated: 2026-04-29
+Last updated: 2026-06-06
 
 This file is the persistent working plan for the app. Update it after each meaningful code change so a future session can resume without relying on chat context.
 
@@ -20,8 +20,9 @@ This file is the persistent working plan for the app. Update it after each meani
 - Neon staging database has been updated with nullable `coaches.user_id` and `students.user_id` links.
 - Neon production database has been updated with nullable `coaches.user_id` and `students.user_id` links.
 - Neon staging database has been updated with the `user_role` enum, `users` table, and `users.phone`.
-- Neon staging database has been updated with `users.family_name`.
 - Neon production database has been updated with the `user_role` enum, `users` table, and `users.phone`.
+- Neon staging and production databases have been updated with `users.family_name`, `users.photo_url`, and `users.description`.
+- Production `main` has been fast-forwarded to the same app code as `staging` after the People and Lessons admin-flow work.
 - Public school schedule pages exist at `/:slug`.
 - Public booking links to `/login`.
 
@@ -360,3 +361,4 @@ Refactor shared helpers:
 - 2026-04-28: Applied `users.family_name` to the Neon staging database and verified the column exists.
 - 2026-04-29: Refined target admin structure: `People` should be an alphabetic user list with shared person profile edit flow, lessons should have a list/detail edit flow, and attendance should live inside lesson details.
 - 2026-04-29: Implemented the staging UI structure for People and Lessons, added shared `users.photo_url` and `users.description` fields in code and Neon staging, and restricted lesson creation/deletion/coach assignment to admins while keeping coaches focused on assigned-lesson attendance.
+- 2026-06-06: Promoted staging to production by fast-forwarding `main` to `staging`; applied and verified `users.family_name`, `users.photo_url`, and `users.description` on the Neon production `main` branch.
