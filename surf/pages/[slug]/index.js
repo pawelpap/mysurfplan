@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-// Server-only import happens inside getServerSideProps
 export async function getServerSideProps(ctx) {
   const { slug } = ctx.params || {};
   try {
@@ -13,38 +12,46 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-/* ------------- small UI atoms ------------- */
-const Card = ({ children }) => (
-  <div className="rounded-2xl shadow-sm border border-gray-100 bg-white p-4">{children}</div>
+const Card = ({ children, className = '' }) => (
+  <div className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${className}`}>{children}</div>
 );
 const Label = ({ children }) => (
-  <label className="text-sm font-medium text-gray-700 mb-1 block">{children}</label>
+  <label className="mb-1.5 block text-xs font-semibold text-slate-600">{children}</label>
 );
 const Input = (props) => (
   <input
     {...props}
-    className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 ${props.className || ''}`}
+    className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10 ${props.className || ''}`}
   />
 );
 const Select = (props) => (
   <select
     {...props}
-    className={`w-full rounded-xl border px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-black/10 ${props.className || ''}`}
+    className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10 ${props.className || ''}`}
   />
 );
-const Btn = ({ children, variant = 'neutral', className = '', ...rest }) => {
-  const base =
-    'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm border transition';
+const Btn = ({ children, variant = 'primary', className = '', ...rest }) => {
   const style =
     variant === 'primary'
-      ? 'bg-green-600 hover:bg-green-700 border-green-700 text-white'
-      : 'bg-white hover:bg-gray-50 border-gray-300';
+      ? 'border-teal-700 bg-teal-700 text-white hover:bg-teal-800'
+      : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50';
   return (
-    <button {...rest} className={`${base} ${style} ${className}`}>
+    <button {...rest} className={`inline-flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-semibold shadow-sm transition ${style} ${className}`}>
       {children}
     </button>
   );
 };
+
+function LogoMark() {
+  return (
+    <svg viewBox="0 0 96 96" className="h-10 w-10" aria-hidden="true">
+      <rect x="6" y="6" width="84" height="84" rx="24" fill="#0D6E7A" />
+      <path d="M18 58C30 39 48 40 58 50C65 57 74 57 82 48" stroke="#DFF5EA" strokeWidth="7" strokeLinecap="round" fill="none" />
+      <path d="M19 66C37 54 50 55 62 64C70 70 77 70 84 63" stroke="#F4C96B" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M38 38C46 29 58 30 66 38" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
 
 function fmtDate(iso) {
   const d = new Date(iso);
@@ -98,22 +105,37 @@ export default function PublicSchoolPage({ school }) {
   }, [data.lessons]);
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/70 border-b">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="text-xl font-bold">🌊 {school?.name || 'School'}</div>
-          <div className="ml-auto text-sm text-gray-600">Public schedule</div>
+    <div className="min-h-screen bg-[#f6faf7] text-slate-950">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+          <LogoMark />
+          <div>
+            <div className="text-lg font-bold">{school?.name || 'School'}</div>
+            <div className="text-xs font-medium text-slate-500">Public lesson schedule</div>
+          </div>
+          <Btn
+            className="ml-auto"
+            variant="secondary"
+            onClick={() => {
+              window.location.href = `/login?school=${encodeURIComponent(school.slug)}&next=${encodeURIComponent(`/${school.slug}`)}`;
+            }}
+          >
+            Log in
+          </Btn>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <Card>
-          <div className="flex flex-col md:flex-row md:items-end gap-3">
-            <div className="flex-1">
-              <h2 className="text-2xl font-semibold">Upcoming Lessons</h2>
-              <p className="text-sm text-gray-500">Browse and book (login required at checkout).</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 w-full md:w-auto">
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <section className="mb-8 grid gap-6 lg:grid-cols-[1fr_380px]">
+          <div>
+            <div className="text-sm font-semibold text-teal-700">Book your next session</div>
+            <h1 className="mt-2 max-w-3xl text-4xl font-bold tracking-tight md:text-5xl">Upcoming lessons</h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+              Browse available lessons by day. You will log in before confirming a booking.
+            </p>
+          </div>
+          <Card>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               <div>
                 <Label>Difficulty</Label>
                 <Select
@@ -122,9 +144,7 @@ export default function PublicSchoolPage({ school }) {
                 >
                   <option value="">All</option>
                   {['Beginner', 'Intermediate', 'Advanced'].map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
+                    <option key={d} value={d}>{d}</option>
                   ))}
                 </Select>
               </div>
@@ -140,70 +160,74 @@ export default function PublicSchoolPage({ school }) {
                 <Label>To</Label>
                 <Input type="date" value={filters.to} onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))} />
               </div>
-              <div className="md:pt-6">
-                <Btn onClick={load} variant="primary">
-                  Apply
-                </Btn>
-              </div>
+              <Btn onClick={load}>Apply filters</Btn>
             </div>
-          </div>
-          {data.error && <div className="text-sm text-rose-600 mt-2">{data.error}</div>}
-        </Card>
+            {data.error && <div className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">{data.error}</div>}
+          </Card>
+        </section>
 
-        {Object.keys(grouped).length === 0 && !data.loading && <div className="text-gray-500">No lessons found.</div>}
+        {Object.keys(grouped).length === 0 && !data.loading && (
+          <Card className="py-10 text-center text-slate-500">No lessons found for these filters.</Card>
+        )}
 
-        {data.loading && <div className="text-gray-500">Loading…</div>}
+        {data.loading && <Card className="text-slate-500">Loading lessons...</Card>}
 
-        {Object.entries(grouped).map(([day, items]) => (
-          <section key={day} className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{day}</h4>
-            {items.map((l, idx) => {
-              const start = l?.startAt || l?.startISO || '';
-              const duration = Number.isFinite(l?.durationMin) ? l.durationMin : 90;
-              const bookedCount = Number.isFinite(l?.bookedCount) ? l.bookedCount : 0;
-              const capacity =
-                typeof l?.capacity === 'number' && Number.isFinite(l.capacity) ? l.capacity : undefined;
-              const spotsLeft = typeof capacity === 'number' ? Math.max(0, capacity - bookedCount) : undefined;
+        <div className="space-y-8">
+          {Object.entries(grouped).map(([day, items]) => (
+            <section key={day} className="space-y-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{day}</h2>
+              <div className="grid gap-3">
+                {items.map((l, idx) => {
+                  const start = l?.startAt || l?.startISO || '';
+                  const duration = Number.isFinite(l?.durationMin) ? l.durationMin : 90;
+                  const bookedCount = Number.isFinite(l?.bookedCount) ? l.bookedCount : 0;
+                  const capacity =
+                    typeof l?.capacity === 'number' && Number.isFinite(l.capacity) ? l.capacity : undefined;
+                  const spotsLeft = typeof capacity === 'number' ? Math.max(0, capacity - bookedCount) : undefined;
 
-              return (
-                <Card key={l?.id || `${day}-${idx}`}>
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-gray-500">{fmtDate(start)}</div>
-                      <div className="text-xl font-semibold">
-                        {fmtTime(start)} • {Math.round((duration / 60) * 10) / 10}h
+                  return (
+                    <Card key={l?.id || `${day}-${idx}`}>
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-teal-700">{fmtDate(start)}</div>
+                          <div className="mt-1 text-2xl font-bold">
+                            {fmtTime(start)} · {Math.round((duration / 60) * 10) / 10}h
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
+                            <span className="rounded-full bg-slate-100 px-3 py-1">{l?.difficulty || 'Level TBC'}</span>
+                            <span className="rounded-full bg-slate-100 px-3 py-1">{l?.place || 'Spot TBC'}</span>
+                            <span className="rounded-full bg-slate-100 px-3 py-1">
+                              {bookedCount} booked{typeof capacity === 'number' ? ` / ${capacity}` : ''}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          {typeof spotsLeft === 'number' && (
+                            <div className="text-right text-sm">
+                              <div className="font-semibold text-slate-900">{spotsLeft} left</div>
+                              <div className="text-slate-500">available spots</div>
+                            </div>
+                          )}
+                          <Btn
+                            onClick={() => {
+                              const next = `/${school.slug}#lesson=${l?.id ?? ''}`;
+                              window.location.href = `/login?school=${encodeURIComponent(
+                                school.slug
+                              )}&next=${encodeURIComponent(next)}`;
+                            }}
+                          >
+                            Book
+                          </Btn>
+                        </div>
                       </div>
-                      <div className="text-gray-700">
-                        {(l?.difficulty || '—')} • {(l?.place || '—')}
-                        {/* Coaches rendering temporarily removed to avoid non-array cases */}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm">
-                        Booked: <b>{bookedCount}</b>
-                        {typeof capacity === 'number' && (
-                          <span className="text-gray-500"> / {capacity} ({spotsLeft} left)</span>
-                        )}
-                      </div>
-                      <Btn
-                        variant="primary"
-                        onClick={() => {
-                          const next = `/${school.slug}#lesson=${l?.id ?? ''}`;
-                          window.location.href = `/login?school=${encodeURIComponent(
-                            school.slug
-                          )}&next=${encodeURIComponent(next)}`;
-                        }}
-                      >
-                        Book
-                      </Btn>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </section>
-        ))}
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
       </main>
     </div>
   );

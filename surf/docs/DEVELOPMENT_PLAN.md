@@ -1,6 +1,6 @@
 # MyWavePlan Development Plan
 
-Last updated: 2026-06-06
+Last updated: 2026-06-08
 
 This file is the persistent working plan for the app. Update it after each meaningful code change so a future session can resume without relying on chat context.
 
@@ -12,6 +12,9 @@ This file is the persistent working plan for the app. Update it after each meani
 - `staging` publishes staging: `https://staging.mywaveplan.com/`.
 - Data uses Neon/Postgres-style SQL through `surf/lib/db.js`.
 - Contentful provides global settings through `surf/lib/cms.js`.
+- Figma redesign file: `https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ` in the Squads - Growthmatics team.
+- Current Figma page is `FINAL - MyWavePlan App Redesign v3`, with a one-page detailed design board for focused app screens and CRUD states.
+- The staging app UI has started to adopt the Figma v3 direction in code: Poppins typography, redesigned login, public schedule, workspace shell, profile, lessons, and conditions placeholder screens.
 - Existing auth is a prototype signed-cookie flow where the frontend can choose a role.
 - Workspace access is now intended to be driven by real login sessions instead of the role selector.
 - Existing core entities: schools, coaches, students, lessons, lesson coaches, bookings.
@@ -34,7 +37,9 @@ Build a production-ready school management and booking app in this order:
 2. Durable user and role model.
 3. Admin pages for schools, coaches, users, lessons, and bookings.
 4. Public booking flow for students.
-5. Production hardening and cleanup.
+5. Coherent UX/UI redesign across the workspace, public pages, and auth flows.
+6. Conditions forecasting module with spot scoring and lesson condition scores.
+7. Production hardening and cleanup.
 
 ## Data Model Plan
 
@@ -122,6 +127,36 @@ This allows:
 - Existing data to migrate gradually.
 - Staff to create offline students without a login at first.
 
+### Conditions Forecasting
+
+Add a separate conditions forecasting module for surf spots. This is a large, separate workstream and should start with architecture before implementation.
+
+Initial architecture topics:
+
+- Decide forecasting data providers/APIs for sea, swell, wind, tide, and weather conditions.
+- Define provider abstraction so API sources can be swapped or combined.
+- Define surf spot model: location, coordinates, preferred swell direction, wind exposure, tide preferences, difficulty, and school association.
+- Define forecast ingestion, normalization, caching, and refresh cadence.
+- Define spot-score calculation inputs and weighting.
+- Store forecast snapshots and calculated scores in Neon so lesson pages can reuse them without calling external APIs on every request.
+- Add a standalone conditions page available to all authenticated users.
+- Add condition score/context to lessons so admins and students can see expected quality for each lesson.
+- Decide whether public school pages should expose condition scores or keep them authenticated only.
+
+Potential tables:
+
+- `surf_spots`
+- `spot_forecasts`
+- `spot_scores`
+- `lesson_condition_scores`
+
+Open decisions:
+
+- Which forecasting APIs should be used first.
+- Whether spot scoring should be global or configurable per school/spot.
+- How far ahead forecasts should be stored.
+- How to handle API failures, stale forecasts, and low-confidence scores.
+
 ## Auth Plan
 
 Replace the current role picker with real login.
@@ -150,6 +185,22 @@ Security requirements:
 - Staging and production must not run with `dev-insecure-session-secret`.
 
 ## UI Plan
+
+### UX/UI Redesign
+
+The current UI is not coherent enough across pages and needs a deliberate redesign before more complex workflows are added.
+
+Goals:
+
+- Establish a consistent layout system for workspace, profile, lesson, public schedule, login, and future conditions pages.
+- Replace the current prototype styling with a cleaner, more professional product interface.
+- Make navigation, page hierarchy, empty states, loading states, and error states consistent.
+- Improve form ergonomics for repeated admin work.
+- Make People and Lessons flows feel like stable product screens, not temporary forms.
+- Ensure mobile layouts are usable and do not feel like compressed desktop pages.
+- Keep visual design practical for a school operations product: clear, structured, calm, and easy to scan.
+- Latest Figma direction uses Poppins, minimal page layouts, restrained sea/sand/coral accents, and separate focused screens rather than mixing unrelated workflows on one page.
+- The detailed design board includes login/register, public school schedule, workspace shell/empty state, lessons list, lesson detail/edit, people list, person profile edit, schools management, self-profile, 16-day conditions forecasting, and shared add/edit/remove state patterns.
 
 ### Login
 
@@ -221,6 +272,7 @@ People screen requirements:
 Shared person profile fields:
 
 - Photo/picture.
+- Upload picture/photo directly from the profile UI instead of requiring only a pasted URL.
 - Name.
 - Family name.
 - Email.
@@ -230,6 +282,14 @@ Shared person profile fields:
 - School memberships and approval status.
 - Password/reset password controls for authorized admins.
 
+Profile editing requirements:
+
+- Every authenticated user should be able to edit their own profile fields where permitted.
+- Authorized admins should be able to edit other users from People.
+- Profile picture upload should validate file type and size.
+- Uploaded pictures need a storage location and a stable public or signed URL strategy.
+- Profile forms should distinguish self-editable fields from admin-only fields such as role and school scope.
+
 Lessons screen requirements:
 
 - Show a list/calendar of lessons with an edit/detail action.
@@ -237,6 +297,14 @@ Lessons screen requirements:
 - Lesson detail includes date/time, place, difficulty, capacity, assigned coaches, attendees/bookings, and attendance.
 - Attendance must be associated with the lesson, not a separate primary screen.
 - Coaches should only see/manage attendance for lessons they are assigned to.
+
+Conditions page requirements:
+
+- Add a separate conditions/forecasting page in the authenticated app.
+- Show spots, forecast windows, sea/swell/wind/tide/weather inputs, and calculated spot score.
+- Make it useful as a standalone planning tool for all user roles.
+- Reuse the same spot score in lesson detail/list views where a lesson is tied to a spot or place.
+- Start with architecture and data model before building the full UI.
 
 ## API Plan
 
@@ -254,6 +322,8 @@ Add or update endpoints:
 - `PUT /api/coaches/[id]`
 - `PUT /api/students/[id]`
 - `PUT /api/lessons/[id]`
+- profile picture upload endpoint, storage adapter, or signed-upload flow.
+- conditions forecasting endpoints for spots, forecasts, and scores.
 - lesson attendance endpoints or lesson-detail mutation endpoints, to be designed with the lesson detail flow.
 
 Refactor shared helpers:
@@ -274,6 +344,7 @@ Refactor shared helpers:
 - Hide or remove `/test/*` playground routes from production.
 - Add no-cache headers for authenticated API responses where appropriate.
 - Add audit-friendly error handling without leaking internals in production.
+- Add external API failure handling and cache controls for conditions forecasting before exposing it broadly.
 
 ## Near-Term Implementation Checklist
 
@@ -293,12 +364,20 @@ Refactor shared helpers:
 - [x] Add shared user profile fields: `photo_url` and `description`.
 - [x] Replace inline People creation/editing with alphabetic list -> person profile edit flow.
 - [x] Make all person types use the same profile edit layout.
+- [ ] Add self-service profile editing for authenticated users.
+- [ ] Add profile picture upload and storage instead of URL-only photo entry.
+- [ ] Redesign UX/UI across workspace, public pages, login, People, Lessons, and future Conditions pages.
 - [ ] Add multi-school membership table and approval workflow.
 - [ ] Add immediate student self-registration.
 - [ ] Add edit pages/actions for schools and coaches.
 - [ ] Add lesson editing, including capacity.
 - [x] Replace lesson inline controls with list/calendar -> lesson detail/edit flow.
 - [x] Move attendance into lesson detail/edit flow and remove `Attendance` as a separate primary screen.
+- [ ] Create architecture for the conditions forecasting and spot-scoring module.
+- [ ] Add surf spot model and forecast/score storage.
+- [ ] Integrate external sea/swell/wind/tide/weather forecasting APIs.
+- [ ] Add standalone conditions page available to all authenticated users.
+- [ ] Add condition score/context to lesson list and lesson detail views.
 - [ ] Wire public booking redirect back from `/login`.
 - [ ] Revisit `/admin` route split later; keep `/` as the workspace for now.
 
@@ -320,9 +399,12 @@ Refactor shared helpers:
 - User profiles need both `name` and `family_name`.
 - All person types should share the same profile fields and profile edit flow.
 - User profiles should include a picture/photo and description/bio.
+- User profile pictures should be uploaded through the app, not managed only by pasting image URLs.
 - People should be shown as an alphabetically sorted list with role/type labels and an edit action.
 - Lessons should follow the same pattern: list/calendar first, then a lesson detail/edit page or view.
 - Attendance should belong to the lesson detail/edit workflow, not a separate primary navigation screen.
+- Conditions forecasting and spot scoring should be a separate module/page, with lesson-level condition scores reused from that module.
+- The conditions forecasting work should begin with architecture and data modeling before UI implementation.
 - Role-based admin work should come after real authentication.
 - Current prototype auth should not be treated as production-ready.
 
@@ -342,6 +424,9 @@ Refactor shared helpers:
 - Should school admins approve student memberships manually only, or should schools be able to enable auto-approval later?
 - What exact attendance states should coaches manage: present, absent, late, no-show, cancelled?
 - Should person and lesson edit flows be separate routes later, or modal/detail panels inside the current `/` workspace during the transition?
+- Which sea condition forecasting APIs should be used first?
+- What exact spot-score formula should be used, and should it be configurable per school or spot?
+- Where should uploaded profile pictures be stored: Vercel Blob, S3-compatible storage, Neon/R2, or another service?
 
 ## Change Log
 
@@ -362,3 +447,7 @@ Refactor shared helpers:
 - 2026-04-29: Refined target admin structure: `People` should be an alphabetic user list with shared person profile edit flow, lessons should have a list/detail edit flow, and attendance should live inside lesson details.
 - 2026-04-29: Implemented the staging UI structure for People and Lessons, added shared `users.photo_url` and `users.description` fields in code and Neon staging, and restricted lesson creation/deletion/coach assignment to admins while keeping coaches focused on assigned-lesson attendance.
 - 2026-06-06: Promoted staging to production by fast-forwarding `main` to `staging`; applied and verified `users.family_name`, `users.photo_url`, and `users.description` on the Neon production `main` branch.
+- 2026-06-08: Added planning requirements for self-service profile editing, profile picture upload, coherent UX/UI redesign, and a separate conditions forecasting plus spot-scoring module that starts with architecture.
+- 2026-06-08: Created the Figma redesign file in the Squads - Growthmatics team with a modern visual direction, editable logo concept, core app mockups, component starter, and conditions forecasting architecture page.
+- 2026-06-08: Replaced the Figma canvas with `FINAL - MyWavePlan App Redesign v3`, a detailed one-page app redesign covering focused screens, CRUD states, person/profile photo upload direction, lesson edit/attendance flow, and 16-day conditions forecasting metrics.
+- 2026-06-08: Began applying the Figma v3 direction to the app code: switched global font to Poppins, redesigned `/login`, redesigned public `/:slug` lesson schedule, refreshed the authenticated workspace shell, added a Conditions screen placeholder with 16-day forecast layout, and improved Lessons/Profile surfaces without changing database contracts.

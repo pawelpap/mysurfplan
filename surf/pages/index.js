@@ -24,18 +24,21 @@ const STAFF_SCREENS = [
   { id: "schools", label: "Schools" },
   { id: "people", label: "People" },
   { id: "lessons", label: "Lessons" },
+  { id: "conditions", label: "Conditions" },
+  { id: "profile", label: "Profile" },
 ];
 const STUDENT_SCREENS = [
   { id: "profile", label: "Profile" },
   { id: "coaches", label: "Coaches" },
   { id: "lessons", label: "Lessons" },
+  { id: "conditions", label: "Conditions" },
 ];
 
 function getAvailableScreens(role) {
   if (role === "student") return STUDENT_SCREENS;
-  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons"].includes(s.id));
+  if (role === "coach") return STAFF_SCREENS.filter((s) => ["lessons", "conditions", "profile"].includes(s.id));
   if (role === "school_admin") {
-    return STAFF_SCREENS.filter((s) => ["people", "lessons"].includes(s.id));
+    return STAFF_SCREENS.filter((s) => ["people", "lessons", "conditions", "profile"].includes(s.id));
   }
   if (role === "platform_admin" || role === "admin") return STAFF_SCREENS;
   return STAFF_SCREENS;
@@ -100,28 +103,28 @@ const fmtTime = (iso) =>
   });
 
 /* -------------------- Primitives -------------------- */
-const Card = ({ children }) => (
-  <div className="rounded-2xl shadow p-4 bg-white border border-gray-100">{children}</div>
+const Card = ({ children, className = "" }) => (
+  <div className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${className}`}>{children}</div>
 );
 const Label = ({ children }) => (
-  <label className="text-sm font-medium text-gray-700 mb-1 block">{children}</label>
+  <label className="mb-1.5 block text-xs font-semibold text-slate-600">{children}</label>
 );
 const Input = (props) => (
   <input
     {...props}
-    className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 ${props.className || ""}`}
+    className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10 disabled:bg-slate-50 disabled:text-slate-400 ${props.className || ""}`}
   />
 );
 const Select = (props) => (
   <select
     {...props}
-    className={`w-full rounded-xl border px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-black/10 ${props.className || ""}`}
+    className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10 disabled:bg-slate-50 disabled:text-slate-400 ${props.className || ""}`}
   />
 );
 const Textarea = (props) => (
   <textarea
     {...props}
-    className={`w-full rounded-xl border px-3 py-2 outline-none focus:ring-2 focus:ring-black/10 ${props.className || ""}`}
+    className={`w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-4 focus:ring-teal-700/10 ${props.className || ""}`}
   />
 );
 
@@ -141,17 +144,17 @@ function getInitials(person) {
 /** Robust button */
 function Btn({ children, variant = "neutral", className = "", style, ...rest }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium shadow-sm border transition whitespace-nowrap";
+    "inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold shadow-sm transition whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60";
   const styles =
     variant === "neutral"
-      ? "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
+      ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-800"
       : variant === "primary"
-      ? "border-green-700 bg-green-600 hover:bg-green-700"
+      ? "border-teal-700 bg-teal-700 hover:bg-teal-800"
       : variant === "destructive"
-      ? "border-red-700 bg-red-600 hover:bg-red-700"
+      ? "border-rose-700 bg-rose-600 hover:bg-rose-700"
       : variant === "outlineDanger"
-      ? "border-red-600 text-red-600 bg-white hover:bg-red-50"
-      : "border-gray-300 bg-white text-gray-800";
+      ? "border-rose-200 text-rose-700 bg-white hover:bg-rose-50"
+      : "border-slate-200 bg-white text-slate-800";
   const forcedStyle =
     variant === "primary" || variant === "destructive"
       ? { color: "#fff", ...style }
@@ -160,6 +163,57 @@ function Btn({ children, variant = "neutral", className = "", style, ...rest }) 
     <button {...rest} className={`${base} ${styles} ${className}`} style={forcedStyle}>
       {children}
     </button>
+  );
+}
+
+function LogoMark({ className = "h-10 w-10" }) {
+  return (
+    <svg viewBox="0 0 96 96" className={className} aria-hidden="true">
+      <rect x="6" y="6" width="84" height="84" rx="24" fill="#0D6E7A" />
+      <path d="M18 58C30 39 48 40 58 50C65 57 74 57 82 48" stroke="#DFF5EA" strokeWidth="7" strokeLinecap="round" fill="none" />
+      <path d="M19 66C37 54 50 55 62 64C70 70 77 70 84 63" stroke="#F4C96B" strokeWidth="6" strokeLinecap="round" fill="none" />
+      <path d="M38 38C46 29 58 30 66 38" stroke="white" strokeWidth="6" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+function EmptyState({ title, children, action }) {
+  return (
+    <Card className="py-10 text-center">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-700">
+        <LogoMark className="h-8 w-8" />
+      </div>
+      <h3 className="text-lg font-semibold text-slate-950">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{children}</p>
+      {action && <div className="mt-5">{action}</div>}
+    </Card>
+  );
+}
+
+function ScoreBadge({ value = "TBC", tone = "neutral" }) {
+  const classes =
+    tone === "good"
+      ? "bg-teal-600 text-white"
+      : tone === "ok"
+      ? "bg-amber-300 text-slate-950"
+      : tone === "poor"
+      ? "bg-rose-50 text-rose-700"
+      : "bg-slate-100 text-slate-600";
+  return (
+    <span className={`inline-flex h-8 min-w-12 items-center justify-center rounded-full px-3 text-xs font-bold ${classes}`}>
+      {value}
+    </span>
+  );
+}
+
+function LessonConditionPreview() {
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+      <span className="rounded-full bg-slate-100 px-2.5 py-1">Wave TBC</span>
+      <span className="rounded-full bg-slate-100 px-2.5 py-1">Energy TBC</span>
+      <span className="rounded-full bg-slate-100 px-2.5 py-1">Period TBC</span>
+      <ScoreBadge />
+    </div>
   );
 }
 
@@ -216,7 +270,10 @@ function CreateLessonForm({ school, coaches, onCreate, ensureAuth /* existing ke
 
   return (
     <Card>
-      <h3 className="text-lg font-semibold mb-3">Create a Lesson</h3>
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-slate-950">Add lesson</h3>
+        <p className="mt-1 text-sm text-slate-500">Create one lesson, then manage coaches, bookings and attendance from its detail panel.</p>
+      </div>
       <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <Label>Date & time</Label>
@@ -235,7 +292,7 @@ function CreateLessonForm({ school, coaches, onCreate, ensureAuth /* existing ke
               ))}
             </Select>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Duration is fixed to 1h30m.</p>
+          <p className="text-xs text-slate-500 mt-1">Duration is fixed to 1h30m.</p>
         </div>
         <div>
           <Label>Difficulty</Label>
@@ -257,9 +314,9 @@ function CreateLessonForm({ school, coaches, onCreate, ensureAuth /* existing ke
         </div>
         <div>
           <Label>Coaches</Label>
-          <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
+          <div className="max-h-40 space-y-2 overflow-auto rounded-lg border border-slate-200 bg-slate-50 p-2">
             {!coaches?.length && (
-              <div className="text-sm text-gray-500">Add a coach to assign them.</div>
+              <div className="text-sm text-slate-500">Add a coach to assign them.</div>
             )}
             {coaches?.map((c) => (
               <label key={c.id} className="flex items-center gap-2 text-sm">
@@ -333,6 +390,98 @@ function StudentIdentity({ student, setStudent }) {
       </div>
       <p className="text-xs text-gray-500 mt-2">Used to reserve your spot.</p>
     </Card>
+  );
+}
+
+function SelfProfileScreen({ session, student, setStudent }) {
+  const profile = {
+    name: session?.name || student?.name || "",
+    familyName: session?.familyName || student?.familyName || "",
+    email: session?.email || student?.email || "",
+    phone: session?.phone || student?.phone || "",
+    description: session?.description || "",
+    photoUrl: session?.photoUrl || "",
+    role: session?.role || "",
+  };
+  const canEditLocalStudent = profile.role === "student";
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)]">
+      <Card className="h-fit">
+        <div className="flex items-center gap-4">
+          {profile.photoUrl ? (
+            <img src={profile.photoUrl} alt="" className="h-20 w-20 rounded-2xl border border-slate-200 object-cover" />
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-teal-700 text-xl font-bold text-white">
+              {getInitials(profile)}
+            </div>
+          )}
+          <div>
+            <h3 className="text-xl font-bold text-slate-950">{getFullName(profile)}</h3>
+            <div className="mt-1 text-sm text-slate-500">{getRoleLabel(profile.role)}</div>
+          </div>
+        </div>
+        <div className="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
+          <div className="text-sm font-semibold text-slate-950">Photo upload</div>
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            The interface is ready for upload. Storage and upload validation still need to be implemented.
+          </p>
+          <Btn className="mt-3" variant="neutral" disabled>Upload photo</Btn>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-slate-950">Profile details</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Students can keep booking details locally in this prototype. Full self-service profile saving is planned.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div>
+            <Label>Name</Label>
+            <Input
+              value={canEditLocalStudent ? student.name : profile.name}
+              onChange={(e) => setStudent((s) => ({ ...s, name: e.target.value }))}
+              disabled={!canEditLocalStudent}
+            />
+          </div>
+          <div>
+            <Label>Family name</Label>
+            <Input
+              value={canEditLocalStudent ? student.familyName || "" : profile.familyName}
+              onChange={(e) => setStudent((s) => ({ ...s, familyName: e.target.value }))}
+              disabled={!canEditLocalStudent}
+            />
+          </div>
+          <div>
+            <Label>Email</Label>
+            <Input
+              type="email"
+              value={canEditLocalStudent ? student.email : profile.email}
+              onChange={(e) => setStudent((s) => ({ ...s, email: e.target.value }))}
+              disabled={!canEditLocalStudent}
+            />
+          </div>
+          <div>
+            <Label>Phone</Label>
+            <Input
+              value={canEditLocalStudent ? student.phone || "" : profile.phone || ""}
+              onChange={(e) => setStudent((s) => ({ ...s, phone: e.target.value }))}
+              disabled={!canEditLocalStudent}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Label>Description</Label>
+            <Textarea rows={4} value={profile.description} disabled placeholder="Profile bio will be editable after self-service save is implemented." />
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Btn variant="primary" disabled>Save profile</Btn>
+          <span className="text-sm text-slate-500">Self-service save endpoint is planned.</span>
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -1220,148 +1369,105 @@ function LessonItem({ lesson, role, student, reload, allCoaches, ensureAuth }) {
 
   return (
     <Card>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <div className="text-sm text-gray-500">{fmtDate(start)}</div>
-          <div className="text-xl font-semibold">
-            {fmtTime(start)} • {Math.round((durationMin ?? DURATION_MIN) / 60 * 10) / 10}h
-          </div>
-          <div className="text-gray-700">
-            {difficulty} • {place}
-            {coachNames && <span className="text-gray-500"> • {coachNames}</span>}
-          </div>
-        </div>
-
-        <div className="flex-1" />
-
-        <div className="flex flex-col items-start md:items-end gap-2">
-          <div className="text-sm">
-            Booked: <span className="font-semibold">{attendees?.length || 0}</span>
-          </div>
-
-          {isStaff ? (
-            <>
-              <details className="text-sm">
-                <summary className="cursor-pointer select-none">See attendees</summary>
-                <ul className="mt-1 list-disc ml-5">
-                  {(attendees?.length || 0) === 0 && (
-                    <li className="list-none ml-0 text-gray-500">No bookings yet</li>
-                  )}
-                  {attendees?.map((a, i) => (
-                    <li key={i}>
-                      {a.name || "(No name)"} — {a.email || "(No email)"}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-
-              {canManageLesson && (
-              <details className="text-sm">
-                <summary className="cursor-pointer select-none">Assign coaches</summary>
-                <div className="mt-2 space-y-2">
-                  <div className="rounded-xl border p-2 max-h-40 overflow-auto space-y-2">
-                    {!allCoaches?.length && (
-                      <div className="text-xs text-gray-500">No coaches available.</div>
-                    )}
-                    {allCoaches?.map((c) => (
-                      <label key={c.id} className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={coachIds.includes(c.id)}
-                          onChange={(e) => {
-                            setCoachIds((prev) =>
-                              e.target.checked ? [...prev, c.id] : prev.filter((cid) => cid !== c.id)
-                            );
-                          }}
-                        />
-                        <span>{c.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Btn onClick={saveCoaches} disabled={coachBusy} variant="neutral">
-                      {coachBusy ? "Saving…" : "Save coaches"}
-                    </Btn>
-                    {coachMsg && <span className="text-xs text-gray-500">{coachMsg}</span>}
-                  </div>
-                </div>
-              </details>
-              )}
-
-              <details className="text-sm">
-                <summary className="cursor-pointer select-none">Attendance</summary>
-                <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <Input
-                    placeholder="Student name"
-                    value={staffName}
-                    onChange={(e) => setStaffName(e.target.value)}
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Student email"
-                    value={staffEmail}
-                    onChange={(e) => setStaffEmail(e.target.value)}
-                  />
-                  <div className="flex items-center gap-2">
-                    <Btn onClick={staffAddStudent} disabled={staffBusy} variant="primary">
-                      Add
-                    </Btn>
-                    <Btn onClick={staffRemoveStudent} disabled={staffBusy} variant="outlineDanger">
-                      Remove
-                    </Btn>
-                  </div>
-                </div>
-                {staffMsg && <div className="text-xs text-gray-500 mt-2">{staffMsg}</div>}
-              </details>
-
-              {canManageLesson && (
-              <Btn
-                onClick={deleteLesson}
-                variant="destructive"
-                className="min-w-[150px]"
-                title="Delete this lesson"
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                  <path d="M9 3h6a1 1 0 0 1 1 1v1h4v2h-1v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7H4V5h4V4a1 1 0 0 1 1-1zm2 0v1h2V3h-2zM7 7v12h10V7H7zm3 3h2v8h-2v-8zm4 0h2v8h-2v-8z" />
-                </svg>
-                <span>Delete Lesson</span>
-              </Btn>
-              )}
-            </>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Btn
-                onClick={book}
-                disabled={!student?.email || booked || busy}
-                variant="primary"
-                className="min-w-[150px]"
-                title={student?.email ? "Book this lesson" : "Enter your details above"}
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                  <path d="M9 16.2l-3.5-3.6L4 14.1l5 5 11-11-1.4-1.4z" />
-                </svg>
-                <span>{booked ? "Booked" : busy ? "Booking…" : "Book Lesson"}</span>
-              </Btn>
-
-              <Btn
-                onClick={unbook}
-                disabled={!student?.email || busy}
-                variant="outlineDanger"
-                className="min-w-[120px]"
-                title="Cancel booking for this email"
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-                  <path d="M18.3 5.71L12 12.01l-6.29-6.3-1.42 1.42L10.59 13.4l-6.3 6.3 1.42 1.41 6.3-6.29 6.29 6.29 1.41-1.41-6.29-6.3 6.29-6.29z"/>
-                </svg>
-                <span>Unbook</span>
-              </Btn>
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-sm font-semibold text-teal-700">{fmtDate(start)}</div>
+            <h3 className="mt-1 text-2xl font-bold text-slate-950">
+              {fmtTime(start)} · {Math.round(((durationMin ?? DURATION_MIN) / 60) * 10) / 10}h
+            </h3>
+            <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
+              <span className="rounded-full bg-slate-100 px-3 py-1">{difficulty}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1">{place || "Spot TBC"}</span>
+              {coachNames && <span className="rounded-full bg-slate-100 px-3 py-1">{coachNames}</span>}
             </div>
-          )}
-
-          {role === "student" && err && (
-            <div className="text-xs text-rose-600">{err}</div>
-          )}
+            <LessonConditionPreview />
+          </div>
+          <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm">
+            <div className="font-semibold text-slate-950">{attendees?.length || 0} booked</div>
+            <div className="text-slate-500">students</div>
+          </div>
         </div>
+
+        {isStaff ? (
+          <div className="grid gap-4">
+            <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h4 className="font-semibold text-slate-950">Bookings</h4>
+                <span className="text-xs font-semibold text-slate-500">{attendees?.length || 0} total</span>
+              </div>
+              <div className="space-y-2 text-sm">
+                {(attendees?.length || 0) === 0 && <div className="text-slate-500">No bookings yet.</div>}
+                {attendees?.map((a, i) => (
+                  <div key={i} className="flex items-center justify-between rounded-lg bg-white px-3 py-2">
+                    <span className="font-medium text-slate-800">{a.name || "(No name)"}</span>
+                    <span className="text-slate-500">{a.email || "(No email)"}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {canManageLesson && (
+              <section className="rounded-xl border border-slate-200 p-4">
+                <h4 className="font-semibold text-slate-950">Assigned coaches</h4>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {!allCoaches?.length && <div className="text-sm text-slate-500">No coaches available.</div>}
+                  {allCoaches?.map((c) => (
+                    <label key={c.id} className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={coachIds.includes(c.id)}
+                        onChange={(e) => {
+                          setCoachIds((prev) =>
+                            e.target.checked ? [...prev, c.id] : prev.filter((cid) => cid !== c.id)
+                          );
+                        }}
+                      />
+                      <span>{c.name}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Btn onClick={saveCoaches} disabled={coachBusy} variant="neutral">
+                    {coachBusy ? "Saving..." : "Save coaches"}
+                  </Btn>
+                  {coachMsg && <span className="text-xs text-slate-500">{coachMsg}</span>}
+                </div>
+              </section>
+            )}
+
+            <section className="rounded-xl border border-slate-200 p-4">
+              <h4 className="font-semibold text-slate-950">Add or remove booking</h4>
+              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
+                <Input placeholder="Student name" value={staffName} onChange={(e) => setStaffName(e.target.value)} />
+                <Input type="email" placeholder="Student email" value={staffEmail} onChange={(e) => setStaffEmail(e.target.value)} />
+                <div className="flex items-center gap-2">
+                  <Btn onClick={staffAddStudent} disabled={staffBusy} variant="primary">Add</Btn>
+                  <Btn onClick={staffRemoveStudent} disabled={staffBusy} variant="outlineDanger">Remove</Btn>
+                </div>
+              </div>
+              {staffMsg && <div className="mt-2 text-xs text-slate-500">{staffMsg}</div>}
+            </section>
+
+            {canManageLesson && (
+              <div className="flex justify-end">
+                <Btn onClick={deleteLesson} variant="outlineDanger" title="Delete this lesson">
+                  Delete lesson
+                </Btn>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            <Btn onClick={book} disabled={!student?.email || booked || busy} variant="primary">
+              {booked ? "Booked" : busy ? "Booking..." : "Book lesson"}
+            </Btn>
+            <Btn onClick={unbook} disabled={!student?.email || busy} variant="outlineDanger">
+              Cancel booking
+            </Btn>
+            {err && <div className="w-full text-xs text-rose-600">{err}</div>}
+          </div>
+        )}
       </div>
     </Card>
   );
@@ -1436,14 +1542,16 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
       </Card>
 
       {filteredLessons.length === 0 && (
-        <div className="text-gray-500">No lessons yet.</div>
+        <EmptyState title="No lessons for this filter">
+          Create a lesson or adjust the filters to find a scheduled session.
+        </EmptyState>
       )}
 
       {!!filteredLessons.length && (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] gap-6">
-          <Card>
+          <Card className="h-fit">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <h3 className="text-lg font-semibold">Lesson list</h3>
+              <h3 className="text-lg font-semibold text-slate-950">Lesson list</h3>
               <div className="text-sm text-slate-500">{filteredLessons.length} total</div>
             </div>
             <div className="space-y-2">
@@ -1457,17 +1565,18 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
                     key={lesson.id}
                     type="button"
                     onClick={() => setSelectedLessonId(lesson.id)}
-                    className={`w-full text-left rounded-xl border px-3 py-3 transition ${
+                    className={`w-full rounded-xl border px-3 py-3 text-left transition ${
                       selectedLesson?.id === lesson.id
-                        ? "border-slate-900 bg-slate-50"
-                        : "border-slate-200 bg-white hover:border-slate-300"
+                        ? "border-teal-700 bg-teal-50"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                     }`}
                   >
-                    <div className="font-medium">{fmtDate(start)} • {fmtTime(start)}</div>
+                    <div className="font-semibold text-slate-950">{fmtDate(start)} · {fmtTime(start)}</div>
                     <div className="text-xs text-slate-500">
-                      {lesson.difficulty} • {lesson.place || "No place"} • {lesson.attendees?.length || 0} booked
+                      {lesson.difficulty} · {lesson.place || "No place"} · {lesson.attendees?.length || 0} booked
                     </div>
                     {coachNames && <div className="text-xs text-slate-500 truncate">{coachNames}</div>}
+                    <LessonConditionPreview />
                   </button>
                 );
               })}
@@ -1486,6 +1595,104 @@ function LessonsList({ lessons, role, student, reload, filters, setFilters, coac
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function ConditionsScreen({ school }) {
+  const rows = [
+    ["Mon 8", "NW", "1.2m", "10s", "640 kJ", "N", "12 km/h", "82", "good"],
+    ["Tue 9", "NW", "1.4m", "11s", "720 kJ", "NE", "10 km/h", "86", "good"],
+    ["Wed 10", "W", "0.9m", "8s", "390 kJ", "SE", "18 km/h", "58", "poor"],
+    ["Thu 11", "W", "1.7m", "12s", "910 kJ", "N", "14 km/h", "79", "ok"],
+    ["Fri 12", "NW", "1.2m", "10s", "640 kJ", "N", "12 km/h", "82", "good"],
+    ["Sat 13", "NW", "1.4m", "11s", "720 kJ", "NE", "10 km/h", "86", "good"],
+    ["Sun 14", "W", "0.9m", "8s", "390 kJ", "SE", "18 km/h", "58", "poor"],
+    ["Mon 15", "W", "1.7m", "12s", "910 kJ", "N", "14 km/h", "79", "ok"],
+    ["Tue 16", "NW", "1.1m", "9s", "560 kJ", "N", "9 km/h", "76", "ok"],
+    ["Wed 17", "SW", "0.8m", "7s", "330 kJ", "W", "22 km/h", "44", "poor"],
+    ["Thu 18", "NW", "1.6m", "13s", "940 kJ", "NE", "11 km/h", "88", "good"],
+    ["Fri 19", "N", "1.0m", "8s", "420 kJ", "S", "17 km/h", "52", "poor"],
+    ["Sat 20", "NW", "1.3m", "10s", "690 kJ", "N", "13 km/h", "81", "good"],
+    ["Sun 21", "W", "2.0m", "14s", "1100 kJ", "NE", "16 km/h", "84", "good"],
+    ["Mon 22", "NW", "1.1m", "9s", "540 kJ", "E", "9 km/h", "73", "ok"],
+    ["Tue 23", "W", "0.7m", "7s", "300 kJ", "S", "20 km/h", "39", "poor"],
+  ];
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-sm font-semibold text-teal-700">Forecasting module</div>
+            <h3 className="mt-1 text-2xl font-bold text-slate-950">16-day conditions</h3>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Design preview for the standalone conditions page. API provider selection, spot models, storage, and score calculation are planned but not connected yet.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 lg:w-[520px]">
+            <div>
+              <Label>Spot</Label>
+              <Select value={school || "carcavelos"} disabled>
+                <option value={school || "carcavelos"}>{school || "Carcavelos"}</option>
+              </Select>
+            </div>
+            <div>
+              <Label>Window</Label>
+              <Select value="16" disabled>
+                <option value="16">16 days</option>
+              </Select>
+            </div>
+            <div>
+              <Label>Provider</Label>
+              <Select value="planned" disabled>
+                <option value="planned">To be selected</option>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="overflow-hidden p-0">
+        <div className="overflow-x-auto">
+          <table className="min-w-[980px] w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                {["Day", "Swell dir", "Size", "Period", "Energy", "Wind dir", "Wind", "Score"].map((h) => (
+                  <th key={h} className="px-4 py-3">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {rows.map((row) => (
+                <tr key={row[0]} className="hover:bg-slate-50/70">
+                  {row.slice(0, 7).map((cell, index) => (
+                    <td key={`${row[0]}-${index}`} className={`px-4 py-3 ${index === 0 ? "font-semibold text-slate-950" : "text-slate-600"}`}>
+                      {cell}
+                    </td>
+                  ))}
+                  <td className="px-4 py-3">
+                    <ScoreBadge value={row[7]} tone={row[8]} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        {[
+          ["Forecast data", "Sea, swell, wind, tide and weather providers need an adapter layer and cache strategy."],
+          ["Spot score", "Scores should be calculated from normalized inputs and stored for reuse in lessons."],
+          ["Lesson reuse", "Lessons should show only wave size, energy, period and score once lesson spots are connected."],
+        ].map(([title, body]) => (
+          <Card key={title}>
+            <h4 className="font-semibold text-slate-950">{title}</h4>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{body}</p>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1679,25 +1886,26 @@ export default function App({ settings }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-[#f6faf7] text-slate-950">
       <style jsx global>{`
         :root {
-          --brand-ink: #0b1220;
-          --brand-sky: #d7f5ff;
-          --brand-ocean: #0ea5b7;
-          --brand-sand: #f6f0e6;
+          --brand-ink: #11191f;
+          --brand-sea: #0d6e7a;
+          --brand-teal: #11a096;
+          --brand-mint: #dff5ea;
+          --brand-sand: #fbf3d7;
         }
         body {
-          background: radial-gradient(circle at 20% 0%, #e7f9ff 0%, #f6f0e6 38%, #f8fafc 100%);
+          background: #f6faf7;
         }
       `}</style>
 
-      <div className="sticky top-0 z-30 border-b border-white/50 bg-white/80 backdrop-blur">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center">
+      <div className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
           <div className="flex items-center gap-3 flex-1">
             <button
               type="button"
-              className="md:hidden rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
+              className="rounded-lg border border-slate-200 bg-white p-2 shadow-sm"
               onClick={() => setSidebarOpen(true)}
               aria-label="Open menu"
             >
@@ -1713,40 +1921,13 @@ export default function App({ settings }) {
                   className="h-10 w-auto max-w-[140px] object-contain"
                 />
               ) : (
-                <span className="text-2xl">🏄</span>
+                <LogoMark />
               )}
               <div>
-                <div className="text-sm uppercase tracking-[0.2em] text-slate-500">
-                  Workspace
-                </div>
-                <div className="text-lg font-semibold text-slate-900">
-                  {settings?.siteName || "Surf School"}
-                </div>
+                <div className="text-lg font-bold text-slate-950">{settings?.siteName || "MyWavePlan"}</div>
+                <div className="text-xs font-medium text-slate-500">{getRoleLabel(role)}</div>
               </div>
             </div>
-          </div>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="min-w-[220px]">
-              <Label>School</Label>
-              <Select
-                value={school}
-                onChange={(e) => setSchool(e.target.value)}
-                className="bg-white"
-                disabled={schoolsLoading || !isPlatformAdmin(role)}
-              >
-                {!school && <option value="">Select a school</option>}
-                {schools.map((s) => (
-                  <option key={s.id} value={s.slug}>
-                    {s.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="text-sm text-slate-600 md:min-w-[180px]">
-              <div className="font-medium text-slate-900">{session.name || session.email}</div>
-              <div>{getRoleLabel(role)}</div>
-            </div>
-            <Btn variant="neutral" onClick={logout}>Log out</Btn>
           </div>
         </div>
       </div>
@@ -1758,23 +1939,26 @@ export default function App({ settings }) {
         />
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-6 flex gap-6">
+      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 md:px-6">
         <aside
-          className={`fixed md:static inset-y-0 left-0 z-40 w-72 md:w-64 shrink-0 space-y-6 bg-white md:bg-transparent p-4 md:p-0 transform transition ${
+          className={`fixed md:sticky md:top-6 inset-y-0 left-0 z-40 h-screen md:h-[calc(100vh-48px)] w-72 shrink-0 bg-white p-4 transform border-r border-slate-200 transition md:translate-x-0 md:rounded-2xl md:border md:shadow-sm ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
           }`}
         >
-          <div className="bg-white rounded-3xl border border-white/60 p-4 shadow-xl space-y-5">
-            <div className="px-2">
-              <div className="text-xs uppercase tracking-[0.24em] text-slate-400 mb-2">
-                Navigation
-              </div>
-              <div className="text-sm font-medium text-slate-700">
-                {getRoleLabel(role)}
+          <div className="flex h-full flex-col">
+            <div className="mb-8 flex items-center gap-3">
+              {settings?.logo?.url ? (
+                <img src={settings.logo.url} alt="Surf School" className="h-10 w-auto max-w-[140px] object-contain" />
+              ) : (
+                <LogoMark />
+              )}
+              <div>
+                <div className="text-lg font-bold text-slate-950">{settings?.siteName || "MyWavePlan"}</div>
+                <div className="text-xs font-medium text-slate-500">{getRoleLabel(role)}</div>
               </div>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-1">
               {getAvailableScreens(role).map((item) => (
                 <button
                   key={item.id}
@@ -1783,31 +1967,52 @@ export default function App({ settings }) {
                     setActiveScreen(item.id);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full text-left rounded-2xl px-4 py-3 text-sm font-medium border transition ${
+                  className={`w-full rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition ${
                     activeScreen === item.id
-                      ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-900/20"
-                      : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+                      ? "bg-teal-700 text-white shadow-sm"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
             </nav>
+
+            <div className="mt-auto space-y-4 border-t border-slate-200 pt-4">
+              <div>
+                <Label>School</Label>
+                <Select
+                  value={school}
+                  onChange={(e) => setSchool(e.target.value)}
+                  disabled={schoolsLoading || !isPlatformAdmin(role)}
+                >
+                  {!school && <option value="">Select a school</option>}
+                  {schools.map((s) => (
+                    <option key={s.id} value={s.slug}>{s.name}</option>
+                  ))}
+                </Select>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3 text-sm">
+                <div className="font-semibold text-slate-950">{session.name || session.email}</div>
+                <div className="mt-1 text-slate-500">{session.email}</div>
+              </div>
+              <Btn variant="neutral" onClick={logout} className="w-full">Log out</Btn>
+            </div>
           </div>
         </aside>
 
-        <main className="flex-1 space-y-6">
-        <Card>
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <main className="min-w-0 flex-1 space-y-6 md:pl-0">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+              <div className="text-sm font-semibold text-teal-700">
                 {getRoleLabel(role)}
               </div>
-              <h2 className="text-3xl font-semibold text-slate-900">
+              <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
                 {getAvailableScreens(role).find((s) => s.id === activeScreen)?.label || "Overview"}
-              </h2>
+              </h1>
             </div>
-            <div className="text-sm text-slate-500">
+            <div className="rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
               {school ? `Active school: ${school}` : "Pick a school to continue"}
             </div>
           </div>
@@ -1818,7 +2023,7 @@ export default function App({ settings }) {
           {!schoolsLoading && !school && !schoolsError && (
             <div className="text-sm text-slate-500 mt-2">Select a school to load data.</div>
           )}
-        </Card>
+        </div>
 
         {activeScreen === "schools" && isPlatformAdmin(role) && (
           <SchoolsManager schools={schools} onReload={loadSchools} ensureAuth={ensureAuth} />
@@ -1839,11 +2044,15 @@ export default function App({ settings }) {
           )
         )}
 
-        {activeScreen === "profile" && role === "student" && (
-          <StudentIdentity student={student} setStudent={setStudent} />
+        {activeScreen === "profile" && (
+          <SelfProfileScreen session={session} student={student} setStudent={setStudent} />
         )}
 
         {activeScreen === "coaches" && role === "student" && <CoachesList coaches={coaches} />}
+
+        {activeScreen === "conditions" && (
+          <ConditionsScreen school={school} />
+        )}
 
         {activeScreen === "lessons" && (
           <>
