@@ -1,13 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 
 export async function getServerSideProps() {
-  try {
-    const { getSettings } = await import('../lib/cms');
-    const settings = await getSettings();
-    return { props: { settings } };
-  } catch (e) {
-    return { props: { settings: { siteName: 'MyWavePlan', logo: null } } };
-  }
+  return { props: {} };
 }
 
 /* -------------------- Constants & utils -------------------- */
@@ -1698,7 +1692,7 @@ function ConditionsScreen({ school }) {
 }
 
 /* -------------------- Page -------------------- */
-export default function App({ settings }) {
+export default function App() {
   const [session, setSession] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);

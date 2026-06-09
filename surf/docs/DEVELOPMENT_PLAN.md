@@ -1,6 +1,6 @@
 # MyWavePlan Development Plan
 
-Last updated: 2026-06-08
+Last updated: 2026-06-09
 
 This file is the persistent working plan for the app. Update it after each meaningful code change so a future session can resume without relying on chat context.
 
@@ -11,7 +11,7 @@ This file is the persistent working plan for the app. Update it after each meani
 - `main` publishes production: `https://mywaveplan.com/`.
 - `staging` publishes staging: `https://staging.mywaveplan.com/`.
 - Data uses Neon/Postgres-style SQL through `surf/lib/db.js`.
-- Contentful provides global settings through `surf/lib/cms.js`.
+- Contentful has been removed; app branding is now built into the code with the MyWavePlan logo and Poppins-based design system.
 - Figma redesign file: `https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ` in the Squads - Growthmatics team.
 - Current Figma page is `FINAL - MyWavePlan App Redesign v3`, with a one-page detailed design board for focused app screens and CRUD states.
 - The staging app UI has started to adopt the Figma v3 direction in code: Poppins typography, redesigned login, public schedule, workspace shell, profile, lessons, and conditions placeholder screens.
@@ -451,3 +451,4 @@ Refactor shared helpers:
 - 2026-06-08: Created the Figma redesign file in the Squads - Growthmatics team with a modern visual direction, editable logo concept, core app mockups, component starter, and conditions forecasting architecture page.
 - 2026-06-08: Replaced the Figma canvas with `FINAL - MyWavePlan App Redesign v3`, a detailed one-page app redesign covering focused screens, CRUD states, person/profile photo upload direction, lesson edit/attendance flow, and 16-day conditions forecasting metrics.
 - 2026-06-08: Began applying the Figma v3 direction to the app code: switched global font to Poppins, redesigned `/login`, redesigned public `/:slug` lesson schedule, refreshed the authenticated workspace shell, added a Conditions screen placeholder with 16-day forecast layout, and improved Lessons/Profile surfaces without changing database contracts.
+- 2026-06-09: Removed Contentful from the app because branding is now code-owned; deleted `surf/lib/cms.js`, removed the `contentful` npm dependency, and made `/` use built-in MyWavePlan branding.

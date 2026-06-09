@@ -1,6 +1,6 @@
 # Staging Environment – MyWavePlan
 
-This document explains how we set up staging with **GitHub `staging` branch**, **Vercel (staging project)**, **Neon (staging DB branch)**, and Contentful.
+This document explains how we set up staging with **GitHub `staging` branch**, **Vercel (staging project)**, and **Neon (staging DB branch)**.
 
 ## Topology
 
@@ -15,9 +15,6 @@ This document explains how we set up staging with **GitHub `staging` branch**, *
 - Neon DB
   - Project: (shared with prod)
   - Branches: `main` (prod), `staging` (staging)
-
-- Contentful
-  - Same space reused in both (or separate environment later)
 
 ---
 
