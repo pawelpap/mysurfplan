@@ -14,7 +14,7 @@ This file is the persistent working plan for the app. Update it after each meani
 - Contentful has been removed; app branding is now built into the code with the MyWavePlan logo and Poppins-based design system.
 - Figma redesign file: `https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ` in the Squads - Growthmatics team.
 - Current Figma page is `FINAL - MyWavePlan App Redesign v3`, with a one-page detailed design board for focused app screens and CRUD states.
-- The staging app UI has started to adopt the Figma v3 direction in code: Poppins typography, redesigned login, public schedule, workspace shell, profile, lessons, and conditions placeholder screens.
+- The staging and production app UI now use the first Figma v3 implementation: Poppins typography, redesigned login, public schedule, workspace shell, profile, lessons, and conditions placeholder screens.
 - Existing auth is a prototype signed-cookie flow where the frontend can choose a role.
 - Workspace access is now intended to be driven by real login sessions instead of the role selector.
 - Existing core entities: schools, coaches, students, lessons, lesson coaches, bookings.
@@ -25,7 +25,7 @@ This file is the persistent working plan for the app. Update it after each meani
 - Neon staging database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Neon production database has been updated with the `user_role` enum, `users` table, and `users.phone`.
 - Neon staging and production databases have been updated with `users.family_name`, `users.photo_url`, and `users.description`.
-- Production `main` has been fast-forwarded to the same app code as `staging` after the People and Lessons admin-flow work.
+- Production `main` has been fast-forwarded to the same app code as `staging` after the Figma v3 UI refresh and Contentful removal.
 - Public school schedule pages exist at `/:slug`.
 - Public booking links to `/login`.
 
@@ -452,3 +452,4 @@ Refactor shared helpers:
 - 2026-06-08: Replaced the Figma canvas with `FINAL - MyWavePlan App Redesign v3`, a detailed one-page app redesign covering focused screens, CRUD states, person/profile photo upload direction, lesson edit/attendance flow, and 16-day conditions forecasting metrics.
 - 2026-06-08: Began applying the Figma v3 direction to the app code: switched global font to Poppins, redesigned `/login`, redesigned public `/:slug` lesson schedule, refreshed the authenticated workspace shell, added a Conditions screen placeholder with 16-day forecast layout, and improved Lessons/Profile surfaces without changing database contracts.
 - 2026-06-09: Removed Contentful from the app because branding is now code-owned; deleted `surf/lib/cms.js`, removed the `contentful` npm dependency, and made `/` use built-in MyWavePlan branding.
+- 2026-06-09: Promoted the latest staging code to production by fast-forwarding `main` to `staging`, so production now includes the Figma v3 UI refresh, enforced MyWavePlan branding, Poppins typography, and Contentful removal.
