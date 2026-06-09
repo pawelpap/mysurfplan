@@ -1914,17 +1914,9 @@ export default function App({ settings }) {
               </svg>
             </button>
             <div className="flex items-center gap-3">
-              {settings?.logo?.url ? (
-                <img
-                  src={settings.logo.url}
-                  alt="Surf School"
-                  className="h-10 w-auto max-w-[140px] object-contain"
-                />
-              ) : (
-                <LogoMark />
-              )}
+              <LogoMark />
               <div>
-                <div className="text-lg font-bold text-slate-950">{settings?.siteName || "MyWavePlan"}</div>
+                <div className="text-lg font-bold text-slate-950">MyWavePlan</div>
                 <div className="text-xs font-medium text-slate-500">{getRoleLabel(role)}</div>
               </div>
             </div>
@@ -1947,13 +1939,9 @@ export default function App({ settings }) {
         >
           <div className="flex h-full flex-col">
             <div className="mb-8 flex items-center gap-3">
-              {settings?.logo?.url ? (
-                <img src={settings.logo.url} alt="Surf School" className="h-10 w-auto max-w-[140px] object-contain" />
-              ) : (
-                <LogoMark />
-              )}
+              <LogoMark />
               <div>
-                <div className="text-lg font-bold text-slate-950">{settings?.siteName || "MyWavePlan"}</div>
+                <div className="text-lg font-bold text-slate-950">MyWavePlan</div>
                 <div className="text-xs font-medium text-slate-500">{getRoleLabel(role)}</div>
               </div>
             </div>
