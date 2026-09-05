@@ -13,6 +13,20 @@ const marineFields = {
   wind_wave_direction: "windWaveDirection",
 };
 export const providerVersion = 2;
+export function hasWaveSignal(data) {
+  return [
+    "wave_height",
+    "wind_wave_height",
+    "swell_wave_height",
+    "secondary_swell_wave_height",
+    "tertiary_swell_wave_height",
+  ].some((key) =>
+    data?.hourly?.[key]?.some(
+      (value) =>
+        typeof value === "number" && Number.isFinite(value) && value > 0,
+    ),
+  );
+}
 export function marineModel(spot) {
   return spot.calibration?.marineModel || "ncep_gfswave025";
 }
@@ -105,12 +119,19 @@ export async function fetchForecast(spot) {
     read(urls.marine),
     read(urls.weather),
   ]);
-  const marine = results[0].status === "fulfilled" ? results[0].value : null,
-    weather = results[1].status === "fulfilled" ? results[1].value : null;
+  let marine = results[0].status === "fulfilled" ? results[0].value : null;
+  const zeroFilled = marine && !hasWaveSignal(marine);
+  if (zeroFilled) marine = null;
+  const weather = results[1].status === "fulfilled" ? results[1].value : null;
   if (!marine && !weather)
     throw new Error("Forecast provider is temporarily unavailable.");
   const issues = [];
-  if (!marine) issues.push("Wave forecast is temporarily unavailable.");
+  if (!marine)
+    issues.push(
+      zeroFilled
+        ? "Wave forecast is unavailable for this location."
+        : "Wave forecast is temporarily unavailable.",
+    );
   if (!weather)
     issues.push("Weather and wind forecast is temporarily unavailable.");
   return {

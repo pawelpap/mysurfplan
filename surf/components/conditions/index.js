@@ -21,6 +21,7 @@ import {
   useForecast,
   Score,
   Experience,
+  experienceLabel,
   Direction,
   SwellDetails,
   ForecastFooter,
@@ -223,7 +224,7 @@ function SpotForecast({ spot, date, onDate }) {
                 className={`outlook-day ${selected === day ? "selected" : ""}`}
                 aria-pressed={selected === day}
                 onClick={() => onDate(day)}
-                aria-label={`${dayLabel(day)}, surf ${h?.quality || "unavailable"}, ${h?.level || "not assessed"}`}
+                aria-label={`${dayLabel(day)}, surf ${h?.quality || "unavailable"}, ${experienceLabel(h?.level)}`}
               >
                 <strong>
                   {i === 0

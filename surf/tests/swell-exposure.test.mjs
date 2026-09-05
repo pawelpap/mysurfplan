@@ -12,6 +12,7 @@ import {
   providerUrls,
   matchesForecastSource,
   providerVersion,
+  hasWaveSignal,
 } from "../lib/conditions/provider.mjs";
 import { validateSpot } from "../lib/conditions/spot-profile.mjs";
 const spots = JSON.parse(
@@ -101,6 +102,32 @@ test("flat and very small seas cannot get good scores from favourable wind, tide
     c,
   );
   assert.ok(result.score < 30);
+});
+
+test("small changes in local surf cannot jump from poor to good at the size thresholds", () => {
+  const atHeight = (swellHeight) =>
+    scoreConditions(
+      {
+        ...hour,
+        swellHeight,
+        swellPeriod: 10,
+        swellDirection: 270,
+        windWaveHeight: 0,
+        windSpeed: 0,
+        tide: { ratio: 0.5 },
+      },
+      defaultCalibration,
+    );
+  for (const threshold of [0.3, 0.5, 0.65]) {
+    const below = atHeight(threshold - 0.001);
+    const above = atHeight(threshold + 0.001);
+    assert.ok(above.score >= below.score);
+    assert.ok(above.score - below.score <= 1);
+  }
+  assert.equal(atHeight(0.299).quality, "Flat / too small");
+  assert.equal(atHeight(0.499).quality, "Poor");
+  assert.notEqual(atHeight(0.501).quality, "Good");
+  assert.equal(atHeight(0.65).quality, "Good");
 });
 
 test("swell components and wind-wave direction survive normalisation and a lesson between forecast hours", () => {
@@ -195,4 +222,35 @@ test("admin calibration validates directional curves and wave model coverage", (
       /exposure|pairs/,
     );
   }
+});
+
+test("neighbouring Caparica beaches share São João's established input, retaining separate local profiles", () => {
+  const joao = spots.find((s) => s.slug === "sao-joao-caparica"),
+    cornelia = spots.find((s) => s.slug === "cornelia-caparica");
+  assert.equal(joao.marineLatitude, 38.66);
+  assert.equal(joao.marineLongitude, -9.37);
+  assert.equal(
+    providerUrls(joao).marine.toString(),
+    providerUrls(cornelia).marine.toString(),
+  );
+  assert.notEqual(
+    joao.calibration.shoreNormal,
+    cornelia.calibration.shoreNormal,
+  );
+});
+
+test("zero-filled wave grids are unavailable, while a real forecast can contain flat hours", () => {
+  assert.equal(
+    hasWaveSignal({
+      hourly: {
+        wave_height: [0, 0],
+        swell_wave_height: [0, 0],
+        wind_wave_height: [0, 0],
+      },
+    }),
+    false,
+  );
+  assert.equal(hasWaveSignal({ hourly: { wave_height: [null, null] } }), false);
+  assert.equal(hasWaveSignal({ hourly: { wave_height: [0, 0.2, 0] } }), true);
+  assert.equal(hasWaveSignal({ hourly: { wind_wave_height: [0, 0.3] } }), true);
 });

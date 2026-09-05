@@ -938,7 +938,9 @@
       "minimumLevel": "Beginner",
       "maxLessonSurf": 2.5,
       "tideTimeOffsetMin": 0,
-      "tideHeightScale": 1
+      "tideHeightScale": 1,
+      "marineModel": "ncep_gfswave025",
+      "sourceRevision": "caparica-sao-joao-20260905"
     },
     "notes": "Sandy beach near the Tagus mouth. Banks, currents and shelter vary along the beach; mid-tide preference is provisional.",
     "sources": [
@@ -962,8 +964,8 @@
     "latitude": 38.6277,
     "longitude": -9.226,
     "timezone": "Europe/Lisbon",
-    "marineLatitude": 38.63,
-    "marineLongitude": -9.35,
+    "marineLatitude": 38.66,
+    "marineLongitude": -9.37,
     "breakType": "Beach",
     "tideStationId": "ticon/cascais-209-prt-uhslc_fd",
     "calibration": {
@@ -983,7 +985,9 @@
       "minimumLevel": "Beginner",
       "maxLessonSurf": 2.5,
       "tideTimeOffsetMin": 0,
-      "tideHeightScale": 1
+      "tideHeightScale": 1,
+      "marineModel": "ncep_gfswave025",
+      "sourceRevision": "caparica-sao-joao-20260905"
     },
     "notes": "Southern part of Praia da Saúde, known as Cornélia. Initial settings represent a sandy west-facing beach and need local observations.",
     "sources": [

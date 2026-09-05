@@ -302,10 +302,18 @@ export function scoreConditions(h, c) {
   if (usefulSwell < c.minimumSwell) score *= 0.65;
   // Favourable wind and tide cannot make an unsurfably small sea good.
   const tooSmall = surf < 0.3;
+  // Raise the size ceiling continuously so neighbouring estimates do not jump
+  // from poor to good at 0.5 m. Fully useful size removes the ceiling at 0.65 m.
+  const sizeCeiling =
+    surf < 0.3
+      ? (25 * surf) / 0.3
+      : surf < 0.5
+        ? 25 + (24 * (surf - 0.3)) / 0.2
+        : 49 + (51 * (surf - 0.5)) / 0.15;
+  score = Math.min(score, sizeCeiling);
   if (tooSmall) {
-    score = Math.min(score, (25 * surf) / 0.3);
     reasons.unshift("Flat or too small for a surf lesson.");
-  } else if (surf < 0.5) score = Math.min(score, 49);
+  }
   const severe =
     surf > c.maxLessonSurf ||
     localWind >= 35 ||

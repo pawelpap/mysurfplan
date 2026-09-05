@@ -128,14 +128,19 @@ export function Score({ condition, compact = false }) {
     </span>
   );
 }
+export function experienceLabel(level) {
+  return level === "Instructor review"
+    ? "Advanced"
+    : level === "Too small"
+      ? "Not applicable"
+      : level || "Not assessed";
+}
 export function Experience({ level }) {
   return (
     <span
       className={`experience ${level === "Instructor review" ? "review" : ""}`}
     >
-      {level === "Beginner"
-        ? "Beginner with instructor"
-        : level || "Not assessed"}
+      {experienceLabel(level)}
     </span>
   );
 }
@@ -212,8 +217,8 @@ export function LessonConditions({ lesson, onForecast }) {
           {mismatch && (
             <div className="forecast-notice warning" role="status">
               The forecast is more demanding than this{" "}
-              {lesson.difficulty.toLowerCase()} lesson. An instructor should
-              review the spot, timing and group before teaching.
+              {lesson.difficulty.toLowerCase()} lesson. Review the spot, timing
+              and group before teaching.
             </div>
           )}
           {!w.complete && (
