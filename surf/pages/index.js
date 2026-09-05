@@ -47,15 +47,15 @@ export default function Workspace() {
         availableSchools[0] ||
         null;
   const allowed = [
-    "lessons",
     "conditions",
+    "lessons",
     ...(isAdmin(session?.role) ? ["people"] : []),
     ...(isPlatform(session?.role) ? ["schools"] : []),
     "profile",
   ];
   const view = allowed.includes(router.query.view)
     ? router.query.view
-    : "lessons";
+    : "conditions";
   const labels = {
     lessons: "Lessons",
     conditions: "Conditions",

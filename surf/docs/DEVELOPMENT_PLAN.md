@@ -96,6 +96,7 @@ Preserved product decisions:
 - Students should self-register and request school membership; school admins approve access.
 - School admins manage lessons and bookings. Instructors should manage attendance for assigned lessons.
 - Keep the `/` workspace and public `/:slug` schedules while validating UX. Query routes currently give each task a distinct URL without introducing `/admin` route churn.
+- Conditions is the first menu item and the default workspace after login, including for the shared `teststudent` account. Explicit links to lessons and other tasks retain their destination.
 
 ## Conditions architecture and future payments
 
