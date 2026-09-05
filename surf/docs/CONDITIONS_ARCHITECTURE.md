@@ -107,3 +107,5 @@ Deploy GitHub `staging` through Vercel project `mysurfplan-staging`, root `surf`
 - Desktop and 390 px phone layouts were inspected. Mobile forecast-strip overflow and scaled-down tide labels were corrected during verification.
 
 Production verification and long-term calibration accuracy are not claimed by this staging pass. Instructor-account linking and the existing session-hardening backlog remain separate workstreams.
+
+Staging deployment `dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM` (code `3b0d00b`) was verified on staging.mywaveplan.com on 5 September 2026. Desktop at 1440 px and mobile at 390 px showed all sixteen days; the final day included four tide events. The Bico demo lesson is `7b9c9b35-7425-4614-bc32-c140c64ff58c`. Production remains on `520d826`.

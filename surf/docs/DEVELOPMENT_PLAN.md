@@ -68,7 +68,7 @@ The owner authorised this work on staging and explicitly asked to keep productio
 - [x] Refresh on page reload, share duplicate requests briefly, and check automatically while open.
 - [x] Build responsive desktop and mobile forecast layouts with tide curves and direction arrows.
 - [x] Verify live 16-day coverage for every seeded spot and test permissions, missing data and time zones.
-- [ ] Deploy and verify this work at staging.mywaveplan.com.
+- [x] Deploy and verify this work at staging.mywaveplan.com.
 - [ ] Owner reviews the conditions and tunes initial spot assumptions.
 
 See [Conditions architecture, sources and limitations](CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
@@ -111,3 +111,5 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 - This pass does not establish full student/instructor end-to-end coverage or concurrent booking correctness. Those remain in the reliability backlog. Production remains on `520d826` at mywaveplan.com. The UX proposal was subsequently accepted for staging; conditions instructions are now incorporated into Milestone 2.
 
 - 5 September 2026: Applied the additive conditions migration to staging only. Seeded 17 spots, mapped existing lessons and verified complete 16-day live forecasts for every spot. Reload and duplicate-refresh checks passed.
+
+- 5 September 2026: Conditions code `3b0d00b` deployed successfully to staging (`dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM`). Verified all 16 outlook cards, last-day tide events, mobile width and lesson conditions on the custom staging domain. The browser sends `refresh=1` when a conditions page or lesson opens. All 17 automated tests and the production build passed. Production remains on `520d826` / `dpl_G8bxGKWi1rNNeTfif2TrQr63t2ZW`.
