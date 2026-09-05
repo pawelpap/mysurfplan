@@ -17,7 +17,7 @@ Each screen should support one task. Lists help people find a record. Details ex
 - `main` publishes through Vercel project `mywaveplan-prod` to mywaveplan.com.
 - `staging` publishes through Vercel project `mysurfplan-staging` to staging.mywaveplan.com.
 - Both Vercel projects use root directory `surf`.
-- Neon project `shy-paper-68550619`: production branch `br-gentle-dawn-ad5l1p9y`, staging branch `br-small-salad-adx0nsj2`.
+- Neon project `shy-paper-68550619`: production branch `br-weathered-silence-adp30k9s`, staging branch `br-small-salad-adx0nsj2`.
 - Work branch: `codex/task-oriented-staging`.
 - Figma: https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ
 - Current page: `CURRENT - Task-oriented UX - September 2026` (`309:2`).
@@ -48,8 +48,8 @@ Implementation:
 - [x] Verify the final login illustration and date/time fix on staging.
 - [x] Publish the initial proposal on staging.
 - [x] Verify the final update on staging.
-- [x] Owner reviewed the UX proposal positively; production remains on hold.
-- [ ] Promote the accepted version to production and verify it there.
+- [x] Owner reviewed the UX proposal positively and approved production promotion on 5 September 2026.
+- [x] Promote the accepted version to production and verify it there.
 
 No database migration is required for this milestone. No payment module, real forecast or attendance state is claimed as complete.
 
@@ -71,7 +71,7 @@ The owner authorised this work on staging and explicitly asked to keep productio
 - [x] Add the staging `teststudent` account with student permissions; only platform admins can manage spots.
 - [x] Verify live 16-day coverage for every seeded spot and test permissions, missing data and time zones.
 - [x] Deploy and verify this work at staging.mywaveplan.com.
-- [ ] Owner reviews the conditions and tunes initial spot assumptions.
+- [x] Owner reviewed the conditions and approved production promotion. Continue tuning spot assumptions using local observations.
 
 See [Conditions architecture, sources and limitations](CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
 
@@ -99,7 +99,7 @@ Preserved product decisions:
 
 ## Conditions architecture and future payments
 
-The conditions architecture is implemented for staging and documented separately. Next, collect instructor observations to calibrate each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
+The conditions architecture is implemented and included in the approved production release. Next, collect instructor observations to calibrate each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
 
 Payments are a future module. Agree booking/payment states, cancellation and refund rules, currencies and provider before implementation.
 
@@ -125,3 +125,9 @@ When the owner approves production promotion, apply the conditions, optional-use
 - Later 5 September follow-up: retain São João's established wave sample for both Caparica beaches, reject entirely zero-filled wave grids, smooth the small-surf score threshold and simplify experience labels across forecast and lesson views. Rename the staging test school to Demo Surf School. All 29 automated checks and the Node.js 22 build passed. Mobile tide dragging, vertical scrolling, keyboard selection, outside-tap menu dismissal and Escape focus restoration were verified on staging.
 
 - Follow-up UI: graph-selected time drives all summary parameters. Mobile supports direct touch/drag, expandable hour cards, a standard hamburger menu, outside-tap dismissal and Escape. Technical forecast commentary is removed from everyday screens; data attribution is retained on Legal.
+
+## Approved production release, 5 September 2026
+
+The owner requested production parity with staging, then confirmed that production-only records should first be added to staging. The isolated merge rehearsal passed, including a repeat run with no duplicate inserts. Jonny's existing login credential was copied only after explicit approval. The student-only `teststudent` account, Demo Surf School, all 17 spots and their latest calibration are included.
+
+The release database is a fresh copy of the combined staging database. Schema comparison and fingerprints of all 12 business/reference tables matched. Forecast caches are copied too, then refresh independently. Original production data and the pre-merge staging state are retained as rollback resources. Environment-specific session-signing secrets are configured. See `README-staging.md` for the current branch mapping and rollback details.
