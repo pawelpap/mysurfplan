@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Brand,
   Button,
@@ -24,6 +24,11 @@ export default function PublicSchedule() {
     slug ? `/api/public/lessons?school=${encodeURIComponent(slug)}` : null,
   );
   const [date, setDate] = useState("");
+  const [timeZone, setTimeZone] = useState("");
+  useEffect(
+    () => setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone),
+    [],
+  );
   const [level, setLevel] = useState("");
   const school = schools.data.find((s) => s.slug === slug);
   const filtered = source.data.filter(
@@ -66,6 +71,7 @@ export default function PublicSchedule() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            onInput={(e) => setDate(e.currentTarget.value)}
           />
           <SelectField
             label="Level"
@@ -175,8 +181,8 @@ export default function PublicSchedule() {
           </Empty>
         )}
         <p className="muted-note">
-          Times shown in {Intl.DateTimeFormat().resolvedOptions().timeZone}. You
-          need a school account to book.
+          {timeZone && <>Times shown in {timeZone}. </>}You need a school
+          account to book.
         </p>
       </main>
     </>

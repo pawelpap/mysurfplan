@@ -91,9 +91,30 @@ export function useData(url) {
 export function Brand() {
   return (
     <span className="brand">
-      <span className="brand-mark" aria-hidden="true">
-        ≈
-      </span>
+      <svg className="brand-icon" viewBox="0 0 96 96" aria-hidden="true">
+        <rect x="6" y="6" width="84" height="84" rx="24" fill="#0D6E7A" />
+        <path
+          d="M18 58C30 39 48 40 58 50C65 57 74 57 82 48"
+          stroke="#DFF5EA"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M19 66C37 54 50 55 62 64C70 70 77 70 84 63"
+          stroke="#F4C96B"
+          strokeWidth="6"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M38 38C46 29 58 30 66 38"
+          stroke="white"
+          strokeWidth="6"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
       MyWavePlan
     </span>
   );

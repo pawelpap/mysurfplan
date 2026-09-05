@@ -336,9 +336,12 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
     setError("");
     setBusy(true);
     try {
+      const fields = new FormData(event.currentTarget);
       const body = validateLesson({
         ...form,
-        startAt: new Date(`${form.date}T${form.time}`).toISOString(),
+        startAt: new Date(
+          `${fields.get("date")}T${fields.get("time")}`,
+        ).toISOString(),
       });
       const data = await request(
         lesson ? `/api/lessons/${lesson.id}` : "/api/lessons",
@@ -374,10 +377,17 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             label="Date"
             type="date"
             required
-            {...bind("date")}
+            name="date"
+            defaultValue={form.date}
             hint={`Local time: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`}
           />
-          <Field label="Start time" type="time" required {...bind("time")} />
+          <Field
+            label="Start time"
+            type="time"
+            required
+            name="time"
+            defaultValue={form.time}
+          />
           <Field
             label="Duration (minutes)"
             type="number"

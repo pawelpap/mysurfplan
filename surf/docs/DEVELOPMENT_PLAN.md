@@ -44,14 +44,20 @@ Implementation:
 - [x] Remove mock forecasts and misleading inactive controls from the proposal.
 - [x] Add focused validation tests and declare the Neon dependency directly.
 - [x] Complete production build using Node.js 22 and six validation tests.
-- [ ] Complete desktop/mobile browser verification.
-- [ ] Publish and verify the proposal on staging.
+- [x] Verify mobile lesson list, single-column form, menu and Escape dismissal at 390 px.
+- [ ] Verify the final login illustration and date/time fix on staging.
+- [x] Publish the initial proposal on staging.
+- [ ] Verify the final update on staging.
 - [ ] User reviews the staging app and requests/accepts adjustments.
 - [ ] Promote the accepted version to production and verify it there.
 
 No database migration is required for this milestone. No payment module, real forecast or attendance state is claimed as complete.
 
-## Milestone 2: make the core workflows dependable
+## Next workstream: conditions
+
+After this UI pass, the owner will provide instructions for the conditions screen and for adding relevant conditions to lessons. Wait for those instructions before starting implementation. Prioritise this workstream next; retain the core reliability backlog below.
+
+## Core reliability backlog
 
 Prioritise after the UX review:
 
@@ -73,7 +79,7 @@ Preserved product decisions:
 - School admins manage lessons and bookings. Instructors should manage attendance for assigned lessons.
 - Keep the `/` workspace and public `/:slug` schedules while validating UX. Query routes currently give each task a distinct URL without introducing `/admin` route churn.
 
-## Milestone 3: conditions and payments
+## Conditions architecture and future payments
 
 Conditions need architecture before interface expansion: spot coordinates and preferences, provider selection, ingestion/caching, freshness indicators, score calculation and degraded-data states. Build a useful standalone conditions task and link relevant readings to lessons.
 
@@ -83,3 +89,5 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 
 - 5 September 2026: Baseline build passed. Production and staging logins, public desktop/mobile screens, service access and environment mapping reviewed.
 - 5 September 2026: Six validation tests and the production build passed with Node.js 22. Browser checks in progress. The production branch/domain remain unchanged.
+
+- 5 September 2026: Initial proposal deployed as `dcbd97d`. Follow-up: remove the staging label, improve mobile layouts, restore the surf illustration on login, and fix native date/time form saving. Conditions will start only after the owner provides the next instructions.

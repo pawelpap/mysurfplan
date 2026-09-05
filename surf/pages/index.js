@@ -20,7 +20,7 @@ import {
   useData,
 } from "../components/workspace/ui";
 
-export default function Workspace({ staging }) {
+export default function Workspace() {
   const router = useRouter();
   const auth = useData(router.isReady ? "/api/auth/session" : null);
   const session = auth.data?.role ? auth.data : null;
@@ -278,9 +278,6 @@ export default function Workspace({ staging }) {
               ? "Platform workspace"
               : school?.name || "All schools"}
           </span>
-          {staging && (
-            <span className="staging-badge">STAGING · UX PROPOSAL</span>
-          )}
         </div>
         <Message>{error}</Message>
         {view === "lessons" && (
@@ -377,13 +374,6 @@ function Profile({ session, onEdit }) {
     </div>
   );
 }
-export function getServerSideProps({ req }) {
-  return {
-    props: {
-      staging: Boolean(
-        req.headers.host?.startsWith("staging.") ||
-          process.env.VERCEL_GIT_COMMIT_REF === "staging",
-      ),
-    },
-  };
+export function getServerSideProps() {
+  return { props: {} };
 }
