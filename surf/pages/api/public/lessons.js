@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     if (!schoolId) return res.status(404).json({ ok: false, error: 'School not found' });
 
     const params = [];
-    let where = `WHERE l.school_id = $1 AND l.deleted_at IS NULL`;
+    let where = `WHERE l.school_id = $1 AND l.deleted_at IS NULL AND l.start_at > now()`;
     params.push(schoolId);
 
     if (from) {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       place: r.place,
       difficulty: r.difficulty,
       capacity: r.capacity,
-      coaches: r.coaches || [],
+      coaches: (r.coaches || []).map(c => ({ id: c.id, name: c.name })),
       bookedCount: r.booked_count,
       spotsLeft: r.spots_left,
     }));

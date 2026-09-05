@@ -4,7 +4,7 @@ import { normalizeEmail, requireAuth } from '../../../../lib/auth';
 
 async function getLesson(id) {
   const rows = await sql`
-    SELECT id, school_id
+    SELECT id, school_id, start_at
     FROM lessons
     WHERE id = ${id} AND deleted_at IS NULL
     LIMIT 1
@@ -122,6 +122,7 @@ export default async function handler(req, res) {
     if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
 
     if (req.method === 'POST') {
+      if (new Date(lesson.start_at).getTime() <= Date.now()) return res.status(409).json({ ok: false, error: 'This lesson has already started.' });
       const { name, email } = req.body || {};
       const normalizedEmail = normalizeEmail(email);
       const normalizedName = normalizeName(name);

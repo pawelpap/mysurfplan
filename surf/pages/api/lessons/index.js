@@ -1,47 +1,59 @@
 // /pages/api/lessons/index.js
-import { sql } from 'lib/db';
-import { getAuthSession, requireAuth } from '../../../lib/auth';
+import { sql } from "lib/db";
+import { getAuthSession, requireAuth } from "../../../lib/auth";
+import { validateLesson } from "../../../lib/lesson-input.mjs";
 
 /**
  * GET /api/lessons?school=<slug|id>
  * POST /api/lessons  { school: "<slug|id>", startAt: ISO8601, durationMin: 90, difficulty: "...", place: "...", coachIds?: [uuid, ...] }
  */
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
+  if (req.method === "GET") {
     return getLessons(req, res);
   }
-  if (req.method === 'POST') {
+  if (req.method === "POST") {
     return createLesson(req, res);
   }
-  res.status(405).json({ ok: false, error: 'Method not allowed' });
+  res.status(405).json({ ok: false, error: "Method not allowed" });
 }
 
 function isUuid(value) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value
+    value,
   );
 }
 
 async function resolveSchoolId(school) {
   if (isUuid(school)) {
-    const byId = await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
+    const byId =
+      await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`;
     if (byId.length) return byId[0].id;
   }
-  const bySlug = await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
+  const bySlug =
+    await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
   return bySlug[0]?.id || null;
 }
 
 async function getLessons(req, res) {
-  const school = Array.isArray(req.query.school) ? req.query.school[0] : req.query.school;
+  const school = Array.isArray(req.query.school)
+    ? req.query.school[0]
+    : req.query.school;
   if (!school) {
-    res.status(400).json({ ok: false, error: 'Missing ?school=<slug>' });
+    res.status(400).json({ ok: false, error: "Missing ?school=<slug>" });
     return;
   }
 
   try {
     const schoolId = await resolveSchoolId(school);
-    if (!schoolId) return res.status(404).json({ ok: false, error: 'School not found' });
-    if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach', 'student'], schoolId })) return;
+    if (!schoolId)
+      return res.status(404).json({ ok: false, error: "School not found" });
+    if (
+      !requireAuth(req, res, {
+        roles: ["admin", "school_admin", "coach", "student"],
+        schoolId,
+      })
+    )
+      return;
     const session = getAuthSession(req);
 
     let rows = await sql`
@@ -77,7 +89,7 @@ async function getLessons(req, res) {
       ORDER BY l.start_at ASC;
     `;
 
-    if (session?.role === 'coach') {
+    if (session?.role === "coach") {
       const assigned = await sql`
         SELECT lc.lesson_id
         FROM lesson_coaches lc
@@ -100,69 +112,89 @@ async function getLessons(req, res) {
       capacity: r.capacity,
       bookedCount: r.booked_count,
       coaches: r.coaches || [],
-      attendees: r.attendees || [],
+      attendees:
+        session?.role === "student"
+          ? (r.attendees || []).filter(
+              (p) => p.email?.toLowerCase() === session.email?.toLowerCase(),
+            )
+          : r.attendees || [],
     }));
 
     res.status(200).json({ ok: true, data });
   } catch (err) {
-    res.status(500).json({ ok: false, error: 'Server error', detail: err?.detail || err?.message });
+    res
+      .status(500)
+      .json({
+        ok: false,
+        error: "Server error",
+        detail: err?.detail || err?.message,
+      });
   }
 }
 
 async function createLesson(req, res) {
   try {
-    const {
-      school,
-      startAt,
-      startISO,
-      durationMin = 90,
-      difficulty,
-      place,
-      coachIds,
-    } = req.body || {};
-
-    const startValue = startAt || startISO;
-
-    if (!school) return res.status(400).json({ ok: false, error: 'Missing body.school (slug)' });
-    if (!startValue) return res.status(400).json({ ok: false, error: 'Missing body.startAt (ISO string)' });
-    if (!difficulty) return res.status(400).json({ ok: false, error: 'Missing body.difficulty' });
-    if (!place) return res.status(400).json({ ok: false, error: 'Missing body.place' });
-
+    const { school } = req.body || {};
+    if (typeof school !== "string" || !school)
+      return res.status(400).json({ ok: false, error: "Choose a school." });
     const schoolId = await resolveSchoolId(school);
-    if (!schoolId) {
-      return res.status(404).json({ ok: false, error: 'School not found' });
+    if (!schoolId)
+      return res.status(404).json({ ok: false, error: "School not found" });
+    if (!requireAuth(req, res, { roles: ["admin", "school_admin"], schoolId }))
+      return;
+    let input;
+    try {
+      input = validateLesson(req.body);
+    } catch (error) {
+      return res.status(400).json({ ok: false, error: error.message });
     }
-    if (!requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId })) return;
-
-    const inserted = await sql`
-      INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place)
-      VALUES (${schoolId}, ${startValue}, ${durationMin}, ${difficulty}, ${place})
-      RETURNING id, school_id, start_at, duration_min, difficulty, place, capacity;
+    const { startAt, durationMin, difficulty, place, capacity, coachIds } =
+      input;
+    if (coachIds.length) {
+      const valid =
+        await sql`SELECT id FROM coaches WHERE school_id = ${schoolId} AND id = ANY(${coachIds}::uuid[]) AND deleted_at IS NULL`;
+      if (valid.length !== coachIds.length)
+        return res
+          .status(400)
+          .json({ ok: false, error: "Choose instructors from this school." });
+    }
+    const rows = await sql`
+      WITH created AS (
+        INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place, capacity)
+        VALUES (${schoolId}, ${startAt}, ${durationMin}, ${difficulty}, ${place}, ${capacity})
+        RETURNING *
+      ), assigned AS (
+        INSERT INTO lesson_coaches (lesson_id, coach_id)
+        SELECT l.id, c.id FROM created l JOIN coaches c ON c.id = ANY(${coachIds}::uuid[]) AND c.school_id = l.school_id AND c.deleted_at IS NULL
+        RETURNING id
+      )
+      SELECT id, school_id, start_at, duration_min, difficulty, place, capacity FROM created
     `;
-    const lesson = inserted[0];
-
-    if (Array.isArray(coachIds) && coachIds.length) {
-      for (const coachId of coachIds) {
-        await sql`INSERT INTO lesson_coaches (lesson_id, coach_id) VALUES (${lesson.id}, ${coachId}) ON CONFLICT DO NOTHING;`;
-      }
-    }
-
-    res.status(201).json({
-      ok: true,
-      data: {
-        id: lesson.id,
-        schoolId: lesson.school_id,
-        startAt: lesson.start_at,
-        durationMin: lesson.duration_min,
-        difficulty: lesson.difficulty,
-        place: lesson.place,
-        capacity: lesson.capacity,
-        coaches: coachIds || [],
-        attendees: [],
-        bookedCount: 0,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: 'Server error', detail: err?.detail || err?.message });
+    const row = rows[0];
+    return res
+      .status(201)
+      .json({
+        ok: true,
+        data: {
+          id: row.id,
+          schoolId: row.school_id,
+          startAt: row.start_at,
+          durationMin: row.duration_min,
+          difficulty: row.difficulty,
+          place: row.place,
+          capacity: row.capacity,
+          bookedCount: 0,
+          attendees: [],
+          coaches: [],
+        },
+      });
+  } catch (error) {
+    console.error("lesson creation failed:", error);
+    return res
+      .status(500)
+      .json({
+        ok: false,
+        error: "Could not create the lesson. Please try again.",
+      });
   }
 }

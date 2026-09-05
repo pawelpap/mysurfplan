@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: { domains: ['images.ctfassets.net', 'assets.ctfassets.net'] },
+  // The font stylesheet loads in the browser; builds do not need Google Fonts.
+  optimizeFonts: false,
 };
 module.exports = nextConfig;
