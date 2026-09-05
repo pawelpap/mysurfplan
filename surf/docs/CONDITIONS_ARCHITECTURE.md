@@ -142,3 +142,5 @@ On 5 September the owner reported a large discrepancy between São João and Cor
 A second discrepancy came from a discontinuous score cap at 0.5 m. The shared scoring model now increases the size ceiling continuously, while keeping surf below 0.3 m classified as Flat / too small. This applies to all spots and lesson forecasts.
 
 Experience wording is Beginner, Intermediate or Advanced. The internal severe-condition state still flags demanding conditions but is displayed as Advanced; flat conditions have no applicable experience level. The demo school is now named Demo Surf School.
+
+Live follow-up verification found that simultaneous requests could show an empty forecast while another request replaced an incompatible cache entry. Requests without a usable forecast now wait up to 15 seconds for that shared refresh. Four concurrent requests were verified to receive the same complete 408-hour payload. The Node.js 22 build passed. Live mobile checks confirmed the experience wording on both forecasts and lessons, no horizontal overflow, and all summary metrics changing with graph selection.

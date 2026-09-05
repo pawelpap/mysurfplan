@@ -35,6 +35,22 @@ export async function getConditions(id, force = false) {
         await sql`UPDATE spot_forecasts SET refreshing_until=NULL,retry_after=now()+interval '5 minutes',last_error='Forecast refresh failed' WHERE spot_id=${spot.id}`;
         row = { ...row, last_error: "Forecast refresh failed" };
       }
+    } else {
+      // A simultaneous request may own the refresh. Read its latest row and
+      // briefly await it when we have no compatible forecast to display.
+      const deadline = Date.now() + 15000;
+      do {
+        [row] =
+          await sql`SELECT * FROM spot_forecasts WHERE spot_id=${spot.id}`;
+        if (
+          (matchesForecastSource(row?.payload, spot) &&
+            Date.now() - new Date(row.fetched_at).getTime() < 24 * HOUR) ||
+          !(new Date(row?.refreshing_until).getTime() > Date.now()) ||
+          Date.now() >= deadline
+        )
+          break;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } while (true);
     }
   }
   const age = row?.fetched_at
