@@ -1,7 +1,8 @@
 import { sql } from "../db";
 import { getSpot, loadTideStation, distanceKm } from "./spots";
-import { fetchForecast } from "./provider.mjs";
+import { fetchForecast, matchesForecastSource } from "./provider.mjs";
 import { predictTides } from "./tides.mjs";
+import { sunlightForDay } from "./sunlight.mjs";
 import { dateKey, scoreConditions, tideAt } from "./model.mjs";
 const HOUR = 3600000;
 export async function getConditions(id, force = false) {
@@ -10,9 +11,10 @@ export async function getConditions(id, force = false) {
   let [row] = await sql`SELECT * FROM spot_forecasts WHERE spot_id=${spot.id}`;
   const now = Date.now();
   if (
-    force &&
-    row?.fetched_at &&
-    now - new Date(row.fetched_at).getTime() > 2 * 60000
+    (row?.payload && !matchesForecastSource(row.payload, spot)) ||
+    (force &&
+      row?.fetched_at &&
+      now - new Date(row.fetched_at).getTime() > 2 * 60000)
   ) {
     await sql`UPDATE spot_forecasts SET expires_at=now() WHERE spot_id=${spot.id}`;
     row.expires_at = new Date(now - 1).toISOString();
@@ -39,7 +41,7 @@ export async function getConditions(id, force = false) {
     ? now - new Date(row.fetched_at).getTime()
     : Infinity;
   const stale = age > 15 * 60000;
-  const usable = age < 24 * HOUR && row?.payload;
+  const usable = age < 24 * HOUR && matchesForecastSource(row?.payload, spot);
   const payload = usable
     ? row.payload
     : {
@@ -98,6 +100,7 @@ export async function getConditions(id, force = false) {
     hours,
     ...tide,
     dates,
+    sunlight: dates.map((day) => sunlightForDay(day, spot)),
     tideReference: reference,
     issues,
     fetchedAt: row?.fetched_at || null,

@@ -7,12 +7,12 @@
     "latitude": 38.693816,
     "longitude": -9.371291,
     "timezone": "Europe/Lisbon",
-    "marineLatitude": 38.6,
-    "marineLongitude": -9.55,
+    "marineLatitude": 38.693816,
+    "marineLongitude": -9.371291,
     "breakType": "Mixed",
     "tideStationId": "ticon/cascais-209-prt-uhslc_fd",
     "calibration": {
-      "modelVersion": "surf-heuristic-v1",
+      "modelVersion": "surf-heuristic-v2",
       "status": "initial",
       "shoreNormal": 195,
       "swellGain": 0.72,
@@ -32,11 +32,11 @@
       "exposureByDirection": [
         [
           0,
-          0.1
+          0.002
         ],
         [
           90,
-          0.12
+          0.005
         ],
         [
           180,
@@ -51,20 +51,42 @@
           0.85
         ],
         [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
           300,
-          0.5
+          0.005
         ],
         [
           315,
-          0.3
+          0.003
         ],
         [
           360,
-          0.1
+          0.002
         ]
-      ]
+      ],
+      "marineModel": "ncep_gfswave016",
+      "directionRevision": "sao-pedro-20260905"
     },
-    "notes": "The general beach area. Choose Bico or Bafureira for a break-specific estimate.",
+    "notes": "The general beach area. Choose Bico or Bafureira for a break-specific estimate. Strong swell shadow: west and south-west swell preferred; exposure falls sharply around 282–290°. This initial local curve needs checking against beach observations, especially on large, long-period swells.",
     "sources": [
       {
         "title": "Surf Cascais first-hand spot guide",
@@ -75,6 +97,10 @@
         "title": "Local beach reference",
         "url": "https://360.cascais.pt/pt/visitar/praia-de-s-pedro-do-estoril?id=276",
         "accessed": "2026-09-05"
+      },
+      {
+        "title": "Owner comparison with Surfline, 5 September 2026",
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied."
       }
     ]
   },
@@ -86,12 +112,12 @@
     "latitude": 38.6933,
     "longitude": -9.372,
     "timezone": "Europe/Lisbon",
-    "marineLatitude": 38.6,
-    "marineLongitude": -9.55,
+    "marineLatitude": 38.6933,
+    "marineLongitude": -9.372,
     "breakType": "Point / reef",
     "tideStationId": "ticon/cascais-209-prt-uhslc_fd",
     "calibration": {
-      "modelVersion": "surf-heuristic-v1",
+      "modelVersion": "surf-heuristic-v2",
       "status": "initial",
       "shoreNormal": 200,
       "swellGain": 0.72,
@@ -111,11 +137,11 @@
       "exposureByDirection": [
         [
           0,
-          0.1
+          0.002
         ],
         [
           90,
-          0.12
+          0.005
         ],
         [
           180,
@@ -130,20 +156,42 @@
           0.85
         ],
         [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
           300,
-          0.5
+          0.005
         ],
         [
           315,
-          0.3
+          0.003
         ],
         [
           360,
-          0.1
+          0.002
         ]
-      ]
+      ],
+      "marineModel": "ncep_gfswave016",
+      "directionRevision": "sao-pedro-20260905"
     },
-    "notes": "Local guidance: works well at low tide; mid tide can work with bigger swell. Rock bottom and access need an instructor assessment.",
+    "notes": "Local guidance: works well at low tide; mid tide can work with bigger swell. Rock bottom and access need an instructor assessment. Strong swell shadow: west and south-west swell preferred; exposure falls sharply around 282–290°. This initial local curve needs checking against beach observations, especially on large, long-period swells.",
     "sources": [
       {
         "title": "Surf Cascais first-hand spot guide",
@@ -153,6 +201,10 @@
       {
         "title": "Owner observations, 5 September 2026",
         "note": "Bico: low tide, mid tide with bigger swell. Bafureira: mid-high tide with higher swell."
+      },
+      {
+        "title": "Owner comparison with Surfline, 5 September 2026",
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied."
       }
     ]
   },
@@ -164,12 +216,12 @@
     "latitude": 38.6916,
     "longitude": -9.3663,
     "timezone": "Europe/Lisbon",
-    "marineLatitude": 38.6,
-    "marineLongitude": -9.55,
+    "marineLatitude": 38.6916,
+    "marineLongitude": -9.3663,
     "breakType": "Reef",
     "tideStationId": "ticon/cascais-209-prt-uhslc_fd",
     "calibration": {
-      "modelVersion": "surf-heuristic-v1",
+      "modelVersion": "surf-heuristic-v2",
       "status": "initial",
       "shoreNormal": 190,
       "swellGain": 0.68,
@@ -189,11 +241,11 @@
       "exposureByDirection": [
         [
           0,
-          0.1
+          0.002
         ],
         [
           90,
-          0.12
+          0.005
         ],
         [
           180,
@@ -208,20 +260,42 @@
           0.85
         ],
         [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
           300,
-          0.5
+          0.005
         ],
         [
           315,
-          0.3
+          0.003
         ],
         [
           360,
-          0.1
+          0.002
         ]
-      ]
+      ],
+      "marineModel": "ncep_gfswave016",
+      "directionRevision": "sao-pedro-20260905"
     },
-    "notes": "Local guidance: favours mid to high tide with higher swell. Published school guidance also identifies mid tide. Rocky bottom.",
+    "notes": "Local guidance: favours mid to high tide with higher swell. Published school guidance also identifies mid tide. Rocky bottom. Strong swell shadow: west and south-west swell preferred; exposure falls sharply around 282–290°. This initial local curve needs checking against beach observations, especially on large, long-period swells.",
     "sources": [
       {
         "title": "Surf Cascais first-hand spot guide",
@@ -231,6 +305,10 @@
       {
         "title": "Owner observations, 5 September 2026",
         "note": "Bico: low tide, mid tide with bigger swell. Bafureira: mid-high tide with higher swell."
+      },
+      {
+        "title": "Owner comparison with Surfline, 5 September 2026",
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied."
       }
     ]
   },

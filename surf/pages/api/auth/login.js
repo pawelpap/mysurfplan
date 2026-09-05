@@ -1,17 +1,24 @@
-import { sql } from '../../../lib/db';
-import { normalizeEmail, setUserAuthSession, verifyPassword } from '../../../lib/auth';
+import { sql } from "../../../lib/db";
+import {
+  normalizeEmail,
+  setUserAuthSession,
+  verifyPassword,
+} from "../../../lib/auth";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
   try {
     const { email, password } = req.body || {};
-    const normalizedEmail = normalizeEmail(email);
-    if (!normalizedEmail || typeof password !== 'string') {
-      return res.status(400).json({ ok: false, error: 'Email and password are required' });
+    const normalizedIdentifier = normalizeEmail(email);
+    if (!normalizedIdentifier || typeof password !== "string") {
+      return res.status(400).json({
+        ok: false,
+        error: "Email or username and password are required",
+      });
     }
 
     const rows = await sql`
@@ -29,7 +36,7 @@ export default async function handler(req, res) {
         s.slug AS school_slug
       FROM users u
       LEFT JOIN schools s ON s.id = u.school_id AND s.deleted_at IS NULL
-      WHERE lower(u.email) = ${normalizedEmail}
+      WHERE (lower(u.email) = ${normalizedIdentifier} OR lower(u.username) = ${normalizedIdentifier})
         AND u.deleted_at IS NULL
       LIMIT 1
     `;
@@ -39,7 +46,9 @@ export default async function handler(req, res) {
       : false;
 
     if (!valid) {
-      return res.status(401).json({ ok: false, error: 'Invalid email or password' });
+      return res
+        .status(401)
+        .json({ ok: false, error: "Invalid email, username or password" });
     }
 
     await sql`
@@ -68,7 +77,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (err) {
-    console.error('login error:', err);
-    return res.status(500).json({ ok: false, error: 'Server error' });
+    console.error("login error:", err);
+    return res.status(500).json({ ok: false, error: "Server error" });
   }
 }

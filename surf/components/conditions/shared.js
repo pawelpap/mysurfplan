@@ -66,7 +66,9 @@ export function useForecast(url) {
   };
 }
 export const value = (n, unit = "", digits = 1) =>
-  finite(n) ? `${n.toFixed(digits)}${unit}` : "Unavailable";
+  finite(n)
+    ? `${(Math.abs(n) < 0.5 * 10 ** -digits ? 0 : n).toFixed(digits)}${unit}`
+    : "Unavailable";
 export function Direction({ degrees }) {
   if (!finite(degrees)) return <span className="muted">Unavailable</span>;
   return (
@@ -85,6 +87,28 @@ export function Direction({ degrees }) {
         {Math.round(degrees)}° <small>{compass(degrees)}</small>
       </span>
     </span>
+  );
+}
+export function SwellDetails({ condition, label = "Swell components" }) {
+  if (!condition?.swellComponents) return null;
+  return (
+    <details className="swell-details">
+      <summary>{label}</summary>
+      <div className="swell-components">
+        {condition.swellComponents.map((s) => (
+          <div key={s.name}>
+            <strong>{s.name} swell</strong>
+            <span>
+              {value(s.height, " m")} · {value(s.period, " s")}
+            </span>
+            <Direction degrees={s.direction} />
+          </div>
+        ))}
+      </div>
+      {!condition.swellComponents.length && (
+        <p>No swell components predicted for this hour.</p>
+      )}
+    </details>
   );
 }
 export function Score({ condition, compact = false }) {
@@ -116,57 +140,16 @@ export function Experience({ level }) {
   );
 }
 export function ForecastFooter({ data }) {
-  return (
-    <div className="forecast-footer">
-      <p>
-        {data?.fetchedAt
-          ? `Forecast fetched ${new Date(data.fetchedAt).toLocaleString("en-GB", { timeZone: data.spot.timezone, dateStyle: "medium", timeStyle: "short" })}. `
-          : ""}
-        Refreshes on page reload and checks for new data every 15 minutes while
-        open. Requests within two minutes share the latest fetched forecast.
-      </p>
-      <p>
-        Waves and weather:{" "}
-        <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">
-          Open-Meteo
-        </a>{" "}
-        / NOAA GFS Wave. Astronomical tides:{" "}
-        <a
-          href="https://github.com/openwatersio/tide-database"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Neaps tide database / TICON-4
-        </a>{" "}
-        (
-        <a
-          href="https://creativecommons.org/licenses/by/4.0/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          CC BY 4.0
-        </a>
-        ), calculated with{" "}
-        <a
-          href="https://github.com/openwatersio/neaps"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Neaps
-        </a>
-        .
-      </p>
-    </div>
-  );
-}
-export function TideReference({ data }) {
-  return (
-    <p className="muted-note">
-      {data.tideReference
-        ? `Tide reference: ${data.tideReference.name}, approximately ${data.tideReference.distanceKm} km away. Heights are relative to mean sea level (MSL), not chart datum. Astronomical prediction; storm surge is excluded.`
-        : "No tide reference available for this spot."}
+  return data?.fetchedAt ? (
+    <p className="forecast-footer">
+      Updated{" "}
+      {new Date(data.fetchedAt).toLocaleString("en-GB", {
+        timeZone: data.spot.timezone,
+        dateStyle: "medium",
+        timeStyle: "short",
+      })}
     </p>
-  );
+  ) : null;
 }
 export function Metric({ label, children, note }) {
   return (
@@ -225,10 +208,7 @@ export function LessonConditions({ lesson, onForecast }) {
               <Experience level={w.requiredLevel} />
             </div>
           </div>
-          <p className="muted-note">
-            Surf quality and experience are separate. Good surf can still be too
-            demanding for a beginner.
-          </p>
+
           {mismatch && (
             <div className="forecast-notice warning" role="status">
               The forecast is more demanding than this{" "}
@@ -244,16 +224,13 @@ export function LessonConditions({ lesson, onForecast }) {
             </div>
           )}
           <dl className="condition-metrics">
-            <Metric
-              label="Estimated surf range"
-              note="Across the lesson; initial local estimate"
-            >
+            <Metric label="Estimated surf range" note="Across the lesson">
               {finite(w.surfMin)
                 ? `${value(w.surfMin)}–${value(w.surfMax)} m`
                 : "Unavailable"}
             </Metric>
             <Metric
-              label="Offshore swell at start"
+              label="Primary offshore swell at start"
               note={
                 finite(start?.swellPeriod)
                   ? `${value(start.swellPeriod, " s")} period`
@@ -261,7 +238,9 @@ export function LessonConditions({ lesson, onForecast }) {
               }
             >
               {value(start?.swellHeight, " m")}
-              <Direction degrees={start?.swellDirection} />
+              {start?.swellHeight > 0 && (
+                <Direction degrees={start.swellDirection} />
+              )}
             </Metric>
             <Metric label="Wind at start" note={start?.windType}>
               {value(start?.windSpeed, " km/h", 0)}
@@ -300,15 +279,17 @@ export function LessonConditions({ lesson, onForecast }) {
             </Metric>
           </dl>
           {w.worst && <p className="muted-note">{w.worst.reasons.join(" ")}</p>}
-          <TideReference data={d} />
+          <SwellDetails
+            condition={start}
+            label="Swell components at lesson start"
+          />
           <p className="muted-note">
             Times at the spot: {hourLabel(lesson.startAt, d.spot.timezone)}–
             {hourLabel(
               Date.parse(lesson.startAt) + lesson.durationMin * 60000,
               d.spot.timezone,
             )}{" "}
-            ({d.spot.timezone}). Initial surf estimates need instructor
-            confirmation at the beach.
+            ({d.spot.timezone}).
           </p>
           {d.issues.map((issue) => (
             <div className="forecast-notice" key={issue}>

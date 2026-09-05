@@ -3,8 +3,27 @@ const marineFields = {
   swell_wave_height: "swellHeight",
   swell_wave_direction: "swellDirection",
   swell_wave_period: "swellPeriod",
+  secondary_swell_wave_height: "secondarySwellHeight",
+  secondary_swell_wave_period: "secondarySwellPeriod",
+  secondary_swell_wave_direction: "secondarySwellDirection",
+  tertiary_swell_wave_height: "tertiarySwellHeight",
+  tertiary_swell_wave_period: "tertiarySwellPeriod",
+  tertiary_swell_wave_direction: "tertiarySwellDirection",
   wind_wave_height: "windWaveHeight",
+  wind_wave_direction: "windWaveDirection",
 };
+export const providerVersion = 2;
+export function marineModel(spot) {
+  return spot.calibration?.marineModel || "ncep_gfswave025";
+}
+export function matchesForecastSource(payload, spot) {
+  return (
+    payload?.providerVersion === providerVersion &&
+    payload.marineModel === marineModel(spot) &&
+    payload.sampleLatitude === spot.marineLatitude &&
+    payload.sampleLongitude === spot.marineLongitude
+  );
+}
 const weatherFields = {
   temperature_2m: "temperature",
   precipitation_probability: "precipitation",
@@ -52,7 +71,7 @@ export function providerUrls(spot, key) {
     latitude: spot.marineLatitude,
     longitude: spot.marineLongitude,
     hourly: Object.keys(marineFields).join(","),
-    models: "ncep_gfswave025",
+    models: marineModel(spot),
     cell_selection: "sea",
   });
   const weather = new URL(
@@ -95,6 +114,10 @@ export async function fetchForecast(spot) {
   if (!weather)
     issues.push("Weather and wind forecast is temporarily unavailable.");
   return {
+    providerVersion,
+    marineModel: marineModel(spot),
+    sampleLatitude: spot.marineLatitude,
+    sampleLongitude: spot.marineLongitude,
     hours: normaliseForecast(marine, weather),
     issues,
     marineGrid: marine
@@ -103,6 +126,6 @@ export async function fetchForecast(spot) {
     weatherGrid: weather
       ? { latitude: weather.latitude, longitude: weather.longitude }
       : null,
-    model: "NOAA GFS Wave 0.25° / Open-Meteo weather best match",
+    model: `NOAA GFS Wave ${marineModel(spot) === "ncep_gfswave016" ? "0.16°" : "0.25°"} / Open-Meteo weather best match`,
   };
 }

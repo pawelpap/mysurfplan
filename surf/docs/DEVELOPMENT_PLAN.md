@@ -67,6 +67,8 @@ The owner authorised this work on staging and explicitly asked to keep productio
 - [x] Show time-specific conditions across the complete lesson duration.
 - [x] Refresh on page reload, share duplicate requests briefly, and check automatically while open.
 - [x] Build responsive desktop and mobile forecast layouts with tide curves and direction arrows.
+- [x] Start the default hourly forecast at 06:00 and include first light, sunrise, sunset and last light.
+- [x] Add the staging `teststudent` account with student permissions; only platform admins can manage spots.
 - [x] Verify live 16-day coverage for every seeded spot and test permissions, missing data and time zones.
 - [x] Deploy and verify this work at staging.mywaveplan.com.
 - [ ] Owner reviews the conditions and tunes initial spot assumptions.
@@ -113,3 +115,11 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 - 5 September 2026: Applied the additive conditions migration to staging only. Seeded 17 spots, mapped existing lessons and verified complete 16-day live forecasts for every spot. Reload and duplicate-refresh checks passed.
 
 - 5 September 2026: Conditions code `3b0d00b` deployed successfully to staging (`dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM`). Verified all 16 outlook cards, last-day tide events, mobile width and lesson conditions on the custom staging domain. The browser sends `refresh=1` when a conditions page or lesson opens. All 17 automated tests and the production build passed. Production remains on `520d826` / `dpl_G8bxGKWi1rNNeTfif2TrQr63t2ZW`.
+
+## Production promotion checklist
+
+When the owner approves production promotion, apply the conditions, optional-username and São Pedro exposure migrations to the production database. Create the same `teststudent` login there with the same password and only the student role, assigned to a dedicated test school. The authorised password is held as a scrypt hash on staging and can be copied securely during provisioning; do not put plaintext credentials or hashes in this repository. The account must not be created in production before promotion. Confirm student access to Conditions and rejection of spot creation/editing.
+
+- 5 September 2026 follow-up: added civil twilight and solar markers directly to the tide graph, student username login, strict platform-admin spot writes, compact mobile hourly cards and São Pedro directional sheltering. The corrected model treats swell partitions and wind waves separately and prevents flat surf receiving Good scores. Twenty-six automated checks and the Node.js 22 build passed before deployment.
+
+- Follow-up UI: graph-selected time drives all summary parameters. Mobile supports direct touch/drag, expandable hour cards, a standard hamburger menu, outside-tap dismissal and Escape. Technical forecast commentary is removed from everyday screens; data attribution is retained on Legal.

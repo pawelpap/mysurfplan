@@ -1637,57 +1637,12 @@ fieldset legend {
   .tide-scrubber {
     font-size: 10px;
   }
-  .forecast-table,
-  .forecast-table tbody {
-    display: block;
-  }
-  .forecast-table thead {
+  .forecast-table-wrap {
     display: none;
   }
-  .forecast-table tr {
+  .mobile-hours {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 16px;
-    gap: 16px 14px;
-    border-bottom: 1px solid var(--line);
-  }
-  .forecast-table tr:last-child {
-    border-bottom: 0;
-  }
-  .forecast-table th,
-  .forecast-table td {
-    display: block;
-    padding: 0;
-    border: 0;
-  }
-  .forecast-table th {
-    font-size: 18px;
-  }
-  .forecast-table td:nth-child(2) {
-    min-width: 0;
-    text-align: right;
-  }
-  .forecast-table td:nth-child(2) > .experience {
-    margin-top: 5px;
-  }
-  .forecast-table td[data-label]:before {
-    content: attr(data-label);
-    display: block;
-    color: var(--muted);
-    font-size: 10px;
-    margin-bottom: 5px;
-  }
-  .forecast-table td:last-child {
-    grid-column: 2;
-  }
-  .forecast-table td strong {
-    font-size: 12px;
-  }
-  .forecast-table td small {
-    font-size: 11px;
-  }
-  .forecast-table .surf-score.compact {
-    display: inline-flex;
+    gap: 10px;
   }
   .lesson-conditions .section-heading {
     flex-direction: column;
@@ -1701,4 +1656,375 @@ fieldset legend {
   .field textarea {
     font-size: 16px;
   }
+}
+
+.sunlight-summary {
+  margin: 18px 0 20px;
+}
+.sunlight-times {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 10px;
+}
+.sunlight-times > div {
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.sunlight-times .twilight {
+  background: #edf3f6;
+}
+.sunlight-times .sunshine {
+  background: #fff8e9;
+  border-color: #eadfc7;
+}
+.sunlight-times dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.sunlight-times svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: var(--sea);
+}
+.sunlight-times .sunshine svg {
+  color: #95671c;
+}
+.sunlight-times dd {
+  margin: 6px 0 0 32px;
+  font-size: 25px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.forecast-direction-note {
+  margin: 0 0 14px;
+}
+@media (max-width: 760px) {
+  .sunlight-times {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sunlight-times > div {
+    padding: 12px;
+  }
+  .sunlight-times dt {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .sunlight-times dd {
+    margin-left: 30px;
+    font-size: 24px;
+  }
+}
+.tide-chart svg {
+  max-height: 250px;
+}
+.daylight-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.daylight-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.daylight-legend i {
+  width: 11px;
+  height: 11px;
+  border: 1px solid #dce6e8;
+  border-radius: 3px;
+}
+.daylight-legend .night {
+  background: #edf2f6;
+}
+.daylight-legend .twilight {
+  background: #fbe7b7;
+}
+.daylight-legend .day {
+  background: #fffdf4;
+}
+.light-explanation {
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.swell-details {
+  margin: 16px 0 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--line, #dce6e8);
+  border-radius: 12px;
+  background: #f7fafb;
+}
+.swell-details summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.swell-components {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.swell-components > div {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.swell-components small {
+  color: #5d7077;
+}
+
+.mobile-hours {
+  display: none;
+}
+@media (max-width: 760px) {
+  .mobile-hours {
+    display: grid;
+    gap: 10px;
+  }
+  .mobile-hours > p {
+    margin: 0 0 2px;
+  }
+  .hour-card {
+    min-width: 0;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .hour-card > summary {
+    display: block;
+    padding: 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .hour-card > summary::-webkit-details-marker {
+    display: none;
+  }
+  .hour-card > summary:focus-visible {
+    outline: 2px solid var(--sea);
+    outline-offset: -3px;
+    border-radius: 14px;
+  }
+  .hour-card-top {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .hour-card-top time {
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .hour-card-surf {
+    display: grid;
+    gap: 3px;
+  }
+  .hour-card-surf > small {
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .hour-card-surf > strong {
+    font-size: 17px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .hour-quality {
+    min-width: 70px;
+    max-width: 88px;
+    border-radius: 9px;
+    padding: 7px 8px;
+    text-align: center;
+    display: grid;
+    gap: 2px;
+    background: #edf2f6;
+    color: #51616c;
+  }
+  .hour-quality > strong {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .hour-quality strong small {
+    font-size: 10px;
+    font-weight: 400;
+  }
+  .hour-quality > span {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+  .hour-quality.good {
+    background: #e3f4ec;
+    color: #246340;
+  }
+  .hour-quality.fair {
+    background: #fff0cc;
+    color: #85591b;
+  }
+  .hour-quality.poor {
+    background: #fff0e5;
+    color: #a15b2c;
+  }
+  .hour-quality.bad {
+    background: #f7e9e7;
+    color: #9b4238;
+  }
+  .hour-card-level {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    margin-top: 12px;
+    font-size: 11px;
+  }
+  .hour-card-level > span:first-child {
+    color: var(--muted);
+  }
+  .hour-card-level .experience {
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .hour-card-glance {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid #edf2f3;
+    margin-top: 11px;
+    padding-top: 10px;
+    color: #52686f;
+    font-size: 11px;
+  }
+  .hour-expand {
+    margin-left: auto;
+    font-size: 20px;
+    line-height: 16px;
+    color: var(--sea);
+  }
+  .hour-card[open] .hour-expand {
+    transform: rotate(180deg);
+  }
+  .hour-card[open] > summary {
+    background: #f3f8f8;
+  }
+  .hour-card-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 16px;
+    margin: 0;
+    padding: 20px 16px 16px;
+  }
+  .hour-card-metrics dt {
+    font-size: 11px;
+  }
+  .hour-card-metrics dd {
+    font-size: 15px;
+    margin: 6px 0;
+  }
+  .hour-card-metrics dd > small {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: 400;
+  }
+  .hour-card-metrics .direction {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+  .hour-card-metrics .condition-metric > small {
+    font-size: 11px;
+  }
+  .hour-card-reasons {
+    padding: 0 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .hour-card .swell-details {
+    margin: 12px;
+    padding: 12px;
+  }
+}
+
+.tide-interaction-hint {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.interactive-tide {
+  cursor: crosshair;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.interactive-tide:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.tide-reference {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 18px;
+}
+.tide-reference summary {
+  cursor: pointer;
+}
+.daylight-legend {
+  margin-bottom: 24px;
+}
+.menu-toggle {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.menu-toggle:hover {
+  background: var(--sea-soft);
+}
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
+.legal-link {
+  color: var(--muted);
+  font-size: 11px;
+  text-decoration: none;
+}
+.legal-page {
+  max-width: 760px;
+  padding: 32px 24px;
+  margin: 30px auto;
+  line-height: 1.65;
+}
+.legal-page h1 {
+  margin-top: 36px;
+}
+.selected-conditions-time {
+  color: var(--sea) !important;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.forecast-hour-button {
+  background: transparent;
+  color: var(--sea);
+  border: 0;
+  padding: 8px 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }

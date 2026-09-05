@@ -170,12 +170,24 @@ export default function Workspace() {
         <Brand />
         <button
           ref={menuButton}
-          className="button"
+          className="menu-toggle"
+          aria-label={menu ? "Close menu" : "Open menu"}
           aria-expanded={menu}
           aria-controls="workspace-navigation"
           onClick={() => setMenu(!menu)}
         >
-          Menu
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
         </button>
       </div>
       {menu && (
@@ -197,17 +209,6 @@ export default function Workspace() {
           : {})}
       >
         <Brand />
-        {menu && (
-          <Button
-            className="mobile-close"
-            onClick={() => {
-              setMenu(false);
-              menuButton.current?.focus();
-            }}
-          >
-            Close menu
-          </Button>
-        )}
         <div className="school-context">
           <label htmlFor="current-school">
             <small>Current school</small>
@@ -272,6 +273,9 @@ export default function Workspace() {
           <Button tone="quiet" onClick={logout}>
             Log out
           </Button>
+          <a className="legal-link" href="/legal">
+            Legal
+          </a>
         </div>
       </aside>
       <main className="workspace-main" id="main" tabIndex={-1} ref={main}>

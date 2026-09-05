@@ -70,6 +70,32 @@ export function weatherLabel(code) {
   if (code <= 86) return "Snow showers";
   return "Thunderstorms";
 }
+export function forecastViewingHours(
+  hours,
+  timezone,
+  sunlight,
+  allHours = false,
+) {
+  if (allHours) return hours;
+  const minutes = (time) => {
+    const [hour, minute] = hourLabel(time, timezone).split(":").map(Number);
+    return hour * 60 + minute;
+  };
+  // Include the first whole hour after last light, with a practical evening
+  // window in winter and a 23:00 end during polar daylight.
+  const end = finite(sunlight?.lastLight)
+    ? Math.max(
+        18 * 60,
+        Math.min(23 * 60, Math.ceil(minutes(sunlight.lastLight) / 60) * 60),
+      )
+    : sunlight?.alwaysUp
+      ? 23 * 60
+      : 21 * 60;
+  return hours.filter((hour) => {
+    const local = minutes(hour.time);
+    return local >= 6 * 60 && local <= end;
+  });
+}
 export function directionExposure(direction, c) {
   if (!finite(direction)) return null;
   if (c.exposureByDirection?.length) {
@@ -79,6 +105,7 @@ export function directionExposure(direction, c) {
       if (d <= points[i][0]) {
         const a = points[i - 1],
           b = points[i];
+        if (d === b[0]) return b[1];
         return a[1] + ((b[1] - a[1]) * (d - a[0])) / (b[0] - a[0]);
       }
     }
@@ -173,15 +200,50 @@ export function scoreConditions(h, c) {
       surfMax: null,
       reasons: ["Swell or wind data is missing."],
     };
-  const exposure = directionExposure(h.swellDirection, c);
-  const periodFactor = clamp(
-    Math.pow(Math.max(h.swellPeriod, 1) / c.periodReference, c.periodExponent),
-    0.7,
-    1.35,
+  // GFS supplies separate swell partitions. Transform each direction before
+  // combining heights: an exposed secondary swell can reach a sheltered break.
+  const swellComponents = [
+    ["Primary", "swell"],
+    ["Secondary", "secondarySwell"],
+    ["Tertiary", "tertiarySwell"],
+  ].flatMap(([name, prefix]) => {
+    const height = h[prefix + "Height"],
+      period = h[prefix + "Period"],
+      direction = h[prefix + "Direction"];
+    if (!finite(height) || height <= 0 || !finite(period) || !finite(direction))
+      return [];
+    const exposure = directionExposure(direction, c);
+    const periodFactor = clamp(
+      Math.pow(Math.max(period, 1) / c.periodReference, c.periodExponent),
+      0.7,
+      1.35,
+    );
+    return [
+      {
+        name,
+        height,
+        period,
+        direction,
+        exposure,
+        localHeight: height * exposure * c.swellGain * periodFactor,
+      },
+    ];
+  });
+  const dominant = swellComponents.reduce(
+    (a, b) => (!a || b.localHeight > a.localHeight ? b : a),
+    null,
   );
-  const swell = h.swellHeight * exposure * c.swellGain * periodFactor;
-  const windSea = finite(h.windWaveHeight) ? h.windWaveHeight * 0.35 : 0;
-  const surf = Math.sqrt(swell * swell + windSea * windSea);
+  const exposure = dominant?.exposure ?? 0;
+  const localPeriod = dominant?.period ?? 0;
+  // Do not invent an incoming wave direction from the local wind or allow
+  // offshore wind sea to bypass a headland's shelter.
+  const windSea =
+    finite(h.windWaveHeight) && finite(h.windWaveDirection)
+      ? h.windWaveHeight * 0.35 * directionExposure(h.windWaveDirection, c)
+      : 0;
+  const surf = Math.sqrt(
+    swellComponents.reduce((sum, s) => sum + s.localHeight ** 2, windSea ** 2),
+  );
   const localWind =
     h.windSpeed *
     c.windExposure *
@@ -218,11 +280,12 @@ export function scoreConditions(h, c) {
       : surf <= 1.8
         ? 1
         : clamp(1 - (surf - 1.8) / 2, 0, 1);
-  const periodFit = clamp((h.swellPeriod - 4) / 8, 0.1, 1);
-  const tide = tideFit(h.tide?.ratio, h.swellHeight, c);
+  const periodFit = clamp((localPeriod - 4) / 8, 0.1, 1);
+  const usefulSwell = dominant?.height ?? 0;
+  const tide = tideFit(h.tide?.ratio, usefulSwell, c);
   const reasons = [];
   if (tide === null) reasons.push("Tide is missing; the score excludes tide.");
-  if (h.swellHeight < c.minimumSwell)
+  if (usefulSwell < c.minimumSwell)
     reasons.push("Swell may be too small for this break.");
   if (tide !== null && tide < 0.65)
     reasons.push("Outside this spot’s preferred tide range.");
@@ -236,20 +299,25 @@ export function scoreConditions(h, c) {
         0.15 * periodFit +
         (tide === null ? 0 : 0.15 * tide))) /
     (tide === null ? 0.85 : 1);
-  if (h.swellHeight < c.minimumSwell) score *= 0.65;
+  if (usefulSwell < c.minimumSwell) score *= 0.65;
+  // Favourable wind and tide cannot make an unsurfably small sea good.
+  const tooSmall = surf < 0.3;
+  if (tooSmall) {
+    score = Math.min(score, (25 * surf) / 0.3);
+    reasons.unshift("Flat or too small for a surf lesson.");
+  } else if (surf < 0.5) score = Math.min(score, 49);
   const severe =
     surf > c.maxLessonSurf ||
     localWind >= 35 ||
     h.windGusts >= 45 ||
     h.weatherCode >= 95;
-  let level =
-    surf < 0.3
-      ? "Too small"
-      : surf <= 0.9 && localWind <= 18 && h.swellPeriod <= 14
-        ? "Beginner"
-        : surf <= 1.6 && localWind <= 25
-          ? "Intermediate"
-          : "Advanced";
+  let level = tooSmall
+    ? "Too small"
+    : surf <= 0.9 && localWind <= 18 && localPeriod <= 14
+      ? "Beginner"
+      : surf <= 1.6 && localWind <= 25
+        ? "Intermediate"
+        : "Advanced";
   if (c.minimumLevel === "Intermediate" && level === "Beginner")
     level = "Intermediate";
   if (
@@ -272,13 +340,15 @@ export function scoreConditions(h, c) {
   return {
     score,
     quality:
-      score >= 75
-        ? "Good"
-        : score >= 50
-          ? "Fair"
-          : score >= 30
-            ? "Poor"
-            : "Unfavourable",
+      tooSmall && !severe
+        ? "Flat / too small"
+        : score >= 75
+          ? "Good"
+          : score >= 50
+            ? "Fair"
+            : score >= 30
+              ? "Poor"
+              : "Unfavourable",
     tone:
       score >= 75
         ? "good"
@@ -291,6 +361,8 @@ export function scoreConditions(h, c) {
     surfMin: round(surf * 0.75),
     surfMax: round(surf * 1.25),
     windType,
+    swellComponents,
+    windSeaSurf: round(windSea, 2),
     reasons,
     provisional: tide === null,
   };
@@ -309,7 +381,14 @@ export function interpolateHour(hours, time) {
     "swellHeight",
     "swellPeriod",
     "swellDirection",
+    "secondarySwellHeight",
+    "secondarySwellPeriod",
+    "secondarySwellDirection",
+    "tertiarySwellHeight",
+    "tertiarySwellPeriod",
+    "tertiarySwellDirection",
     "windWaveHeight",
+    "windWaveDirection",
     "windSpeed",
     "windDirection",
     "windGusts",

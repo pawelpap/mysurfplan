@@ -140,6 +140,21 @@ export default function SpotForm({ spot, onCancel, onSaved }) {
             observations behind any changes. Previous versions are retained.
           </p>
           <div className="form-grid">
+            <SelectField
+              name="marineModel"
+              label="Wave forecast model"
+              defaultValue={c.marineModel || "ncep_gfswave025"}
+              options={[
+                {
+                  value: "ncep_gfswave025",
+                  label: "GFS 0.25° · global · 16 days",
+                },
+                {
+                  value: "ncep_gfswave016",
+                  label: "GFS 0.16° · 15°S to 52.5°N · 16 days",
+                },
+              ]}
+            />
             <Field
               name="swellGain"
               label="Swell height multiplier"
@@ -203,6 +218,26 @@ export default function SpotForm({ spot, onCancel, onSaved }) {
               required
             />
           </div>
+          <Field label="Directional swell exposure">
+            {(id) => (
+              <textarea
+                id={id}
+                name="exposureByDirection"
+                rows={4}
+                defaultValue={
+                  c.exposureByDirection
+                    ? JSON.stringify(c.exposureByDirection)
+                    : ""
+                }
+              />
+            )}
+          </Field>
+          <p className="muted-note">
+            Optional [bearing°, height fraction] pairs, in ascending order from
+            0° to 360°. 0 blocks swell; 1 admits it fully. Values at 0° and 360°
+            must match. Leave blank to use the shoreline orientation. These are
+            estimates, not measured transmission.
+          </p>
         </details>
         <Field label="Local notes and observations">
           {(id) => (

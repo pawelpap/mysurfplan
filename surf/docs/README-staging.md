@@ -38,3 +38,5 @@ The free hosted forecast endpoint is restricted to non-commercial use. Set the s
 Push the reviewed work to `staging`, wait for the staging project's deployment to become ready, then verify the custom staging domain. Confirm the production alias still points to its previous deployment.
 
 The staging-only `Demo Surf School - UX review` contains sample lessons and people for testing. Preserve user-created schools and lessons. New lessons must select a spot from the database dropdown.
+
+The optional-username migration `db/migrations/20260905_login_usernames.sql` has also been applied to staging. It supports the student-only review login `teststudent`, scoped to the demo school. Existing email login is unchanged. Apply this migration before the username-aware login code in any other environment. The owner has requested the same test account at production promotion, not before.

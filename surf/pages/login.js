@@ -99,8 +99,10 @@ export default function Login() {
         </p>
         <form className="auth-form" onSubmit={submit}>
           <Field
-            label="Email"
-            type="email"
+            label="Email or username"
+            type="text"
+            autoCapitalize="none"
+            spellCheck={false}
             required
             autoComplete="username"
             value={email}

@@ -21,6 +21,11 @@ export default async function handler(req, res) {
     req.method === "GET" ? {} : { roles: ["platform_admin"] },
   );
   if (!session) return;
+  if (req.method !== "GET" && session.role !== "platform_admin")
+    return res.status(403).json({
+      ok: false,
+      error: "Only platform admins can manage surf spots.",
+    });
   try {
     if (req.method === "GET") {
       const rows =
@@ -55,21 +60,17 @@ export default async function handler(req, res) {
     let rows;
     if (old) {
       if (req.body.version !== old.version)
-        return res
-          .status(409)
-          .json({
-            ok: false,
-            error: "This spot has changed. Reload it before saving.",
-          });
+        return res.status(409).json({
+          ok: false,
+          error: "This spot has changed. Reload it before saving.",
+        });
       rows =
         await sql`WITH changed AS (UPDATE surf_spots SET name=${input.name},region=${input.region},country_code=${input.countryCode},latitude=${input.latitude},longitude=${input.longitude},timezone=${input.timezone},marine_latitude=${input.marineLatitude},marine_longitude=${input.marineLongitude},break_type=${input.breakType},tide_station_id=${tideStationId},calibration=${c}::jsonb,notes=${input.notes},version=version+1,updated_at=now() WHERE id=${old.id} AND version=${old.version} RETURNING *), history AS (INSERT INTO spot_calibration_history(spot_id,version,calibration,notes,changed_by) SELECT id,version,calibration,notes,${session.userId}::uuid FROM changed RETURNING id) SELECT * FROM changed`;
       if (!rows.length)
-        return res
-          .status(409)
-          .json({
-            ok: false,
-            error: "This spot has changed. Reload it before saving.",
-          });
+        return res.status(409).json({
+          ok: false,
+          error: "This spot has changed. Reload it before saving.",
+        });
       if (relocated || old.timezone !== input.timezone)
         await sql`UPDATE spot_forecasts SET expires_at=now(),retry_after=NULL WHERE spot_id=${old.id}`;
     } else {
@@ -91,11 +92,9 @@ export default async function handler(req, res) {
       .json({ ok: true, data: spotData(rows[0]) });
   } catch (e) {
     console.error("spots API", e.message);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        error: "Could not save or load spots. Please try again.",
-      });
+    return res.status(500).json({
+      ok: false,
+      error: "Could not save or load spots. Please try again.",
+    });
   }
 }

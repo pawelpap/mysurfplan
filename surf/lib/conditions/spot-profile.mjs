@@ -67,6 +67,57 @@ export function validateSpot(input, previous) {
   // Changing the orientation resets an old hand-entered directional curve.
   if (previous && previous.calibration.shoreNormal !== shoreNormal)
     delete calibration.exposureByDirection;
+  if (input.marineModel !== undefined) {
+    if (!["ncep_gfswave025", "ncep_gfswave016"].includes(input.marineModel))
+      throw new Error("Choose a supported wave model.");
+    calibration.marineModel = input.marineModel;
+  }
+  if (
+    calibration.marineModel === "ncep_gfswave016" &&
+    (latitude < -15 || latitude > 52.5)
+  )
+    throw new Error(
+      "GFS 0.16° covers 15°S to 52.5°N. Choose the global 0.25° model here.",
+    );
+  if (input.exposureByDirection !== undefined) {
+    if (input.exposureByDirection === "")
+      delete calibration.exposureByDirection;
+    else {
+      let points;
+      try {
+        points =
+          typeof input.exposureByDirection === "string"
+            ? JSON.parse(input.exposureByDirection)
+            : input.exposureByDirection;
+      } catch {
+        throw new Error("Enter a valid directional exposure array.");
+      }
+      if (
+        !Array.isArray(points) ||
+        points.length < 2 ||
+        points.length > 40 ||
+        points.some(
+          (p, i) =>
+            !Array.isArray(p) ||
+            p.length !== 2 ||
+            !Number.isFinite(p[0]) ||
+            !Number.isFinite(p[1]) ||
+            p[0] < 0 ||
+            p[0] > 360 ||
+            p[1] < 0 ||
+            p[1] > 1 ||
+            (i > 0 && p[0] <= points[i - 1][0]),
+        ) ||
+        points[0][0] !== 0 ||
+        points.at(-1)[0] !== 360 ||
+        points[0][1] !== points.at(-1)[1]
+      )
+        throw new Error(
+          "Use ascending [bearing, exposure] pairs from 0° to 360°, with exposure 0–1 and matching values at north.",
+        );
+      calibration.exposureByDirection = points;
+    }
+  }
   for (const [key, min, max] of [
     ["swellGain", 0.1, 3],
     ["windExposure", 0.2, 2],
