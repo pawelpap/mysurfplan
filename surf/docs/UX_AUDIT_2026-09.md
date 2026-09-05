@@ -75,5 +75,6 @@ These findings should be addressed before expanding real customer use. They are 
 
 - Baseline production build passed before changes.
 - Six focused validation tests cover dates, duration, capacity, instructor IDs, lesson availability and login return destinations.
-- Final build, browser verification and deployment results are recorded in DEVELOPMENT_PLAN.md after completion.
+- The final application build passed with Node.js 22 and was deployed to staging as `5c7e944`. Desktop and mobile browser checks passed for the illustrated login and principal admin lesson, booking and person-editing tasks. Public schedule filtering passed without browser errors. Detailed results and coverage limits are recorded in DEVELOPMENT_PLAN.md.
+- The staging label has been removed. The original surf illustration and logo are restored in the responsive login design. Mobile navigation, lists and forms were checked at 390 × 844.
 - Production data was inspected through aggregate/schema reads. Proposal testing uses staging; no production mutation or deployment is authorised before user review.

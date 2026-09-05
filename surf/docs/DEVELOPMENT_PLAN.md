@@ -45,9 +45,9 @@ Implementation:
 - [x] Add focused validation tests and declare the Neon dependency directly.
 - [x] Complete production build using Node.js 22 and six validation tests.
 - [x] Verify mobile lesson list, single-column form, menu and Escape dismissal at 390 px.
-- [ ] Verify the final login illustration and date/time fix on staging.
+- [x] Verify the final login illustration and date/time fix on staging.
 - [x] Publish the initial proposal on staging.
-- [ ] Verify the final update on staging.
+- [x] Verify the final update on staging.
 - [ ] User reviews the staging app and requests/accepts adjustments.
 - [ ] Promote the accepted version to production and verify it there.
 
@@ -88,6 +88,8 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 ## Verification and deployment log
 
 - 5 September 2026: Baseline build passed. Production and staging logins, public desktop/mobile screens, service access and environment mapping reviewed.
-- 5 September 2026: Six validation tests and the production build passed with Node.js 22. Browser checks in progress. The production branch/domain remain unchanged.
-
+- 5 September 2026: Six validation tests and the production build passed with Node.js 22.
 - 5 September 2026: Initial proposal deployed as `dcbd97d`. Follow-up: remove the staging label, improve mobile layouts, restore the surf illustration on login, and fix native date/time form saving. Conditions will start only after the owner provides the next instructions.
+- 5 September 2026: Final application update `5c7e944` deployed successfully to staging (`dpl_GMLEteELqb2PuW9rb7ZJbAdA9oVy`). Verified the illustrated login on desktop and mobile, lesson creation, date/time/duration/capacity editing, instructor assignment, bookings, full-capacity validation and person editing. Mobile checks at 390 × 844 covered list/form layout, navigation and Escape dismissal. Public date filtering passed without browser errors after the timezone hydration fix.
+- Review data is available in the staging-only school `Demo Surf School - UX review`, with two lessons, sample instructors and two bookings. Sample user profiles have no login password configured. Existing user-created schools were preserved.
+- This pass does not establish full student/instructor end-to-end coverage or concurrent booking correctness. Those remain in the reliability backlog. Production remains on `520d826` at mywaveplan.com. The staging proposal is ready for owner review; wait for the owner's conditions instructions.
