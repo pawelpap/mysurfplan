@@ -1,10 +1,10 @@
 // surf/pages/api/lessons/[id]/book.js
-import { sql } from 'lib/db';
-import { normalizeEmail, requireAuth } from '../../../../lib/auth';
+import { sql } from "lib/db";
+import { normalizeEmail, requireAuth } from "../../../../lib/auth";
 
 async function getLesson(id) {
   const rows = await sql`
-    SELECT id, school_id, start_at
+    SELECT id, school_id, start_at, spot_id, EXISTS(SELECT 1 FROM surf_spots sp WHERE sp.id=lessons.spot_id AND sp.active=true) AS spot_active
     FROM lessons
     WHERE id = ${id} AND deleted_at IS NULL
     LIMIT 1
@@ -13,7 +13,7 @@ async function getLesson(id) {
 }
 
 function normalizeName(name) {
-  return typeof name === 'string' ? name.trim() : '';
+  return typeof name === "string" ? name.trim() : "";
 }
 
 async function bookLesson(lessonId, schoolId, name, email) {
@@ -24,6 +24,7 @@ async function bookLesson(lessonId, schoolId, name, email) {
       WHERE id = ${lessonId}
         AND school_id = ${schoolId}
         AND deleted_at IS NULL
+        AND EXISTS (SELECT 1 FROM surf_spots sp WHERE sp.id=lessons.spot_id AND sp.active=true)
       FOR UPDATE
     ),
     student AS (
@@ -113,37 +114,60 @@ async function coachIsAssigned(lessonId, schoolId, userId) {
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ ok: false, error: 'Missing lesson id' });
+  if (!id || typeof id !== "string") {
+    return res.status(400).json({ ok: false, error: "Missing lesson id" });
   }
 
   try {
     const lesson = await getLesson(id);
-    if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
+    if (!lesson)
+      return res.status(404).json({ ok: false, error: "Lesson not found" });
 
-    if (req.method === 'POST') {
-      if (new Date(lesson.start_at).getTime() <= Date.now()) return res.status(409).json({ ok: false, error: 'This lesson has already started.' });
+    if (req.method === "POST") {
+      if (!lesson.spot_id || !lesson.spot_active)
+        return res
+          .status(409)
+          .json({
+            ok: false,
+            error:
+              "A school admin must choose an active database spot before this lesson can be booked.",
+          });
+      if (new Date(lesson.start_at).getTime() <= Date.now())
+        return res
+          .status(409)
+          .json({ ok: false, error: "This lesson has already started." });
       const { name, email } = req.body || {};
       const normalizedEmail = normalizeEmail(email);
       const normalizedName = normalizeName(name);
-      if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Missing email' });
+      if (!normalizedEmail)
+        return res.status(400).json({ ok: false, error: "Missing email" });
       const session = requireAuth(req, res, {
-        roles: ['admin', 'school_admin', 'coach', 'student'],
+        roles: ["admin", "school_admin", "coach", "student"],
         schoolId: lesson.school_id,
         studentEmail: normalizedEmail,
       });
       if (!session) return;
-      if (session.role === 'coach' && !(await coachIsAssigned(id, lesson.school_id, session.userId))) {
-        return res.status(403).json({ ok: false, error: 'Forbidden' });
+      if (
+        session.role === "coach" &&
+        !(await coachIsAssigned(id, lesson.school_id, session.userId))
+      ) {
+        return res.status(403).json({ ok: false, error: "Forbidden" });
       }
 
-      const result = await bookLesson(id, lesson.school_id, normalizedName, normalizedEmail);
+      const result = await bookLesson(
+        id,
+        lesson.school_id,
+        normalizedName,
+        normalizedEmail,
+      );
       if (!result) {
-        return res.status(500).json({ ok: false, error: 'Failed to create booking' });
+        return res
+          .status(500)
+          .json({ ok: false, error: "Failed to create booking" });
       }
 
-      if (result.outcome === 'full') {
-        return res.status(409).json({ ok: false, error: 'Lesson is full' });
+      if (result.outcome === "full") {
+        return res.status(409).json({ ok: false, error: "Lesson is full" });
       }
 
       return res.status(200).json({
@@ -156,18 +180,22 @@ export default async function handler(req, res) {
       });
     }
 
-    if (req.method === 'DELETE') {
+    if (req.method === "DELETE") {
       const { email } = req.body || {};
       const normalizedEmail = normalizeEmail(email);
-      if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Missing email' });
+      if (!normalizedEmail)
+        return res.status(400).json({ ok: false, error: "Missing email" });
       const session = requireAuth(req, res, {
-        roles: ['admin', 'school_admin', 'coach', 'student'],
+        roles: ["admin", "school_admin", "coach", "student"],
         schoolId: lesson.school_id,
         studentEmail: normalizedEmail,
       });
       if (!session) return;
-      if (session.role === 'coach' && !(await coachIsAssigned(id, lesson.school_id, session.userId))) {
-        return res.status(403).json({ ok: false, error: 'Forbidden' });
+      if (
+        session.role === "coach" &&
+        !(await coachIsAssigned(id, lesson.school_id, session.userId))
+      ) {
+        return res.status(403).json({ ok: false, error: "Forbidden" });
       }
 
       const students = await sql`
@@ -177,7 +205,8 @@ export default async function handler(req, res) {
         LIMIT 1
       `;
       const student = students[0];
-      if (!student) return res.status(404).json({ ok: false, error: 'Not booked' });
+      if (!student)
+        return res.status(404).json({ ok: false, error: "Not booked" });
 
       const cancelled = await sql`
         UPDATE bookings
@@ -186,16 +215,18 @@ export default async function handler(req, res) {
         RETURNING id;
       `;
       if (!cancelled.length) {
-        return res.status(404).json({ ok: false, error: 'Not booked' });
+        return res.status(404).json({ ok: false, error: "Not booked" });
       }
 
       return res.status(200).json({ ok: true });
     }
 
-    res.setHeader('Allow', ['POST', 'DELETE']);
+    res.setHeader("Allow", ["POST", "DELETE"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (e) {
-    console.error('bookings error:', e);
-    return res.status(500).json({ ok: false, error: e?.message || 'Server error' });
+    console.error("bookings error:", e);
+    return res
+      .status(500)
+      .json({ ok: false, error: e?.message || "Server error" });
   }
 }

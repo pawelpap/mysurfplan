@@ -14,6 +14,8 @@ export function validateLesson(input = {}) {
       : Number(input.capacity);
   const place = typeof input.place === "string" ? input.place.trim() : "";
   const coachIds = input.coachIds ?? [];
+  if (!isUuid(input.spotId))
+    throw new Error("Choose a surf spot from the list.");
   if (!startAt || !Number.isFinite(Date.parse(startAt)))
     throw new Error("Choose a valid lesson date and time.");
   if (!Number.isInteger(durationMin) || durationMin < 15 || durationMin > 720)
@@ -34,6 +36,7 @@ export function validateLesson(input = {}) {
     durationMin,
     difficulty: input.difficulty,
     place,
+    spotId: input.spotId,
     capacity,
     coachIds: [...new Set(coachIds)],
   };

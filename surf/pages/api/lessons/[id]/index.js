@@ -32,42 +32,45 @@ export default async function handler(req, res) {
     } catch (error) {
       return res.status(400).json({ ok: false, error: error.message });
     }
-    const { startAt, durationMin, difficulty, place, capacity } = input;
+    const { startAt, durationMin, difficulty, place, capacity, spotId } = input;
+    const [spot] =
+      await sql`SELECT id FROM surf_spots WHERE id=${spotId} AND active=true`;
+    if (!spot)
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          error: "Choose an active surf spot from the list.",
+        });
     const rows = await sql`
-      UPDATE lessons SET start_at = ${startAt}, duration_min = ${durationMin}, difficulty = ${difficulty}, place = ${place}, capacity = ${capacity}, updated_at = now()
+      UPDATE lessons SET start_at = ${startAt}, duration_min = ${durationMin}, difficulty = ${difficulty}, place = ${place}, spot_id = ${spotId}, capacity = ${capacity}, updated_at = now()
       WHERE id = ${id} AND deleted_at IS NULL
         AND (${capacity}::integer IS NULL OR ${capacity}::integer >= (SELECT count(*) FROM bookings WHERE lesson_id = ${id} AND status = 'booked'))
       RETURNING id, start_at, duration_min, difficulty, place, capacity
     `;
     if (!rows.length)
-      return res
-        .status(409)
-        .json({
-          ok: false,
-          error:
-            "Capacity cannot be lower than the number of current bookings.",
-        });
-    const row = rows[0];
-    return res
-      .status(200)
-      .json({
-        ok: true,
-        data: {
-          id: row.id,
-          startAt: row.start_at,
-          durationMin: row.duration_min,
-          difficulty: row.difficulty,
-          place: row.place,
-          capacity: row.capacity,
-        },
+      return res.status(409).json({
+        ok: false,
+        error: "Capacity cannot be lower than the number of current bookings.",
       });
+    const row = rows[0];
+    return res.status(200).json({
+      ok: true,
+      data: {
+        id: row.id,
+        startAt: row.start_at,
+        durationMin: row.duration_min,
+        difficulty: row.difficulty,
+        place: row.place,
+        spotId,
+        capacity: row.capacity,
+      },
+    });
   } catch (error) {
     console.error("lesson update failed:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        error: "Could not update the lesson. Please try again.",
-      });
+    return res.status(500).json({
+      ok: false,
+      error: "Could not update the lesson. Please try again.",
+    });
   }
 }

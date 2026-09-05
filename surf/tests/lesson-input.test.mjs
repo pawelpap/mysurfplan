@@ -10,6 +10,7 @@ const valid = {
   durationMin: "90",
   difficulty: "Beginner",
   place: " Carcavelos ",
+  spotId: "550e8400-e29b-41d4-a716-446655440000",
   capacity: "6",
 };
 test("normalises a lesson and preserves the intended instant", () => {
@@ -18,6 +19,7 @@ test("normalises a lesson and preserves the intended instant", () => {
     durationMin: 90,
     difficulty: "Beginner",
     place: "Carcavelos",
+    spotId: "550e8400-e29b-41d4-a716-446655440000",
     capacity: 6,
     coachIds: [],
   });
@@ -72,4 +74,10 @@ test("login return path stays on this site", () => {
     ["//example.com"],
   ])
     assert.equal(safeNext(bad), "/");
+});
+
+test("lessons require a database spot identifier", () => {
+  for (const spotId of [null, undefined, "", "Carcavelos"]) {
+    assert.throws(() => validateLesson({ ...valid, spotId }));
+  }
 });

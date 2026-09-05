@@ -48,14 +48,30 @@ Implementation:
 - [x] Verify the final login illustration and date/time fix on staging.
 - [x] Publish the initial proposal on staging.
 - [x] Verify the final update on staging.
-- [ ] User reviews the staging app and requests/accepts adjustments.
+- [x] Owner reviewed the UX proposal positively; production remains on hold.
 - [ ] Promote the accepted version to production and verify it there.
 
 No database migration is required for this milestone. No payment module, real forecast or attendance state is claimed as complete.
 
-## Next workstream: conditions
+## Milestone 2: spot and lesson conditions
 
-After this UI pass, the owner will provide instructions for the conditions screen and for adding relevant conditions to lessons. Wait for those instructions before starting implementation. Prioritise this workstream next; retain the core reliability backlog below.
+The owner authorised this work on staging and explicitly asked to keep production unchanged.
+
+- [x] Add a separate Conditions task with a spot selector and sixteen forecast days.
+- [x] Store 17 nearby spots in Neon, including separate São Pedro Bico and Bafureira profiles.
+- [x] Require an active database spot for lesson creation, editing and new bookings.
+- [x] Add global spot creation and editable local calibration with version history.
+- [x] Integrate real swell, wind and simplified weather forecasts.
+- [x] Calculate full-horizon astronomical tides from open harmonic constants.
+- [x] Show quality and required experience separately, including lesson-level mismatch warnings.
+- [x] Show time-specific conditions across the complete lesson duration.
+- [x] Refresh on page reload, share duplicate requests briefly, and check automatically while open.
+- [x] Build responsive desktop and mobile forecast layouts with tide curves and direction arrows.
+- [x] Verify live 16-day coverage for every seeded spot and test permissions, missing data and time zones.
+- [ ] Deploy and verify this work at staging.mywaveplan.com.
+- [ ] Owner reviews the conditions and tunes initial spot assumptions.
+
+See [Conditions architecture, sources and limitations](CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
 
 ## Core reliability backlog
 
@@ -81,7 +97,7 @@ Preserved product decisions:
 
 ## Conditions architecture and future payments
 
-Conditions need architecture before interface expansion: spot coordinates and preferences, provider selection, ingestion/caching, freshness indicators, score calculation and degraded-data states. Build a useful standalone conditions task and link relevant readings to lessons.
+The conditions architecture is implemented for staging and documented separately. Next, collect instructor observations to calibrate each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
 
 Payments are a future module. Agree booking/payment states, cancellation and refund rules, currencies and provider before implementation.
 
@@ -92,4 +108,6 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 - 5 September 2026: Initial proposal deployed as `dcbd97d`. Follow-up: remove the staging label, improve mobile layouts, restore the surf illustration on login, and fix native date/time form saving. Conditions will start only after the owner provides the next instructions.
 - 5 September 2026: Final application update `5c7e944` deployed successfully to staging (`dpl_GMLEteELqb2PuW9rb7ZJbAdA9oVy`). Verified the illustrated login on desktop and mobile, lesson creation, date/time/duration/capacity editing, instructor assignment, bookings, full-capacity validation and person editing. Mobile checks at 390 × 844 covered list/form layout, navigation and Escape dismissal. Public date filtering passed without browser errors after the timezone hydration fix.
 - Review data is available in the staging-only school `Demo Surf School - UX review`, with two lessons, sample instructors and two bookings. Sample user profiles have no login password configured. Existing user-created schools were preserved.
-- This pass does not establish full student/instructor end-to-end coverage or concurrent booking correctness. Those remain in the reliability backlog. Production remains on `520d826` at mywaveplan.com. The staging proposal is ready for owner review; wait for the owner's conditions instructions.
+- This pass does not establish full student/instructor end-to-end coverage or concurrent booking correctness. Those remain in the reliability backlog. Production remains on `520d826` at mywaveplan.com. The UX proposal was subsequently accepted for staging; conditions instructions are now incorporated into Milestone 2.
+
+- 5 September 2026: Applied the additive conditions migration to staging only. Seeded 17 spots, mapped existing lessons and verified complete 16-day live forecasts for every spot. Reload and duplicate-refresh checks passed.

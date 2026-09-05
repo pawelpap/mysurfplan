@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { LessonConditions } from "../conditions/shared";
+import { zonedFields, zonedDateTimeToISO } from "../../lib/conditions/time.mjs";
+import { dateKey } from "../../lib/conditions/model.mjs";
 import {
   Button,
   Field,
@@ -33,7 +36,7 @@ const spaces = (lesson) =>
     ? `${lesson.bookedCount} booked · No limit`
     : `${lesson.bookedCount} / ${lesson.capacity} booked`;
 
-export default function Lessons({ school, session, query, go }) {
+export default function Lessons({ school, session, query, go, onForecast }) {
   const source = useData(
     school ? `/api/lessons?school=${encodeURIComponent(school.slug)}` : null,
   );
@@ -125,6 +128,12 @@ export default function Lessons({ school, session, query, go }) {
     return (
       <LessonDetail
         lesson={lesson}
+        onForecast={() =>
+          onForecast(
+            lesson.spotId,
+            dateKey(lesson.startAt, lesson.spotTimezone || "Europe/Lisbon"),
+          )
+        }
         session={session}
         notice={notice}
         onBack={back}
@@ -147,7 +156,7 @@ export default function Lessons({ school, session, query, go }) {
         (period === "past" ? past : !past) &&
         (period !== "mine" || bookedBy(l, session)) &&
         (!level || l.difficulty === level) &&
-        `${l.place} ${instructors(l)}`
+        `${l.spotName || ""} ${l.place} ${instructors(l)}`
           .toLowerCase()
           .includes(search.toLowerCase())
       );
@@ -197,7 +206,7 @@ export default function Lessons({ school, session, query, go }) {
         <Field
           label="Search lessons"
           type="search"
-          placeholder="Meeting point or instructor"
+          placeholder="Surf spot, meeting point or instructor"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -212,7 +221,7 @@ export default function Lessons({ school, session, query, go }) {
         <div className="surface">
           <div className="list-header" aria-hidden="true">
             <span>Date and time</span>
-            <span>Meeting point</span>
+            <span>Surf spot / meeting point</span>
             <span>Instructors</span>
             <span>Bookings</span>
             <span />
@@ -222,16 +231,20 @@ export default function Lessons({ school, session, query, go }) {
               className="list-row"
               key={lesson.id}
               onClick={() => open(lesson)}
-              aria-label={`View ${lesson.difficulty} lesson at ${lesson.place}, ${dateLabel(lesson.startAt)}, ${timeLabel(lesson.startAt)}`}
+              aria-label={`View ${lesson.difficulty} lesson at ${lesson.place}, ${dateLabel(lesson.startAt, lesson.spotTimezone)}, ${timeLabel(lesson.startAt, lesson.spotTimezone)}`}
             >
               <span>
-                <strong>{dateLabel(lesson.startAt)}</strong>
+                <strong>
+                  {dateLabel(lesson.startAt, lesson.spotTimezone)}
+                </strong>
                 <small>
-                  {timeLabel(lesson.startAt)} · {lesson.durationMin} min
+                  {timeLabel(lesson.startAt, lesson.spotTimezone)} ·{" "}
+                  {lesson.durationMin} min
                 </small>
               </span>
               <span>
-                <strong>{lesson.place}</strong>
+                <strong>{lesson.spotName || lesson.place}</strong>
+                {lesson.spotName && <small>{lesson.place}</small>}
                 <small>{lesson.difficulty}</small>
               </span>
               <span>{instructors(lesson)}</span>
@@ -300,9 +313,7 @@ export default function Lessons({ school, session, query, go }) {
         <span>
           {filtered.length} {filtered.length === 1 ? "lesson" : "lessons"}
         </span>
-        <span>
-          Times shown in {Intl.DateTimeFormat().resolvedOptions().timeZone}
-        </span>
+        <span>Times shown in each spot’s local time</span>
       </div>
     </>
   );
@@ -315,16 +326,24 @@ function localDateTime(value) {
     .slice(0, 16);
 }
 function LessonForm({ school, lesson, onCancel, onSaved }) {
+  const spots = useData("/api/spots");
   const [form, setForm] = useState({
     date: lesson
-      ? localDateTime(lesson.startAt).slice(0, 10)
+      ? zonedFields(lesson.startAt, lesson.spotTimezone).date
       : localDateTime(new Date(Date.now() + 86400000)).slice(0, 10),
-    time: lesson ? localDateTime(lesson.startAt).slice(11, 16) : "10:00",
+    time: lesson
+      ? zonedFields(lesson.startAt, lesson.spotTimezone).time
+      : "10:00",
     durationMin: lesson?.durationMin || 90,
     difficulty: lesson?.difficulty || "Beginner",
     place: lesson?.place || "",
+    spotId: lesson?.spotId || "",
     capacity: lesson?.capacity ?? "",
   });
+  const spotTimezone =
+    spots.data.find((s) => s.id === form.spotId)?.timezone ||
+    lesson?.spotTimezone ||
+    Intl.DateTimeFormat().resolvedOptions().timeZone;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const bind = (name) => ({
@@ -339,9 +358,11 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
       const fields = new FormData(event.currentTarget);
       const body = validateLesson({
         ...form,
-        startAt: new Date(
-          `${fields.get("date")}T${fields.get("time")}`,
-        ).toISOString(),
+        startAt: zonedDateTimeToISO(
+          fields.get("date"),
+          fields.get("time"),
+          spotTimezone,
+        ),
       });
       const data = await request(
         lesson ? `/api/lessons/${lesson.id}` : "/api/lessons",
@@ -379,7 +400,7 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             required
             name="date"
             defaultValue={form.date}
-            hint={`Local time: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`}
+            hint={`Time at the spot: ${spotTimezone}`}
           />
           <Field
             label="Start time"
@@ -396,9 +417,24 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             required
             {...bind("durationMin")}
           />
+          <SelectField
+            label="Surf spot"
+            required
+            options={[
+              {
+                value: "",
+                label: spots.loading ? "Loading spots…" : "Choose a surf spot",
+              },
+              ...spots.data.map((s) => ({
+                value: s.id,
+                label: `${s.name} · ${s.region}, ${s.countryCode}`,
+              })),
+            ]}
+            {...bind("spotId")}
+          />
           <Field
             label="Meeting point"
-            placeholder="e.g. Carcavelos beach, west entrance"
+            placeholder="e.g. West entrance, next to the school flag"
             required
             maxLength={200}
             {...bind("place")}
@@ -418,8 +454,11 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             {...bind("capacity")}
           />
         </div>
+        {spots.error && <Message>{spots.error}</Message>}
         <FormActions
-          busy={busy}
+          busy={
+            busy || spots.loading || Boolean(spots.error) || !spots.data.length
+          }
           error={error}
           onCancel={onCancel}
           label={lesson ? "Save changes" : "Create lesson"}
@@ -456,7 +495,7 @@ function InstructorForm({ school, lesson, onCancel, onSaved }) {
     <div className="form-screen">
       <PageHeading
         title="Assign instructors"
-        description={`${dateLabel(lesson.startAt)} · ${timeLabel(lesson.startAt)} · ${lesson.place}`}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
         back={{ label: "Lesson details", onClick: onCancel }}
       />
       <form className="surface padded" onSubmit={submit}>
@@ -507,6 +546,7 @@ function LessonDetail({
   onEdit,
   onInstructors,
   onBookings,
+  onForecast,
   onDeleted,
   reload,
 }) {
@@ -542,7 +582,7 @@ function LessonDetail({
   async function remove() {
     if (
       !window.confirm(
-        `Remove this lesson at ${lesson.place} on ${dateLabel(lesson.startAt)}? It will disappear from the schedule and public booking page.`,
+        `Remove this lesson at ${lesson.place} on ${dateLabel(lesson.startAt, lesson.spotTimezone)}? It will disappear from the schedule and public booking page.`,
       )
     )
       return;
@@ -560,7 +600,7 @@ function LessonDetail({
     <div className="form-screen">
       <PageHeading
         title={`${lesson.difficulty} lesson`}
-        description={`${dateLabel(lesson.startAt)} · ${timeLabel(lesson.startAt)}`}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)}`}
         back={{ label: "Lessons", onClick: onBack }}
         action={
           admin && (
@@ -574,6 +614,10 @@ function LessonDetail({
       <Message>{error}</Message>
       <section className="surface padded" aria-label="Lesson details">
         <dl className="detail-grid">
+          <div>
+            <dt>Surf spot</dt>
+            <dd>{lesson.spotName || "Not assigned"}</dd>
+          </div>
           <div>
             <dt>Meeting point</dt>
             <dd>{lesson.place}</dd>
@@ -602,18 +646,22 @@ function LessonDetail({
                 tone="primary"
                 onClick={book}
                 disabled={
-                  busy || status === "Past" || (!booked && status === "Full")
+                  busy ||
+                  status === "Past" ||
+                  (!booked && (status === "Full" || !lesson.spotActive))
                 }
               >
                 {busy
                   ? "Updating…"
                   : booked
                     ? "Cancel my booking"
-                    : status === "Full"
-                      ? "Lesson full"
-                      : status === "Past"
-                        ? "Lesson has finished"
-                        : "Book this lesson"}
+                    : !lesson.spotActive
+                      ? "Spot confirmation needed"
+                      : status === "Full"
+                        ? "Lesson full"
+                        : status === "Past"
+                          ? "Lesson has finished"
+                          : "Book this lesson"}
               </Button>
               {booked && <span className="pill booked">You’re booked</span>}
             </>
@@ -629,8 +677,12 @@ function LessonDetail({
           )}
         </div>
       </section>
+      <LessonConditions lesson={lesson} onForecast={onForecast} />
       <p className="muted-note">
-        Times shown in {Intl.DateTimeFormat().resolvedOptions().timeZone}.
+        Times shown in{" "}
+        {lesson.spotTimezone ||
+          Intl.DateTimeFormat().resolvedOptions().timeZone}
+        .
       </p>
       {admin && (
         <div className="danger-zone">
@@ -686,12 +738,12 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
       setBusy(false);
     }
   }
-  if (adding && admin && status === "Available")
+  if (adding && admin && status === "Available" && lesson.spotActive)
     return (
       <div className="form-screen">
         <PageHeading
           title="Add booking"
-          description={`${dateLabel(lesson.startAt)} · ${timeLabel(lesson.startAt)} · ${lesson.place}`}
+          description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
           back={{ label: "Bookings", onClick: onList }}
         />
         <form className="surface padded" autoComplete="off" onSubmit={submit}>
@@ -729,11 +781,12 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
     <>
       <PageHeading
         title="Lesson bookings"
-        description={`${dateLabel(lesson.startAt)} · ${timeLabel(lesson.startAt)} · ${lesson.place}`}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
         back={{ label: "Lesson details", onClick: onBack }}
         action={
           admin &&
-          status === "Available" && (
+          status === "Available" &&
+          lesson.spotActive && (
             <Button tone="primary" onClick={onAdd}>
               + Add booking
             </Button>

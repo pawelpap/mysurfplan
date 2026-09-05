@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
+import Conditions from "../components/conditions";
 import People from "../components/workspace/people";
 import Schools from "../components/workspace/schools";
 import {
@@ -47,6 +48,7 @@ export default function Workspace() {
         null;
   const allowed = [
     "lessons",
+    "conditions",
     ...(isAdmin(session?.role) ? ["people"] : []),
     ...(isPlatform(session?.role) ? ["schools"] : []),
     "profile",
@@ -56,6 +58,7 @@ export default function Workspace() {
     : "lessons";
   const labels = {
     lessons: "Lessons",
+    conditions: "Conditions",
     people: "People",
     schools: "Schools",
     profile: "My profile",
@@ -287,6 +290,14 @@ export default function Workspace() {
             session={session}
             query={router.query}
             go={(values) => go("lessons", values)}
+            onForecast={(spot, date) => go("conditions", { spot, date })}
+          />
+        )}
+        {view === "conditions" && (
+          <Conditions
+            session={session}
+            query={router.query}
+            go={(values) => go("conditions", values)}
           />
         )}
         {view === "people" && (

@@ -64,6 +64,10 @@ async function getLessons(req, res) {
         l.duration_min,
         l.difficulty,
         l.place,
+        l.spot_id,
+        sp.name AS spot_name,
+        sp.timezone AS spot_timezone,
+        sp.active AS spot_active,
         l.capacity,
         COALESCE(
           (SELECT lc.coaches FROM lesson_coach_list lc WHERE lc.lesson_id = l.id),
@@ -85,6 +89,7 @@ async function getLessons(req, res) {
           '[]'::json
         ) AS attendees
       FROM lessons l
+      LEFT JOIN surf_spots sp ON sp.id = l.spot_id
       WHERE l.school_id = ${schoolId} AND l.deleted_at IS NULL
       ORDER BY l.start_at ASC;
     `;
@@ -109,6 +114,10 @@ async function getLessons(req, res) {
       durationMin: r.duration_min,
       difficulty: r.difficulty,
       place: r.place,
+      spotId: r.spot_id,
+      spotName: r.spot_name,
+      spotTimezone: r.spot_timezone,
+      spotActive: Boolean(r.spot_active),
       capacity: r.capacity,
       bookedCount: r.booked_count,
       coaches: r.coaches || [],
@@ -122,13 +131,11 @@ async function getLessons(req, res) {
 
     res.status(200).json({ ok: true, data });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        ok: false,
-        error: "Server error",
-        detail: err?.detail || err?.message,
-      });
+    res.status(500).json({
+      ok: false,
+      error: "Server error",
+      detail: err?.detail || err?.message,
+    });
   }
 }
 
@@ -148,8 +155,24 @@ async function createLesson(req, res) {
     } catch (error) {
       return res.status(400).json({ ok: false, error: error.message });
     }
-    const { startAt, durationMin, difficulty, place, capacity, coachIds } =
-      input;
+    const {
+      startAt,
+      durationMin,
+      difficulty,
+      place,
+      capacity,
+      coachIds,
+      spotId,
+    } = input;
+    const [spot] =
+      await sql`SELECT id FROM surf_spots WHERE id=${spotId} AND active=true`;
+    if (!spot)
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          error: "Choose an active surf spot from the list.",
+        });
     if (coachIds.length) {
       const valid =
         await sql`SELECT id FROM coaches WHERE school_id = ${schoolId} AND id = ANY(${coachIds}::uuid[]) AND deleted_at IS NULL`;
@@ -160,41 +183,38 @@ async function createLesson(req, res) {
     }
     const rows = await sql`
       WITH created AS (
-        INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place, capacity)
-        VALUES (${schoolId}, ${startAt}, ${durationMin}, ${difficulty}, ${place}, ${capacity})
+        INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place, capacity, spot_id)
+        VALUES (${schoolId}, ${startAt}, ${durationMin}, ${difficulty}, ${place}, ${capacity}, ${spotId})
         RETURNING *
       ), assigned AS (
         INSERT INTO lesson_coaches (lesson_id, coach_id)
         SELECT l.id, c.id FROM created l JOIN coaches c ON c.id = ANY(${coachIds}::uuid[]) AND c.school_id = l.school_id AND c.deleted_at IS NULL
         RETURNING id
       )
-      SELECT id, school_id, start_at, duration_min, difficulty, place, capacity FROM created
+      SELECT id, school_id, start_at, duration_min, difficulty, place, capacity, spot_id FROM created
     `;
     const row = rows[0];
-    return res
-      .status(201)
-      .json({
-        ok: true,
-        data: {
-          id: row.id,
-          schoolId: row.school_id,
-          startAt: row.start_at,
-          durationMin: row.duration_min,
-          difficulty: row.difficulty,
-          place: row.place,
-          capacity: row.capacity,
-          bookedCount: 0,
-          attendees: [],
-          coaches: [],
-        },
-      });
+    return res.status(201).json({
+      ok: true,
+      data: {
+        id: row.id,
+        schoolId: row.school_id,
+        startAt: row.start_at,
+        durationMin: row.duration_min,
+        difficulty: row.difficulty,
+        place: row.place,
+        spotId: row.spot_id,
+        capacity: row.capacity,
+        bookedCount: 0,
+        attendees: [],
+        coaches: [],
+      },
+    });
   } catch (error) {
     console.error("lesson creation failed:", error);
-    return res
-      .status(500)
-      .json({
-        ok: false,
-        error: "Could not create the lesson. Please try again.",
-      });
+    return res.status(500).json({
+      ok: false,
+      error: "Could not create the lesson. Please try again.",
+    });
   }
 }

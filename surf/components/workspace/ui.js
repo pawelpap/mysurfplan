@@ -22,15 +22,17 @@ export const initials = (person) =>
     .map((s) => s[0])
     .join("")
     .toUpperCase();
-export const dateLabel = (value) =>
+export const dateLabel = (value, timeZone) =>
   new Date(value).toLocaleDateString("en-GB", {
+    ...(timeZone ? { timeZone } : {}),
     weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-export const timeLabel = (value) =>
+export const timeLabel = (value, timeZone) =>
   new Date(value).toLocaleTimeString("en-GB", {
+    ...(timeZone ? { timeZone } : {}),
     hour: "2-digit",
     minute: "2-digit",
   });

@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Brand,
   Button,
@@ -14,6 +14,7 @@ import {
   timeLabel,
   useData,
 } from "../../components/workspace/ui";
+import { dateKey } from "../../lib/conditions/model.mjs";
 import { levels, lessonStatus } from "../../lib/lesson-input.mjs";
 
 export default function PublicSchedule() {
@@ -24,21 +25,16 @@ export default function PublicSchedule() {
     slug ? `/api/public/lessons?school=${encodeURIComponent(slug)}` : null,
   );
   const [date, setDate] = useState("");
-  const [timeZone, setTimeZone] = useState("");
-  useEffect(
-    () => setTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone),
-    [],
-  );
   const [level, setLevel] = useState("");
   const school = schools.data.find((s) => s.slug === slug);
   const filtered = source.data.filter(
     (l) =>
       lessonStatus(l) !== "Past" &&
-      (!date || new Date(l.startAt).toLocaleDateString("en-CA") === date) &&
+      (!date || dateKey(l.startAt, l.spotTimezone) === date) &&
       (!level || l.difficulty === level),
   );
   const groups = filtered.reduce((days, lesson) => {
-    const day = dateLabel(lesson.startAt);
+    const day = dateLabel(lesson.startAt, lesson.spotTimezone);
     (days[day] ||= []).push(lesson);
     return days;
   }, {});
@@ -117,10 +113,14 @@ export default function PublicSchedule() {
                   <article className="public-card" key={lesson.id}>
                     <div>
                       <h3>
-                        {timeLabel(lesson.startAt)} · {lesson.difficulty}
+                        {timeLabel(lesson.startAt, lesson.spotTimezone)} ·{" "}
+                        {lesson.difficulty}
                       </h3>
                       <p>
-                        {lesson.durationMin} minutes · {lesson.place}
+                        {lesson.spotName} · {lesson.durationMin} minutes
+                      </p>
+                      <p>
+                        {lesson.place} · {lesson.spotTimezone}
                       </p>
                       {lesson.coaches?.length > 0 && (
                         <p>
@@ -181,8 +181,8 @@ export default function PublicSchedule() {
           </Empty>
         )}
         <p className="muted-note">
-          {timeZone && <>Times shown in {timeZone}. </>}You need a school
-          account to book.
+          Times shown in each spot’s local time. You need a school account to
+          book.
         </p>
       </main>
     </>
