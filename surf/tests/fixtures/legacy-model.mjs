@@ -1,4 +1,3 @@
-import { curveValue, engineVersion } from "./calibration.mjs";
 // Initial, explainable surf heuristic. These coefficients require local calibration.
 export const finite = (value) =>
   typeof value === "number" && Number.isFinite(value);
@@ -117,21 +116,39 @@ export function directionExposure(direction, c) {
     (1 - c.shadowFloor) *
       Math.pow(
         Math.max(0, Math.cos(((difference / c.directionSpread) * Math.PI) / 2)),
-        c.directionExponent,
+        1.3,
       )
   );
 }
 export function tideFit(ratio, swellHeight, c) {
   if (!finite(ratio)) return null;
-  const rule = c.tideRules.findLast((r) => swellHeight >= r.minimumSwell);
-  return clamp(
-    1 - Math.max(rule.low - ratio, ratio - rule.high, 0) * c.tidePenaltySlope,
-    c.tideFitFloor,
-    1,
-  );
+  let low = 0.25,
+    high = 0.75;
+  switch (c.tidePreference) {
+    case "low-mid":
+      low = 0;
+      high = 0.6;
+      break;
+    case "mid-high":
+      low = 0.4;
+      high = 1;
+      break;
+    case "bico":
+      low = 0;
+      high = swellHeight >= c.largerSwellThreshold ? 0.7 : 0.35;
+      break;
+    case "bafureira":
+      low = 0.4;
+      high = 1;
+      break;
+    case "any":
+      low = 0;
+      high = 1;
+      break;
+  }
+  return clamp(1 - Math.max(low - ratio, ratio - high, 0) * 2.2, 0.1, 1);
 }
-export function tideAt(tides, time, c) {
-  const display = c.tideDisplay;
+export function tideAt(tides, time) {
   const t = typeof time === "number" ? time : Date.parse(time);
   if (!tides?.length || t < tides[0].time || t > tides.at(-1).time) return null;
   const i = tides.findIndex((p) => p.time >= t),
@@ -148,38 +165,24 @@ export function tideAt(tides, time, c) {
   const f = b.time === a.time ? 0 : (t - a.time) / (b.time - a.time);
   const height = a.height + (b.height - a.height) * f;
   const neighbours = tides
-    .filter((p) => Math.abs(p.time - t) <= display.neighbourHours * 3600000)
+    .filter((p) => Math.abs(p.time - t) <= 8 * 3600000)
     .map((p) => p.height)
     .filter(finite);
   const lo = Math.min(...neighbours),
     hi = Math.max(...neighbours);
-  const ratio =
-    hi - lo > display.minimumRange
-      ? clamp((height - lo) / (hi - lo), 0, 1)
-      : 0.5;
+  const ratio = hi - lo > 0.05 ? clamp((height - lo) / (hi - lo), 0, 1) : 0.5;
   const previous = tides[Math.max(0, i - 1)],
     next = tides[Math.min(tides.length - 1, i + 1)];
   const change = next.height - previous.height;
   return {
     height: round(height, 2),
     ratio: round(ratio, 3),
-    stage:
-      ratio <= display.lowAtMost
-        ? "Low"
-        : ratio >= display.highAtLeast
-          ? "High"
-          : "Mid",
+    stage: ratio <= 0.33 ? "Low" : ratio >= 0.67 ? "High" : "Mid",
     trend:
-      Math.abs(change) < display.turningBelow
-        ? "Turning"
-        : change > 0
-          ? "Rising"
-          : "Falling",
+      Math.abs(change) < 0.035 ? "Turning" : change > 0 ? "Rising" : "Falling",
   };
 }
 export function scoreConditions(h, c) {
-  if (!c || c.schemaVersion !== 3)
-    throw new Error("A valid database calibration is required.");
   const required = [
     "swellHeight",
     "swellPeriod",
@@ -211,12 +214,9 @@ export function scoreConditions(h, c) {
       return [];
     const exposure = directionExposure(direction, c);
     const periodFactor = clamp(
-      Math.pow(
-        Math.max(period, c.periodMinimum) / c.periodReference,
-        c.periodExponent,
-      ),
-      c.periodFactorMin,
-      c.periodFactorMax,
+      Math.pow(Math.max(period, 1) / c.periodReference, c.periodExponent),
+      0.7,
+      1.35,
     );
     return [
       {
@@ -239,9 +239,7 @@ export function scoreConditions(h, c) {
   // offshore wind sea to bypass a headland's shelter.
   const windSea =
     finite(h.windWaveHeight) && finite(h.windWaveDirection)
-      ? h.windWaveHeight *
-        c.windSeaGain *
-        directionExposure(h.windWaveDirection, c)
+      ? h.windWaveHeight * 0.35 * directionExposure(h.windWaveDirection, c)
       : 0;
   const surf = Math.sqrt(
     swellComponents.reduce((sum, s) => sum + s.localHeight ** 2, windSea ** 2),
@@ -249,87 +247,85 @@ export function scoreConditions(h, c) {
   const localWind =
     h.windSpeed *
     c.windExposure *
-    curveValue(bearing(h.windDirection), c.windDirectionCurve) *
-    c.windSectors.reduce((gain, sector) => {
-      const d = bearing(h.windDirection);
-      const inside =
-        sector.from <= sector.to
-          ? d >= sector.from && d <= sector.to
-          : d >= sector.from || d <= sector.to;
-      return gain * (inside ? sector.gain : 1);
-    }, 1);
+    (angleDifference(h.windDirection, 0) <= 45 ? c.northWindShelter : 1);
   const offshore = angleDifference(
     h.windDirection,
     bearing(c.shoreNormal + 180),
   );
   const windType =
-    localWind < c.windFit.calmBelow
+    localWind < 5
       ? "Light / calm"
-      : offshore < c.windFit.offshoreAngleBelow
+      : offshore < 45
         ? "Offshore"
-        : offshore > c.windFit.onshoreAngleAbove
+        : offshore > 135
           ? "Onshore"
           : "Cross-shore";
   const windFit =
-    localWind < c.windFit.calmBelow
+    localWind < 5
       ? 1
       : clamp(
           1 -
-            (localWind / c.windFit.speedReference) *
+            (localWind / 40) *
               (windType === "Onshore"
-                ? c.windFit.onshorePenalty
+                ? 1.3
                 : windType === "Cross-shore"
-                  ? c.windFit.crossShorePenalty
-                  : c.windFit.offshorePenalty),
+                  ? 0.95
+                  : 0.55),
           0,
           1,
         );
-  const heightFit = curveValue(surf, c.heightFitCurve);
-  const periodFit = curveValue(localPeriod, c.periodFitCurve);
+  const heightFit =
+    surf < 0.5
+      ? clamp(surf / 0.5, 0, 1)
+      : surf <= 1.8
+        ? 1
+        : clamp(1 - (surf - 1.8) / 2, 0, 1);
+  const periodFit = clamp((localPeriod - 4) / 8, 0.1, 1);
   const usefulSwell = dominant?.height ?? 0;
   const tide = tideFit(h.tide?.ratio, usefulSwell, c);
   const reasons = [];
   if (tide === null) reasons.push("Tide is missing; the score excludes tide.");
   if (usefulSwell < c.minimumSwell)
     reasons.push("Swell may be too small for this break.");
-  if (tide !== null && tide < c.warnings.tideFitBelow)
+  if (tide !== null && tide < 0.65)
     reasons.push("Outside this spot’s preferred tide range.");
-  if (exposure < c.warnings.exposureBelow)
+  if (exposure < 0.45)
     reasons.push("The coast is sheltered from this swell direction.");
-  if (localWind > c.warnings.windAbove)
-    reasons.push("Stronger wind may affect the lesson.");
+  if (localWind > 20) reasons.push("Stronger wind may affect the lesson.");
   let score =
     (100 *
-      (c.weights.height * heightFit +
-        c.weights.wind * windFit +
-        c.weights.period * periodFit +
-        (tide === null ? 0 : c.weights.tide * tide))) /
-    (tide === null ? 1 - c.weights.tide : 1);
-  if (usefulSwell < c.minimumSwell) score *= c.minimumSwellPenalty;
+      (0.4 * heightFit +
+        0.3 * windFit +
+        0.15 * periodFit +
+        (tide === null ? 0 : 0.15 * tide))) /
+    (tide === null ? 0.85 : 1);
+  if (usefulSwell < c.minimumSwell) score *= 0.65;
   // Favourable wind and tide cannot make an unsurfably small sea good.
-  const tooSmall = surf < c.flatSurfBelow;
+  const tooSmall = surf < 0.3;
   // Raise the size ceiling continuously so neighbouring estimates do not jump
   // from poor to good at 0.5 m. Fully useful size removes the ceiling at 0.65 m.
-  const sizeCeiling = curveValue(surf, c.sizeCeilingCurve);
+  const sizeCeiling =
+    surf < 0.3
+      ? (25 * surf) / 0.3
+      : surf < 0.5
+        ? 25 + (24 * (surf - 0.3)) / 0.2
+        : 49 + (51 * (surf - 0.5)) / 0.15;
   score = Math.min(score, sizeCeiling);
   if (tooSmall) {
     reasons.unshift("Flat or too small for a surf lesson.");
   }
   const severe =
     surf > c.maxLessonSurf ||
-    localWind >= c.severe.windAtLeast ||
-    h.windGusts >= c.severe.gustsAtLeast ||
-    c.severe.weatherCodes.includes(h.weatherCode);
+    localWind >= 35 ||
+    h.windGusts >= 45 ||
+    h.weatherCode >= 95;
   let level = tooSmall
     ? "Too small"
-    : (
-        c.experienceRules.find(
-          (r) =>
-            surf <= r.maxSurf &&
-            localWind <= r.maxWind &&
-            localPeriod <= r.maxPeriod,
-        ) || c.experienceRules.at(-1)
-      ).level;
+    : surf <= 0.9 && localWind <= 18 && localPeriod <= 14
+      ? "Beginner"
+      : surf <= 1.6 && localWind <= 25
+        ? "Intermediate"
+        : "Advanced";
   if (c.minimumLevel === "Intermediate" && level === "Beginner")
     level = "Intermediate";
   if (
@@ -339,28 +335,39 @@ export function scoreConditions(h, c) {
     level = "Advanced";
   if (severe) {
     level = "Instructor review";
-    score = Math.min(score, c.severe.scoreCap);
+    score = Math.min(score, 25);
     reasons.push(
       "Large surf, strong wind or thunderstorms: reassess before teaching.",
     );
   }
   if (!reasons.length)
     reasons.push(
-      `${windType} wind and ${tide >= c.warnings.tideFitBelow ? "a preferred tide stage" : "usable swell"}.`,
+      `${windType} wind and ${tide >= 0.65 ? "a preferred tide stage" : "usable swell"}.`,
     );
   score = Math.round(clamp(score, 0, 100));
   return {
     score,
-    engineVersion,
-    calibrationSchemaVersion: c.schemaVersion,
     quality:
       tooSmall && !severe
         ? "Flat / too small"
-        : c.qualityBands.find((b) => score >= b.minimumScore).label,
-    tone: c.qualityBands.find((b) => score >= b.minimumScore).tone,
+        : score >= 75
+          ? "Good"
+          : score >= 50
+            ? "Fair"
+            : score >= 30
+              ? "Poor"
+              : "Unfavourable",
+    tone:
+      score >= 75
+        ? "good"
+        : score >= 50
+          ? "fair"
+          : score >= 30
+            ? "poor"
+            : "bad",
     level,
-    surfMin: round(surf * c.surfRangeMin),
-    surfMax: round(surf * c.surfRangeMax),
+    surfMin: round(surf * 0.75),
+    surfMax: round(surf * 1.25),
     windType,
     swellComponents,
     windSeaSurf: round(windSea, 2),
@@ -436,8 +443,8 @@ export function lessonWindow(forecast, start, duration, c) {
     .map((time) => {
       const h = interpolateHour(forecast.hours, time);
       return h
-        ? { ...h, tide: tideAt(forecast.tides, time, c) }
-        : { time, tide: tideAt(forecast.tides, time, c) };
+        ? { ...h, tide: tideAt(forecast.tides, time) }
+        : { time, tide: tideAt(forecast.tides, time) };
     })
     .map((h) => ({ ...h, ...scoreConditions(h, c) }));
   const assessed = samples.filter((s) => s.score !== null);
@@ -470,3 +477,22 @@ export function lessonWindow(forecast, start, duration, c) {
       : null,
   };
 }
+export const defaultCalibration = {
+  modelVersion: "surf-heuristic-v1",
+  status: "initial",
+  shoreNormal: 270,
+  swellGain: 1,
+  directionSpread: 85,
+  shadowFloor: 0.08,
+  periodReference: 10,
+  periodExponent: 0.35,
+  windExposure: 1,
+  northWindShelter: 1,
+  tidePreference: "mid",
+  largerSwellThreshold: 1.5,
+  minimumSwell: 0,
+  minimumLevel: "Beginner",
+  maxLessonSurf: 2.5,
+  tideTimeOffsetMin: 0,
+  tideHeightScale: 1,
+};

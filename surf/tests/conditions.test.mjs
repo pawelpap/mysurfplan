@@ -1,8 +1,11 @@
+import {
+  baseCalibration as c,
+  calibrationSchema,
+} from "../scripts/convert-calibration-v3.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
-  defaultCalibration as c,
   scoreConditions,
   tideFit,
   directionExposure,
@@ -58,10 +61,20 @@ test("missing swell or wind is never treated as calm, good or beginner", () => {
   assert.equal(partial.provisional, true);
 });
 test("Bico changes its preferred tide with swell; Bafureira favours mid-high and more swell", () => {
-  const bico = { ...c, tidePreference: "bico" };
+  const bico = {
+    ...c,
+    tideRules: [
+      { minimumSwell: 0, low: 0, high: 0.35 },
+      { minimumSwell: 1.5, low: 0, high: 0.7 },
+    ],
+  };
   assert.equal(tideFit(0.2, 0.8, bico), 1);
   assert.ok(tideFit(0.6, 0.8, bico) < tideFit(0.6, 2, bico));
-  const baf = { ...c, tidePreference: "bafureira", minimumSwell: 1.2 };
+  const baf = {
+    ...c,
+    tideRules: [{ minimumSwell: 0, low: 0.4, high: 1 }],
+    minimumSwell: 1.2,
+  };
   assert.ok(tideFit(0.1, 2, baf) < tideFit(0.8, 2, baf));
   assert.ok(
     scoreConditions({ ...hour, tide: { ratio: 0.8 } }, baf).score <
@@ -133,6 +146,7 @@ test("normalisation retains missing values and joins by absolute timestamp", () 
   assert.equal(rows[1].windSpeed, 0);
   assert.equal(rows[1].swellHeight, 1.2);
   const urls = providerUrls({
+    calibration: c,
     latitude: -33,
     longitude: 151,
     marineLatitude: -33,
@@ -189,10 +203,10 @@ test("Cascais harmonic prediction covers every day of the full 16-day period", (
     );
   }
   for (const e of data.extremes) {
-    const at = tideAt(data.tides, e.time);
+    const at = tideAt(data.tides, e.time, c);
     if (at) assert.ok(Math.abs(at.height - e.height) < 0.04);
   }
-  assert.equal(tideAt(data.tides, end + 3600000), null);
+  assert.equal(tideAt(data.tides, end + 3600000, c), null);
 });
 
 test("global spot profiles select regional tides and reject invalid coordinates", async () => {
@@ -206,19 +220,27 @@ test("global spot profiles select regional tides and reject invalid coordinates"
     timezone: "Australia/Sydney",
     latitude: -33.89,
     longitude: 151.28,
-    shoreNormal: 100,
+    calibration: { ...c, shoreNormal: 100 },
     breakType: "Beach",
   };
-  const profile = validateSpot(input);
+  const profile = validateSpot(input, undefined, calibrationSchema);
   assert.equal(profile.countryCode, "AU");
   assert.equal(profile.timezone, "Australia/Sydney");
   assert.equal(profile.marineLongitude, 151.28);
   assert.ok(nearestTideStation(-33.89, 151.28)?.distance < 50);
   assert.equal(nearestTideStation(0, -140), null);
   for (const latitude of [null, "", " ", false, 86])
-    assert.throws(() => validateSpot({ ...input, latitude }), /latitude/);
+    assert.throws(
+      () => validateSpot({ ...input, latitude }, undefined, calibrationSchema),
+      /latitude/,
+    );
   assert.throws(
-    () => validateSpot({ ...input, timezone: "Invented/TimeZone" }),
+    () =>
+      validateSpot(
+        { ...input, timezone: "Invented/TimeZone" },
+        undefined,
+        calibrationSchema,
+      ),
     /time zone/,
   );
   const previous = {
@@ -231,10 +253,11 @@ test("global spot profiles select regional tides and reject invalid coordinates"
       ],
     },
   };
-  assert.ok(validateSpot(input, previous).calibration.exposureByDirection);
-  assert.equal(
-    validateSpot({ ...input, shoreNormal: 270 }, previous).calibration
-      .exposureByDirection,
-    undefined,
+  assert.ok(
+    validateSpot(
+      { ...input, calibration: previous.calibration },
+      previous,
+      calibrationSchema,
+    ).calibration.exposureByDirection,
   );
 });

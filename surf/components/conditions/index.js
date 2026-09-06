@@ -40,7 +40,6 @@ export default function Conditions({ session, query, go }) {
   const spots = useData("/api/spots");
   const selected =
     spots.data.find((s) => s.id === query.spot || s.slug === query.spot) ||
-    spots.data.find((s) => s.slug === "sao-pedro-bico") ||
     spots.data[0];
   const [notice, setNotice] = useState("");
   const admin = session.role === "platform_admin";
@@ -161,9 +160,11 @@ function SpotForecast({ spot, date, onDate }) {
   const raw = finite(selectedTime)
     ? interpolateHour(d.hours, selectedTime)
     : null;
-  const atTime = raw ? { ...raw, tide: tideAt(d.tides, selectedTime) } : null;
+  const atTime = raw
+    ? { ...raw, tide: tideAt(d.tides, selectedTime, d.spot.calibration) }
+    : null;
   const snapshot = atTime
-    ? { ...atTime, ...scoreConditions(atTime, spot.calibration) }
+    ? { ...atTime, ...scoreConditions(atTime, d.spot.calibration) }
     : null;
   const selectedLabel = finite(selectedTime)
     ? hourLabel(selectedTime, spot.timezone)

@@ -1,0 +1,736 @@
+{
+  "type": "object",
+  "title": "Surf calibration",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 3,
+      "title": "Schema version"
+    },
+    "marineModel": {
+      "type": "string",
+      "title": "Wave forecast model",
+      "enum": [
+        "ncep_gfswave025",
+        "ncep_gfswave016"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Calibration status",
+      "enum": [
+        "initial",
+        "observed",
+        "validated"
+      ]
+    },
+    "shoreNormal": {
+      "type": "number",
+      "title": "Direction facing the sea",
+      "minimum": 0,
+      "maximum": 359.999,
+      "unit": "\u00b0"
+    },
+    "swellGain": {
+      "type": "number",
+      "title": "Swell height multiplier",
+      "minimum": 0.1,
+      "maximum": 3
+    },
+    "directionSpread": {
+      "type": "number",
+      "title": "Directional spread",
+      "minimum": 1,
+      "maximum": 180,
+      "unit": "\u00b0"
+    },
+    "shadowFloor": {
+      "type": "number",
+      "title": "Residual swell exposure",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "directionExponent": {
+      "type": "number",
+      "title": "Directional response exponent",
+      "minimum": 0.1,
+      "maximum": 10
+    },
+    "periodReference": {
+      "type": "number",
+      "title": "Reference swell period",
+      "minimum": 1,
+      "maximum": 40,
+      "unit": "s"
+    },
+    "periodExponent": {
+      "type": "number",
+      "title": "Period response exponent",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "periodMinimum": {
+      "type": "number",
+      "title": "Minimum period for transformation",
+      "minimum": 0.1,
+      "maximum": 10,
+      "unit": "s"
+    },
+    "periodFactorMin": {
+      "type": "number",
+      "title": "Minimum period multiplier",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "periodFactorMax": {
+      "type": "number",
+      "title": "Maximum period multiplier",
+      "minimum": 0.1,
+      "maximum": 5
+    },
+    "windSeaGain": {
+      "type": "number",
+      "title": "Wind-sea height multiplier",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "windExposure": {
+      "type": "number",
+      "title": "Wind speed multiplier",
+      "minimum": 0.1,
+      "maximum": 3
+    },
+    "tidePenaltySlope": {
+      "type": "number",
+      "title": "Tide suitability penalty slope",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "tideFitFloor": {
+      "type": "number",
+      "title": "Minimum tide suitability",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "minimumSwell": {
+      "type": "number",
+      "title": "Preferred minimum offshore swell",
+      "minimum": 0,
+      "maximum": 20,
+      "unit": "m"
+    },
+    "minimumSwellPenalty": {
+      "type": "number",
+      "title": "Small offshore swell score multiplier",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "maxLessonSurf": {
+      "type": "number",
+      "title": "Maximum lesson surf estimate",
+      "minimum": 0.1,
+      "maximum": 20,
+      "unit": "m"
+    },
+    "tideTimeOffsetMin": {
+      "type": "number",
+      "title": "Local tide time adjustment",
+      "minimum": -720,
+      "maximum": 720,
+      "unit": "minutes"
+    },
+    "tideHeightScale": {
+      "type": "number",
+      "title": "Local tide height multiplier",
+      "minimum": 0.1,
+      "maximum": 3
+    },
+    "flatSurfBelow": {
+      "type": "number",
+      "title": "Flat surf threshold",
+      "minimum": 0,
+      "maximum": 2,
+      "unit": "m"
+    },
+    "surfRangeMin": {
+      "type": "number",
+      "title": "Surf range lower multiplier",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "surfRangeMax": {
+      "type": "number",
+      "title": "Surf range upper multiplier",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "exposureByDirection": {
+      "type": "array",
+      "title": "Swell direction exposure: bearing \u00b0 / height multiplier",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": [
+          {
+            "type": "number",
+            "title": "Input",
+            "minimum": 0,
+            "maximum": 360
+          },
+          {
+            "type": "number",
+            "title": "Multiplier",
+            "minimum": 0,
+            "maximum": 1
+          }
+        ],
+        "additionalItems": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "windDirectionCurve": {
+      "type": "array",
+      "title": "Wind direction exposure: bearing \u00b0 / speed multiplier",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": [
+          {
+            "type": "number",
+            "title": "Input",
+            "minimum": 0,
+            "maximum": 360
+          },
+          {
+            "type": "number",
+            "title": "Multiplier",
+            "minimum": 0,
+            "maximum": 3
+          }
+        ],
+        "additionalItems": false
+      },
+      "minItems": 2,
+      "maxItems": 50
+    },
+    "windSectors": {
+      "type": "array",
+      "title": "Additional wind shelter sectors",
+      "items": {
+        "type": "object",
+        "title": "Sector",
+        "properties": {
+          "from": {
+            "type": "number",
+            "title": "From bearing",
+            "minimum": 0,
+            "maximum": 359.999,
+            "unit": "\u00b0"
+          },
+          "to": {
+            "type": "number",
+            "title": "To bearing",
+            "minimum": 0,
+            "maximum": 359.999,
+            "unit": "\u00b0"
+          },
+          "gain": {
+            "type": "number",
+            "title": "Speed multiplier",
+            "minimum": 0.1,
+            "maximum": 3
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "gain"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 50
+    },
+    "tideRules": {
+      "type": "array",
+      "title": "Preferred tide ranges by offshore swell height",
+      "items": {
+        "type": "object",
+        "title": "Tide rule",
+        "properties": {
+          "minimumSwell": {
+            "type": "number",
+            "title": "Minimum offshore swell",
+            "minimum": 0,
+            "maximum": 20,
+            "unit": "m"
+          },
+          "low": {
+            "type": "number",
+            "title": "Lowest preferred tide ratio",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "high": {
+            "type": "number",
+            "title": "Highest preferred tide ratio",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "required": [
+          "minimumSwell",
+          "low",
+          "high"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "minimumLevel": {
+      "type": "string",
+      "title": "Minimum experience for this break",
+      "enum": [
+        "Beginner",
+        "Intermediate",
+        "Advanced"
+      ]
+    },
+    "heightFitCurve": {
+      "type": "array",
+      "title": "Surf height suitability: metres / suitability",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": [
+          {
+            "type": "number",
+            "title": "Input",
+            "minimum": 0,
+            "maximum": 100
+          },
+          {
+            "type": "number",
+            "title": "Multiplier",
+            "minimum": 0,
+            "maximum": 1
+          }
+        ],
+        "additionalItems": false
+      },
+      "minItems": 2,
+      "maxItems": 50
+    },
+    "periodFitCurve": {
+      "type": "array",
+      "title": "Period suitability: seconds / suitability",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": [
+          {
+            "type": "number",
+            "title": "Input",
+            "minimum": 0,
+            "maximum": 100
+          },
+          {
+            "type": "number",
+            "title": "Multiplier",
+            "minimum": 0,
+            "maximum": 1
+          }
+        ],
+        "additionalItems": false
+      },
+      "minItems": 2,
+      "maxItems": 50
+    },
+    "sizeCeilingCurve": {
+      "type": "array",
+      "title": "Size score ceiling: metres / score",
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": [
+          {
+            "type": "number",
+            "title": "Input",
+            "minimum": 0,
+            "maximum": 100
+          },
+          {
+            "type": "number",
+            "title": "Multiplier",
+            "minimum": 0,
+            "maximum": 100
+          }
+        ],
+        "additionalItems": false
+      },
+      "minItems": 2,
+      "maxItems": 50
+    },
+    "weights": {
+      "type": "object",
+      "title": "Quality score weights",
+      "properties": {
+        "height": {
+          "type": "number",
+          "title": "Height",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "wind": {
+          "type": "number",
+          "title": "Wind",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "period": {
+          "type": "number",
+          "title": "Period",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "tide": {
+          "type": "number",
+          "title": "Tide",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "height",
+        "wind",
+        "period",
+        "tide"
+      ],
+      "additionalProperties": false
+    },
+    "windFit": {
+      "type": "object",
+      "title": "Wind suitability",
+      "properties": {
+        "calmBelow": {
+          "type": "number",
+          "title": "calmBelow",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "offshoreAngleBelow": {
+          "type": "number",
+          "title": "offshoreAngleBelow",
+          "minimum": 0,
+          "maximum": 180
+        },
+        "onshoreAngleAbove": {
+          "type": "number",
+          "title": "onshoreAngleAbove",
+          "minimum": 0,
+          "maximum": 180
+        },
+        "speedReference": {
+          "type": "number",
+          "title": "speedReference",
+          "minimum": 0.1,
+          "maximum": 500
+        },
+        "onshorePenalty": {
+          "type": "number",
+          "title": "onshorePenalty",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "crossShorePenalty": {
+          "type": "number",
+          "title": "crossShorePenalty",
+          "minimum": 0,
+          "maximum": 500
+        },
+        "offshorePenalty": {
+          "type": "number",
+          "title": "offshorePenalty",
+          "minimum": 0,
+          "maximum": 500
+        }
+      },
+      "required": [
+        "calmBelow",
+        "offshoreAngleBelow",
+        "onshoreAngleAbove",
+        "speedReference",
+        "onshorePenalty",
+        "crossShorePenalty",
+        "offshorePenalty"
+      ],
+      "additionalProperties": false
+    },
+    "qualityBands": {
+      "type": "array",
+      "title": "Quality bands",
+      "items": {
+        "type": "object",
+        "title": "Quality band",
+        "properties": {
+          "minimumScore": {
+            "type": "number",
+            "title": "Minimum score",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "enum": [
+              "Good",
+              "Fair",
+              "Poor",
+              "Unfavourable"
+            ]
+          },
+          "tone": {
+            "type": "string",
+            "title": "Colour",
+            "enum": [
+              "good",
+              "fair",
+              "poor",
+              "bad"
+            ]
+          }
+        },
+        "required": [
+          "minimumScore",
+          "label",
+          "tone"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "experienceRules": {
+      "type": "array",
+      "title": "Experience thresholds, least to most demanding",
+      "items": {
+        "type": "object",
+        "title": "Experience rule",
+        "properties": {
+          "level": {
+            "type": "string",
+            "title": "Level",
+            "enum": [
+              "Beginner",
+              "Intermediate",
+              "Advanced"
+            ]
+          },
+          "maxSurf": {
+            "type": "number",
+            "title": "Maximum surf",
+            "minimum": 0,
+            "maximum": 100,
+            "unit": "m"
+          },
+          "maxWind": {
+            "type": "number",
+            "title": "Maximum wind",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "km/h"
+          },
+          "maxPeriod": {
+            "type": "number",
+            "title": "Maximum period",
+            "minimum": 0,
+            "maximum": 100,
+            "unit": "s"
+          }
+        },
+        "required": [
+          "level",
+          "maxSurf",
+          "maxWind",
+          "maxPeriod"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 50
+    },
+    "severe": {
+      "type": "object",
+      "title": "Conditions requiring reassessment",
+      "properties": {
+        "windAtLeast": {
+          "type": "number",
+          "title": "Wind at least",
+          "minimum": 0,
+          "maximum": 500,
+          "unit": "km/h"
+        },
+        "gustsAtLeast": {
+          "type": "number",
+          "title": "Gusts at least",
+          "minimum": 0,
+          "maximum": 500,
+          "unit": "km/h"
+        },
+        "weatherCodes": {
+          "type": "array",
+          "title": "Severe WMO weather codes",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 99
+          },
+          "minItems": 0,
+          "maxItems": 50
+        },
+        "scoreCap": {
+          "type": "number",
+          "title": "Score ceiling",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "windAtLeast",
+        "gustsAtLeast",
+        "weatherCodes",
+        "scoreCap"
+      ],
+      "additionalProperties": false
+    },
+    "warnings": {
+      "type": "object",
+      "title": "Explanation thresholds",
+      "properties": {
+        "tideFitBelow": {
+          "type": "number",
+          "title": "Tide suitability below",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "exposureBelow": {
+          "type": "number",
+          "title": "Swell exposure below",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "windAbove": {
+          "type": "number",
+          "title": "Wind above",
+          "minimum": 0,
+          "maximum": 500,
+          "unit": "km/h"
+        }
+      },
+      "required": [
+        "tideFitBelow",
+        "exposureBelow",
+        "windAbove"
+      ],
+      "additionalProperties": false
+    },
+    "tideDisplay": {
+      "type": "object",
+      "title": "Tide stage and trend",
+      "properties": {
+        "neighbourHours": {
+          "type": "number",
+          "title": "Nearby extrema window",
+          "minimum": 1,
+          "maximum": 24,
+          "unit": "hours"
+        },
+        "minimumRange": {
+          "type": "number",
+          "title": "Minimum tide range",
+          "minimum": 0,
+          "maximum": 1,
+          "unit": "m"
+        },
+        "lowAtMost": {
+          "type": "number",
+          "title": "Low tide ratio at most",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "highAtLeast": {
+          "type": "number",
+          "title": "High tide ratio at least",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "turningBelow": {
+          "type": "number",
+          "title": "Turning height change below",
+          "minimum": 0,
+          "maximum": 1,
+          "unit": "m"
+        }
+      },
+      "required": [
+        "neighbourHours",
+        "minimumRange",
+        "lowAtMost",
+        "highAtLeast",
+        "turningBelow"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "marineModel",
+    "status",
+    "shoreNormal",
+    "swellGain",
+    "directionSpread",
+    "shadowFloor",
+    "directionExponent",
+    "periodReference",
+    "periodExponent",
+    "periodMinimum",
+    "periodFactorMin",
+    "periodFactorMax",
+    "windSeaGain",
+    "windExposure",
+    "tidePenaltySlope",
+    "tideFitFloor",
+    "minimumSwell",
+    "minimumSwellPenalty",
+    "maxLessonSurf",
+    "tideTimeOffsetMin",
+    "tideHeightScale",
+    "flatSurfBelow",
+    "surfRangeMin",
+    "surfRangeMax",
+    "exposureByDirection",
+    "windDirectionCurve",
+    "windSectors",
+    "tideRules",
+    "minimumLevel",
+    "heightFitCurve",
+    "periodFitCurve",
+    "sizeCeilingCurve",
+    "weights",
+    "windFit",
+    "qualityBands",
+    "experienceRules",
+    "severe",
+    "warnings",
+    "tideDisplay"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -28,7 +28,7 @@ export function hasWaveSignal(data) {
   );
 }
 export function marineModel(spot) {
-  return spot.calibration?.marineModel || "ncep_gfswave025";
+  return spot.calibration.marineModel;
 }
 export function matchesForecastSource(payload, spot) {
   return (

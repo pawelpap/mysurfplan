@@ -1,12 +1,12 @@
 import { createTidePredictor } from "@neaps/tide-predictor";
 import { round } from "./model.mjs";
-export function predictTides(station, start, end, calibration = {}) {
+export function predictTides(station, start, end, calibration) {
   if (!station?.harmonic_constituents?.length)
     return { tides: [], extremes: [] };
   // TICON amplitudes are metres and phases are Greenwich lag. Zero offset = mean sea level.
   const predictor = createTidePredictor(station.harmonic_constituents);
-  const shift = (calibration.tideTimeOffsetMin || 0) * 60000,
-    scale = calibration.tideHeightScale ?? 1;
+  const shift = calibration.tideTimeOffsetMin * 60000,
+    scale = calibration.tideHeightScale;
   const options = {
     start: new Date(start - shift),
     end: new Date(end - shift),

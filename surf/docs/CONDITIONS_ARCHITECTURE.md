@@ -1,12 +1,18 @@
-# Surf conditions on staging
+# Surf conditions algorithm and architecture
 
-Implemented on 5 September 2026. Production remains unchanged. The owner reviews this work in the staging app.
+Implemented and promoted to production on 5 September 2026. Documentation reviewed against the source code on 6 September 2026. The conditions module is live in both staging and production.
+
+For the complete spot schema, coefficient definitions and a current Bico calibration example, see [Spot data model and local coefficients](SPOT_DATA_MODEL.md). The calculation is implemented in [`scoreConditions()`](../lib/conditions/model.mjs); provider selection is in [`provider.mjs`](../lib/conditions/provider.mjs), and tide calculation is in [`tides.mjs`](../lib/conditions/tides.mjs).
+
+## Generic database calibration, 6 September 2026
+
+The new engine reads a complete, schema-validated configuration from PostgreSQL for every spot. All tunable wave, wind, tide, quality, experience and warning parameters have moved into versioned configuration. Named Bico/Bafureira tide presets and north-only shelter logic are replaced by generic tide rules, direction curves and shelter sectors. The historical sections below describe the initial assumptions, which the migration preserves. The [current schema reference](SPOT_DATA_MODEL.md) describes storage, editing, revision history and defaults.
 
 ## Spots and lessons
 
 Neon is the source of truth for bookable spots. A map service cannot provide the break identity, coaching constraints and calibration history needed here. Map links help locate a spot; they do not create bookable places automatically.
 
-The staging catalogue has 17 records: São Pedro do Estoril, Bico, Bafureira, Carcavelos, Guincho, Cresmina, Abano, Parede, Tamariz, Praia Grande, Praia Pequena, Adraga, Praia das Maçãs, Magoito, São Julião, Praia de São João and Praia da Cornélia. Separate records distinguish São Pedro's breaks. The general São Pedro record preserves existing lessons without guessing which break was intended.
+The initial catalogue in both environments has 17 records: São Pedro do Estoril, Bico, Bafureira, Carcavelos, Guincho, Cresmina, Abano, Parede, Tamariz, Praia Grande, Praia Pequena, Adraga, Praia das Maçãs, Magoito, São Julião, Praia de São João and Praia da Cornélia. Separate records distinguish São Pedro's breaks. The general São Pedro record preserves existing lessons without guessing which break was intended.
 
 Every new or edited lesson requires an active `surf_spots.id`. Booking APIs also check the active spot. Public schedules exclude lessons without one. Legacy records remain available to their school, with a prompt to choose a spot. All existing staging lessons were mapped using reviewed exact place names; none remained unmapped after the migration. Meeting points remain free text within a selected spot.
 
@@ -29,25 +35,27 @@ Open-Meteo's ocean sea-level model has a shorter horizon. The app instead calcul
 
 The catalogue is pinned to tide-database commit `c7e1aa84f50830f1b48a88d69bb1d853761baceb`. Station licences are checked individually. The bundled Cascais reference is `ticon/cascais-209-prt-uhslc_fd`, from [TICON-4](https://www.seanoe.org/data/00980/109129/), under CC BY 4.0. Its observation epoch is 6 November 2008 to 30 June 2025. The full station metadata and constants are retained in `db/seeds/cascais-tides.json`.
 
-Predictions use 30-minute samples and refined high/low events. Heights are relative to mean sea level (MSL), with zero offset; they are **not chart-datum or lowest-astronomical-tide heights**. Storm surge is excluded. The UI identifies the gauge and its approximate distance. Cascais is a regional reference for the seeded spots; no unverified per-beach timing or range correction was applied. Admins can record verified time and range corrections later.
+Predictions use 30-minute samples and refined high/low events. Heights are relative to mean sea level (MSL), with zero offset; they are **not chart-datum or lowest-astronomical-tide heights**. Storm surge is excluded. The forecast response retains the gauge and its approximate distance; provider attribution is available on the Legal page. Cascais is a regional reference for the seeded spots; no unverified per-beach timing or range correction was applied. Admins can record verified time and range corrections later.
 
 A plausibility check against the [Instituto Hidrográfico 2026 table](https://loja.hidrografico.pt/ln/web/wp-content/uploads/2023/11/TabelaMare_I_2026_signed.pdf), Cascais hourly values for 5 September, found matching turning-point hours: lows around 02:00 and 15:00 UTC, highs around 08:00–09:00 and 21:00–22:00 UTC. This is a limited time check, not validation of beach-level heights or forecast accuracy. The official table uses a different vertical datum.
 
 ## Local surf estimate
 
-This is an explainable initial heuristic, not a calibrated coastal wave model. Sources describe tendencies but do not supply numerical transformation coefficients. The numerical gains, thresholds and weights are provisional engineering choices stored per spot so they can be improved using instructor observations.
+This is an explainable initial heuristic, not a calibrated coastal wave model. Sources describe tendencies but do not supply numerical transformation coefficients. The numerical gains and thresholds are provisional engineering choices. Local coefficients are stored per spot so they can be improved using instructor observations; score weights and thresholds are also stored in the database in the generic release.
 
 Initial central surf estimate:
 
 ```
-period factor = clamp((swell period / 10)^0.35, 0.70, 1.35)
+period factor = clamp((max(swell period, 1) / periodReference)^periodExponent, 0.70, 1.35)
 local swell component = component height × directional exposure × spot gain × period factor
 local wind sea = 0.35 × wind-wave height × its directional exposure
 surf = sqrt(sum(local swell component²) + local wind sea²)
 displayed range = 0.75 × surf to 1.25 × surf
 ```
 
-The range is a heuristic range, not a statistical confidence interval. Directional exposure uses either a stored bearing curve or a shore-orientation curve. Primary, secondary and tertiary swell partitions are transformed individually, so a useful secondary swell is not discarded when the primary swell is blocked. Missing wind-wave height or direction omits the wind-sea term; missing primary swell or wind prevents assessment. The dominant local swell contribution supplies the period and offshore swell height used for period, experience and tide preferences. Local wind can be adjusted for exposure and north-wind shelter. Wind arrows show travel; numerical bearings and compass labels describe the direction the wind or swell comes from.
+The default period reference is 10 seconds and exponent is 0.35; both are stored per spot. The range is a heuristic range, not a statistical confidence interval. Directional exposure uses either a stored bearing curve or a shore-orientation curve. Primary, secondary and tertiary swell partitions are transformed individually, so a useful secondary swell is not discarded when the primary swell is blocked. Missing wind-wave height or direction omits the wind-sea term; missing primary swell or wind prevents assessment. The dominant local swell contribution supplies the period and offshore swell height used for period, experience and tide preferences. Local wind can be adjusted for exposure and north-wind shelter. Wind arrows show travel; numerical bearings and compass labels describe the direction the wind or swell comes from.
+
+Tide suitability affects quality, while local wind affects both quality and experience assessment. They do not directly change the estimated surf-height range in the current implementation. The wave-height calculation above is separate from the quality score below.
 
 Quality combines height suitability (40%), wind (30%), period (15%) and tide suitability (15%). Missing tide produces a clearly labelled partial score using the other weights. Low swell for a particular break reduces the score. Quality labels are Good at 75+, Fair at 50+, Poor at 30+ and Unfavourable below 30. Central surf below 0.3 m is labelled Flat / too small and capped at 25 × surf / 0.3; the size ceiling then rises continuously through 49 at 0.5 m to 100 at 0.65 m. This prevents a small height difference from jumping directly from Poor to Good. Favourable wind or tide cannot make flat surf green.
 
@@ -55,11 +63,11 @@ Experience is independent of quality:
 
 | Initial estimated conditions                                                                                                | Experience label                      |
 | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| Central surf below 0.3 m                                                                                                    | Too small                             |
+| Central surf below 0.3 m                                                                                                    | Not applicable                        |
 | Surf up to 0.9 m, adjusted wind up to 18 km/h, period up to 14 s                                                            | Beginner                              |
 | Surf up to 1.6 m and adjusted wind up to 25 km/h                                                                            | Intermediate                          |
 | More demanding conditions                                                                                                   | Advanced                              |
-| Surf above the spot's lesson limit (default 2.5 m), adjusted wind at least 35 km/h, gusts at least 45 km/h or thunderstorms | Instructor review; score capped at 25 |
+| Surf above the spot's lesson limit (default 2.5 m), adjusted wind at least 35 km/h, gusts at least 45 km/h or thunderstorms | Advanced; score capped at 25           |
 
 A break's minimum level can raise the required experience. These thresholds do not model currents, shorebreak, exposed rocks, individual competence or local closures. Lessons show the highest required level and lowest quality across the start, each intervening forecast hour and the end. They warn if that experience exceeds the lesson's advertised level. Instructor judgement at the beach remains necessary.
 
@@ -91,11 +99,11 @@ Provider cache version, wave-model identifier and sample coordinates must match 
 node scripts/migrate-conditions.mjs --staging
 ```
 
-The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Staging branch `br-small-salad-adx0nsj2` has been migrated. Production branch `br-gentle-dawn-ad5l1p9y` has not.
+The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Staging uses Neon branch `br-small-salad-adx0nsj2`. Production uses `br-weathered-silence-adp30k9s`, copied from staging after the approved merge of production-only records. Both include the conditions migrations. The previous production branch `br-gentle-dawn-ad5l1p9y` is retained for rollback. See [deployment and database release notes](README-staging.md).
 
 Deploy GitHub `staging` through Vercel project `mysurfplan-staging`, root `surf`. A preview generated in the separate production project is not a production promotion. Do not move the production alias or push `main` without owner approval.
 
-## Verification
+## Initial staging verification, 5 September 2026
 
 - Unit checks cover independent quality/experience, missing inputs, Bico/Bafureira tide rules, dangerous conditions, circular bearings, lesson intervals, global time zones, daylight-saving gaps, provider model selection and sixteen days of harmonic tides.
 - Local integration checks against staging covered all 17 spots, each with 16 complete days and 408 hourly provider entries including padding, without provider issues at the time of the check.
@@ -107,9 +115,9 @@ Deploy GitHub `staging` through Vercel project `mysurfplan-staging`, root `surf`
 - All 17 automated tests and the final Node.js 22 production build passed.
 - Desktop and 390 px phone layouts were inspected. Mobile forecast-strip overflow and scaled-down tide labels were corrected during verification.
 
-Production verification and long-term calibration accuracy are not claimed by this staging pass. Instructor-account linking and the existing session-hardening backlog remain separate workstreams.
+The initial staging pass did not establish long-term calibration accuracy. Subsequent production promotion verified matching schema and business records, logins, student spot permissions, forecasts and lesson conditions in both environments. Instructor-account linking and the existing session-hardening backlog remain separate workstreams.
 
-Staging deployment `dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM` (code `3b0d00b`) was verified on staging.mywaveplan.com on 5 September 2026. Desktop at 1440 px and mobile at 390 px showed all sixteen days; the final day included four tide events. The Bico demo lesson is `7b9c9b35-7425-4614-bc32-c140c64ff58c`. Production remains on `520d826`.
+Staging deployment `dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM` (code `3b0d00b`) was verified on staging.mywaveplan.com on 5 September 2026. Desktop at 1440 px and mobile at 390 px showed all sixteen days; the final day included four tide events. The Bico demo lesson is `7b9c9b35-7425-4614-bc32-c140c64ff58c`. This records the initial staging pass; later corrections and the production release supersede that deployment.
 
 ## Light times and student review account
 
@@ -117,9 +125,9 @@ The default hourly view starts at 06:00 in the spot's local time. It runs to the
 
 First light, sunrise, sunset and last light are labelled directly on the tide chart, with vertical markers and shaded night, twilight and daylight periods. If a tide curve is unavailable, a separate light-time summary remains visible. [SunCalc 2.0.2](https://github.com/mourner/suncalc), under BSD-2-Clause, calculates solar events using the spot's coordinates and local calendar date. First/last light use [civil twilight](https://www.weather.gov/lmk/twilight-types), with the sun's centre six degrees below the horizon. Missing polar events are labelled rather than converted to invalid or zero times. Calculations cover all 16 days independently of weather API availability. Local obstructions and cloud cover can change usable light.
 
-The staging review login `teststudent` belongs to the student role and the demo school. Its internal contact address is `teststudent@example.com`. An optional `users.username` field allows that login while retaining email login for existing users. Apply `db/migrations/20260905_login_usernames.sql` to an existing environment before deploying the username-aware login route. New installations include it in the canonical schema. No test password is stored in source control.
+The review login `teststudent`, available in both environments, belongs to the student role and the demo school. Its internal contact address is `teststudent@example.com`. An optional `users.username` field allows that login while retaining email login for existing users. Apply `db/migrations/20260905_login_usernames.sql` to an existing environment before deploying the username-aware login route. New installations include it in the canonical schema. No test password is stored in source control.
 
-Only the exact `platform_admin` role can add or edit spots. Students can select spots and read forecasts; neither the controls nor direct write requests permit spot administration. The same test login should be provisioned in production only as part of an approved production promotion.
+Only the exact `platform_admin` role can add or edit spots. Students can select spots and read forecasts; neither the controls nor direct write requests permit spot administration. The same test login was included in the approved production promotion and is available in both environments.
 
 ## São Pedro direction correction, 5 September 2026
 
@@ -127,7 +135,7 @@ The original curve admitted 50% of offshore swell height at 300°, and the wind-
 
 A direct model comparison at midday returned GFS 0.25° at the original offshore grid (38.5, −9.5): Monday 289°, Tuesday 298°. GFS 0.16° near São Pedro (returned grid 38.666668, −9.333328): Monday 274° / 1.24 m / 12.5 s; Tuesday 282° / 0.84 m / 9.85 s; Wednesday 294°. The finer grid is selected as a more local 16-day input. This comparison does not establish general accuracy or justify a constant bearing correction. Raw provider bearings remain unchanged. [Surfline describes LOTUS as its own model with nearshore modelling and bathymetry](https://support.surfline.com/hc/en-us/articles/4410495359643-What-is-LOTUS), so its readings need not match GFS.
 
-`20260905_sao_pedro_exposure.sql` updates only the three São Pedro profiles, preserves tide settings and stores a new calibration history version. The initial exposure falls from 0.85 at 270° to 0.65 at 275°, 0.18 at 282°, 0.02 at 290° and 0.005 at 300°. The 282° transition is owner guidance, not a measured universal cutoff. Non-zero residual exposure allows for some wrap on very large swell; this heuristic does not resolve bathymetric refraction or directional spreading. Instructor observations should refine the curve. Apply the migration after the initial seed when eventually promoting to production.
+`20260905_sao_pedro_exposure.sql` updates only the three São Pedro profiles, preserves tide settings and stores a new calibration history version. The initial exposure falls from 0.85 at 270° to 0.65 at 275°, 0.18 at 282°, 0.02 at 290° and 0.005 at 300°. The 282° transition is owner guidance, not a measured universal cutoff. Non-zero residual exposure allows for some wrap on very large swell; this heuristic does not resolve bathymetric refraction or directional spreading. Instructor observations should refine the curve. This migration was included in the approved production release. On a new database, apply it after the initial seed.
 
 On mobile, hourly forecasts use compact expandable cards with time, estimated surf, quality, experience, wind and tide visible in the summary. Expanded content includes directions, period, gusts, weather and swell components. Desktop retains the comparison table.
 

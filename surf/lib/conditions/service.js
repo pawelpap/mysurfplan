@@ -1,3 +1,4 @@
+import { validateCalibration, engineVersion } from "./calibration.mjs";
 import { sql } from "../db";
 import { getSpot, loadTideStation, distanceKm } from "./spots";
 import { fetchForecast, matchesForecastSource } from "./provider.mjs";
@@ -8,6 +9,9 @@ const HOUR = 3600000;
 export async function getConditions(id, force = false) {
   const spot = await getSpot(id);
   if (!spot) return null;
+  const [schemaRow] =
+    await sql`SELECT schema FROM calibration_schema_versions WHERE version=${spot.calibrationSchemaVersion}`;
+  validateCalibration(spot.calibration, schemaRow?.schema);
   let [row] = await sql`SELECT * FROM spot_forecasts WHERE spot_id=${spot.id}`;
   const now = Date.now();
   if (
@@ -103,7 +107,10 @@ export async function getConditions(id, force = false) {
     console.error("tide prediction failed", spot.slug, error.message);
   }
   const hours = payload.hours.map((h) => {
-    const withTide = { ...h, tide: tideAt(tide.tides, h.time) };
+    const withTide = {
+      ...h,
+      tide: tideAt(tide.tides, h.time, spot.calibration),
+    };
     return { ...withTide, ...scoreConditions(withTide, spot.calibration) };
   });
   const dates = Array.from({ length: 16 }, (_, i) =>
@@ -113,6 +120,13 @@ export async function getConditions(id, force = false) {
   );
   return {
     spot,
+    assessment: {
+      engineVersion,
+      schemaVersion: spot.calibrationSchemaVersion,
+      spotVersion: spot.version,
+      profileId: spot.profileId,
+      profileVersion: spot.profileVersion,
+    },
     hours,
     ...tide,
     dates,

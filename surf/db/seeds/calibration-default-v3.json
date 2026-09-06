@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 3,
+  "marineModel": "ncep_gfswave025",
+  "status": "initial",
+  "shoreNormal": 270,
+  "swellGain": 1,
+  "directionSpread": 85,
+  "shadowFloor": 0.08,
+  "directionExponent": 1.3,
+  "exposureByDirection": [],
+  "periodReference": 10,
+  "periodExponent": 0.35,
+  "periodMinimum": 1,
+  "periodFactorMin": 0.7,
+  "periodFactorMax": 1.35,
+  "windSeaGain": 0.35,
+  "windExposure": 1,
+  "windDirectionCurve": [
+    [
+      0,
+      1
+    ],
+    [
+      360,
+      1
+    ]
+  ],
+  "windSectors": [],
+  "tideRules": [
+    {
+      "minimumSwell": 0,
+      "low": 0.25,
+      "high": 0.75
+    }
+  ],
+  "tidePenaltySlope": 2.2,
+  "tideFitFloor": 0.1,
+  "minimumSwell": 0,
+  "minimumSwellPenalty": 0.65,
+  "minimumLevel": "Beginner",
+  "maxLessonSurf": 2.5,
+  "tideTimeOffsetMin": 0,
+  "tideHeightScale": 1,
+  "heightFitCurve": [
+    [
+      0,
+      0
+    ],
+    [
+      0.5,
+      1
+    ],
+    [
+      1.8,
+      1
+    ],
+    [
+      3.8,
+      0
+    ]
+  ],
+  "periodFitCurve": [
+    [
+      0,
+      0.1
+    ],
+    [
+      4.8,
+      0.1
+    ],
+    [
+      12,
+      1
+    ]
+  ],
+  "sizeCeilingCurve": [
+    [
+      0,
+      0
+    ],
+    [
+      0.3,
+      25
+    ],
+    [
+      0.5,
+      49
+    ],
+    [
+      0.65,
+      100
+    ]
+  ],
+  "flatSurfBelow": 0.3,
+  "surfRangeMin": 0.75,
+  "surfRangeMax": 1.25,
+  "weights": {
+    "height": 0.4,
+    "wind": 0.3,
+    "period": 0.15,
+    "tide": 0.15
+  },
+  "windFit": {
+    "calmBelow": 5,
+    "offshoreAngleBelow": 45,
+    "onshoreAngleAbove": 135,
+    "speedReference": 40,
+    "onshorePenalty": 1.3,
+    "crossShorePenalty": 0.95,
+    "offshorePenalty": 0.55
+  },
+  "qualityBands": [
+    {
+      "minimumScore": 75,
+      "label": "Good",
+      "tone": "good"
+    },
+    {
+      "minimumScore": 50,
+      "label": "Fair",
+      "tone": "fair"
+    },
+    {
+      "minimumScore": 30,
+      "label": "Poor",
+      "tone": "poor"
+    },
+    {
+      "minimumScore": 0,
+      "label": "Unfavourable",
+      "tone": "bad"
+    }
+  ],
+  "experienceRules": [
+    {
+      "level": "Beginner",
+      "maxSurf": 0.9,
+      "maxWind": 18,
+      "maxPeriod": 14
+    },
+    {
+      "level": "Intermediate",
+      "maxSurf": 1.6,
+      "maxWind": 25,
+      "maxPeriod": 100
+    },
+    {
+      "level": "Advanced",
+      "maxSurf": 100,
+      "maxWind": 500,
+      "maxPeriod": 100
+    }
+  ],
+  "severe": {
+    "windAtLeast": 35,
+    "gustsAtLeast": 45,
+    "weatherCodes": [
+      95,
+      96,
+      99
+    ],
+    "scoreCap": 25
+  },
+  "warnings": {
+    "tideFitBelow": 0.65,
+    "exposureBelow": 0.45,
+    "windAbove": 20
+  },
+  "tideDisplay": {
+    "neighbourHours": 8,
+    "minimumRange": 0.05,
+    "lowAtMost": 0.33,
+    "highAtLeast": 0.67,
+    "turningBelow": 0.035
+  }
+}

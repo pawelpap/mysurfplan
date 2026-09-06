@@ -1,3 +1,7 @@
+import {
+  baseCalibration as defaultCalibration,
+  calibrationSchema,
+} from "../scripts/convert-calibration-v3.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -5,7 +9,6 @@ import {
   scoreConditions,
   directionExposure,
   lessonWindow,
-  defaultCalibration,
 } from "../lib/conditions/model.mjs";
 import {
   normaliseForecast,
@@ -16,8 +19,8 @@ import {
 } from "../lib/conditions/provider.mjs";
 import { validateSpot } from "../lib/conditions/spot-profile.mjs";
 const spots = JSON.parse(
-  fs.readFileSync(new URL("../db/seeds/portugal-spots.json", import.meta.url)),
-);
+  fs.readFileSync(new URL("./fixtures/calibration-v3.json", import.meta.url)),
+).spots;
 const bico = spots.find((s) => s.slug === "sao-pedro-bico");
 const c = bico.calibration;
 const hour = {
@@ -191,10 +194,19 @@ test("admin calibration validates directional curves and wave model coverage", (
     exposureByDirection: JSON.stringify(c.exposureByDirection),
   };
   assert.deepEqual(
-    validateSpot(input, bico).calibration.exposureByDirection,
+    validateSpot({ ...input, calibration: c }, bico, calibrationSchema)
+      .calibration.exposureByDirection,
     c.exposureByDirection,
   );
-  assert.throws(() => validateSpot({ ...input, latitude: 60 }), /covers/);
+  assert.throws(
+    () =>
+      validateSpot(
+        { ...input, calibration: c, latitude: 60 },
+        undefined,
+        calibrationSchema,
+      ),
+    /covers/,
+  );
   for (const curve of [
     "no",
     [
@@ -218,8 +230,13 @@ test("admin calibration validates directional curves and wave model coverage", (
     ],
   ]) {
     assert.throws(
-      () => validateSpot({ ...input, exposureByDirection: curve }),
-      /exposure|pairs/,
+      () =>
+        validateSpot(
+          { ...input, calibration: { ...c, exposureByDirection: curve } },
+          undefined,
+          calibrationSchema,
+        ),
+      /exposure|must|north|entries|setting/,
     );
   }
 });
