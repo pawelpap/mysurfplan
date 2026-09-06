@@ -12,7 +12,7 @@ Standing deployment instruction, clarified by the owner on 6 September 2026: dep
 
 The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
-Current release status, 6 September 2026: the approved conditions-layout, appearance and nearest-spot release is complete, followed by home-screen support and browser/app icons in revision `1b47423`. Both are deployed and verified on production and staging. The owner explicitly authorised both environments for the home-screen update. Future releases still follow the standing approval workflow. See [handover](HANDOVER.md), [presentation release notes](RELEASE_2026-09-06_PRESENTATION.md) and [home-screen support](HOME_SCREEN.md).
+Current release status, 6 September 2026: the conditions layout, appearance, nearest-spot selection, home-screen support and mobile viewport correction are complete. The latest São Pedro WNW calibration is also live and verified on both environments, explicitly authorised by the owner for staging and production. Its settings remain database-owned, with Bico and Bafureira retaining their separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](HANDOVER.md) and [São Pedro calibration release](CALIBRATION_2026-09-06_SAO_PEDRO.md).
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
@@ -118,6 +118,19 @@ Owner report, 6 September 2026: a physical iPhone browser screenshot showed the 
 - [x] Deploy application revision `23bdcc3` to staging (`dpl_5RT6XfaU3RwuJNvvX8H6DDAZRrPi`) and production (`dpl_4wBXGTptaTpdmJrueUvGiNsmQqmW`). Both custom domains passed the same live checks, with no deployment-scoped error or fatal logs.
 
 No database, conditions data, forecast-model or permission change was required.
+
+## São Pedro local calibration: WNW swell
+
+Owner request, 6 September 2026: use local knowledge and the supplied Surfline forecast screenshots to allow small rideable surf around 283°, including Bico and Bafureira, through generic database settings. Staging and production are explicitly authorised for this adjustment.
+
+- [x] Review the dated 0.9 m / 10 s / 283° reference, distinguish forecast comparison from measured observations, and compare it with fresh app provider data.
+- [x] Tune only the three spots' directional exposure and continuous small-wave score ceiling. Keep their distinct tide, minimum swell, gain and experience rules, and retain strong shelter above 290°.
+- [x] Save through the existing versioned platform-admin API with change notes, sources, concurrency protection and prior-version history.
+- [x] Pass all 49 tests and the build, including five new calibration regressions and the existing 5,712 migration-parity cases.
+- [x] Verify staging before applying the same settings to production. Each environment passed 1,224 hourly comparisons, 16-day coverage, unrelated-spot preservation, student denial and desktop/mobile display checks.
+- [x] Confirm all 17 database spot configurations and versions match between environments. Record São Pedro revision 4, Bico revision 5 and Bafureira revision 4 with rollback instructions in the [release record](CALIBRATION_2026-09-06_SAO_PEDRO.md).
+
+This is a database-only forecasting update. The repository additions are documentation and test-only evidence; the app has no spot-name or date-specific code change.
 
 ## Environments and design references
 

@@ -2,7 +2,17 @@
 
 Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: mobile browser viewport correction
+## Current release: São Pedro WNW calibration
+
+The owner explicitly authorised this database calibration on staging and production on 6 September 2026, including Bico and Bafureira while preserving their individual behaviour. All three spots now admit useful WNW swell around 280–283°, with strong shelter retained from 290°. Only their generic `exposureByDirection` and `sizeCeilingCurve` settings changed. The current versions are São Pedro 4, Bico 5 and Bafureira 4 in both databases.
+
+The supplied 0.9 m / 10 s / 283° reference now produces small rideable surf, approximately 0.3–0.6 m and Fair at São Pedro/Bico. Bafureira remains more dependent on larger swell and a favourable mid-to-high tide. Existing tide rules, swell gains, experience thresholds and all other calibration values are preserved. No runtime engine or page code changed; forecast and lesson requests load the new database revision directly.
+
+Staging was updated and verified before production. Both passed 1,224 hourly assessment comparisons across the three spots, all 16 forecast days, configuration freshness, unchanged unrelated spots and student write denial. Desktop and mobile browser checks at 1440 and 390 px passed for all three spots, selected-day values, quality colours, time selection and page width. All 49 tests and the build passed. Direct Neon checks confirm matching calibration hashes and versions for all 17 spots across environments, with matching history entries for the new revisions. Browser testing used Chromium desktop/mobile emulation, not a physical iPhone.
+
+The documentation and regression-test follow-up is committed to both Git branches; it makes no runtime code change. Evidence, precise parameter values, before/after results, test limits and rollback versions are in [São Pedro calibration release](CALIBRATION_2026-09-06_SAO_PEDRO.md). Reload an already-open Conditions page to retrieve the revised settings immediately. No schema migration, business-record copy or shared-default change was performed.
+
+## Previous release: mobile browser viewport correction
 
 A physical iPhone browser screenshot showed the Conditions workspace using roughly 85% of the available width and leaving a dark strip at the right edge. Application revision `23bdcc385a8c54025d80a24a93eb87bea6d20857` corrects the global mobile viewport and makes the app root, workspace, mobile header and content area fill the available browser width. Safe-area padding is retained for iPhone cut-outs, and pinch zoom remains available.
 

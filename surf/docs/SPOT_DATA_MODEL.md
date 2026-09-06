@@ -34,6 +34,8 @@ The following groups are all stored in the database and editable by platform adm
 
 A direction curve is an array of `[bearing degrees, multiplier]` pairs. Bearings are incoming directions. Curves start at 0°, finish at 360°, match at north and interpolate linearly. A wind shelter sector contains `from`, `to` and `gain`; sectors may wrap through north and apply at their inclusive boundaries. Curves and sectors can describe shelter from any direction.
 
+The [São Pedro adjustment of 6 September](CALIBRATION_2026-09-06_SAO_PEDRO.md) demonstrates a later calibration using this schema: only `exposureByDirection` and `sizeCeilingCurve` were edited in the three spot records, with no engine or page-code change. Their different tide and experience rules were preserved. Current calibration lives in the database; historical seeds and test fixtures are not a substitute for the latest saved revision.
+
 Generic tide rules are sorted by `minimumSwell`. The last threshold reached by the offshore height of the dominant local swell contribution determines the preferred tide range. The first rule starts at zero. Bico's migrated rules are:
 
 ```json

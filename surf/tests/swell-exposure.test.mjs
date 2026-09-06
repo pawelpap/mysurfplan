@@ -37,7 +37,7 @@ const hour = {
   tide: { ratio: 0.25 },
 };
 
-test("São Pedro retains useful westerly swell and strongly blocks north-west swell, including wind sea", () => {
+test("historical São Pedro migration fixture retains its original exposure behaviour", () => {
   for (const spot of spots.filter((s) => s.slug.startsWith("sao-pedro"))) {
     assert.ok(directionExposure(274, spot.calibration) > 0.6);
     assert.ok(directionExposure(283, spot.calibration) < 0.15);

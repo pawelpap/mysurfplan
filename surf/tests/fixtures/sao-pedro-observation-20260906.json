@@ -1,0 +1,29 @@
+{
+  "description": "Test-only record of the owner-approved database calibration. Runtime forecasts never import this file.",
+  "source": "Owner local knowledge and supplied Surfline screenshots on 6 September 2026: Tuesday 08:00, 0.9 m swell, 10 s, 283 degrees, 0.3–0.6 m surf, Poor to fair, shortly after low tide. Forecast evidence, not a measured beach observation.",
+  "slugs": ["sao-pedro-estoril", "sao-pedro-bico", "sao-pedro-bafureira"],
+  "changes": {
+    "exposureByDirection": [
+      [0, 0.002],
+      [90, 0.005],
+      [180, 0.7],
+      [225, 1],
+      [270, 0.85],
+      [275, 0.72],
+      [280, 0.7],
+      [282, 0.69],
+      [283, 0.68],
+      [285, 0.35],
+      [290, 0.02],
+      [300, 0.005],
+      [315, 0.003],
+      [360, 0.002]
+    ],
+    "sizeCeilingCurve": [
+      [0, 0],
+      [0.3, 25],
+      [0.45, 60],
+      [0.65, 100]
+    ]
+  }
+}
