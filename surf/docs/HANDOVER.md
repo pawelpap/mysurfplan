@@ -4,7 +4,7 @@ Updated 6 September 2026. This file records the current handover; dated release 
 
 ## Current candidate
 
-Conditions presentation and desktop/mobile hourly parity, prepared on `codex/task-oriented-staging` for review at https://staging.mywaveplan.com. The owner must test this candidate and explicitly approve production before promotion. Approval of previous releases is not approval of this one.
+Conditions presentation and desktop/mobile hourly parity is deployed and verified at https://staging.mywaveplan.com. Application commit: `48b3a4951e84b9eaa71a9de9a220141a10f2e03b`; verified deployment: `dpl_7TUAbqHuZqvYnaJUjoeun9PHcZU5`. A documentation-only follow-up records this verification without changing application code. The owner must test this candidate and explicitly approve production before promotion. Approval of previous releases is not approval of this one.
 
 Production currently runs `1938804611fb66c1a70db919b0f48fe6cdb1f5fa`, Vercel deployment `dpl_2vqrj9acaPkMH33Mn2TLtAZuBHRG`. It already includes generic database calibration, offshore energy density in kJ/m², estimated power in kW/m and water temperature in °C. Keep these measures; the owner declined a speculative conversion to Surfline's kJ scale.
 
@@ -21,7 +21,7 @@ No migration, calibration change, forecast-model change or business-record copy 
 
 ## Verification and next action
 
-Local verification passed: 37 automated tests, including 5,712 calibration parity cases; production build; browser checks at all five widths; identical hourly details on desktop and mobile; native horizontal touch selection and keyboard time selection; student, instructor, school-admin and legacy-admin denial; and platform-admin editor/history access. Staging custom-domain verification remains the deployment gate.
+Local verification passed: 37 automated tests, including 5,712 calibration parity cases; production build; browser checks at all five widths; identical hourly details on desktop and mobile; native horizontal touch selection and keyboard time selection; student, instructor, school-admin and legacy-admin denial; and platform-admin editor/history access. The same checks passed on the staging custom domain, including explicit refresh, desktop/mobile hourly parity, real touch interaction, lesson conditions, student denial and platform-admin settings access. Production was confirmed unchanged at its baseline deployment. Awaiting owner review.
 
 Run `npm test` and `npm run build` in `surf`. Browser review covers 1440, 1024, 768, 390 and 320 px; hourly value parity; dropdown order/inset; chosen time; 16 days; full-day hours; missing future temperature; lesson conditions; and role permissions. Temporary role sessions are used only against the local build; live testing uses the authorised student and platform-admin accounts. Do not commit credentials or browser session files.
 

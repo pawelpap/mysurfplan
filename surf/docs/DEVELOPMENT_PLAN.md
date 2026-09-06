@@ -77,6 +77,7 @@ Owner request, 6 September 2026: keep every forecast parameter available on desk
 - [x] Keep all metric values at the same visual level and retain the workspace typography, colours and form styles. Give native dropdown chevrons a 14 px right inset and reserve text space.
 - [x] Sort the shared spot-list API alphabetically, ignoring case and accents. Both Conditions and lesson dropdowns use this list. Remove the obsolete priority input while preserving stored values.
 - [x] Keep editor controls and direct editor URLs restricted to platform admins. Verify spot writes and calibration settings/history access are denied for other roles.
+- [x] Deploy application commit `48b3a49` to staging and verify its custom domain: all 17 spots in alphabetical order, equal desktop/mobile hourly details, five viewport widths, explicit refresh, chosen-time keyboard/touch interaction, lesson conditions, missing data and role access. Production remains on `1938804`.
 - [ ] Owner reviews the staging candidate and explicitly approves production. Do not promote before this approval.
 - [ ] After approval, deploy the accepted code to production, verify it and update the deployment records, plan and [handover](HANDOVER.md). This candidate requires no database migration.
 
