@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
-  SelectField,
   Message,
   Loading,
   PageHeading,
@@ -33,6 +32,7 @@ import {
   value,
 } from "./shared";
 import SpotForm from "./spot-form";
+import SpotSelect from "../spot-select";
 const dayLabel = (day, weekday = "short") =>
   new Date(day + "T12:00:00Z").toLocaleDateString("en-GB", {
     timeZone: "UTC",
@@ -103,17 +103,14 @@ export default function Conditions({ session, query, go }) {
       />
       <Message success>{notice}</Message>
       <div className="forecast-controls">
-        <SelectField
-          label="Surf spot"
+        <SpotSelect
+          spots={spots.data}
+          valueKey="slug"
           value={selected?.slug || ""}
           onChange={(e) => {
             setNotice("");
             go({ spot: e.target.value });
           }}
-          options={spots.data.map((s) => ({
-            value: s.slug,
-            label: `${s.name} · ${s.region}, ${s.countryCode}`,
-          }))}
         />
         {admin && selected && (
           <Button
@@ -228,7 +225,7 @@ function SpotForecast({ spot, date, onDate }) {
             return (
               <button
                 key={day}
-                className={`outlook-day ${selected === day ? "selected" : ""}`}
+                className={`outlook-day ${h?.tone || "unknown"} ${selected === day ? "selected" : ""}`}
                 aria-pressed={selected === day}
                 onClick={() => onDate(day)}
                 aria-label={`${dayLabel(day)}, surf ${h?.quality || "unavailable"}, ${experienceLabel(h?.level)}`}
@@ -670,7 +667,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
     key,
     label,
     time: sunlight?.[key],
-    colour: i === 0 || i === 3 ? "#637d8e" : "#9c6513",
+    colour: i === 0 || i === 3 ? "var(--chart-civil)" : "var(--chart-solar)",
   }));
   const labelX = lightEvents.map((event, i) =>
     width < 500 || !finite(event.time)
@@ -772,22 +769,38 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
         }}
       >
         <title>Tide height, first light, sunrise, sunset and last light</title>
-        <rect x="48" y="60" width={width - 64} height="145" fill="#edf2f6" />
+        <rect
+          x="48"
+          y="60"
+          width={width - 64}
+          height="145"
+          fill="var(--chart-night)"
+        />
         {sunlight?.alwaysUp
-          ? band(points[0].time, points.at(-1).time, "#fffdf4", "day")
+          ? band(points[0].time, points.at(-1).time, "var(--chart-day)", "day")
           : (finite(sunlight?.sunrise) || finite(sunlight?.sunset)) &&
             band(
               sunlight.sunrise ?? points[0].time,
               sunlight.sunset ?? points.at(-1).time,
-              "#fffdf4",
+              "var(--chart-day)",
               "day",
             )}
         {finite(sunlight?.firstLight) &&
           finite(sunlight?.sunrise) &&
-          band(sunlight.firstLight, sunlight.sunrise, "#fbe7b7", "dawn")}
+          band(
+            sunlight.firstLight,
+            sunlight.sunrise,
+            "var(--chart-twilight)",
+            "dawn",
+          )}
         {finite(sunlight?.sunset) &&
           finite(sunlight?.lastLight) &&
-          band(sunlight.sunset, sunlight.lastLight, "#fbe7b7", "dusk")}
+          band(
+            sunlight.sunset,
+            sunlight.lastLight,
+            "var(--chart-twilight)",
+            "dusk",
+          )}
         {lightEvents.map((event, i) => (
           <g key={event.key} className="solar-marker" data-event={event.key}>
             <text
@@ -831,19 +844,24 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
               x2={width - 16}
               y1={y({ height: v })}
               y2={y({ height: v })}
-              stroke="#dce6e8"
+              stroke="var(--line)"
             />
-            <text x="3" y={y({ height: v }) + 4} fill="#5d7077" fontSize="11">
+            <text
+              x="3"
+              y={y({ height: v }) + 4}
+              fill="var(--muted)"
+              fontSize="11"
+            >
               {v.toFixed(1)} m
             </text>
           </g>
         ))}
         <path
           d={`${line} L${width - 16},205 L48,205 Z`}
-          fill="#cce5e3"
+          fill="var(--chart-water)"
           fillOpacity=".65"
         />
-        <path d={line} fill="none" stroke="#096b75" strokeWidth="3" />
+        <path d={line} fill="none" stroke="var(--sea)" strokeWidth="3" />
         {points
           .filter(
             (_, i) =>
@@ -855,7 +873,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
               x={x(p)}
               y="229"
               textAnchor={p === points.at(-1) ? "end" : "middle"}
-              fill="#5d7077"
+              fill="var(--muted)"
               fontSize="11"
             >
               {hourLabel(p.time, zone)}
@@ -866,15 +884,15 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
           x2={x(current)}
           y1="60"
           y2="205"
-          stroke="#096b75"
+          stroke="var(--sea)"
           strokeDasharray="4 4"
         />
         <circle
           cx={x(current)}
           cy={y(current)}
           r="5"
-          fill="#096b75"
-          stroke="white"
+          fill="var(--sea)"
+          stroke="var(--surface)"
           strokeWidth="2"
         />
       </svg>

@@ -130,9 +130,17 @@ export function Score({ condition, compact = false }) {
         {c.score == null ? "—" : c.score}
         <span>{c.score == null ? "" : "/100"}</span>
       </strong>
+      <QualityLabel condition={c} />
+    </span>
+  );
+}
+export function QualityLabel({ condition }) {
+  return (
+    <span className={`quality-label ${condition?.tone || "unknown"}`}>
+      <span className="quality-dot" aria-hidden="true" />
       <span>
-        {c.quality || "Unavailable"}
-        {c.provisional ? " · partial" : ""}
+        {condition?.quality || "Unavailable"}
+        {condition?.provisional ? " · partial" : ""}
       </span>
     </span>
   );
@@ -184,12 +192,21 @@ export function AssessmentMetrics({
       <Metric
         label="Surf quality"
         note={
-          condition?.score == null
-            ? undefined
-            : `${condition.quality}${condition.provisional ? " · partial" : ""}${lesson ? " · lowest during the lesson" : ""}`
+          condition?.score == null ? undefined : (
+            <>
+              <QualityLabel condition={condition} />
+              {lesson && (
+                <span className="assessment-context">
+                  Lowest during the lesson
+                </span>
+              )}
+            </>
+          )
         }
       >
-        {condition?.score == null ? "Unavailable" : `${condition.score}/100`}
+        <span className={`quality-value ${condition?.tone || "unknown"}`}>
+          {condition?.score == null ? "Unavailable" : `${condition.score}/100`}
+        </span>
       </Metric>
       <Metric
         label="Required experience"

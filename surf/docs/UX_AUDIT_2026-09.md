@@ -97,3 +97,12 @@ The current Conditions screen was reviewed against the workspace design and the 
 Retain the existing Poppins typography, sea-colour actions, neutral surfaces, border radii and spacing language. Quality, experience, energy and water remain visually consistent with the other metrics. Selection/focus styling identifies interactive state. No forecast formula or spot calibration changes are part of this review.
 
 The candidate is for staging review. Production promotion requires the owner's explicit approval after testing.
+
+
+## Appearance and spot-order follow-up, 6 September 2026
+
+The owner restored semantic quality colours and asked for tinted daily tiles, superseding the earlier all-neutral quality presentation. Use gentle green, yellow, orange and red surfaces with corresponding readable text, while retaining equal value sizes and independent experience labels. A sea-colour outline denotes the selected day; colour is not the only quality cue. Light and dark palettes retain at least 4.5:1 contrast for normal text on these surfaces.
+
+System appearance is the default. A shared Appearance selector offers System, Light and Dark in the workspace menu and public page headers. The login illustration, tide chart, forms and menus share semantic theme tokens, avoiding bright fixed-colour panels in dark mode. An early script prevents a wrong-theme flash when a preference is saved.
+
+The native spot picker keeps its inset chevron and now has compact Nearest to me and A–Z controls. The owner asked for automatic nearest sorting: browser permission is requested when the first picker opens after login. Approximate distances use the stored spot coordinates and browser location, entirely in memory. Failure leaves an alphabetical list and a concise retry/permission message. Conditions and lesson forms share the same picker; reordering never changes the selected spot. No location request occurs on the login page.

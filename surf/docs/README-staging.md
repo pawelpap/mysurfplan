@@ -2,7 +2,7 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
-The current conditions-presentation candidate and verification handover are recorded in [HANDOVER.md](HANDOVER.md). It requires no database migration. The owner must review it on staging before production; do not copy databases for this presentation change.
+The current conditions-presentation, appearance and nearest-spot candidate and verification handover are recorded in [HANDOVER.md](HANDOVER.md). It requires no database migration. The owner must review it on staging before production; do not copy databases for this presentation change.
 
 | Environment | Git branch | Vercel project       | Neon branch                     |
 | ----------- | ---------- | -------------------- | ------------------------------- |
@@ -16,6 +16,12 @@ Both projects use application root `surf`. Neon project: `shy-paper-68550619`.
 Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Verify that the database endpoint belongs to the staging branch before running migrations or local write operations. Never commit credentials.
 
 Run `npm run dev`, `npm test` and `npm run build` from `surf`.
+
+## Appearance and location checks
+
+Appearance defaults to the device setting. The selector offers System, Light and Dark; explicit choices are saved in this browser for this domain. Staging and production preferences are separate. Check login, workspace/mobile menu, forms, public schedule and tide charts in both modes, including a page reload and a live device-setting change. Daily quality tiles retain their semantic colours and selected-day outline.
+
+Nearest to me is requested automatically when the first spot picker opens after login, once per page load. Allow the browser's location request to see distance ordering. Use A–Z to change order; click Nearest to me to retry or update location. Denied or unavailable location falls back to A–Z. Coordinates are held only in browser memory, not stored or sent to app APIs; distances are straight-line approximations. Keep the current selection when changing sort. Use synthetic coordinates for automated checks; do not collect the owner's actual location during testing.
 
 ## Database setup
 

@@ -16,6 +16,7 @@ import {
 } from "../../components/workspace/ui";
 import { dateKey } from "../../lib/conditions/model.mjs";
 import { levels, lessonStatus } from "../../lib/lesson-input.mjs";
+import { ThemeSelector } from "../../components/theme";
 
 export default function PublicSchedule() {
   const router = useRouter();
@@ -48,12 +49,15 @@ export default function PublicSchedule() {
       <header className="public-header">
         <div>
           <Brand />
-          <a
-            className="button"
-            href={`/login?school=${encodeURIComponent(slug)}&next=${encodeURIComponent(`/?school=${slug}`)}`}
-          >
-            Log in
-          </a>
+          <div className="public-header-actions">
+            <ThemeSelector compact />
+            <a
+              className="button"
+              href={`/login?school=${encodeURIComponent(slug)}&next=${encodeURIComponent(`/?school=${slug}`)}`}
+            >
+              Log in
+            </a>
+          </div>
         </div>
       </header>
       <main className="public-main">

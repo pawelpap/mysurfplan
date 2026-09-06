@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
 import Conditions from "../components/conditions";
+import { ThemeSelector } from "../components/theme";
 import People from "../components/workspace/people";
 import Schools from "../components/workspace/schools";
 import {
@@ -259,6 +260,7 @@ export default function Workspace() {
             ))}
         </nav>
         <div className="sidebar-footer">
+          <ThemeSelector />
           <button
             className="account-button"
             onClick={() => go("profile")}

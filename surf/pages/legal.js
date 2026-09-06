@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { Brand } from "../components/workspace/ui";
+import { ThemeSelector } from "../components/theme";
 
 export default function Legal() {
   return (
@@ -7,7 +8,10 @@ export default function Legal() {
       <Head>
         <title>Legal · MyWavePlan</title>
       </Head>
-      <Brand />
+      <div className="legal-header">
+        <Brand />
+        <ThemeSelector compact />
+      </div>
       <h1>Data licences</h1>
       <p>
         Forecasts combine data from{" "}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { LessonConditions } from "../conditions/shared";
+import SpotSelect from "../spot-select";
 import { zonedFields, zonedDateTimeToISO } from "../../lib/conditions/time.mjs";
 import { dateKey } from "../../lib/conditions/model.mjs";
 import {
@@ -417,19 +418,12 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             required
             {...bind("durationMin")}
           />
-          <SelectField
-            label="Surf spot"
+          <SpotSelect
+            spots={spots.data}
             required
-            options={[
-              {
-                value: "",
-                label: spots.loading ? "Loading spots…" : "Choose a surf spot",
-              },
-              ...spots.data.map((s) => ({
-                value: s.id,
-                label: `${s.name} · ${s.region}, ${s.countryCode}`,
-              })),
-            ]}
+            placeholder={
+              spots.loading ? "Loading spots…" : "Choose a surf spot"
+            }
             {...bind("spotId")}
           />
           <Field

@@ -83,6 +83,18 @@ Owner request, 6 September 2026: keep every forecast parameter available on desk
 
 Review findings and decisions are in [the conditions design review](UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
 
+## Staging follow-up: appearance, quality colours and nearest spots
+
+Owner requests, 6 September 2026: add light/dark mode with a device-based default; restore quality colours before staging deployment and colour the daily tiles as well as the text; sort spots by distance automatically when the app opens. These changes join the conditions-layout candidate and require a fresh staging review before production.
+
+- [x] Add shared semantic colours across the app, a System/Light/Dark selector, pre-paint preference application, live device changes, local preference persistence and tab synchronisation. Preserve readable native controls and charts; handle blocked browser storage.
+- [x] Restore green/yellow/orange/red surf-quality text and dots, plus subtle daily-tile fills. Preserve neutral missing data, a distinct selected-day outline and separate required experience. Keep all metric values at the same typographic scale.
+- [x] Share the spot picker between Conditions and lesson forms. Automatically request browser location when the first picker opens after login. Sort nearest first using a worldwide distance calculation; include approximate distances. Preserve the selected spot and offer A–Z with a safe fallback, retry and late-callback cancellation. Keep coordinates in memory only; no server transmission or map-service dependency.
+- [x] Pass 44 automated tests and the production build. Verify the appearance controls, text contrast, responsive layouts, tide touch interaction and location permission/failure paths with synthetic coordinates in the browser.
+- [ ] Deploy to staging and complete live browser verification. Record the accepted candidate in [HANDOVER.md](HANDOVER.md).
+- [ ] Owner tests staging and explicitly approves production. Keep production on `1938804` until then.
+- [ ] After approval, deploy that candidate to production, verify and update the documentation and handover. No database migration or business-record copy is required.
+
 ## Environments and design references
 
 - Application: Next.js Pages Router in `surf/`, React, SQL through Neon.

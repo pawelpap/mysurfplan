@@ -9,6 +9,7 @@ import {
   request,
 } from "../components/workspace/ui";
 import { safeNext } from "../lib/lesson-input.mjs";
+import { ThemeSelector } from "../components/theme";
 
 export default function Login() {
   const router = useRouter();
@@ -44,6 +45,7 @@ export default function Login() {
       </Head>
       <div className="login-brand">
         <Brand />
+        <ThemeSelector compact />
       </div>
       <section className="login-story" aria-label="MyWavePlan for surf schools">
         <div className="login-story-copy">
@@ -59,14 +61,14 @@ export default function Login() {
         <svg className="login-surf" viewBox="0 0 560 430" aria-hidden="true">
           <path
             d="M36 318C120 218 230 235 310 312C376 375 458 368 532 292"
-            stroke="#0D6E7A"
+            stroke="var(--illustration-wave)"
             strokeWidth="17"
             strokeLinecap="round"
             fill="none"
           />
           <path
             d="M24 362C116 304 246 315 350 366C435 408 494 405 550 345"
-            stroke="#11A096"
+            stroke="var(--illustration-wave-secondary)"
             strokeWidth="11"
             strokeLinecap="round"
             fill="none"
@@ -74,19 +76,19 @@ export default function Login() {
           />
           <path
             d="M154 232C210 190 276 190 336 236"
-            stroke="#EF5C49"
+            stroke="var(--illustration-board)"
             strokeWidth="10"
             strokeLinecap="round"
             fill="none"
           />
           <path
             d="M248 200C286 176 318 178 352 202"
-            stroke="#203039"
+            stroke="var(--illustration-surfer)"
             strokeWidth="8"
             strokeLinecap="round"
             fill="none"
           />
-          <circle cx="334" cy="162" r="15" fill="#203039" />
+          <circle cx="334" cy="162" r="15" fill="var(--illustration-surfer)" />
         </svg>
       </section>
       <section className="login-panel" aria-labelledby="login-title">
