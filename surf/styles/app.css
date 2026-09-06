@@ -1256,93 +1256,47 @@ fieldset legend {
 }
 .surf-score {
   display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  background: #edf0f1;
-  color: #58676e;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--ink);
+  font-size: inherit;
 }
 .surf-score > strong {
-  font-size: 28px;
-  line-height: 1.2;
-}
-.surf-score > strong span {
-  font-size: 11px;
-  font-weight: 400;
-  margin-left: 2px;
-}
-.surf-score > span {
-  font-size: 13px;
+  font-size: inherit;
+  line-height: 1.5;
   font-weight: 500;
 }
-.surf-score.good {
-  background: #dcefe3;
-  color: #215d39;
+.surf-score > strong span {
+  font-size: inherit;
+  font-weight: inherit;
 }
-.surf-score.fair {
-  background: #fff0cd;
-  color: #785812;
-}
-.surf-score.poor {
-  background: #ffeadc;
-  color: #91471b;
-}
-.surf-score.bad {
-  background: #f8dedb;
-  color: #873c33;
+.surf-score > span {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
 }
 .surf-score.compact {
-  padding: 6px 8px;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.surf-score.compact > strong {
-  font-size: 18px;
-}
-.surf-score.compact > span {
-  font-size: 11px;
+  gap: 4px;
 }
 .outlook-day .surf-score {
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  font-size: 13px;
 }
 .experience {
   display: inline-block;
-  font-size: 12px;
+  font-size: inherit;
   line-height: 1.5;
-  font-weight: 600;
-  color: #394d55;
-}
-.experience.review {
-  color: #a13c2d;
+  font-weight: 500;
+  color: var(--ink);
 }
 .outlook-day .experience {
-  font-size: 10px;
-  min-height: 30px;
-}
-.day-summary,
-.lesson-condition-summary {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin: 8px 0 24px;
-}
-.day-summary > div,
-.lesson-condition-summary > div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-.day-summary .experience,
-.lesson-condition-summary .experience {
-  font-size: 18px;
+  font-size: 13px;
+  min-height: 39px;
 }
 .condition-metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
   margin: 24px 0;
 }
@@ -1590,27 +1544,6 @@ fieldset legend {
     scroll-snap-align: start;
     min-height: 206px;
   }
-  .outlook-day .experience {
-    font-size: 11px;
-  }
-  .day-summary,
-  .lesson-condition-summary {
-    gap: 14px;
-  }
-  .day-summary .experience,
-  .lesson-condition-summary .experience {
-    font-size: 15px;
-  }
-  .surf-score {
-    gap: 8px;
-    padding: 10px;
-  }
-  .surf-score > strong {
-    font-size: 22px;
-  }
-  .surf-score > span {
-    font-size: 12px;
-  }
   .condition-metrics,
   .lesson-conditions .condition-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1833,7 +1766,7 @@ fieldset legend {
   }
   .hour-card-top {
     display: grid;
-    grid-template-columns: 54px minmax(0, 1fr) auto;
+    grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
     gap: 12px;
   }
@@ -1842,57 +1775,23 @@ fieldset legend {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
-  .hour-card-surf {
+  .hour-card-surf,
+  .hour-card-quality {
     display: grid;
     gap: 3px;
   }
-  .hour-card-surf > small {
+  .hour-card-surf > small,
+  .hour-card-quality > small {
     color: var(--muted);
     font-size: 10px;
   }
-  .hour-card-surf > strong {
-    font-size: 17px;
-    font-weight: 600;
-    white-space: nowrap;
+  .hour-card-surf > strong,
+  .hour-card-quality .surf-score {
+    font-size: 15px;
+    font-weight: 500;
   }
-  .hour-quality {
-    min-width: 70px;
-    max-width: 88px;
-    border-radius: 9px;
-    padding: 7px 8px;
-    text-align: center;
-    display: grid;
-    gap: 2px;
-    background: #edf2f6;
-    color: #51616c;
-  }
-  .hour-quality > strong {
-    font-size: 17px;
-    font-weight: 600;
-  }
-  .hour-quality strong small {
-    font-size: 10px;
-    font-weight: 400;
-  }
-  .hour-quality > span {
-    font-size: 10px;
-    line-height: 1.2;
-  }
-  .hour-quality.good {
-    background: #e3f4ec;
-    color: #246340;
-  }
-  .hour-quality.fair {
-    background: #fff0cc;
-    color: #85591b;
-  }
-  .hour-quality.poor {
-    background: #fff0e5;
-    color: #a15b2c;
-  }
-  .hour-quality.bad {
-    background: #f7e9e7;
-    color: #9b4238;
+  .hour-card-quality {
+    min-width: 0;
   }
   .hour-card-level {
     display: flex;
@@ -1905,7 +1804,7 @@ fieldset legend {
     color: var(--muted);
   }
   .hour-card-level .experience {
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 500;
   }
   .hour-card-glance {

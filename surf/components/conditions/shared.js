@@ -165,6 +165,32 @@ export function Metric({ label, children, note }) {
     </div>
   );
 }
+export function AssessmentMetrics({
+  condition,
+  level = condition?.level,
+  lesson = false,
+}) {
+  return (
+    <>
+      <Metric
+        label="Surf quality"
+        note={
+          condition?.score == null
+            ? undefined
+            : `${condition.quality}${condition.provisional ? " · partial" : ""}${lesson ? " · lowest during the lesson" : ""}`
+        }
+      >
+        {condition?.score == null ? "Unavailable" : `${condition.score}/100`}
+      </Metric>
+      <Metric
+        label="Required experience"
+        note={lesson ? "Across the lesson" : undefined}
+      >
+        {experienceLabel(level)}
+      </Metric>
+    </>
+  );
+}
 export function OceanMetrics({ condition, atStart = false }) {
   const energy = condition?.energy;
   return (
@@ -254,17 +280,6 @@ export function LessonConditions({ lesson, onForecast }) {
         <p className="muted">{d.unavailable}</p>
       ) : w ? (
         <>
-          <div className="lesson-condition-summary">
-            <div>
-              <small>Lowest surf quality during the lesson</small>
-              <Score condition={w.worst} />
-            </div>
-            <div>
-              <small>Required experience during the lesson</small>
-              <Experience level={w.requiredLevel} />
-            </div>
-          </div>
-
           {mismatch && (
             <div className="forecast-notice warning" role="status">
               The forecast is more demanding than this{" "}
@@ -280,6 +295,11 @@ export function LessonConditions({ lesson, onForecast }) {
             </div>
           )}
           <dl className="condition-metrics">
+            <AssessmentMetrics
+              condition={w.worst}
+              level={w.requiredLevel}
+              lesson
+            />
             <Metric label="Estimated surf range" note="Across the lesson">
               {finite(w.surfMin)
                 ? `${value(w.surfMin)}–${value(w.surfMax)} m`

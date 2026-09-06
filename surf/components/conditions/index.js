@@ -25,6 +25,7 @@ import {
   Direction,
   SwellDetails,
   OceanMetrics,
+  AssessmentMetrics,
   OceanMetricsHelp,
   ForecastFooter,
   Metric,
@@ -199,7 +200,7 @@ function SpotForecast({ spot, date, onDate }) {
         </a>
       </div>
       <div className="forecast-reading-note">
-        <strong>Surf quality ≠ experience level.</strong> A green score can
+        <strong>Surf quality ≠ experience level.</strong> A good forecast can
         still require advanced skills.
       </div>
       {source.error && <Message>{source.error}</Message>}
@@ -276,17 +277,8 @@ function SpotForecast({ spot, date, onDate }) {
             </p>
           </div>
         </div>
-        <div className="day-summary">
-          <div>
-            <small>Surf quality</small>
-            <Score condition={snapshot} />
-          </div>
-          <div>
-            <small>Required experience</small>
-            <Experience level={snapshot?.level} />
-          </div>
-        </div>
         <dl className="condition-metrics">
+          <AssessmentMetrics condition={snapshot} />
           <Metric label="Estimated surf">
             {finite(snapshot?.surfMin)
               ? `${value(snapshot.surfMin)}–${value(snapshot.surfMax)} m`
@@ -474,17 +466,10 @@ function MobileHours({ hours, timezone, onSelect }) {
                     : "Unavailable"}
                 </strong>
               </div>
-              <span className={`hour-quality ${h.tone || "unknown"}`}>
-                <strong>
-                  {h.score ?? "–"}
-                  <small>{h.score == null ? "" : "/100"}</small>
-                </strong>
-                <span>
-                  {h.quality === "Flat / too small"
-                    ? "Flat / small"
-                    : h.quality}
-                </span>
-              </span>
+              <div className="hour-card-quality">
+                <small>Surf quality</small>
+                <Score condition={h} compact />
+              </div>
             </div>
             <div className="hour-card-level">
               <span>Experience</span>

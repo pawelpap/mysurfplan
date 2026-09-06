@@ -6,7 +6,11 @@ This is the current working plan. Update it after meaningful changes. The previo
 
 ## Current direction agreed with the owner
 
-Build and review a working proposal at https://staging.mywaveplan.com. Use Figma as a supporting design reference when useful. The user will verify the app on staging. For the calibration, swell-energy and water-temperature release, the owner authorised production deployment once staging verification passes (6 September 2026). Subsequent changes return to the usual staging review workflow.
+Build and review a working proposal at https://staging.mywaveplan.com. Use Figma as a supporting design reference when useful.
+
+Standing deployment instruction, clarified by the owner on 6 September 2026: deploy changes to staging, complete the checks and tell the owner staging is ready. Stop before production and wait for the owner's explicit approval of that change after they have tested staging. Passing automated checks, approval of an earlier release or a request for further changes does not authorise production deployment. This applies to small visual corrections as well as larger releases.
+
+The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
@@ -48,7 +52,11 @@ Implemented and locally verified: 37 tests pass, including 5,712 legacy parity c
 
 ## Presentation adjustment: equal emphasis for forecast parameters
 
-Owner feedback, 6 September 2026: energy and water temperature should have the same visual emphasis as the other parameters. Replace the separate teal cards and icons with the shared metric cells in selected conditions, expanded mobile hours and lesson details. Preserve values, units, explanations and selected-time behaviour. Follow the established staging verification and production deployment workflow.
+Owner feedback, 6 September 2026: energy and water temperature should have the same visual emphasis as the other parameters. The separate teal cards and icons were replaced with shared metric cells in selected conditions, expanded mobile hours and lesson details. Values, units, explanations and selected-time behaviour were preserved. Commit `1938804` was deployed to staging and production before the owner clarified the approval requirement above. All subsequent changes must wait for the owner's staging review and explicit production approval.
+
+## Staging proposal: consistent emphasis for all forecast parameters
+
+Owner clarification, 6 September 2026: no forecast parameter should be visually highlighted above the others. Include surf quality and required experience in the same metric grid as the physical conditions. Remove filled score badges and oversized score typography from selected forecasts, lessons, daily outlooks and mobile hours. Keep clear labels, units, quality descriptions and readable experience levels. Deploy to staging for the owner's review; production must retain the previously approved version until the owner explicitly approves this proposal.
 
 ## Environments and design references
 
