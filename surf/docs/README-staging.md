@@ -2,6 +2,8 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
+The current conditions-presentation candidate and verification handover are recorded in [HANDOVER.md](HANDOVER.md). It requires no database migration. The owner must review it on staging before production; do not copy databases for this presentation change.
+
 | Environment | Git branch | Vercel project       | Neon branch                     |
 | ----------- | ---------- | -------------------- | ------------------------------- |
 | Staging     | `staging`  | `mysurfplan-staging` | `br-small-salad-adx0nsj2`       |

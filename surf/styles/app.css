@@ -336,6 +336,22 @@ textarea {
   width: 100%;
   min-height: 43px;
 }
+/* Keep native keyboard and mobile pickers, with room for the chevron. */
+select:not([multiple]) {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23172a30' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+@media (forced-colors: active) {
+  select:not([multiple]) {
+    appearance: auto;
+    background-image: none;
+  }
+}
 input[type="checkbox"],
 input[type="radio"] {
   width: 17px;
@@ -1167,7 +1183,7 @@ fieldset legend {
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 12px;
 }
 .forecast-controls .field {
   flex: 1;
@@ -1179,32 +1195,40 @@ fieldset legend {
   gap: 28px;
   min-width: 0;
 }
-.spot-intro,
+.spot-context,
 .section-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
 }
-.spot-intro p,
+.spot-context,
 .section-heading p {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 5px;
 }
-.spot-intro a {
-  font-size: 12px;
+.spot-context {
+  align-items: baseline;
+}
+.spot-context p {
+  line-height: 1.7;
+}
+.spot-context a {
   white-space: nowrap;
+}
+.section-heading p {
+  margin-top: 5px;
 }
 .section-heading {
   margin-bottom: 18px;
 }
-.forecast-reading-note {
-  border-left: 3px solid var(--sea);
-  padding: 12px 18px;
-  background: var(--sea-soft);
-  font-size: 13px;
-  line-height: 1.8;
+.forecast-update {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.forecast-update .forecast-footer {
+  text-align: right;
 }
 .forecast-notice {
   border: 1px solid #e7dcb7;
@@ -1292,7 +1316,7 @@ fieldset legend {
 }
 .outlook-day .experience {
   font-size: 13px;
-  min-height: 39px;
+  min-height: 20px;
 }
 .condition-metrics {
   display: grid;
@@ -1356,9 +1380,8 @@ fieldset legend {
   flex: none;
 }
 .tide-chart {
-  border-top: 1px solid var(--line);
-  margin-top: 28px;
-  padding-top: 22px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
 }
 .tide-chart svg {
   width: 100%;
@@ -1379,8 +1402,7 @@ fieldset legend {
   flex-direction: column;
   gap: 6px;
   border-radius: 8px;
-  background: var(--bg);
-  padding: 12px;
+  padding: 8px 0;
   font-size: 12px;
 }
 .tide-events span {
@@ -1427,7 +1449,7 @@ fieldset legend {
 .forecast-table tr:last-child th {
   border-bottom: 0;
 }
-.forecast-table td small,
+.forecast-table td > small,
 .forecast-table td > .direction,
 .forecast-table td > .experience {
   display: block;
@@ -1517,21 +1539,8 @@ fieldset legend {
   .forecast-controls .field {
     min-width: 100%;
   }
-  .spot-intro {
-    align-items: flex-start;
-  }
-  .spot-intro h2 {
-    font-size: 18px;
-  }
-  .spot-intro a {
-    white-space: normal;
-    max-width: 70px;
-  }
   .forecast-screen {
     gap: 24px;
-  }
-  .forecast-reading-note {
-    font-size: 12px;
   }
   .outlook-grid {
     display: flex;
@@ -1542,7 +1551,7 @@ fieldset legend {
   .outlook-day {
     flex: 0 0 130px;
     scroll-snap-align: start;
-    min-height: 206px;
+    min-height: 180px;
   }
   .condition-metrics,
   .lesson-conditions .condition-metrics {
@@ -1706,16 +1715,135 @@ fieldset legend {
   margin-bottom: 12px;
 }
 .swell-details {
-  margin: 16px 0 24px;
-  padding: 14px 16px;
-  border: 1px solid var(--line, #dce6e8);
-  border-radius: 12px;
-  background: #f7fafb;
+  margin-top: 16px;
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
 }
-.swell-details summary {
+.swell-details summary,
+.ocean-metric-help summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+  min-height: 44px;
+  width: 100%;
+  list-style: none;
+}
+.swell-details summary::-webkit-details-marker,
+.ocean-metric-help summary::-webkit-details-marker {
+  display: none;
+}
+.swell-details summary::after,
+.ocean-metric-help summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  margin-right: 4px;
+  flex: none;
+}
+.swell-details[open] summary::after,
+.ocean-metric-help[open] summary::after {
+  transform: rotate(225deg);
+}
+summary:focus-visible {
+  outline: 2px solid var(--sea);
+  outline-offset: 3px;
+}
+.forecast-extras {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.forecast-extras > details {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.forecast-extras > details + details {
+  border-top: 1px solid var(--line);
+}
+.forecast-extras > details[open] {
+  padding-bottom: 16px;
+}
+.ocean-metric-help p + p {
+  margin-top: 8px;
+}
+.swell-components strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.hour-details {
+  padding: 20px;
+}
+.hour-detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px 24px;
+  margin: 0;
+}
+.hour-detail-metrics dd {
+  font-size: 16px;
+}
+.hour-detail-reasons {
+  margin-top: 20px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 12px;
+}
+.hour-swells {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.hour-swells h3 {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+}
+.forecast-table .forecast-detail-row > td {
+  padding: 0;
+}
+.forecast-detail-row .hour-details {
+  background: #f8fafa;
+}
+.forecast-table .selected-hour {
+  box-shadow: inset 3px 0 var(--sea);
+}
+.forecast-hour-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+.hour-chevron {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+[aria-expanded="true"] > .hour-chevron {
+  transform: rotate(180deg);
+}
+.condition-metric dd {
+  font-variant-numeric: tabular-nums;
+}
+.condition-metric > small,
+.condition-metric dd > small {
+  color: var(--muted);
+}
+.selected-forecast .condition-metrics .condition-metric {
+  padding: 8px 0;
+}
+.tide-chart .section-heading {
+  margin-bottom: 8px;
 }
 .swell-components {
   display: grid;
@@ -1829,49 +1957,61 @@ fieldset legend {
   .hour-card[open] > summary {
     background: #f3f8f8;
   }
-  .hour-card-metrics {
-    display: grid;
+  .hour-details {
+    padding: 18px 14px;
+  }
+  .hour-detail-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px 16px;
-    margin: 0;
-    padding: 20px 16px 16px;
+    gap: 20px 14px;
   }
-  .hour-card-metrics dt {
-    font-size: 11px;
-  }
-  .hour-card-metrics dd {
+  .hour-detail-metrics dd {
     font-size: 15px;
-    margin: 6px 0;
   }
-  .hour-card-metrics dd > small {
-    display: block;
-    margin-top: 5px;
-    font-size: 11px;
-    font-weight: 400;
-  }
-  .hour-card-metrics .direction {
-    margin-top: 6px;
-    font-size: 13px;
-  }
-  .hour-card-metrics .condition-metric > small {
+  .hour-detail-metrics dt {
     font-size: 11px;
   }
-  .hour-card-reasons {
-    padding: 0 16px;
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--muted);
+  .hour-swells .swell-components {
+    grid-template-columns: 1fr;
   }
-  .hour-card .swell-details {
-    margin: 12px;
-    padding: 12px;
+  .hour-swells .swell-components > div {
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    padding-bottom: 10px;
+  }
+  .hour-swells .swell-components .direction {
+    grid-column: 2;
+  }
+  .outlook-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+  }
+  .forecast-update {
+    display: contents;
+  }
+  .forecast-update .button {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .forecast-update .forecast-footer {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+    font-size: 10px;
+  }
+  .spot-context {
+    gap: 10px;
+    font-size: 11px;
+  }
+  .forecast-extras {
+    margin-top: 16px;
   }
 }
 
 .tide-interaction-hint {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 .interactive-tide {
   cursor: crosshair;

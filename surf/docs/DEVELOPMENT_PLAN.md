@@ -58,6 +58,30 @@ Owner feedback, 6 September 2026: energy and water temperature should have the s
 
 Owner clarification, 6 September 2026: no forecast parameter should be visually highlighted above the others. Include surf quality and required experience in the same metric grid as the physical conditions. Remove filled score badges and oversized score typography from selected forecasts, lessons, daily outlooks and mobile hours. Keep clear labels, units, quality descriptions and readable experience levels. Deploy to staging for the owner's review; production must retain the previously approved version until the owner explicitly approves this proposal.
 
+## Decision: keep our swell-energy measure
+
+Owner request, 6 September 2026: investigate Surfline's energy units and try to provide a comparable scale. Surfline uses kJ with height, period and spot-direction effects. Its public explanation does not specify the full coefficients or reference dimensions needed to reproduce the numbers. Our current offshore kJ/m² density and kW/m power cannot be converted to that scale by changing the unit label.
+
+- [x] Verify Surfline's published definition and document the distinction in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md#surfline-units-investigation-on-6-september-2026).
+- [x] Owner decision after reviewing the finding: keep our existing energy density in kJ/m² and estimated power in kW/m. No Surfline-scale conversion is scheduled. Preserve equal visual emphasis with the other parameters.
+
+The research has not changed application code or deployments. The consistent-emphasis proposal remains on staging only, awaiting review.
+
+## Staging review: conditions layout and hourly parity
+
+Owner request, 6 September 2026: keep every forecast parameter available on desktop and mobile, add desktop hourly swell components, restrict spot settings to platform admins, improve dropdown spacing, order spots alphabetically and simplify the screen without removing data.
+
+- [x] Reuse one hourly details component in expandable desktop rows and mobile cards. Include primary, secondary and tertiary swell height, period and direction; gusts; tide height/stage/trend; weather and rain; swell energy and power; water temperature; and assessment notes. Keep quality, experience and estimated surf in the hour summary.
+- [x] Put the tide/time control before selected-time metrics. Preserve daylight markers, tide extremes, keyboard and touch selection. Add selected-time gusts and tide stage/trend.
+- [x] Remove duplicated spot headings and instructional banners. Use compact, unfilled disclosures for swell components and one forecast guide. Keep uncertainty, missing-data notices and operational assessment reasons.
+- [x] Keep all metric values at the same visual level and retain the workspace typography, colours and form styles. Give native dropdown chevrons a 14 px right inset and reserve text space.
+- [x] Sort the shared spot-list API alphabetically, ignoring case and accents. Both Conditions and lesson dropdowns use this list. Remove the obsolete priority input while preserving stored values.
+- [x] Keep editor controls and direct editor URLs restricted to platform admins. Verify spot writes and calibration settings/history access are denied for other roles.
+- [ ] Owner reviews the staging candidate and explicitly approves production. Do not promote before this approval.
+- [ ] After approval, deploy the accepted code to production, verify it and update the deployment records, plan and [handover](HANDOVER.md). This candidate requires no database migration.
+
+Review findings and decisions are in [the conditions design review](UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
+
 ## Environments and design references
 
 - Application: Next.js Pages Router in `surf/`, React, SQL through Neon.
@@ -148,7 +172,7 @@ Preserved product decisions:
 
 ## Conditions architecture and future payments
 
-The conditions architecture is implemented and included in the approved production release. The next task is the generic database calibration cleanup, followed by swell energy calculation and presentation. Use instructor observations to refine each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
+The conditions architecture, generic database calibration, swell energy and water temperature are implemented. The current task is the conditions presentation review above. Use instructor observations to refine each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
 
 Payments are a future module. Agree booking/payment states, cancellation and refund rules, currencies and provider before implementation.
 
@@ -165,9 +189,9 @@ Payments are a future module. Agree booking/payment states, cancellation and ref
 
 - 5 September 2026: Conditions code `3b0d00b` deployed successfully to staging (`dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM`). Verified all 16 outlook cards, last-day tide events, mobile width and lesson conditions on the custom staging domain. The browser sends `refresh=1` when a conditions page or lesson opens. All 17 automated tests and the production build passed. Production remains on `520d826` / `dpl_G8bxGKWi1rNNeTfif2TrQr63t2ZW`.
 
-## Production promotion checklist
+## Historical production promotion checklist, completed 5 September 2026
 
-When the owner approves production promotion, apply the conditions, optional-username, São Pedro exposure and Caparica wave-sample migrations to the production database. Create the same `teststudent` login there with the same password and only the student role, assigned to a dedicated test school. The authorised password is held as a scrypt hash on staging and can be copied securely during provisioning; do not put plaintext credentials or hashes in this repository. The account must not be created in production before promotion. Confirm student access to Conditions and rejection of spot creation/editing.
+The conditions, optional-username, São Pedro exposure and Caparica wave-sample migrations and the student-only `teststudent` login were included in the approved production release below. These are completed steps, not instructions to repeat them. The current presentation candidate requires no migration or account provisioning; follow the current staging review and handover above.
 
 - 5 September 2026 follow-up: added civil twilight and solar markers directly to the tide graph, student username login, strict platform-admin spot writes, compact mobile hourly cards and São Pedro directional sheltering. The corrected model treats swell partitions and wind waves separately and prevents flat surf receiving Good scores. Twenty-six automated checks and the Node.js 22 build passed before deployment.
 

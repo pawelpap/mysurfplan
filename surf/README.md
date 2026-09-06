@@ -9,6 +9,7 @@ Use Node.js 22 (`.nvmrc`). Install dependencies with `npm ci`. Configure `DATABA
 The task-oriented UX proposal is reviewed at https://staging.mywaveplan.com. Production at https://mywaveplan.com follows `main` and must only receive the proposal after the owner's staging review.
 
 - [Current development plan](docs/DEVELOPMENT_PLAN.md)
+- [Current handover and production approval status](docs/HANDOVER.md)
 - [September UX and development audit](docs/UX_AUDIT_2026-09.md)
 - [Staging environment](docs/README-staging.md)
 - [Previous plan and history](docs/DEVELOPMENT_PLAN_ARCHIVE_2026-06.md)

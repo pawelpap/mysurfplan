@@ -78,3 +78,22 @@ These findings should be addressed before expanding real customer use. They are 
 - The final application build passed with Node.js 22 and was deployed to staging as `5c7e944`. Desktop and mobile browser checks passed for the illustrated login and principal admin lesson, booking and person-editing tasks. Public schedule filtering passed without browser errors. Detailed results and coverage limits are recorded in DEVELOPMENT_PLAN.md.
 - The staging label has been removed. The original surf illustration and logo are restored in the responsive login design. Mobile navigation, lists and forms were checked at 390 × 844.
 - Production data was inspected through aggregate/schema reads. Proposal testing uses staging; no production mutation or deployment is authorised before user review.
+
+
+## Conditions presentation review, 6 September 2026
+
+The current Conditions screen was reviewed against the workspace design and the owner's requirement to preserve all forecast parameters with equal visual emphasis.
+
+| Finding | Change in the staging candidate |
+| --- | --- |
+| Desktop hours lack mobile's swell components, estimated power and assessment reasons | One shared detail component, opened by the desktop time/chevron or mobile hour summary. All available partitions remain visible within the expanded hour. |
+| Time selection sits below the values it controls | Move the interactive tide graph before the selected-time metrics. Keep keyboard and touch operation, daylight events and tide extremes. Include gusts and tide stage/trend. |
+| The selected spot name and instructions are repeated | Keep the labelled selector and compact location/timezone context. Remove the duplicate heading and instructional banner. Retain explicit midday labels and the selected time. |
+| Supporting information uses several boxes and repeated explanations | Use unfilled disclosure rows for swell details and a single forecast guide. Keep actionable assessment reasons, missing-data notices and forecast uncertainty. |
+| The native select arrow sits against the field edge | Use a 14 px chevron inset and reserve 42 px on the right, retaining the native picker and keyboard behaviour. |
+| Priority-based spot order is difficult to scan | Sort the shared API list alphabetically, ignoring accents and case. The lesson and forecast selectors use the same ordering. |
+| Spot configuration needs an explicit role boundary | Platform admins alone see the controls and editor. Direct editor URLs deny other roles. Verify the separate API guards for writes, settings and history. |
+
+Retain the existing Poppins typography, sea-colour actions, neutral surfaces, border radii and spacing language. Quality, experience, energy and water remain visually consistent with the other metrics. Selection/focus styling identifies interactive state. No forecast formula or spot calibration changes are part of this review.
+
+The candidate is for staging review. Production promotion requires the owner's explicit approval after testing.

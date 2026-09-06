@@ -63,7 +63,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           notes,
           changeNote,
           active: data.active === "on",
-          displayOrder: Number(data.displayOrder),
+          displayOrder: spot?.displayOrder || 0,
           profileId: profile.id,
           profileVersion: profile.version,
           id: spot?.id,
@@ -169,16 +169,6 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
               { value: "", label: "No tide reference" },
               ...settings.stations.map((s) => ({ value: s.id, label: s.name })),
             ]}
-          />
-          <Field
-            name="displayOrder"
-            label="Spot list priority"
-            type="number"
-            step="1"
-            min="-10000"
-            max="10000"
-            defaultValue={spot?.displayOrder || 0}
-            hint="Higher values appear first."
           />
           <label className="spot-active">
             <input

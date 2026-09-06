@@ -20,6 +20,16 @@ A 1 m, 10 s swell has about 0.628 kJ/m² and 4.903 kW/m. Doubling height quadrup
 
 Each valid partition contributes. A missing or invalid height is not treated as zero; any resulting estimate is marked partial. If any positive-height partition lacks a positive period, power is unavailable. A known zero height contributes zero without needing period. With no valid heights both values are unavailable. Values are calculated from unrounded inputs and rounded for display only. At half hours, raw heights and periods are interpolated before calculating energy, just as for lesson start/end.
 
+## Surfline units: investigation on 6 September 2026
+
+The owner requested familiar Surfline-style units. Surfline displays **kJ**, not kJ/m² or kW/m. Its [Wave Energy support article](https://support.surfline.com/hc/en-us/articles/20352744481947-Wave-Energy) describes summing swell partitions, with height squared, period, coefficients and each partition's direction relative to the beach. Its [feature announcement](https://www.surfline.com/lp/whatsnew/features/wave-energy) describes energy reaching the beach from offshore. Neither page supplies the numerical coefficients or a complete equation that would let us reproduce its scale.
+
+This is a change of metric, not just a display-unit conversion. Our energy density needs an area to become energy in kJ. Our power needs a crest width and duration to become energy in kJ. Selecting those references merely to obtain familiar-looking numbers would not establish equivalence to Surfline. Our current values also describe offshore swell, without the directional shelter adjustment in Surfline's description.
+
+Research outcome: the unit is verified, but a reliable conversion to Surfline's numerical scale is not established. The owner reviewed this finding on 6 September 2026 and chose to keep our existing measure: offshore swell energy density in kJ/m², with estimated power in kW/m. Do not adopt an unsupported fixed multiplier or present our metric as a Surfline equivalent. This decision does not change application code, spot calibrations or either deployment.
+
+No Surfline-scale conversion is scheduled. If the owner reopens this request, document the definition and reference dimensions; evaluate multiple heights, periods, directions and swell partitions; and distinguish an approximation from an exact match. Any local attenuation must use the generic database calibration, and any new adjustable coefficients must be database-owned and versioned. Keep the metric independent of surf quality and required experience. Review on staging before production.
+
 ## Sources and verification
 
 - [NREL Reference Model 5 report, NREL/TP-5000-62861, printed page 6](https://docs.nrel.gov/docs/fy15osti/62861.pdf) gives the significant-height/energy-period deep-water flux formula.

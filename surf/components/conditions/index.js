@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   SelectField,
@@ -24,6 +24,7 @@ import {
   experienceLabel,
   Direction,
   SwellDetails,
+  SwellComponents,
   OceanMetrics,
   AssessmentMetrics,
   OceanMetricsHelp,
@@ -46,6 +47,16 @@ export default function Conditions({ session, query, go }) {
     spots.data[0];
   const [notice, setNotice] = useState("");
   const admin = session.role === "platform_admin";
+  if (["new-spot", "edit-spot"].includes(query.action) && !admin)
+    return (
+      <>
+        <PageHeading title="Spot settings" />
+        <Message>Spot settings are available only to platform admins.</Message>
+        <Button onClick={() => go({ spot: selected?.slug })}>
+          Back to Conditions
+        </Button>
+      </>
+    );
   if (query.action === "new-spot" && admin)
     return (
       <SpotForm
@@ -82,7 +93,6 @@ export default function Conditions({ session, query, go }) {
     <>
       <PageHeading
         title="Conditions"
-        description="Choose a spot, compare the next 16 days, then check the hours you plan to surf."
         action={
           admin && (
             <Button onClick={() => go({ action: "new-spot" })}>
@@ -109,7 +119,7 @@ export default function Conditions({ session, query, go }) {
           <Button
             onClick={() => go({ spot: selected.slug, action: "edit-spot" })}
           >
-            Edit spot
+            Spot settings
           </Button>
         )}
       </div>
@@ -142,8 +152,7 @@ function SpotForecast({ spot, date, onDate }) {
     }
     return grouped;
   }, [d, spot.timezone]);
-  if (source.loading)
-    return <Loading label="Fetching waves, wind and tide predictions…" />;
+  if (source.loading) return <Loading label="Loading forecast…" />;
   if (source.error && !d)
     return (
       <>
@@ -183,25 +192,18 @@ function SpotForecast({ spot, date, onDate }) {
   );
   return (
     <div className="forecast-screen">
-      <div className="spot-intro">
-        <div>
-          <h2>{spot.name}</h2>
-          <p>
-            {spot.breakType} · {spot.region}, {spot.countryCode} ·{" "}
-            {spot.timezone}
-          </p>
-        </div>
+      <div className="spot-context">
+        <p>
+          {spot.breakType} · {spot.region}, {spot.countryCode} · Times in{" "}
+          {spot.timezone}
+        </p>
         <a
           href={`https://www.openstreetmap.org/?mlat=${spot.latitude}&mlon=${spot.longitude}#map=16/${spot.latitude}/${spot.longitude}`}
           target="_blank"
           rel="noreferrer"
         >
-          View location ↗
+          View map ↗
         </a>
-      </div>
-      <div className="forecast-reading-note">
-        <strong>Surf quality ≠ experience level.</strong> A good forecast can
-        still require advanced skills.
       </div>
       {source.error && <Message>{source.error}</Message>}
       {d.issues.map((issue) => (
@@ -210,14 +212,15 @@ function SpotForecast({ spot, date, onDate }) {
         </div>
       ))}
       <section aria-label="16-day outlook">
-        <div className="section-heading">
+        <div className="section-heading outlook-heading">
           <div>
-            <h2>16-day outlook</h2>
-            <p>Midday snapshots. Select a day for hourly changes.</p>
+            <h2>16-day forecast</h2>
+            <p>Daily snapshot at 12:00</p>
           </div>
-          <Button tone="quiet" onClick={source.reload}>
-            Check for updates
-          </Button>
+          <div className="forecast-update">
+            <ForecastFooter data={d} />
+            <Button onClick={source.reload}>Refresh</Button>
+          </div>
         </div>
         <div className="outlook-grid">
           {d.dates.map((day, i) => {
@@ -268,15 +271,24 @@ function SpotForecast({ spot, date, onDate }) {
             <p className="selected-conditions-time">
               Conditions at {selectedLabel}
             </p>
-            <p>
-              {daysAhead >= 7
-                ? "Long-range outlook · low confidence. Recheck nearer the lesson."
-                : daysAhead >= 3
-                  ? "Medium-range outlook · conditions may change."
-                  : ""}
-            </p>
+            {daysAhead >= 3 && (
+              <p>
+                {daysAhead >= 7
+                  ? "Long-range · low confidence"
+                  : daysAhead >= 3
+                    ? "Outlook may change"
+                    : ""}
+              </p>
+            )}
           </div>
         </div>
+        <TideChart
+          key={selected}
+          data={d}
+          day={selected}
+          selectedTime={selectedTime}
+          onTimeChange={chooseTime}
+        />
         <dl className="condition-metrics">
           <AssessmentMetrics condition={snapshot} />
           <Metric label="Estimated surf">
@@ -300,6 +312,9 @@ function SpotForecast({ spot, date, onDate }) {
           <Metric label="Wind" note={snapshot?.windType}>
             {value(snapshot?.windSpeed, " km/h", 0)}
             <Direction degrees={snapshot?.windDirection} />
+            {finite(snapshot?.windGusts) && (
+              <small>Gusts {value(snapshot.windGusts, " km/h", 0)}</small>
+            )}
           </Metric>
           <Metric label="Weather" note={weatherLabel(snapshot?.weatherCode)}>
             {value(snapshot?.temperature, " °C")}
@@ -309,34 +324,25 @@ function SpotForecast({ spot, date, onDate }) {
           </Metric>
           <OceanMetrics condition={snapshot} />
         </dl>
-        <OceanMetricsHelp />
         {snapshot && <p className="muted-note">{snapshot.reasons.join(" ")}</p>}
-        <SwellDetails condition={snapshot} />
-        <TideChart
-          key={selected}
-          data={d}
-          day={selected}
-          selectedTime={selectedTime}
-          onTimeChange={chooseTime}
-        />
+        <div className="forecast-extras">
+          <SwellDetails condition={snapshot} />
+          <OceanMetricsHelp />
+        </div>
       </section>
       <section aria-label="Hourly conditions">
         <div className="section-heading">
           <div>
             <h2>Hourly conditions</h2>
             <p>
-              {allHours ? "The full day" : "From 06:00 through the evening"} ·{" "}
-              {spot.timezone}
+              {dayLabel(selected)} ·{" "}
+              {allHours ? "24 hours" : "06:00 to evening"}
             </p>
           </div>
           <Button onClick={() => setAllHours((v) => !v)}>
-            {allHours ? "06:00 to evening" : "All hours"}
+            {allHours ? "Daytime hours" : "All hours"}
           </Button>
         </div>
-        <p className="muted-note forecast-direction-note">
-          Arrows show travel direction; degrees and compass labels show where
-          wind or swell comes from.
-        </p>
         {visible.length ? (
           <>
             <MobileHours
@@ -344,88 +350,12 @@ function SpotForecast({ spot, date, onDate }) {
               timezone={spot.timezone}
               onSelect={chooseTime}
             />
-            <div className="surface forecast-table-wrap">
-              <table className="forecast-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Quality / experience</th>
-                    <th>Estimated surf</th>
-                    <th>Primary swell</th>
-                    <th>Wind</th>
-                    <th>Tide · MSL</th>
-                    <th>Weather</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visible.map((h) => (
-                    <tr key={h.time}>
-                      <th scope="row">
-                        <button
-                          className="forecast-hour-button"
-                          onClick={() => chooseTime(h.time)}
-                          aria-label={`Show conditions at ${hourLabel(h.time, spot.timezone)}`}
-                        >
-                          {hourLabel(h.time, spot.timezone)}
-                        </button>
-                      </th>
-                      <td>
-                        <Score condition={h} compact />
-                        <Experience level={h.level} />
-                      </td>
-                      <td data-label="Estimated surf">
-                        {finite(h.surfMin)
-                          ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                          : "Unavailable"}
-                      </td>
-                      <td data-label="Primary swell">
-                        <strong>
-                          {value(h.swellHeight, " m")} ·{" "}
-                          {value(h.swellPeriod, " s")}
-                        </strong>
-                        {h.swellHeight > 0 && (
-                          <Direction degrees={h.swellDirection} />
-                        )}
-                        <small>
-                          Energy {value(h.energy?.energyKjM2, " kJ/m²")}
-                          {h.energy?.energyKjM2 != null && !h.energy.complete
-                            ? " · partial"
-                            : ""}
-                        </small>
-                      </td>
-                      <td data-label="Wind">
-                        <strong>{value(h.windSpeed, " km/h", 0)}</strong>
-                        <Direction degrees={h.windDirection} />
-                        <small>
-                          {h.windType}
-                          {finite(h.windGusts)
-                            ? ` · gusts ${Math.round(h.windGusts)}`
-                            : ""}
-                        </small>
-                      </td>
-                      <td data-label="Tide">
-                        <strong>{value(h.tide?.height, " m", 2)}</strong>
-                        <small>
-                          {h.tide
-                            ? `${h.tide.stage} · ${h.tide.trend}`
-                            : "Unavailable"}
-                        </small>
-                      </td>
-                      <td data-label="Weather">
-                        <strong>{value(h.temperature, " °C")}</strong>
-                        <small>{weatherLabel(h.weatherCode)}</small>
-                        <small>Water {value(h.waterTemperature, " °C")}</small>
-                        <small>
-                          {finite(h.precipitation)
-                            ? `${Math.round(h.precipitation)}% rain`
-                            : ""}
-                        </small>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DesktopHours
+              hours={visible}
+              timezone={spot.timezone}
+              onSelect={chooseTime}
+              selectedTime={selectedTime}
+            />
           </>
         ) : (
           <div className="forecast-notice">
@@ -434,16 +364,12 @@ function SpotForecast({ spot, date, onDate }) {
           </div>
         )}
       </section>
-      <ForecastFooter data={d} />
     </div>
   );
 }
 function MobileHours({ hours, timezone, onSelect }) {
   return (
     <div className="mobile-hours">
-      <p className="muted-note">
-        Tap an hour for swell, wind, tide and weather details.
-      </p>
       {hours.map((h) => (
         <details
           className="hour-card"
@@ -488,46 +414,164 @@ function MobileHours({ hours, timezone, onSelect }) {
               </span>
             </div>
           </summary>
-          <dl className="hour-card-metrics">
-            <Metric
-              label="Primary swell"
-              note={
-                finite(h.swellPeriod) && h.swellHeight > 0
-                  ? `${value(h.swellPeriod, " s")} period`
-                  : undefined
-              }
-            >
-              {value(h.swellHeight, " m")}
-              {h.swellHeight > 0 && <Direction degrees={h.swellDirection} />}
-            </Metric>
-            <Metric label="Wind" note={h.windType}>
-              {value(h.windSpeed, " km/h", 0)}
-              <Direction degrees={h.windDirection} />
-              {finite(h.windGusts) && (
-                <small>Gusts {value(h.windGusts, " km/h", 0)}</small>
-              )}
-            </Metric>
-            <Metric
-              label="Tide · mean sea level"
-              note={h.tide ? `${h.tide.stage} · ${h.tide.trend}` : undefined}
-            >
-              {value(h.tide?.height, " m", 2)}
-            </Metric>
-            <Metric label="Weather" note={weatherLabel(h.weatherCode)}>
-              {value(h.temperature, " °C")}
-              {finite(h.precipitation) && (
-                <small>{value(h.precipitation, "%", 0)} rain chance</small>
-              )}
-            </Metric>
-            <OceanMetrics condition={h} />
-          </dl>
-          <p className="hour-card-reasons">
-            {h.reasons.join(" ")}
-            {h.provisional ? " Partial assessment." : ""}
-          </p>
-          <SwellDetails condition={h} />
+          <HourlyDetails condition={h} />
         </details>
       ))}
+    </div>
+  );
+}
+function DesktopHours({ hours, timezone, onSelect, selectedTime }) {
+  const [expanded, setExpanded] = useState(null);
+  return (
+    <div className="surface forecast-table-wrap">
+      <table className="forecast-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Quality / experience</th>
+            <th>Estimated surf</th>
+            <th>Primary swell</th>
+            <th>Wind</th>
+            <th>Tide · MSL</th>
+            <th>Weather</th>
+          </tr>
+        </thead>
+        <tbody>
+          {hours.map((h) => (
+            <Fragment key={h.time}>
+              <tr
+                className={
+                  selectedTime === h.time ? "selected-hour" : undefined
+                }
+              >
+                <th scope="row">
+                  <button
+                    className="forecast-hour-button"
+                    onClick={() => {
+                      setExpanded(expanded === h.time ? null : h.time);
+                      if (expanded !== h.time) onSelect(h.time);
+                    }}
+                    aria-expanded={expanded === h.time}
+                    aria-controls={`hour-details-${h.time}`}
+                    aria-label={`Details for ${hourLabel(h.time, timezone)}`}
+                  >
+                    {hourLabel(h.time, timezone)}
+                    <svg
+                      className="hour-chevron"
+                      viewBox="0 0 16 16"
+                      aria-hidden="true"
+                    >
+                      <path d="m4 6 4 4 4-4" />
+                    </svg>
+                  </button>
+                </th>
+                <td>
+                  <Score condition={h} compact />
+                  <Experience level={h.level} />
+                </td>
+                <td data-label="Estimated surf">
+                  {finite(h.surfMin)
+                    ? `${value(h.surfMin)}–${value(h.surfMax)} m`
+                    : "Unavailable"}
+                </td>
+                <td data-label="Primary swell">
+                  <strong>
+                    {value(h.swellHeight, " m")} · {value(h.swellPeriod, " s")}
+                  </strong>
+                  {h.swellHeight > 0 && (
+                    <Direction degrees={h.swellDirection} />
+                  )}
+                </td>
+                <td data-label="Wind">
+                  <strong>{value(h.windSpeed, " km/h", 0)}</strong>
+                  <Direction degrees={h.windDirection} />
+                  <small>
+                    {h.windType}
+                    {finite(h.windGusts)
+                      ? ` · gusts ${Math.round(h.windGusts)}`
+                      : ""}
+                  </small>
+                </td>
+                <td data-label="Tide">
+                  <strong>{value(h.tide?.height, " m", 2)}</strong>
+                  <small>
+                    {h.tide
+                      ? `${h.tide.stage} · ${h.tide.trend}`
+                      : "Unavailable"}
+                  </small>
+                </td>
+                <td data-label="Weather">
+                  <strong>{value(h.temperature, " °C")}</strong>
+                  <small>{weatherLabel(h.weatherCode)}</small>
+                  <small>
+                    {finite(h.precipitation)
+                      ? `${Math.round(h.precipitation)}% rain`
+                      : ""}
+                  </small>
+                </td>
+              </tr>
+              <tr
+                id={`hour-details-${h.time}`}
+                className="forecast-detail-row"
+                hidden={expanded !== h.time}
+              >
+                <td colSpan={7}>
+                  {expanded === h.time && <HourlyDetails condition={h} />}
+                </td>
+              </tr>
+            </Fragment>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+function HourlyDetails({ condition: h }) {
+  return (
+    <div className="hour-details">
+      <dl className="hour-detail-metrics">
+        <Metric
+          label="Primary swell"
+          note={
+            finite(h.swellPeriod) && h.swellHeight > 0
+              ? `${value(h.swellPeriod, " s")} period`
+              : undefined
+          }
+        >
+          {value(h.swellHeight, " m")}
+          {h.swellHeight > 0 && <Direction degrees={h.swellDirection} />}
+        </Metric>
+        <Metric label="Wind" note={h.windType}>
+          {value(h.windSpeed, " km/h", 0)}
+          <Direction degrees={h.windDirection} />
+          {finite(h.windGusts) && (
+            <small>Gusts {value(h.windGusts, " km/h", 0)}</small>
+          )}
+        </Metric>
+        <Metric
+          label="Tide · mean sea level"
+          note={h.tide ? `${h.tide.stage} · ${h.tide.trend}` : undefined}
+        >
+          {value(h.tide?.height, " m", 2)}
+        </Metric>
+        <Metric label="Weather" note={weatherLabel(h.weatherCode)}>
+          {value(h.temperature, " °C")}
+          {finite(h.precipitation) && (
+            <small>{value(h.precipitation, "%", 0)} rain chance</small>
+          )}
+        </Metric>
+        <OceanMetrics condition={h} />
+      </dl>
+      {(h.reasons?.length > 0 || h.provisional) && (
+        <p className="hour-detail-reasons">
+          {h.reasons?.join(" ")}
+          {h.provisional ? " Partial assessment." : ""}
+        </p>
+      )}
+      <div className="hour-swells">
+        <h3>Swell components</h3>
+        <SwellComponents condition={h} />
+      </div>
     </div>
   );
 }
@@ -611,6 +655,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
   const current = points[Math.min(index, points.length - 1)],
     lo = Math.floor(Math.min(...points.map((p) => p.height)) * 2) / 2 - 0.2,
     hi = Math.ceil(Math.max(...points.map((p) => p.height)) * 2) / 2 + 0.2;
+  const currentTide = tideAt(data.tides, current.time, data.spot.calibration);
   const x = (p) =>
       48 +
       ((p.time - points[0].time) / (points.at(-1).time - points[0].time)) *
@@ -692,14 +737,12 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
         <div>
           <h3>Tide and daylight</h3>
           <p>
-            {hourLabel(current.time, zone)} ·{" "}
             {value(current.height, " m MSL", 2)}
+            {currentTide && ` · ${currentTide.stage} · ${currentTide.trend}`}
           </p>
         </div>
       </div>
-      <p className="tide-interaction-hint">
-        Touch or move across the graph to choose a time.
-      </p>
+      <p className="tide-interaction-hint">Drag to choose a time</p>
       <svg
         className="interactive-tide"
         viewBox={`0 0 ${width} 250`}

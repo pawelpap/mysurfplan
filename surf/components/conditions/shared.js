@@ -94,21 +94,30 @@ export function SwellDetails({ condition, label = "Swell components" }) {
   return (
     <details className="swell-details">
       <summary>{label}</summary>
-      <div className="swell-components">
-        {condition.swellComponents.map((s) => (
-          <div key={s.name}>
-            <strong>{s.name} swell</strong>
-            <span>
-              {value(s.height, " m")} · {value(s.period, " s")}
-            </span>
-            <Direction degrees={s.direction} />
-          </div>
-        ))}
-      </div>
-      {!condition.swellComponents.length && (
-        <p>No swell components predicted for this hour.</p>
-      )}
+      <SwellComponents condition={condition} />
     </details>
+  );
+}
+export function SwellComponents({ condition }) {
+  return (
+    <div className="swell-components">
+      {condition?.swellComponents?.map((s) => (
+        <div key={s.name}>
+          <strong>{s.name} swell</strong>
+          <span>
+            {value(s.height, " m")} · {value(s.period, " s")}
+          </span>
+          <Direction degrees={s.direction} />
+        </div>
+      ))}
+      {!condition?.swellComponents?.length && (
+        <p>
+          {condition?.swellComponents
+            ? "No swell components predicted for this hour."
+            : "Swell components unavailable for this hour."}
+        </p>
+      )}
+    </div>
   );
 }
 export function Score({ condition, compact = false }) {
@@ -210,9 +219,9 @@ export function OceanMetrics({ condition, atStart = false }) {
       <Metric
         label={`Water temperature${atStart ? " at start" : ""}`}
         note={
-          finite(condition?.waterTemperature)
-            ? "Sea surface"
-            : "No water forecast for this time"
+          !finite(condition?.waterTemperature)
+            ? "No forecast for this time"
+            : undefined
         }
       >
         {value(condition?.waterTemperature, " °C")}
@@ -223,21 +232,20 @@ export function OceanMetrics({ condition, atStart = false }) {
 export function OceanMetricsHelp() {
   return (
     <details className="ocean-metric-help">
-      <summary>About energy and water temperature</summary>
+      <summary>Forecast guide</summary>
       <p>
-        Energy describes the offshore swell, before sheltering and breaking at
-        this spot. Higher energy does not mean better surf or easier conditions.
-        Use surf quality and required experience to plan your session.
+        Quality and required experience are separate: good surf can still need
+        advanced skills. Arrows show travel direction; degrees show where wind
+        and swell come from. Tide heights are relative to mean sea level (MSL).
       </p>
       <p>
-        Energy is shown per square metre. Estimated power also accounts for
-        swell period. It uses a deep-water approximation and the available
-        forecast periods; partial values include only the available swell
-        components.
+        Swell energy is measured offshore, before local sheltering, in kJ/m².
+        Estimated power (kW/m) also accounts for period. Partial values use only
+        available swell components. Higher energy does not mean better surf.
       </p>
       <p>
-        Water temperature is a sea-surface forecast. It can differ near the
-        beach and is available for fewer days than the wave forecast.
+        Water temperature is a sea-surface estimate and may differ near the
+        beach. Its forecast covers fewer days than waves.
       </p>
     </details>
   );
