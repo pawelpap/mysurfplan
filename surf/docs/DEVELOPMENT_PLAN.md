@@ -107,6 +107,18 @@ Owner request, 6 September 2026: make the app addable to smartphone home screens
 - [x] Deploy revision `1b47423` to staging (`dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`) and pass live installation/launch checks, then deploy the same code to production (`dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`) and repeat the checks successfully.
 - [x] Record live verification and update the handover. Manifest, icon assets, installation diagnostics, launch/login, theme colours and mobile layouts pass on both domains. Physical iPhone installation was not claimed as tested. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
 
+## Mobile browser viewport correction
+
+Owner report, 6 September 2026: a physical iPhone browser screenshot showed the Conditions workspace scaled into roughly 85% of the available width, with a dark strip at the right edge.
+
+- [x] Add an explicit device-width viewport with an initial scale and iPhone safe-area support, while retaining pinch zoom.
+- [x] Make the app root, workspace, mobile header and main content fill the available width without hiding overflow.
+- [x] Pass all 44 tests and the production build. Check iPhone Safari and iPhone browser profiles at 320, 375, 390, 393, 402, 430, 499, 589, 760 and 761 px, including the width shown in the owner's screenshot.
+- [x] Verify long spot names, the 760 px responsive breakpoint, larger text, browser zoom, horizontal overflow and browser exceptions.
+- [x] Deploy application revision `23bdcc3` to staging (`dpl_5RT6XfaU3RwuJNvvX8H6DDAZRrPi`) and production (`dpl_4wBXGTptaTpdmJrueUvGiNsmQqmW`). Both custom domains passed the same live checks, with no deployment-scoped error or fatal logs.
+
+No database, conditions data, forecast-model or permission change was required.
+
 ## Environments and design references
 
 - Application: Next.js Pages Router in `surf/`, React, SQL through Neon.

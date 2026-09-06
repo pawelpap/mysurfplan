@@ -2,7 +2,19 @@
 
 Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: home-screen support
+## Current release: mobile browser viewport correction
+
+A physical iPhone browser screenshot showed the Conditions workspace using roughly 85% of the available width and leaving a dark strip at the right edge. Application revision `23bdcc385a8c54025d80a24a93eb87bea6d20857` corrects the global mobile viewport and makes the app root, workspace, mobile header and content area fill the available browser width. Safe-area padding is retained for iPhone cut-outs, and pinch zoom remains available.
+
+- Verified staging deployment: `dpl_5RT6XfaU3RwuJNvvX8H6DDAZRrPi`.
+- Verified production deployment: `dpl_4wBXGTptaTpdmJrueUvGiNsmQqmW`.
+- Both custom domains serve the same application revision.
+
+All 44 tests and the production build passed. Local, staging and production browser checks covered iPhone Safari and iPhone browser profiles at 320, 375, 390, 393, 402, 430, 499, 589, 760 and 761 px. They verified the viewport definition, full-width app shell, the mobile-to-desktop breakpoint, long spot names, document overflow, larger text, browser zoom and browser exceptions. Deployment-scoped error and fatal logs were empty during live verification.
+
+This change affects only browser metadata and responsive CSS. It does not change the database, conditions data, forecast model, permissions or service-worker behaviour.
+
+## Previous release: home-screen support
 
 The owner explicitly authorised deployment of home-screen support to both environments on 6 September 2026. Application revision `1b474234a0187c53d7047d0f64fe9fb534c15582` was verified on staging, then deployed and verified on production. Both environments support browser-tab icons and smartphone home-screen installation, including Apple metadata and a dedicated iPhone icon. The app opens Conditions in a standalone window and retains normal authentication.
 
