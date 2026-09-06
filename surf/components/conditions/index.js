@@ -216,7 +216,13 @@ function SpotForecast({ spot, date, onDate }) {
           </div>
           <div className="forecast-update">
             <ForecastFooter data={d} />
-            <Button onClick={source.reload}>Refresh</Button>
+            <Button
+              onClick={source.reload}
+              disabled={source.refreshing}
+              aria-busy={source.refreshing}
+            >
+              {source.refreshing ? "Refreshing…" : "Refresh"}
+            </Button>
           </div>
         </div>
         <div className="outlook-grid">
@@ -249,7 +255,7 @@ function SpotForecast({ spot, date, onDate }) {
                 <span className="outlook-waves">
                   {finite(h?.surfMin)
                     ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                    : "No wave data"}
+                    : "Surf estimate unavailable"}
                 </span>
                 <Experience level={h?.level} />
                 {i >= 7 && <small>Long-range</small>}

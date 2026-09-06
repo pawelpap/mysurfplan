@@ -49,7 +49,7 @@ export default function Login() {
       </div>
       <section className="login-story" aria-label="MyWavePlan for surf schools">
         <div className="login-story-copy">
-          <p className="eyebrow">Made for surf schools</p>
+          <p className="eyebrow">Made for surfers and surf schools</p>
           <h2>
             Plan the lesson.
             <br />

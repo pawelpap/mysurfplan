@@ -11,6 +11,7 @@ export function useForecast(url) {
     url: null,
     data: null,
     loading: false,
+    refreshing: false,
     error: "",
   });
   const [version, setVersion] = useState(0);
@@ -20,14 +21,17 @@ export function useForecast(url) {
     const controller = new AbortController();
     let last = 0;
     let inFlight = false;
+    let nextRefresh = 0;
     async function refresh(force = false) {
       if (inFlight) return;
       inFlight = true;
       last = Date.now();
+      nextRefresh = last + 60000;
       setState((s) => ({
         url,
         data: s.url === url ? s.data : null,
         loading: !s.data || s.url !== url,
+        refreshing: true,
         error: "",
       }));
       try {
@@ -36,10 +40,18 @@ export function useForecast(url) {
           { signal: controller.signal },
         );
         if (!controller.signal.aborted)
-          setState({ url, data, loading: false, error: "" });
+          setState({ url, data, loading: false, refreshing: false, error: "" });
+        nextRefresh = data.retryAt
+          ? Math.max(Date.now() + 1000, new Date(data.retryAt).getTime())
+          : Date.now() + 5 * 60000;
       } catch (e) {
         if (!controller.signal.aborted)
-          setState((s) => ({ ...s, loading: false, error: e.message }));
+          setState((s) => ({
+            ...s,
+            loading: false,
+            refreshing: false,
+            error: e.message,
+          }));
       } finally {
         inFlight = false;
       }
@@ -48,16 +60,22 @@ export function useForecast(url) {
     // requests made within two minutes to protect the shared provider quota.
     refresh(true);
     const timer = setInterval(() => {
-      if (document.visibilityState === "visible") refresh();
-    }, 5 * 60000);
+      if (document.visibilityState === "visible" && Date.now() >= nextRefresh)
+        refresh();
+    }, 30000);
     const focus = () => {
       if (Date.now() - last > 60000) refresh();
     };
     window.addEventListener("focus", focus);
+    const visible = () => {
+      if (document.visibilityState === "visible") focus();
+    };
+    document.addEventListener("visibilitychange", visible);
     return () => {
       controller.abort();
       clearInterval(timer);
       window.removeEventListener("focus", focus);
+      document.removeEventListener("visibilitychange", visible);
     };
   }, [url, version]);
   return {

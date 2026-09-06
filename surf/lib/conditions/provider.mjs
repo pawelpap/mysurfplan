@@ -1,3 +1,5 @@
+import { readForecastSource } from "./provider-request.mjs";
+
 const marineFields = {
   wave_height: "waveHeight",
   swell_wave_height: "swellHeight",
@@ -117,31 +119,29 @@ export function providerUrls(spot, key) {
   water.searchParams.set("hourly", "sea_surface_temperature");
   return { marine, weather, water };
 }
-export async function fetchForecast(spot) {
+export async function fetchForecast(spot, requestOptions) {
   const urls = providerUrls(spot, process.env.OPEN_METEO_API_KEY);
-  async function read(url) {
-    const r = await fetch(url, {
-      signal: AbortSignal.timeout(12000),
-      cache: "no-store",
-    });
-    if (!r.ok) throw new Error(`Forecast provider returned ${r.status}`);
-    const j = await r.json();
-    if (j.error || !j.hourly?.time?.length)
-      throw new Error("Forecast provider returned no hourly data");
-    return j;
-  }
   const results = await Promise.allSettled([
-    read(urls.marine),
-    read(urls.weather),
-    read(urls.water),
+    readForecastSource(urls.marine, "marine", requestOptions),
+    readForecastSource(urls.weather, "weather", requestOptions),
+    readForecastSource(urls.water, "water", requestOptions),
   ]);
   let marine = results[0].status === "fulfilled" ? results[0].value : null;
   const zeroFilled = marine && !hasWaveSignal(marine);
   if (zeroFilled) marine = null;
   const weather = results[1].status === "fulfilled" ? results[1].value : null;
   const water = results[2].status === "fulfilled" ? results[2].value : null;
-  if (!marine && !weather)
-    throw new Error("Forecast provider is temporarily unavailable.");
+  const retryAfterMs = Math.max(
+    0,
+    ...results
+      .slice(0, 2)
+      .map((r) => (r.status === "rejected" ? r.reason.retryAfterMs || 0 : 0)),
+  );
+  if (!marine && !weather) {
+    const error = new Error("Forecast provider is temporarily unavailable.");
+    error.retryAfterMs = retryAfterMs;
+    throw error;
+  }
   const issues = [];
   if (!marine)
     issues.push(
@@ -167,6 +167,7 @@ export async function fetchForecast(spot) {
         : null,
     },
     issues,
+    retryAfterMs,
     marineGrid: marine
       ? { latitude: marine.latitude, longitude: marine.longitude }
       : null,
