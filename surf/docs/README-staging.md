@@ -2,7 +2,7 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
-The current conditions-presentation, appearance and nearest-spot candidate and verification handover are recorded in [HANDOVER.md](HANDOVER.md). It requires no database migration. The owner must review it on staging before production; do not copy databases for this presentation change.
+The owner approved the conditions-presentation, appearance and nearest-spot release on 6 September 2026. The same application revision is now deployed and verified in both environments. See [HANDOVER.md](HANDOVER.md) and [release notes](RELEASE_2026-09-06_PRESENTATION.md) for the approved revision, deployment IDs, checks and rollback. No database migration or copy was performed. Future changes require a new staging review before production.
 
 | Environment | Git branch | Vercel project       | Neon branch                     |
 | ----------- | ---------- | -------------------- | ------------------------------- |
@@ -33,7 +33,7 @@ node scripts/migrate-conditions.mjs --staging
 
 The script loads `.env.local`, adds the new tables and lesson spot reference, seeds 17 Portugal spots and the Cascais tide reference, and maps reviewed legacy lesson names. It preserves existing spot edits. The `--staging` flag is an acknowledgement, not automatic endpoint verification.
 
-The current production release uses a copy of the verified staging database, including all conditions and username migrations.
+Production was initialised from the verified merged staging database on 5 September and received the calibration migration on 6 September. The databases remain separate; new business records and caches can diverge. A later presentation release does not copy or reset them.
 
 ## Forecast access
 

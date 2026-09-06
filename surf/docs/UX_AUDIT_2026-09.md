@@ -96,7 +96,7 @@ The current Conditions screen was reviewed against the workspace design and the 
 
 Retain the existing Poppins typography, sea-colour actions, neutral surfaces, border radii and spacing language. Quality, experience, energy and water remain visually consistent with the other metrics. Selection/focus styling identifies interactive state. No forecast formula or spot calibration changes are part of this review.
 
-The candidate is for staging review. Production promotion requires the owner's explicit approval after testing.
+The combined candidate was reviewed on staging and explicitly approved for production on 6 September 2026. It is now deployed in both environments; see [release verification](RELEASE_2026-09-06_PRESENTATION.md). Future changes still require staging review and explicit production approval.
 
 
 ## Appearance and spot-order follow-up, 6 September 2026
@@ -106,3 +106,8 @@ The owner restored semantic quality colours and asked for tinted daily tiles, su
 System appearance is the default. A shared Appearance selector offers System, Light and Dark in the workspace menu and public page headers. The login illustration, tide chart, forms and menus share semantic theme tokens, avoiding bright fixed-colour panels in dark mode. An early script prevents a wrong-theme flash when a preference is saved.
 
 The native spot picker keeps its inset chevron and now has compact Nearest to me and A–Z controls. The owner asked for automatic nearest sorting: browser permission is requested when the first picker opens after login. Approximate distances use the stored spot coordinates and browser location, entirely in memory. Failure leaves an alphabetical list and a concise retry/permission message. Conditions and lesson forms share the same picker; reordering never changes the selected spot. No location request occurs on the login page.
+
+
+## Production completion, 6 September 2026
+
+The owner approved the final layout, appearance and distance-sorting changes after testing staging. Approved revision `2ea5905` was deployed to production as `dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`. Live verification passed on desktop, tablet and mobile, including the shared hourly details, both themes, coloured daily tiles, location fallback, touch chart, lesson conditions and admin access boundary. The release changes no forecast formula, calibration or business data. The remaining functional and reliability findings earlier in this audit remain separate backlog items.

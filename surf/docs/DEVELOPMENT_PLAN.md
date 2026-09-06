@@ -12,6 +12,8 @@ Standing deployment instruction, clarified by the owner on 6 September 2026: dep
 
 The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
+Current release status, 6 September 2026: the owner approved the reviewed conditions-layout, appearance and nearest-spot candidate. Revision `2ea5905` is deployed and verified on production and staging. Production deployment: `dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`. This completes the presentation tasks below; future releases still follow the standing approval workflow. See [release notes](RELEASE_2026-09-06_PRESENTATION.md).
+
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
 ## September release: generic database calibration
@@ -54,9 +56,9 @@ Implemented and locally verified: 37 tests pass, including 5,712 legacy parity c
 
 Owner feedback, 6 September 2026: energy and water temperature should have the same visual emphasis as the other parameters. The separate teal cards and icons were replaced with shared metric cells in selected conditions, expanded mobile hours and lesson details. Values, units, explanations and selected-time behaviour were preserved. Commit `1938804` was deployed to staging and production before the owner clarified the approval requirement above. All subsequent changes must wait for the owner's staging review and explicit production approval.
 
-## Staging proposal: consistent emphasis for all forecast parameters
+## Completed presentation review: consistent emphasis for forecast parameters
 
-Owner clarification, 6 September 2026: no forecast parameter should be visually highlighted above the others. Include surf quality and required experience in the same metric grid as the physical conditions. Remove filled score badges and oversized score typography from selected forecasts, lessons, daily outlooks and mobile hours. Keep clear labels, units, quality descriptions and readable experience levels. Deploy to staging for the owner's review; production must retain the previously approved version until the owner explicitly approves this proposal.
+Owner clarification, 6 September 2026: no forecast parameter should be visually highlighted above the others. Include surf quality and required experience in the same metric grid as the physical conditions. Remove filled score badges and oversized score typography from selected forecasts, lessons, daily outlooks and mobile hours. Keep clear labels, units, quality descriptions and readable experience levels. The final version was reviewed on staging and approved for production on 6 September. Later feedback restored semantic quality colours and tinted daily tiles while retaining equal metric sizes.
 
 ## Decision: keep our swell-energy measure
 
@@ -65,9 +67,9 @@ Owner request, 6 September 2026: investigate Surfline's energy units and try to 
 - [x] Verify Surfline's published definition and document the distinction in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md#surfline-units-investigation-on-6-september-2026).
 - [x] Owner decision after reviewing the finding: keep our existing energy density in kJ/m² and estimated power in kW/m. No Surfline-scale conversion is scheduled. Preserve equal visual emphasis with the other parameters.
 
-The research has not changed application code or deployments. The consistent-emphasis proposal remains on staging only, awaiting review.
+The research did not change the algorithm or units. The presentation work was subsequently approved and released to production as recorded below.
 
-## Staging review: conditions layout and hourly parity
+## Completed release: conditions layout and hourly parity
 
 Owner request, 6 September 2026: keep every forecast parameter available on desktop and mobile, add desktop hourly swell components, restrict spot settings to platform admins, improve dropdown spacing, order spots alphabetically and simplify the screen without removing data.
 
@@ -77,23 +79,23 @@ Owner request, 6 September 2026: keep every forecast parameter available on desk
 - [x] Keep all metric values at the same visual level and retain the workspace typography, colours and form styles. Give native dropdown chevrons a 14 px right inset and reserve text space.
 - [x] Sort the shared spot-list API alphabetically, ignoring case and accents. Both Conditions and lesson dropdowns use this list. Remove the obsolete priority input while preserving stored values.
 - [x] Keep editor controls and direct editor URLs restricted to platform admins. Verify spot writes and calibration settings/history access are denied for other roles.
-- [x] Deploy application commit `48b3a49` to staging and verify its custom domain: all 17 spots in alphabetical order, equal desktop/mobile hourly details, five viewport widths, explicit refresh, chosen-time keyboard/touch interaction, lesson conditions, missing data and role access. Production remains on `1938804`.
-- [ ] Owner reviews the staging candidate and explicitly approves production. Do not promote before this approval.
-- [ ] After approval, deploy the accepted code to production, verify it and update the deployment records, plan and [handover](HANDOVER.md). This candidate requires no database migration.
+- [x] Deploy application commit `48b3a49` to staging and verify its custom domain: all 17 spots in alphabetical order, equal desktop/mobile hourly details, five viewport widths, explicit refresh, chosen-time keyboard/touch interaction, lesson conditions, missing data and role access. Production stayed on `1938804` during staging review.
+- [x] Owner reviewed staging and explicitly approved production on 6 September 2026.
+- [x] Deploy approved revision `2ea5905` to production, complete live checks and update the release records, plan and [handover](HANDOVER.md). No database migration was required or performed.
 
 Review findings and decisions are in [the conditions design review](UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
 
-## Staging follow-up: appearance, quality colours and nearest spots
+## Completed release: appearance, quality colours and nearest spots
 
-Owner requests, 6 September 2026: add light/dark mode with a device-based default; restore quality colours before staging deployment and colour the daily tiles as well as the text; sort spots by distance automatically when the app opens. These changes join the conditions-layout candidate and require a fresh staging review before production.
+Owner requests, 6 September 2026: add light/dark mode with a device-based default; restore quality colours before staging deployment and colour the daily tiles as well as the text; sort spots by distance automatically when the app opens. These changes joined the conditions-layout candidate. The owner reviewed and approved the combined staging release before production deployment.
 
 - [x] Add shared semantic colours across the app, a System/Light/Dark selector, pre-paint preference application, live device changes, local preference persistence and tab synchronisation. Preserve readable native controls and charts; handle blocked browser storage.
 - [x] Restore green/yellow/orange/red surf-quality text and dots, plus subtle daily-tile fills. Preserve neutral missing data, a distinct selected-day outline and separate required experience. Keep all metric values at the same typographic scale.
 - [x] Share the spot picker between Conditions and lesson forms. Automatically request browser location when the first picker opens after login. Sort nearest first using a worldwide distance calculation; include approximate distances. Preserve the selected spot and offer A–Z with a safe fallback, retry and late-callback cancellation. Keep coordinates in memory only; no server transmission or map-service dependency.
 - [x] Pass 44 automated tests and the production build. Verify the appearance controls, text contrast, responsive layouts, tide touch interaction and location permission/failure paths with synthetic coordinates in the browser.
-- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production remains on `1938804`. The verification is recorded in [HANDOVER.md](HANDOVER.md).
-- [ ] Owner tests staging and explicitly approves production. Keep production on `1938804` until then.
-- [ ] After approval, deploy that candidate to production, verify and update the documentation and handover. No database migration or business-record copy is required.
+- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production stayed on `1938804` during staging review. The verification is recorded in [HANDOVER.md](HANDOVER.md).
+- [x] Owner tested staging and explicitly approved production on 6 September 2026.
+- [x] Deploy approved revision `2ea5905` to production (`dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`). Verify both themes, all five widths, location sorting, hourly parity, keyboard/touch graph, lesson conditions and role access. Update documentation and handover. No database migration or business-record copy was performed; no browser exceptions, observed 5xx responses or deployment-scoped error/fatal logs were found during verification.
 
 ## Environments and design references
 
@@ -185,7 +187,7 @@ Preserved product decisions:
 
 ## Conditions architecture and future payments
 
-The conditions architecture, generic database calibration, swell energy and water temperature are implemented. The current task is the conditions presentation review above. Use instructor observations to refine each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
+The conditions architecture, generic database calibration, swell energy and water temperature are implemented. The conditions presentation, appearance and nearest-spot release above is complete on production and staging. Use instructor observations to refine each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
 
 Payments are a future module. Agree booking/payment states, cancellation and refund rules, currencies and provider before implementation.
 
