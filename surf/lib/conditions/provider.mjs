@@ -12,7 +12,7 @@ const marineFields = {
   wind_wave_height: "windWaveHeight",
   wind_wave_direction: "windWaveDirection",
 };
-export const providerVersion = 2;
+export const providerVersion = 3;
 export function hasWaveSignal(data) {
   return [
     "wave_height",
@@ -47,7 +47,7 @@ const weatherFields = {
   wind_gusts_10m: "windGusts",
   is_day: "isDay",
 };
-export function normaliseForecast(marine, weather) {
+export function normaliseForecast(marine, weather, water) {
   const records = new Map();
   for (const [data, fields] of [
     [marine, marineFields],
@@ -65,6 +65,16 @@ export function normaliseForecast(marine, weather) {
       records.set(time, h);
     });
   }
+  // Join temperature only to the wave/weather timeline. A failed SST request
+  // must not create empty condition rows or extrapolate past its own horizon.
+  water?.hourly?.time?.forEach((seconds, i) => {
+    const h = records.get(seconds * 1000);
+    const value = water.hourly.sea_surface_temperature?.[i];
+    if (h)
+      h.waterTemperature =
+        typeof value === "number" && Number.isFinite(value) ? value : null;
+  });
+  for (const h of records.values()) h.waterTemperature ??= null;
   return [...records.values()].sort((a, b) => a.time - b.time);
 }
 export function providerUrls(spot, key) {
@@ -100,7 +110,12 @@ export function providerUrls(spot, key) {
     hourly: Object.keys(weatherFields).join(","),
     wind_speed_unit: "kmh",
   });
-  return { marine, weather };
+  const water = new URL(marine);
+  water.searchParams.delete("models");
+  water.searchParams.set("latitude", spot.latitude);
+  water.searchParams.set("longitude", spot.longitude);
+  water.searchParams.set("hourly", "sea_surface_temperature");
+  return { marine, weather, water };
 }
 export async function fetchForecast(spot) {
   const urls = providerUrls(spot, process.env.OPEN_METEO_API_KEY);
@@ -118,11 +133,13 @@ export async function fetchForecast(spot) {
   const results = await Promise.allSettled([
     read(urls.marine),
     read(urls.weather),
+    read(urls.water),
   ]);
   let marine = results[0].status === "fulfilled" ? results[0].value : null;
   const zeroFilled = marine && !hasWaveSignal(marine);
   if (zeroFilled) marine = null;
   const weather = results[1].status === "fulfilled" ? results[1].value : null;
+  const water = results[2].status === "fulfilled" ? results[2].value : null;
   if (!marine && !weather)
     throw new Error("Forecast provider is temporarily unavailable.");
   const issues = [];
@@ -139,7 +156,16 @@ export async function fetchForecast(spot) {
     marineModel: marineModel(spot),
     sampleLatitude: spot.marineLatitude,
     sampleLongitude: spot.marineLongitude,
-    hours: normaliseForecast(marine, weather),
+    hours: normaliseForecast(marine, weather, water),
+    waterTemperatureSource: {
+      status: water?.hourly?.sea_surface_temperature?.some(Number.isFinite)
+        ? "available"
+        : "unavailable",
+      model: "Open-Meteo marine best match sea surface temperature",
+      grid: water
+        ? { latitude: water.latitude, longitude: water.longitude }
+        : null,
+    },
     issues,
     marineGrid: marine
       ? { latitude: marine.latitude, longitude: marine.longitude }

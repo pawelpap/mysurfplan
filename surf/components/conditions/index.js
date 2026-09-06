@@ -24,6 +24,7 @@ import {
   experienceLabel,
   Direction,
   SwellDetails,
+  OceanMetrics,
   ForecastFooter,
   Metric,
   value,
@@ -314,6 +315,7 @@ function SpotForecast({ spot, date, onDate }) {
             )}
           </Metric>
         </dl>
+        <OceanMetrics condition={snapshot} />
         {snapshot && <p className="muted-note">{snapshot.reasons.join(" ")}</p>}
         <SwellDetails condition={snapshot} />
         <TideChart
@@ -390,6 +392,12 @@ function SpotForecast({ spot, date, onDate }) {
                         {h.swellHeight > 0 && (
                           <Direction degrees={h.swellDirection} />
                         )}
+                        <small>
+                          Energy {value(h.energy?.energyKjM2, " kJ/m²")}
+                          {h.energy?.energyKjM2 != null && !h.energy.complete
+                            ? " · partial"
+                            : ""}
+                        </small>
                       </td>
                       <td data-label="Wind">
                         <strong>{value(h.windSpeed, " km/h", 0)}</strong>
@@ -412,6 +420,7 @@ function SpotForecast({ spot, date, onDate }) {
                       <td data-label="Weather">
                         <strong>{value(h.temperature, " °C")}</strong>
                         <small>{weatherLabel(h.weatherCode)}</small>
+                        <small>Water {value(h.waterTemperature, " °C")}</small>
                         <small>
                           {finite(h.precipitation)
                             ? `${Math.round(h.precipitation)}% rain`
@@ -524,6 +533,7 @@ function MobileHours({ hours, timezone, onSelect }) {
               )}
             </Metric>
           </dl>
+          <OceanMetrics condition={h} compact />
           <p className="hour-card-reasons">
             {h.reasons.join(" ")}
             {h.provisional ? " Partial assessment." : ""}

@@ -6,7 +6,7 @@ For the complete spot schema, coefficient definitions and a current Bico calibra
 
 ## Generic database calibration, 6 September 2026
 
-The new engine reads a complete, schema-validated configuration from PostgreSQL for every spot. All tunable wave, wind, tide, quality, experience and warning parameters have moved into versioned configuration. Named Bico/Bafureira tide presets and north-only shelter logic are replaced by generic tide rules, direction curves and shelter sectors. The historical sections below describe the initial assumptions, which the migration preserves. The [current schema reference](SPOT_DATA_MODEL.md) describes storage, editing, revision history and defaults.
+The new engine reads a complete, schema-validated configuration from PostgreSQL for every spot. All tunable wave, wind, tide, quality, experience and warning parameters have moved into versioned configuration. Named Bico/Bafureira tide presets and north-only shelter logic are replaced by generic tide rules, direction curves and shelter sectors. Swell energy and water temperature are described in [their method reference](SWELL_ENERGY_AND_WATER_TEMPERATURE.md). The historical sections below describe the initial assumptions, which the migration preserves. The [current schema reference](SPOT_DATA_MODEL.md) describes storage, editing, revision history and defaults.
 
 ## Spots and lessons
 

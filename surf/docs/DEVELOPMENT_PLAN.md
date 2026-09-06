@@ -6,38 +6,45 @@ This is the current working plan. Update it after meaningful changes. The previo
 
 ## Current direction agreed with the owner
 
-Build and review a working proposal at https://staging.mywaveplan.com. Use Figma as a supporting design reference when useful. The user will verify the app on staging. Promote to https://mywaveplan.com only after that review confirms it is ready.
+Build and review a working proposal at https://staging.mywaveplan.com. Use Figma as a supporting design reference when useful. The user will verify the app on staging. For the calibration, swell-energy and water-temperature release, the owner authorised production deployment once staging verification passes (6 September 2026). Subsequent changes return to the usual staging review workflow.
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
-## Next task: generic calibration schema in the database
+## September release: generic database calibration
 
 Owner decision, 6 September 2026: all surf calibration values and configurable rules must live in the database in a proper generic schema. This is the next development priority. Keep the reusable calculation engine and validation in code; remove spot-specific branches, named spot presets and hard-coded calibration defaults from it.
 
 Scope:
 
-- [ ] Inventory every calibration value and rule in the existing model, including wave gains, directional curves, period response and limits, wind adjustments, tide suitability, score weights and penalties, quality boundaries, experience thresholds, severe-condition limits and displayed surf-range factors.
-- [ ] Design a documented, versioned database schema for model profiles, generic rule definitions and spot assignments or overrides. Specify types, units, valid ranges, required fields and rule precedence, with database and API validation. A loosely structured JSON object alone is not sufficient. Shared defaults must also be stored and versioned in the database.
-- [ ] Replace `bico` and `bafureira` tide presets with generic tide-range rules conditional on swell or other supported inputs. Replace `northWindShelter` with a reusable wind-direction exposure curve. No rule may depend on a spot name, slug or forecast date.
-- [ ] Make the shared engine load a complete validated configuration for both the Conditions screen and lesson forecasts. Missing or unsupported configuration must produce a clear error instead of silently using hard-coded calibration values. Keep mathematical operations, unit conversions and configuration validation in code.
-- [ ] Provide platform-admin editing for all calibration settings, with units, validation, change notes, source references, version history, concurrent-edit protection and restoration of earlier versions. Record which engine/configuration versions produced an assessment and make cache reuse respect those versions.
-- [ ] Migrate all existing spots and shared defaults into the new schema, preserving current forecast behaviour, spot IDs, lesson links and calibration history. Keep rollback available. Treat this task as a structural cleanup; changes to forecast assumptions require separate evidence and review.
-- [ ] Verify equivalent results using fixed forecast inputs before and after migration. Cover Bico's swell-dependent tide range, Bafureira, directional interpolation and north wrap, Caparica, score/experience boundaries and missing data. Demonstrate that a new spot and its calibration can be configured entirely through the database-backed admin workflow without changing application code.
-- [ ] Update the algorithm and schema documentation, deploy to staging and verify desktop/mobile admin editing plus forecast/lesson consistency. Promote to production after the owner's staging review and approval.
+- [x] Inventory every calibration value and rule in the existing model, including wave gains, directional curves, period response and limits, wind adjustments, tide suitability, score weights and penalties, quality boundaries, experience thresholds, severe-condition limits and displayed surf-range factors.
+- [x] Design a documented, versioned database schema for model profiles, generic rule definitions and spot assignments or overrides. Specify types, units, valid ranges, required fields and rule precedence, with database and API validation. A loosely structured JSON object alone is not sufficient. Shared defaults must also be stored and versioned in the database.
+- [x] Replace `bico` and `bafureira` tide presets with generic tide-range rules conditional on swell or other supported inputs. Replace `northWindShelter` with a reusable wind-direction exposure curve. No rule may depend on a spot name, slug or forecast date.
+- [x] Make the shared engine load a complete validated configuration for both the Conditions screen and lesson forecasts. Missing or unsupported configuration must produce a clear error instead of silently using hard-coded calibration values. Keep mathematical operations, unit conversions and configuration validation in code.
+- [x] Provide platform-admin editing for all calibration settings, with units, validation, change notes, source references, version history, concurrent-edit protection and restoration of earlier versions. Record which engine/configuration versions produced an assessment and make cache reuse respect those versions.
+- [x] Migrate all existing spots and shared defaults into the new schema, preserving current forecast behaviour, spot IDs, lesson links and calibration history. Keep rollback available. Treat this task as a structural cleanup; changes to forecast assumptions require separate evidence and review.
+- [x] Verify equivalent results using fixed forecast inputs before and after migration. Cover Bico's swell-dependent tide range, Bafureira, directional interpolation and north wrap, Caparica, score/experience boundaries and missing data. Demonstrate that a new spot and its calibration can be configured entirely through the database-backed admin workflow without changing application code.
+- [x] Update the algorithm and schema documentation, deploy to staging and verify desktop/mobile admin editing plus forecast/lesson consistency. Promote after staging checks pass, as authorised by the owner.
 
 Completion means every tunable surf calibration value and supported calibration rule is database-owned, validated and versioned; the same generic engine evaluates every spot without embedded local exceptions.
 
 Current implementation references: [algorithm and architecture](CONDITIONS_ARCHITECTURE.md), [spot schema and coefficients](SPOT_DATA_MODEL.md), and [`lib/conditions/model.mjs`](../lib/conditions/model.mjs).
 
-## Following task: swell energy calculation and presentation
+## September release: swell energy and water temperature
 
 Owner request, 6 September 2026: calculate swell energy and present it clearly in forecasts and lesson conditions. Schedule this after the generic database calibration cleanup.
 
-- [ ] Define the metric, formula, units and assumptions using authoritative references. Distinguish energy from wave power, verify which height and period variables the provider supplies, and document any approximation.
-- [ ] Calculate the metric consistently for the available swell components and define how they combine without double-counting. Distinguish offshore values from any estimated local values; use the generic calibration schema for all tunable coefficients, thresholds and display bands.
-- [ ] Show swell energy in the Conditions screen and lesson details, with clear units and a short explanation. Values must follow the selected graph time or lesson time, refresh with the forecast and remain readable on mobile.
-- [ ] Keep energy separate from surf quality and required experience so a high value does not imply good or beginner-friendly conditions. Review any future influence on those scores as a separate model change.
-- [ ] Verify reference calculations, units, multiple swells, missing inputs, time selection and lesson consistency. Document the method and validate the desktop/mobile presentation on staging before the owner's production review.
+- [x] Define the metric, formula, units and assumptions using authoritative references. Distinguish energy from wave power, verify which height and period variables the provider supplies, and document any approximation.
+- [x] Calculate the metric consistently for the available swell components and define how they combine without double-counting. Distinguish offshore values from any estimated local values; use the generic calibration schema for all tunable coefficients, thresholds and display bands.
+- [x] Show swell energy in the Conditions screen and lesson details, with clear units and a short explanation. Values must follow the selected graph time or lesson time, refresh with the forecast and remain readable on mobile.
+- [x] Keep energy separate from surf quality and required experience so a high value does not imply good or beginner-friendly conditions. Review any future influence on those scores as a separate model change.
+- [x] Verify reference calculations, units, multiple swells, missing inputs, time selection and lesson consistency. Document the method and validate the desktop/mobile presentation on staging before the authorised production deployment.
+
+Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete release is awaiting staging deployment checks before production.
+
+- [x] Add independent best-match marine sea-surface temperature ingestion, join it by UTC timestamp and preserve missing values beyond its forecast horizon. A temperature outage must not disable the wave forecast.
+- [x] Present energy and water in matching teal cards in selected conditions, expanded mobile hours and lesson details, with compact desktop hourly values and optional explanations.
+- [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
+- [ ] Complete live staging verification for both additions, then migrate production and deploy the same code.
 
 ## Environments and design references
 

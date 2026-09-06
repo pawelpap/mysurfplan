@@ -12,8 +12,9 @@ export default function Legal() {
       <p>
         Forecasts combine data from{" "}
         <a href="https://open-meteo.com/">Open-Meteo</a>, NOAA GFS Wave and the
-        weather models selected by Open-Meteo, including DWD. Forecast data is
-        provided under{" "}
+        weather models selected by Open-Meteo, including DWD. Sea-surface
+        temperature uses Open-Meteo marine data, including the Copernicus Marine
+        / Météo-France ocean forecast. Forecast data is provided under{" "}
         <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
         MyWavePlan processes it into local surf estimates. Hosted API use is
         subject to{" "}

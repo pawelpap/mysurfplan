@@ -1,4 +1,5 @@
 import { curveValue, engineVersion } from "./calibration.mjs";
+import { swellEnergy } from "./energy.mjs";
 // Initial, explainable surf heuristic. These coefficients require local calibration.
 export const finite = (value) =>
   typeof value === "number" && Number.isFinite(value);
@@ -180,6 +181,7 @@ export function tideAt(tides, time, c) {
 export function scoreConditions(h, c) {
   if (!c || c.schemaVersion !== 3)
     throw new Error("A valid database calibration is required.");
+  const energy = swellEnergy(h);
   const required = [
     "swellHeight",
     "swellPeriod",
@@ -189,6 +191,7 @@ export function scoreConditions(h, c) {
   ];
   if (required.some((k) => !finite(h[k])))
     return {
+      energy,
       score: null,
       quality: "Unavailable",
       tone: "unknown",
@@ -351,6 +354,7 @@ export function scoreConditions(h, c) {
   score = Math.round(clamp(score, 0, 100));
   return {
     score,
+    energy,
     engineVersion,
     calibrationSchemaVersion: c.schemaVersion,
     quality:
@@ -394,6 +398,7 @@ export function interpolateHour(hours, time) {
     "windDirection",
     "windGusts",
     "temperature",
+    "waterTemperature",
     "precipitation",
     "weatherCode",
     "isDay",

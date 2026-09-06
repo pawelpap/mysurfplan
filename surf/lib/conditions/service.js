@@ -138,5 +138,6 @@ export async function getConditions(id, force = false) {
     refreshMinutes: 15,
     model: payload.model || null,
     marineGrid: payload.marineGrid || null,
+    waterTemperatureSource: payload.waterTemperatureSource || null,
   };
 }
