@@ -10,6 +10,7 @@ The approved conditions layout, device-based light/dark appearance, colour-coded
 
 - [Current development plan](docs/DEVELOPMENT_PLAN.md)
 - [Current handover and release status](docs/HANDOVER.md)
+- [Add MyWavePlan to a phone home screen](docs/HOME_SCREEN.md)
 - [Conditions presentation release, 6 September 2026](docs/RELEASE_2026-09-06_PRESENTATION.md)
 - [September UX and development audit](docs/UX_AUDIT_2026-09.md)
 - [Staging environment](docs/README-staging.md)

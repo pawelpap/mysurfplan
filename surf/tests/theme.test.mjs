@@ -5,8 +5,20 @@ import { themeBootstrapScript, themeStorageKey } from "../lib/theme.mjs";
 
 function bootstrap(saved, deviceDark, blocked = false) {
   const root = { dataset: {}, style: {} };
+  let chrome;
   runInNewContext(themeBootstrapScript, {
-    document: { documentElement: root },
+    document: {
+      documentElement: root,
+      querySelector(selector) {
+        assert.equal(selector, 'meta[name="theme-color"]');
+        return {
+          setAttribute(name, value) {
+            assert.equal(name, "content");
+            chrome = value;
+          },
+        };
+      },
+    },
     window: {
       localStorage: {
         getItem(key) {
@@ -25,6 +37,7 @@ function bootstrap(saved, deviceDark, blocked = false) {
     mode: root.dataset.themeMode,
     theme: root.dataset.theme,
     controls: root.style.colorScheme,
+    chrome,
   };
 }
 
@@ -36,6 +49,7 @@ test("first visit and System preference follow the device before page content re
         mode: "system",
         theme,
         controls: theme,
+        chrome: dark ? "#101c22" : "#f6f8f8",
       });
     }
 });
@@ -47,6 +61,7 @@ test("saved Light or Dark preference overrides the device, including native cont
         mode,
         theme: mode,
         controls: mode,
+        chrome: mode === "dark" ? "#101c22" : "#f6f8f8",
       });
 });
 
@@ -55,11 +70,13 @@ test("unavailable storage and invalid saved preferences fall back to the device"
     mode: "system",
     theme: "dark",
     controls: "dark",
+    chrome: "#101c22",
   });
   for (const saved of ["", "legacy", "DARK", "<script>", undefined])
     assert.deepEqual(bootstrap(saved, false), {
       mode: "system",
       theme: "light",
       controls: "light",
+      chrome: "#f6f8f8",
     });
 });

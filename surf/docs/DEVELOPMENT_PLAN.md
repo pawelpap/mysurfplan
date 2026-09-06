@@ -97,6 +97,16 @@ Owner requests, 6 September 2026: add light/dark mode with a device-based defaul
 - [x] Owner tested staging and explicitly approved production on 6 September 2026.
 - [x] Deploy approved revision `2ea5905` to production (`dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`). Verify both themes, all five widths, location sorting, hourly parity, keyboard/touch graph, lesson conditions and role access. Update documentation and handover. No database migration or business-record copy was performed; no browser exceptions, observed 5xx responses or deployment-scoped error/fatal logs were found during verification.
 
+## Home-screen support and browser icons
+
+Owner request, 6 September 2026: make the app addable to smartphone home screens, including iPhone, with proper browser-tab and home-screen icons. The owner explicitly authorised both staging and production for this change; verify staging before promoting.
+
+- [x] Reuse the existing wave logo in SVG/ICO browser icons, an opaque Apple touch icon, 192/512 px app icons and a maskable Android icon.
+- [x] Add a shared manifest and Apple metadata, root scope, stable app identity and a standalone launch into Conditions. Preserve normal login, authorisation and forecast refresh behaviour.
+- [x] Make the browser theme colour follow the app appearance. Pass all 44 tests, the build, icon validation and local browser installation diagnostics with no errors.
+- [ ] Deploy and verify staging, then deploy the same code to production as explicitly authorised for this release.
+- [ ] Record live verification and update the handover. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
+
 ## Environments and design references
 
 - Application: Next.js Pages Router in `surf/`, React, SQL through Neon.

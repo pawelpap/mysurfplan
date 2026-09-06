@@ -2,7 +2,11 @@
 
 Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release
+## Home-screen update in progress
+
+The owner requested browser-tab and smartphone home-screen icons, including iPhone, and explicitly authorised deployment to staging and production for this update. Local implementation, 44 tests, build and browser installation diagnostics pass. Next: deploy and verify staging, then promote the same code and verify production. This specific authorisation supersedes the review pause for this update only. See [Home-screen support](HOME_SCREEN.md).
+
+## Previous production release
 
 The owner reviewed staging and explicitly approved production on 6 September 2026. The conditions layout, appearance and nearest-spot release is now deployed and verified on both https://mywaveplan.com and https://staging.mywaveplan.com. There is no pending production approval for this release. Future changes still require staging review and a new explicit approval.
 
