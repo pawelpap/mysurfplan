@@ -17,6 +17,10 @@ Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SE
 
 Run `npm run dev`, `npm test` and `npm run build` from `surf`.
 
+## Home-screen installation
+
+Browser-tab and smartphone home-screen icons are deployed and verified on both domains in application revision `1b47423`. The owner explicitly authorised staging then production for this update. Each origin has its own manifest identity and launch URL; staging does not point at production. See [Home-screen support](HOME_SCREEN.md) for iPhone/Android instructions, asset sizes and browser verification. No migration or offline data cache was added.
+
 ## Appearance and location checks
 
 Appearance defaults to the device setting. The selector offers System, Light and Dark; explicit choices are saved in this browser for this domain. Staging and production preferences are separate. Check login, workspace/mobile menu, forms, public schedule and tide charts in both modes, including a page reload and a live device-setting change. Daily quality tiles retain their semantic colours and selected-day outline.

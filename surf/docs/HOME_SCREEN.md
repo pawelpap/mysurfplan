@@ -2,7 +2,7 @@
 
 MyWavePlan uses the existing wave logo for browser tabs and phone home screens. The web app manifest opens the installed app at Conditions in a standalone window. Normal login and permissions still apply.
 
-The owner explicitly authorised staging and production deployment for this change on 6 September 2026. Verify staging first, then deploy the same code to production. This permission is specific to this release; the standing review workflow applies to later changes.
+The owner explicitly authorised staging and production deployment for this change on 6 September 2026. Revision `1b474234a0187c53d7047d0f64fe9fb534c15582` passed staging verification (`dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`), then production verification (`dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`). The release is complete. This permission is specific to this release; the standing review workflow applies to later changes.
 
 ## Add to a phone
 
@@ -35,6 +35,6 @@ The page's `theme-color` follows the System/Light/Dark preference, including the
 
 Local checks passed: all 44 automated tests and the production build; icon dimensions and opacity; three valid ICO frames; maskable safe-circle geometry; public asset responses and MIME types; Chrome manifest parsing, icon decoding and installation diagnostics with no errors in a temporary regular profile; login from the launch URL returning to Conditions; metadata retained through navigation; browser-colour synchronisation; 390 and 320 px mobile layout; and no browser exceptions.
 
-Staging and production verification/deployment references are recorded in [HANDOVER.md](HANDOVER.md). Automated checks inspect mobile metadata and viewport behaviour; they do not operate a physical iPhone Home Screen. A physical-device installation is not claimed as tested.
+The same browser and asset checks passed on the staging and production custom domains. Deployment references and rollback are recorded in [HANDOVER.md](HANDOVER.md). Automated checks inspect mobile metadata and viewport behaviour; they do not operate a physical iPhone Home Screen. A physical-device installation is not claimed as tested.
 
 Technical references: [MDN installability requirements](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable), [MDN app icons and masking](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Define_app_icons), and [Chrome menu installation without a service worker](https://developer.chrome.com/blog/update-install-criteria).

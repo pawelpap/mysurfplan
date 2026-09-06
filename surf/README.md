@@ -16,6 +16,8 @@ The approved conditions layout, device-based light/dark appearance, colour-coded
 - [Staging environment](docs/README-staging.md)
 - [Previous plan and history](docs/DEVELOPMENT_PLAN_ARCHIVE_2026-06.md)
 
+The app can also be added to a phone home screen, including iPhone, with the MyWavePlan wave icon and a standalone launch into Conditions. Browser-tab icons are supplied in SVG and ICO formats.
+
 ## Surf conditions
 
 Both environments include a 16-day Conditions screen and forecasts during lessons. Spots, calibration and shared forecast data are stored in Neon. For an existing staging database, apply `node scripts/migrate-conditions.mjs --staging` only after verifying the database endpoint. This has already been done for the current staging branch.

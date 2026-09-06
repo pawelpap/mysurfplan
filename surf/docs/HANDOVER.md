@@ -2,9 +2,18 @@
 
 Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Home-screen update in progress
+## Current release: home-screen support
 
-The owner requested browser-tab and smartphone home-screen icons, including iPhone, and explicitly authorised deployment to staging and production for this update. Local implementation, 44 tests, build and browser installation diagnostics pass. Next: deploy and verify staging, then promote the same code and verify production. This specific authorisation supersedes the review pause for this update only. See [Home-screen support](HOME_SCREEN.md).
+The owner explicitly authorised deployment of home-screen support to both environments on 6 September 2026. Application revision `1b474234a0187c53d7047d0f64fe9fb534c15582` was verified on staging, then deployed and verified on production. Both environments support browser-tab icons and smartphone home-screen installation, including Apple metadata and a dedicated iPhone icon. The app opens Conditions in a standalone window and retains normal authentication.
+
+- Verified staging deployment: `dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`.
+- Verified production deployment: `dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`.
+- Previous production rollback reference: `65cdc1ebf3bf0502a8383d7a71060fd7099806af`, deployment `dpl_DLjzUskKXsSTwfLemWr972EPWH59`.
+- A documentation-only follow-up records completion on both Git branches. The IDs above identify the tested application release.
+
+All 44 tests and the build passed. Local, staging and production browser checks passed for public manifest/icon loading, required icon sizes, manifest parsing and primary-icon decoding, Chrome installation diagnostics with no errors in a temporary regular profile, app launch through login into Conditions, navigation/public-page metadata, browser-colour updates and mobile layouts. The Apple image is opaque and the Android maskable artwork stays inside its safe circle. Browser checks use mobile emulation; a physical iPhone Home Screen installation was not available to test.
+
+No database migration, business-record copy or service-worker cache was introduced. Forecast freshness and server permissions are unchanged. Installation instructions, assets and verification limits are in [Home-screen support](HOME_SCREEN.md). This release is complete; the specific permission to deploy both environments does not replace the standing staging-review requirement for future changes.
 
 ## Previous production release
 

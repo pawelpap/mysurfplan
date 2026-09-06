@@ -12,7 +12,7 @@ Standing deployment instruction, clarified by the owner on 6 September 2026: dep
 
 The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
-Current release status, 6 September 2026: the owner approved the reviewed conditions-layout, appearance and nearest-spot candidate. Revision `2ea5905` is deployed and verified on production and staging. Production deployment: `dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`. This completes the presentation tasks below; future releases still follow the standing approval workflow. See [release notes](RELEASE_2026-09-06_PRESENTATION.md).
+Current release status, 6 September 2026: the approved conditions-layout, appearance and nearest-spot release is complete, followed by home-screen support and browser/app icons in revision `1b47423`. Both are deployed and verified on production and staging. The owner explicitly authorised both environments for the home-screen update. Future releases still follow the standing approval workflow. See [handover](HANDOVER.md), [presentation release notes](RELEASE_2026-09-06_PRESENTATION.md) and [home-screen support](HOME_SCREEN.md).
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
@@ -104,8 +104,8 @@ Owner request, 6 September 2026: make the app addable to smartphone home screens
 - [x] Reuse the existing wave logo in SVG/ICO browser icons, an opaque Apple touch icon, 192/512 px app icons and a maskable Android icon.
 - [x] Add a shared manifest and Apple metadata, root scope, stable app identity and a standalone launch into Conditions. Preserve normal login, authorisation and forecast refresh behaviour.
 - [x] Make the browser theme colour follow the app appearance. Pass all 44 tests, the build, icon validation and local browser installation diagnostics with no errors.
-- [ ] Deploy and verify staging, then deploy the same code to production as explicitly authorised for this release.
-- [ ] Record live verification and update the handover. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
+- [x] Deploy revision `1b47423` to staging (`dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`) and pass live installation/launch checks, then deploy the same code to production (`dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`) and repeat the checks successfully.
+- [x] Record live verification and update the handover. Manifest, icon assets, installation diagnostics, launch/login, theme colours and mobile layouts pass on both domains. Physical iPhone installation was not claimed as tested. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
 
 ## Environments and design references
 
