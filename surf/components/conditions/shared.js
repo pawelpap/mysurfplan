@@ -165,80 +165,55 @@ export function Metric({ label, children, note }) {
     </div>
   );
 }
-export function OceanMetrics({ condition, atStart = false, compact = false }) {
+export function OceanMetrics({ condition, atStart = false }) {
   const energy = condition?.energy;
-  const hasEnergy = finite(energy?.energyKjM2);
-  const hasWater = finite(condition?.waterTemperature);
   return (
-    <div className={`ocean-metrics ${compact ? "compact" : ""}`}>
-      <dl className="ocean-metrics-grid">
-        <div className="ocean-metric">
-          <dt>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M2 10c4 0 3-5 8-5 4 0 6 3 6 6-3-2-5 0-4 2 1 3 6 3 10 3M2 19c3 0 3-2 6-2s3 2 6 2 3-2 8-2" />
-            </svg>
-            <span>Offshore swell energy{atStart ? " at start" : ""}</span>
-          </dt>
-          <dd className={!hasEnergy ? "unavailable" : undefined}>
-            {hasEnergy ? (
-              <>
-                {value(energy.energyKjM2)} <span>kJ/m²</span>
-              </>
-            ) : (
-              "Unavailable"
-            )}
-          </dd>
-          <small>
-            {finite(energy?.powerKwM)
-              ? `≈ ${value(energy.powerKwM)} kW/m power${energy.complete ? "" : " · partial"}`
-              : hasEnergy
-                ? `Power unavailable${energy.complete ? "" : " · partial"}`
-                : "No swell data for this time"}
-          </small>
-        </div>
-        <div className="ocean-metric">
-          <dt>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0ZM12 9v8M18 7h3M18 11h2" />
-            </svg>
-            <span>Water temperature{atStart ? " at start" : ""}</span>
-          </dt>
-          <dd className={!hasWater ? "unavailable" : undefined}>
-            {hasWater ? (
-              <>
-                {value(condition.waterTemperature)} <span>°C</span>
-              </>
-            ) : (
-              "Unavailable"
-            )}
-          </dd>
-          <small>
-            {hasWater ? "Sea surface" : "No water forecast for this time"}
-          </small>
-        </div>
-      </dl>
-      {!compact && (
-        <details className="ocean-metric-help">
-          <summary>About energy and water temperature</summary>
-          <p>
-            Energy describes the offshore swell, before sheltering and breaking
-            at this spot. Higher energy does not mean better surf or easier
-            conditions. Use surf quality and required experience to plan your
-            session.
-          </p>
-          <p>
-            Energy is shown per square metre. Estimated power also accounts for
-            swell period. It uses a deep-water approximation and the available
-            forecast periods; partial values include only the available swell
-            components.
-          </p>
-          <p>
-            Water temperature is a sea-surface forecast. It can differ near the
-            beach and is available for fewer days than the wave forecast.
-          </p>
-        </details>
-      )}
-    </div>
+    <>
+      <Metric
+        label={`Offshore swell energy${atStart ? " at start" : ""}`}
+        note={
+          finite(energy?.powerKwM)
+            ? `≈ ${value(energy.powerKwM)} kW/m power${energy.complete ? "" : " · partial"}`
+            : finite(energy?.energyKjM2)
+              ? `Power unavailable${energy.complete ? "" : " · partial"}`
+              : "No swell data for this time"
+        }
+      >
+        {value(energy?.energyKjM2, " kJ/m²")}
+      </Metric>
+      <Metric
+        label={`Water temperature${atStart ? " at start" : ""}`}
+        note={
+          finite(condition?.waterTemperature)
+            ? "Sea surface"
+            : "No water forecast for this time"
+        }
+      >
+        {value(condition?.waterTemperature, " °C")}
+      </Metric>
+    </>
+  );
+}
+export function OceanMetricsHelp() {
+  return (
+    <details className="ocean-metric-help">
+      <summary>About energy and water temperature</summary>
+      <p>
+        Energy describes the offshore swell, before sheltering and breaking at
+        this spot. Higher energy does not mean better surf or easier conditions.
+        Use surf quality and required experience to plan your session.
+      </p>
+      <p>
+        Energy is shown per square metre. Estimated power also accounts for
+        swell period. It uses a deep-water approximation and the available
+        forecast periods; partial values include only the available swell
+        components.
+      </p>
+      <p>
+        Water temperature is a sea-surface forecast. It can differ near the
+        beach and is available for fewer days than the wave forecast.
+      </p>
+    </details>
   );
 }
 export function LessonConditions({ lesson, onForecast }) {
@@ -358,8 +333,9 @@ export function LessonConditions({ lesson, onForecast }) {
               {value(start?.temperature, " °C")}
               <small>{weatherLabel(start?.weatherCode)}</small>
             </Metric>
+            <OceanMetrics condition={start} atStart />
           </dl>
-          <OceanMetrics condition={start} atStart />
+          <OceanMetricsHelp />
           {w.worst && <p className="muted-note">{w.worst.reasons.join(" ")}</p>}
           <SwellDetails
             condition={start}

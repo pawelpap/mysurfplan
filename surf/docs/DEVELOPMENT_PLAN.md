@@ -46,6 +46,10 @@ Implemented and locally verified: 37 tests pass, including 5,712 legacy parity c
 - [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
 - [x] Complete live staging verification for both additions, then migrate production and deploy the same code.
 
+## Presentation adjustment: equal emphasis for forecast parameters
+
+Owner feedback, 6 September 2026: energy and water temperature should have the same visual emphasis as the other parameters. Replace the separate teal cards and icons with the shared metric cells in selected conditions, expanded mobile hours and lesson details. Preserve values, units, explanations and selected-time behaviour. Follow the established staging verification and production deployment workflow.
+
 ## Environments and design references
 
 - Application: Next.js Pages Router in `surf/`, React, SQL through Neon.

@@ -1342,70 +1342,12 @@ fieldset legend {
 }
 .condition-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   margin: 24px 0;
 }
 .condition-metric {
   min-width: 0;
-}
-.ocean-metrics {
-  margin: 24px 0;
-}
-.ocean-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin: 0;
-}
-.ocean-metric {
-  display: grid;
-  grid-template-rows: 1fr auto auto;
-  min-width: 0;
-  padding: 20px 22px;
-  border: 1px solid #d5e6e6;
-  border-radius: 12px;
-  background: linear-gradient(120deg, #f0f7f6, #f9fbfb);
-}
-.ocean-metric dt {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--sea);
-  font-size: 12px;
-}
-.ocean-metric dt svg {
-  width: 22px;
-  height: 22px;
-  flex: 0 0 22px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.ocean-metric dd {
-  margin: 12px 0 5px;
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.5px;
-  font-variant-numeric: tabular-nums;
-}
-.ocean-metric dd span {
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.ocean-metric dd.unavailable {
-  font-size: 18px;
-  letter-spacing: 0;
-}
-.ocean-metric > small {
-  font-size: 11px;
-  color: var(--muted);
-  display: block;
 }
 .ocean-metric-help {
   margin-top: 12px;
@@ -1420,55 +1362,6 @@ fieldset legend {
 .ocean-metric-help p {
   max-width: 85ch;
   line-height: 1.7;
-}
-.ocean-metrics.compact {
-  margin: 16px 0;
-}
-.hour-card > .ocean-metrics.compact {
-  margin: 16px;
-}
-@media (max-width: 760px) {
-  .ocean-metrics-grid {
-    gap: 10px;
-  }
-  .ocean-metric {
-    padding: 14px 12px;
-    border-radius: 10px;
-  }
-  .ocean-metric dt {
-    align-items: flex-start;
-    font-size: 11px;
-    line-height: 1.5;
-    gap: 6px;
-    min-height: 34px;
-  }
-  .ocean-metric dt svg {
-    width: 18px;
-    height: 18px;
-    flex-basis: 18px;
-  }
-  .ocean-metric dd {
-    font-size: 25px;
-    margin-top: 10px;
-  }
-  .ocean-metric dd span {
-    font-size: 13px;
-  }
-  .ocean-metric dd.unavailable {
-    font-size: 15px;
-  }
-  .ocean-metric > small {
-    font-size: 10px;
-    line-height: 1.6;
-  }
-}
-@media (max-width: 359px) {
-  .ocean-metrics-grid {
-    grid-template-columns: 1fr;
-  }
-  .ocean-metric dt {
-    min-height: auto;
-  }
 }
 .condition-metric dt {
   font-size: 12px;
@@ -1629,7 +1522,7 @@ fieldset legend {
   margin-top: 24px;
 }
 .lesson-conditions .condition-metrics {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .lesson-conditions .forecast-footer {
   margin-top: 20px;
@@ -1653,7 +1546,8 @@ fieldset legend {
   .outlook-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .condition-metrics {
+  .condition-metrics,
+  .lesson-conditions .condition-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .forecast-table th,

@@ -25,6 +25,7 @@ import {
   Direction,
   SwellDetails,
   OceanMetrics,
+  OceanMetricsHelp,
   ForecastFooter,
   Metric,
   value,
@@ -314,8 +315,9 @@ function SpotForecast({ spot, date, onDate }) {
               <small>{value(snapshot.precipitation, "%", 0)} rain chance</small>
             )}
           </Metric>
+          <OceanMetrics condition={snapshot} />
         </dl>
-        <OceanMetrics condition={snapshot} />
+        <OceanMetricsHelp />
         {snapshot && <p className="muted-note">{snapshot.reasons.join(" ")}</p>}
         <SwellDetails condition={snapshot} />
         <TideChart
@@ -532,8 +534,8 @@ function MobileHours({ hours, timezone, onSelect }) {
                 <small>{value(h.precipitation, "%", 0)} rain chance</small>
               )}
             </Metric>
+            <OceanMetrics condition={h} />
           </dl>
-          <OceanMetrics condition={h} compact />
           <p className="hour-card-reasons">
             {h.reasons.join(" ")}
             {h.provisional ? " Partial assessment." : ""}
