@@ -91,7 +91,7 @@ Owner requests, 6 September 2026: add light/dark mode with a device-based defaul
 - [x] Restore green/yellow/orange/red surf-quality text and dots, plus subtle daily-tile fills. Preserve neutral missing data, a distinct selected-day outline and separate required experience. Keep all metric values at the same typographic scale.
 - [x] Share the spot picker between Conditions and lesson forms. Automatically request browser location when the first picker opens after login. Sort nearest first using a worldwide distance calculation; include approximate distances. Preserve the selected spot and offer A–Z with a safe fallback, retry and late-callback cancellation. Keep coordinates in memory only; no server transmission or map-service dependency.
 - [x] Pass 44 automated tests and the production build. Verify the appearance controls, text contrast, responsive layouts, tide touch interaction and location permission/failure paths with synthetic coordinates in the browser.
-- [ ] Deploy to staging and complete live browser verification. Record the accepted candidate in [HANDOVER.md](HANDOVER.md).
+- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production remains on `1938804`. The verification is recorded in [HANDOVER.md](HANDOVER.md).
 - [ ] Owner tests staging and explicitly approves production. Keep production on `1938804` until then.
 - [ ] After approval, deploy that candidate to production, verify and update the documentation and handover. No database migration or business-record copy is required.
 
