@@ -39,12 +39,12 @@ Owner request, 6 September 2026: calculate swell energy and present it clearly i
 - [x] Keep energy separate from surf quality and required experience so a high value does not imply good or beginner-friendly conditions. Review any future influence on those scores as a separate model change.
 - [x] Verify reference calculations, units, multiple swells, missing inputs, time selection and lesson consistency. Document the method and validate the desktop/mobile presentation on staging before the authorised production deployment.
 
-Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete release is awaiting staging deployment checks before production.
+Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete application release `ae55e26` passed live API and browser checks on staging and production. All 17 database spot configurations, the schema and default profile match between environments. Existing production business records and legacy calibrations were verified unchanged. See [release notes](RELEASE_2026-09-06.md).
 
 - [x] Add independent best-match marine sea-surface temperature ingestion, join it by UTC timestamp and preserve missing values beyond its forecast horizon. A temperature outage must not disable the wave forecast.
 - [x] Present energy and water in matching teal cards in selected conditions, expanded mobile hours and lesson details, with compact desktop hourly values and optional explanations.
 - [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
-- [ ] Complete live staging verification for both additions, then migrate production and deploy the same code.
+- [x] Complete live staging verification for both additions, then migrate production and deploy the same code.
 
 ## Environments and design references
 
