@@ -12,9 +12,19 @@ Standing deployment instruction, clarified by the owner on 6 September 2026: dep
 
 The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
-Current release status, 6 September 2026: the conditions layout, appearance, nearest-spot selection, home-screen support and mobile viewport correction are complete. The latest São Pedro WNW calibration is also live and verified on both environments, explicitly authorised by the owner for staging and production. Its settings remain database-owned, with Bico and Bafureira retaining their separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](HANDOVER.md) and [São Pedro calibration release](CALIBRATION_2026-09-06_SAO_PEDRO.md).
+Current release status, 6 September 2026: forecast refresh recovery and the login tagline “Made for surfers and surf schools” are live and verified on both environments in application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. The owner explicitly authorised both deployments for this change. Earlier presentation, appearance, nearest-spot, home-screen, viewport and São Pedro calibration releases remain complete. Calibration stays database-owned, with Bico and Bafureira retaining separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](HANDOVER.md) and [forecast refresh release](RELEASE_2026-09-06_FORECAST_REFRESH.md).
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
+
+## Completed: forecast refresh recovery, 6 September 2026
+
+- [x] Diagnose production/staging differences using live API responses, deployment revisions, cache records and runtime logs.
+- [x] Retry transient source failures once, retain complete compatible forecasts with truthful timestamps and respect provider retry deadlines.
+- [x] Shorten incomplete-cache retries, wait for concurrent refreshes and prevent late expiry updates from invalidating a completed refresh.
+- [x] Keep forecasts visible during refresh, show a disabled “Refreshing…” button, retry automatically after failure and correct misleading unavailable wording.
+- [x] Change the login tagline to “Made for surfers and surf schools”.
+- [x] Pass 58 tests, the build, controlled-failure browser checks and live desktop/mobile, all-spot, lesson and concurrent-refresh checks on staging followed by production.
+- [x] Update architecture, release notes and handover. No schema or calibration migration is needed.
 
 ## September release: generic database calibration
 

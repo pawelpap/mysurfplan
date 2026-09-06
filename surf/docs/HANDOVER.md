@@ -2,7 +2,17 @@
 
 Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: São Pedro WNW calibration
+## Current release: forecast refresh recovery and login wording
+
+The owner explicitly authorised these fixes on staging and production on 6 September 2026, with verification afterwards. Both environments now run application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. Staging was verified before production. The login tagline is “Made for surfers and surf schools”.
+
+Production's intermittent unavailable forecasts came from failed weather requests being cached as successful partial results for ten minutes. The fix adds bounded provider retries, preserves a compatible complete forecast with its original timestamp and a warning, retries incomplete data after one minute, waits for simultaneous refreshes and shows visible refresh feedback. No forecast inputs are invented or mixed across refreshes. Spot calibration, permissions, schema and business records are unchanged.
+
+All 58 tests and the build passed. Live verification passed in each environment for all 17 spots, 6,936 scored hourly records, 16 days, energy and water-temperature availability, lesson conditions and simultaneous refreshes. Desktop/mobile browser checks passed at 1440 and 390 px; controlled local failures confirmed retained content, honest timestamps and automatic recovery. Both databases had complete caches without failure markers afterwards, and deployment-scoped warning/error/fatal logs were empty during verification.
+
+Verified staging deployment: `dpl_6FmcNRKzy3ZCSxnhnPtWkEvxpysV`. Verified production deployment: `dpl_2rNHMmgvgkLND5tbpVsMaSosCV6w`. A documentation-only follow-up keeps both Git branches together. Diagnosis, release details, test limits and rollback are in [Forecast refresh recovery](RELEASE_2026-09-06_FORECAST_REFRESH.md). This release is complete; the owner's explicit approval applies to these fixes and the login wording, not future unrelated releases.
+
+## Previous release: São Pedro WNW calibration
 
 The owner explicitly authorised this database calibration on staging and production on 6 September 2026, including Bico and Bafureira while preserving their individual behaviour. All three spots now admit useful WNW swell around 280–283°, with strong shelter retained from 290°. Only their generic `exposureByDirection` and `sizeCeilingCurve` settings changed. The current versions are São Pedro 4, Bico 5 and Bafureira 4 in both databases.
 
