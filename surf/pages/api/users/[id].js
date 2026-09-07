@@ -31,6 +31,7 @@ function cleanUser(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lastLoginAt: row.last_login_at,
+    disabledAt: row.disabled_at,
   };
 }
 
@@ -38,7 +39,7 @@ async function getEditableUser(id, session) {
   const rows = await sql`
     SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
            u.name, u.family_name, u.photo_url, u.description,
-           u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+           u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
     FROM users u
     LEFT JOIN schools s ON s.id = u.school_id
     WHERE u.id = ${id} AND u.deleted_at IS NULL
@@ -68,8 +69,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!requireAuth(req, res, { roles: ['school_admin'] })) return;
-    const session = getAuthSession(req);
+    if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
+    const session = await getAuthSession(req);
     const existing = await getEditableUser(id, session);
     if (!existing) return res.status(404).json({ ok: false, error: 'User not found' });
 
@@ -78,6 +79,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
+      if (id.toLowerCase() === session.userId) return res.status(400).json({ ok: false, error: 'You cannot deactivate your own account here.' });
       if (!isPlatformAdmin(session) && existing.role === 'platform_admin') {
         return res.status(403).json({ ok: false, error: 'Forbidden' });
       }
@@ -91,6 +93,13 @@ export default async function handler(req, res) {
 
     if (req.method === 'PUT' || req.method === 'PATCH') {
       const body = req.body || {};
+      if (body.disabled !== undefined && typeof body.disabled !== 'boolean') {
+        return res.status(400).json({ ok: false, error: 'Invalid account status' });
+      }
+      if (body.disabled && id.toLowerCase() === session.userId) {
+        return res.status(400).json({ ok: false, error: 'You cannot disable your own account.' });
+      }
+      const disabledAt = body.disabled === undefined ? existing.disabled_at : body.disabled ? existing.disabled_at || new Date().toISOString() : null;
       const nextName = body.name !== undefined ? String(body.name).trim() : existing.name;
       const nextFamilyName =
         body.familyName !== undefined
@@ -137,10 +146,11 @@ export default async function handler(req, res) {
               email = ${nextEmail},
               phone = ${nextPhone || null},
               role = ${nextRole},
+              disabled_at = CASE WHEN ${body.disabled !== undefined} THEN ${disabledAt}::timestamptz ELSE disabled_at END,
               password_hash = ${passwordHash},
               updated_at = now()
           WHERE id = ${id}
-          RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at
+          RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
         `;
         return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
       }
@@ -155,9 +165,10 @@ export default async function handler(req, res) {
             email = ${nextEmail},
             phone = ${nextPhone || null},
             role = ${nextRole},
+              disabled_at = CASE WHEN ${body.disabled !== undefined} THEN ${disabledAt}::timestamptz ELSE disabled_at END,
             updated_at = now()
         WHERE id = ${id}
-        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at
+        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
       `;
       return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
     }

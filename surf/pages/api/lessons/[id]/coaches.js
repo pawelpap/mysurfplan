@@ -31,10 +31,10 @@ export default async function handler(req, res) {
     if (!lesson)
       return res.status(404).json({ ok: false, error: "Lesson not found" });
     if (
-      !requireAuth(req, res, {
+      !(await requireAuth(req, res, {
         roles: ["admin", "school_admin"],
         schoolId: lesson.school_id,
-      })
+      }))
     )
       return;
 

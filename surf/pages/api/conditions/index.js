@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
-  if (!requireAuth(req, res)) return;
+  if (!(await requireAuth(req, res))) return;
   if (typeof req.query.spot !== "string" || req.query.spot.length > 180)
     return res.status(400).json({ ok: false, error: "Choose a surf spot." });
   try {

@@ -19,6 +19,7 @@ function tokenMatches(actual, expected) {
 }
 
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "private, no-store");
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -69,10 +70,10 @@ export default async function handler(req, res) {
     const inserted = await sql`
       INSERT INTO users (school_id, name, family_name, photo_url, description, email, phone, role, password_hash, email_verified_at)
       VALUES (NULL, ${trimmedName}, ${trimmedFamilyName || null}, ${normalizedPhotoUrl || null}, ${normalizedDescription || null}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
-      RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, NULL::text AS school_slug
+      RETURNING password_hash, id, school_id, name, family_name, photo_url, description, email, phone, role, NULL::text AS school_slug
     `;
     const user = inserted[0];
-    const session = setUserAuthSession(res, user);
+    const session = await setUserAuthSession(res, user);
 
     return res.status(201).json({
       ok: true,

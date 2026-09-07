@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", ["GET", "POST", "PUT"]);
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
-  const session = requireAuth(req, res);
+  const session = await requireAuth(req, res);
   if (!session) return;
   if (req.method !== "GET" && session.role !== "platform_admin")
     return res.status(403).json({

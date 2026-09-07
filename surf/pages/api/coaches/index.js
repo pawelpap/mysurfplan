@@ -14,7 +14,7 @@ export default async function handler(req, res) {
       if (!schoolRow) {
         return res.status(404).json({ ok: false, error: 'School not found' });
       }
-      if (!requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach', 'student'], schoolId: schoolRow.id })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin', 'school_admin', 'coach', 'student'], schoolId: schoolRow.id }))) return;
 
       const rows = await sql`
         SELECT id, name, email, created_at
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
       const schoolRow = await fetchSchool(school);
       if (!schoolRow) return res.status(404).json({ ok: false, error: 'School not found' });
-      if (!requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId: schoolRow.id })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId: schoolRow.id }))) return;
 
       const rows = await sql`
         INSERT INTO coaches (school_id, name, email)
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       `;
       const coach = existing[0];
       if (!coach) return res.status(404).json({ ok: false, error: 'Coach not found' });
-      if (!requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId: coach.school_id })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin', 'school_admin'], schoolId: coach.school_id }))) return;
 
       const rows = await sql`
         UPDATE coaches

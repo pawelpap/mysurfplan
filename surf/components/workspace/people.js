@@ -163,6 +163,7 @@ export default function People({ school, schools, session, query, go }) {
               <span>{person.email}</span>
               <span>
                 <span className="pill">{roleName(person.role)}</span>
+                {person.disabledAt && <span className="pill">Disabled</span>}
               </span>
               <span className="row-action">View →</span>
             </button>
@@ -258,6 +259,10 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
             <dd>{person.schoolName || "All schools"}</dd>
           </div>
           <div>
+            <dt>Account status</dt>
+            <dd>{person.disabledAt ? "Disabled" : "Active"}</dd>
+          </div>
+          <div>
             <dt>Last login</dt>
             <dd>
               {person.lastLoginAt
@@ -294,6 +299,7 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
     role: person?.role || "student",
     school: person?.schoolId || school?.id || "",
     password: "",
+    disabled: Boolean(person?.disabledAt),
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -310,6 +316,7 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
         method: person ? "PUT" : "POST",
         body: JSON.stringify(form),
       });
+      window.dispatchEvent(new Event("account-access-changed"));
       onSaved();
     } catch (e) {
       setError(e.message);
@@ -377,6 +384,14 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
         </div>
         <div className="form-section">
           <h2>Account access</h2>
+          {person && (
+            <SelectField
+              label="Account status"
+              value={form.disabled ? "disabled" : "active"}
+              options={[{ value: "active", label: "Active" }, { value: "disabled", label: "Disabled" }]}
+              onChange={(e) => setForm((old) => ({ ...old, disabled: e.target.value === "disabled" }))}
+            />
+          )}
           <Field
             label={person ? "New password (optional)" : "Initial password"}
             type="password"

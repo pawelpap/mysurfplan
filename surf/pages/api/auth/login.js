@@ -6,6 +6,7 @@ import {
 } from "../../../lib/auth";
 
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "private, no-store");
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).json({ ok: false, error: "Method not allowed" });
@@ -37,7 +38,8 @@ export default async function handler(req, res) {
       FROM users u
       LEFT JOIN schools s ON s.id = u.school_id AND s.deleted_at IS NULL
       WHERE (lower(u.email) = ${normalizedIdentifier} OR lower(u.username) = ${normalizedIdentifier})
-        AND u.deleted_at IS NULL
+        AND u.deleted_at IS NULL AND u.disabled_at IS NULL
+        AND (u.role::text IN ('admin', 'platform_admin') OR s.id IS NOT NULL)
       LIMIT 1
     `;
     const user = rows[0];
@@ -57,7 +59,7 @@ export default async function handler(req, res) {
       WHERE id = ${user.id}
     `;
 
-    const session = setUserAuthSession(res, user);
+    const session = await setUserAuthSession(res, user);
     return res.status(200).json({
       ok: true,
       data: {
@@ -77,7 +79,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (err) {
-    console.error("login error:", err);
-    return res.status(500).json({ ok: false, error: "Server error" });
+    console.error("login error:", { code: err?.code, status: err?.statusCode });
+    return res.status(err?.statusCode || 500).json({ ok: false, error: err?.statusCode === 401 ? "Please log in again." : "Server error" });
   }
 }

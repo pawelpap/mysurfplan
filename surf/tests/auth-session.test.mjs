@@ -14,7 +14,7 @@ function legacy(value, key = secret) {
 }
 const header = (token) => `msp_session=${token}`;
 
-test('existing signed sessions stay valid until the exact seven-day boundary', () => {
+test('codec enforces the exact seven-day boundary independently of session authorisation', () => {
   const cookie = header(legacy(payload));
   assert.deepEqual(codec().read(cookie), payload);
   assert.deepEqual(codec(time + SESSION_TTL_SECONDS - 1).read(cookie), payload);

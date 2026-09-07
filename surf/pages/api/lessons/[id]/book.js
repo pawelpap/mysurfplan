@@ -141,7 +141,7 @@ export default async function handler(req, res) {
       const normalizedName = normalizeName(name);
       if (!normalizedEmail)
         return res.status(400).json({ ok: false, error: "Missing email" });
-      const session = requireAuth(req, res, {
+      const session = await requireAuth(req, res, {
         roles: ["admin", "school_admin", "coach", "student"],
         schoolId: lesson.school_id,
         studentEmail: normalizedEmail,
@@ -185,7 +185,7 @@ export default async function handler(req, res) {
       const normalizedEmail = normalizeEmail(email);
       if (!normalizedEmail)
         return res.status(400).json({ ok: false, error: "Missing email" });
-      const session = requireAuth(req, res, {
+      const session = await requireAuth(req, res, {
         roles: ["admin", "school_admin", "coach", "student"],
         schoolId: lesson.school_id,
         studentEmail: normalizedEmail,

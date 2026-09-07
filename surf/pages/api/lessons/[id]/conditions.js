@@ -12,13 +12,13 @@ export default async function handler(req, res) {
   }
   if (!isUuid(req.query.id))
     return res.status(400).json({ ok: false, error: "Invalid lesson." });
-  if (!requireAuth(req, res)) return;
+  if (!(await requireAuth(req, res))) return;
   try {
     const [lesson] =
       await sql`SELECT id,school_id,spot_id,start_at,duration_min FROM lessons WHERE id=${req.query.id} AND deleted_at IS NULL`;
     if (!lesson)
       return res.status(404).json({ ok: false, error: "Lesson not found." });
-    const session = requireAuth(req, res, { schoolId: lesson.school_id });
+    const session = await requireAuth(req, res, { schoolId: lesson.school_id });
     if (!session) return;
     if (session.role === "coach") {
       const assigned =

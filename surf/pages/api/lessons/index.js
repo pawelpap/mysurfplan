@@ -48,13 +48,13 @@ async function getLessons(req, res) {
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
     if (
-      !requireAuth(req, res, {
+      !(await requireAuth(req, res, {
         roles: ["admin", "school_admin", "coach", "student"],
         schoolId,
-      })
+      }))
     )
       return;
-    const session = getAuthSession(req);
+    const session = await getAuthSession(req);
 
     let rows = await sql`
       SELECT
@@ -147,7 +147,7 @@ async function createLesson(req, res) {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
-    if (!requireAuth(req, res, { roles: ["admin", "school_admin"], schoolId }))
+    if (!(await requireAuth(req, res, { roles: ["admin", "school_admin"], schoolId })))
       return;
     let input;
     try {

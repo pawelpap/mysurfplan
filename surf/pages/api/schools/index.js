@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
       const body = await getBody(req);
       const { name, contactEmail } = body || {};
       if (!name || !name.trim()) {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
       const body = await getBody(req).catch(() => ({}));
       const id = body?.id || req.query.id;
       if (!id) {

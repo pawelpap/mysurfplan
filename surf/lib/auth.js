@@ -2,11 +2,14 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 import { sql } from './db';
 import { createSessionCodec } from './auth-session.mjs';
+import { createSessionStore, validSessionToken } from './auth-store.mjs';
 
 const sessionCodec = createSessionCodec({
   secret: process.env.SESSION_SECRET,
   production: process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test',
 });
+const sessionStore = createSessionStore(sql);
+const requestSessions = new WeakMap();
 const ROLES = new Set(['admin', 'platform_admin', 'school_admin', 'coach', 'student']);
 const scryptAsync = promisify(crypto.scrypt);
 
@@ -123,21 +126,55 @@ export async function resolveSchoolScope(school) {
   return bySlug[0] || null;
 }
 
-export function getAuthSession(req) {
-  const payload = sessionCodec.read(req.headers?.cookie);
-  if (!payload || !ROLES.has(payload.role)) return null;
-  return payload;
+export async function getAuthSession(req) {
+  if (!requestSessions.has(req)) {
+    requestSessions.set(req, (async () => {
+      const cookie = sessionCodec.read(req.headers?.cookie);
+      // Legacy stateless cookies must log in once; they cannot be safely revoked.
+      if (!validSessionToken(cookie?.sid)) return null;
+      const user = await sessionStore.find(cookie.sid);
+      if (!user || !ROLES.has(user.role)) return null;
+      return userSessionPayload(user);
+    })());
+  }
+  return requestSessions.get(req);
 }
 
-export function clearAuthSession(res) {
+export async function clearAuthSession(req, res, { all = false } = {}) {
+  if (all) {
+    const session = await getAuthSession(req);
+    if (!session) {
+      const err = new Error('Authentication required');
+      err.statusCode = 401;
+      throw err;
+    }
+    await sessionStore.revokeAll(session.userId);
+  } else {
+    const cookie = sessionCodec.read(req.headers?.cookie);
+    if (validSessionToken(cookie?.sid)) await sessionStore.revoke(cookie.sid);
+  }
+  requestSessions.delete(req);
   res.setHeader('Set-Cookie', sessionCodec.clear());
 }
 
-export function setAuthSessionCookie(res, payload) {
-  res.setHeader('Set-Cookie', sessionCodec.issue(payload));
+export async function setUserAuthSession(res, user) {
+  const token = await sessionStore.create(user.id, user.password_hash);
+  if (!token) {
+    const err = new Error('Please log in again.');
+    err.statusCode = 401;
+    throw err;
+  }
+  const current = await sessionStore.find(token);
+  if (!current) {
+    const err = new Error('Please log in again.');
+    err.statusCode = 401;
+    throw err;
+  }
+  res.setHeader('Set-Cookie', sessionCodec.issue({ sid: token }));
+  return userSessionPayload(current);
 }
 
-export function setUserAuthSession(res, user) {
+function userSessionPayload(user) {
   const role = typeof user?.role === 'string' ? user.role : '';
   if (!ROLES.has(role)) {
     const err = new Error('Invalid role');
@@ -164,52 +201,18 @@ export function setUserAuthSession(res, user) {
     studentEmail: role === 'student' ? email || null : null,
     studentName: role === 'student' ? name || null : null,
   };
-  setAuthSessionCookie(res, payload);
   return payload;
 }
 
-export async function setAuthSession(res, input) {
-  const role = typeof input?.role === 'string' ? input.role : '';
-  if (!ROLES.has(role)) {
-    const err = new Error('Invalid role');
-    err.statusCode = 400;
-    throw err;
+export async function requireAuth(req, res, options = {}) {
+  res.setHeader('Cache-Control', 'private, no-store');
+  let session;
+  try {
+    session = await getAuthSession(req);
+  } catch {
+    res.status(503).json({ ok: false, error: 'Account access is temporarily unavailable. Please try again.' });
+    return null;
   }
-
-  let schoolId = null;
-  let schoolSlug = null;
-  if (input?.school) {
-    const scope = await resolveSchoolScope(input.school);
-    if (!scope) {
-      const err = new Error('School not found');
-      err.statusCode = 404;
-      throw err;
-    }
-    schoolId = scope.id;
-    schoolSlug = scope.slug;
-  }
-
-  if (!isGlobalAdmin(role) && !schoolId) {
-    const err = new Error('School is required for this role');
-    err.statusCode = 400;
-    throw err;
-  }
-
-  const studentEmail = normalizeEmail(input?.student?.email);
-  const studentName = typeof input?.student?.name === 'string' ? input.student.name.trim() : '';
-  const payload = {
-    role,
-    schoolId,
-    schoolSlug,
-    studentEmail: studentEmail || null,
-    studentName: studentName || null,
-  };
-  setAuthSessionCookie(res, payload);
-  return payload;
-}
-
-export function requireAuth(req, res, options = {}) {
-  const session = getAuthSession(req);
   if (!session) {
     res.status(401).json({ ok: false, error: 'Authentication required' });
     return null;

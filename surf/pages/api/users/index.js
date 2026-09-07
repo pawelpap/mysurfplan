@@ -31,6 +31,7 @@ function cleanUser(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lastLoginAt: row.last_login_at,
+    disabledAt: row.disabled_at,
   };
 }
 
@@ -44,8 +45,8 @@ async function resolveTargetSchool(session, school, role) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      if (!requireAuth(req, res, { roles: ['school_admin'] })) return;
-      const session = getAuthSession(req);
+      if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
+      const session = await getAuthSession(req);
       const school = Array.isArray(req.query.school) ? req.query.school[0] : req.query.school;
 
       let rows;
@@ -56,7 +57,7 @@ export default async function handler(req, res) {
           rows = await sql`
             SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
                    u.name, u.family_name, u.photo_url, u.description,
-                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
             FROM users u
             LEFT JOIN schools s ON s.id = u.school_id
             WHERE u.deleted_at IS NULL AND u.school_id = ${scope.id}
@@ -66,7 +67,7 @@ export default async function handler(req, res) {
           rows = await sql`
             SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
                    u.name, u.family_name, u.photo_url, u.description,
-                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
             FROM users u
             LEFT JOIN schools s ON s.id = u.school_id
             WHERE u.deleted_at IS NULL
@@ -77,7 +78,7 @@ export default async function handler(req, res) {
         rows = await sql`
           SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
                  u.name, u.family_name, u.photo_url, u.description,
-                 u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at
+                 u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
           FROM users u
           LEFT JOIN schools s ON s.id = u.school_id
           WHERE u.deleted_at IS NULL AND u.school_id = ${session.schoolId}
@@ -89,8 +90,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      if (!requireAuth(req, res, { roles: ['school_admin'] })) return;
-      const session = getAuthSession(req);
+      if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
+      const session = await getAuthSession(req);
       const { name, familyName, family_name, photoUrl, photo_url, description, email, phone, role, school, password } = req.body || {};
       const trimmedName = typeof name === 'string' ? name.trim() : '';
       const trimmedFamilyName =
@@ -132,7 +133,7 @@ export default async function handler(req, res) {
       const rows = await sql`
         INSERT INTO users (school_id, name, family_name, photo_url, description, email, phone, role, password_hash)
         VALUES (${schoolId}, ${trimmedName}, ${trimmedFamilyName}, ${normalizedPhotoUrl || null}, ${normalizedDescription || null}, ${normalizedEmail}, ${normalizedPhone || null}, ${requestedRole}, ${passwordHash})
-        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at
+        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
       `;
       return res.status(201).json({ ok: true, data: cleanUser(rows[0]) });
     }

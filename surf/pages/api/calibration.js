@@ -3,7 +3,7 @@ import { requireAuth } from "../../lib/auth";
 import { validateCalibration } from "../../lib/conditions/calibration.mjs";
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
-  const session = requireAuth(req, res, { roles: ["platform_admin"] });
+  const session = await requireAuth(req, res, { roles: ["platform_admin"] });
   if (!session) return;
   if (session.role !== "platform_admin")
     return res

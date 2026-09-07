@@ -29,6 +29,7 @@ export default function Workspace() {
   const schools = useData(session ? "/api/schools" : null);
   const [menu, setMenu] = useState(false);
   const [error, setError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
   const menuButton = useRef(null);
   const sidebar = useRef(null);
   const main = useRef(null);
@@ -72,8 +73,25 @@ export default function Workspace() {
       );
   }, [auth.url, auth.loading, auth.error, session]);
   useEffect(() => {
+    const refresh = () => { if (document.visibilityState === "visible") auth.reload(); };
+    const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("account-access") : null;
+    if (channel) channel.onmessage = refresh;
+    window.addEventListener("focus", refresh);
+    window.addEventListener("account-access-changed", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    const timer = window.setInterval(refresh, 60000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("account-access-changed", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+      window.clearInterval(timer);
+      channel?.close();
+    };
+  }, [auth.reload]);
+  useEffect(() => {
+    auth.reload();
     if (main.current) main.current.focus({ preventScroll: true });
-  }, [router.asPath]);
+  }, [router.asPath, auth.reload]);
   useEffect(() => {
     if (!menu) return;
     const previous = document.body.style.overflow;
@@ -127,12 +145,20 @@ export default function Workspace() {
       { shallow: true },
     );
   }
-  async function logout() {
+  async function logout(all = false) {
+    setLoggingOut(true);
+    setError("");
     try {
-      await request("/api/auth/session", { method: "DELETE" });
+      await request(`/api/auth/session${all === true ? "?all=1" : ""}`, { method: "DELETE" });
+      if (typeof BroadcastChannel === "function") {
+        const channel = new BroadcastChannel("account-access");
+        channel.postMessage("logout");
+        channel.close();
+      }
       window.location.assign("/login");
     } catch (e) {
       setError(e.message);
+      setLoggingOut(false);
     }
   }
   if (auth.error)
@@ -272,7 +298,7 @@ export default function Workspace() {
               <small>{roleName(session.role)}</small>
             </span>
           </button>
-          <Button tone="quiet" onClick={logout}>
+          <Button tone="quiet" onClick={() => logout()} disabled={loggingOut}>
             Log out
           </Button>
           <a className="legal-link" href="/legal">
@@ -328,6 +354,8 @@ export default function Workspace() {
         {view === "profile" && (
           <Profile
             session={session}
+            onLogoutAll={() => logout(true)}
+            loggingOut={loggingOut}
             onEdit={
               isAdmin(session.role)
                 ? () =>
@@ -344,7 +372,7 @@ export default function Workspace() {
     </div>
   );
 }
-function Profile({ session, onEdit }) {
+function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
   return (
     <div className="form-screen">
       <PageHeading
@@ -382,6 +410,13 @@ function Profile({ session, onEdit }) {
             </div>
           )}
         </dl>
+      </section>
+      <section className="surface padded">
+        <h2>Account access</h2>
+        <p className="muted">Log out on all browsers and devices, including this one.</p>
+        <Button onClick={onLogoutAll} disabled={loggingOut}>
+          {loggingOut ? "Logging out…" : "Log out everywhere"}
+        </Button>
       </section>
       {!onEdit && (
         <p className="muted-note">

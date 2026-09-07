@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
       const rows = await sql`
         SELECT id, name, slug, contact_email, created_at, updated_at
         FROM schools
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT' || req.method === 'PATCH') {
-      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
       const { name, contactEmail } = req.body || {};
       const fields = [];
       const values = [];
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      if (!requireAuth(req, res, { roles: ['admin'] })) return;
+      if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
       const rows = await sql`
         UPDATE schools
         SET deleted_at = now(), updated_at = now()
