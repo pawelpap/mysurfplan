@@ -1,8 +1,32 @@
 # MyWavePlan handover
 
-Updated 6 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
+Updated 7 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: forecast refresh recovery and login wording
+## Current release: session security, 7 September 2026
+
+Application revision `729489e909204135ace79c399ce1fe5cc6c7b5c6` is deployed to staging as `dpl_EXKgZYtiV5XwTpzMTJZBLPtCtn8F`. The owner authorised this bounded task and staging verification, then explicitly authorised production. The same application revision is live on production as `dpl_6LEtFTbQ8cYcATF4acVyX7eLKhrG`. Both custom domains passed post-deployment checks.
+
+Sessions retain their existing format but now expire server-side after seven days. Production-mode builds require a non-development signing secret of at least 32 bytes. Login/logout cookies use Secure, HttpOnly and SameSite=Lax. Strict parsing and constant-time signature comparison reject malformed/tampered cookies safely. A 60-second future issue-time tolerance handles server clock differences. Existing unexpired sessions remain usable.
+
+All 64 tests passed, including on Node.js 22, and the local build passed. Staging and production API checks passed for actual pre-release cookies, fresh login, cookie attributes, malformed/tampered/duplicate-cookie rejection and student permission denial. Browser login/logout and Conditions checks passed at 1440 and 390 px; deployment-scoped error/fatal logs were empty during verification. See [release verification and scope limits](RELEASE_2026-09-07_SESSION_SECURITY.md). There is no schema migration or signing-key rotation. Browser logout still clears the local cookie; global session revocation, password-change revocation and current membership checks remain separate roadmap tasks.
+
+This release is complete. Next work is session revocation and current membership/account validation before self-service onboarding. The owner’s approval applies to this release; future changes retain the staging-first review workflow.
+
+## Current development direction: self-service and school monetisation
+
+On 7 September the owner said they were happy with the forecast module and design and requested a revised development plan. The review is saved in [Development plan](DEVELOPMENT_PLAN.md), with a supporting [Commercial and privacy architecture proposal](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md). The previous plan is preserved unchanged in [the September archive](DEVELOPMENT_PLAN_ARCHIVE_2026-09-07.md).
+
+Recommended next work: session/tenant security, global accounts and multi-school roles, then self-service registration and privacy controls. Follow with forecast-to-lesson discovery and reliable booking, configurable plans and school subscriptions, Connect lesson payments, then packages and verified feedback. Preserve the accepted forecast model and design.
+
+Commercial recommendations are proposals: keep the current surfer forecast free; offer a free school listing and a 30-day management trial, then test a €39/month school plan. Consider optional paid surfer tools only after validating demand. Prices, tax treatment, merchant responsibilities, retention policies and provider choices require resolution before their relevant launch. The supplied operator name/tax number is recorded in the new documents; missing legal/contact details must not be invented.
+
+This planning change modifies documentation only. It does not implement features, provision services, alter accounts or databases, or authorise deployment. The next implementation brief and acceptance criteria are in the plan. Continue the staging-first owner-review workflow for future releases.
+
+## Latest recorded application change: login caption, 7 September 2026
+
+Application revision `8e9a9bb4b446f3db92b8e321abddd8a158a625c7` changes the login caption to “Lessons, people and forecasts in one place.” The owner explicitly requested both staging and production for this copy change. The recorded verified deployment IDs are staging `dpl_JE31dDrmXcnqdCRDkv3eSLyJrJd3` and production `dpl_4jHMiHpdM2hHGjukmuw7xSkDmS5e`. This documentation review does not perform another live verification.
+
+## Previous release: forecast refresh recovery and login wording
 
 The owner explicitly authorised these fixes on staging and production on 6 September 2026, with verification afterwards. Both environments now run application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. Staging was verified before production. The login tagline is “Made for surfers and surf schools”.
 

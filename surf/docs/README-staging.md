@@ -2,7 +2,9 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
-The owner approved the conditions-presentation, appearance and nearest-spot release on 6 September 2026. The same application revision is now deployed and verified in both environments. See [HANDOVER.md](HANDOVER.md) and [release notes](RELEASE_2026-09-06_PRESENTATION.md) for the approved revision, deployment IDs, checks and rollback. No database migration or copy was performed. Future changes require a new staging review before production.
+Current release, 7 September: session-security revision `729489e` is verified on staging (`dpl_EXKgZYtiV5XwTpzMTJZBLPtCtn8F`) and, after explicit owner approval, production (`dpl_6LEtFTbQ8cYcATF4acVyX7eLKhrG`). See [session-security release](RELEASE_2026-09-07_SESSION_SECURITY.md).
+
+Historical release: the owner approved the conditions-presentation, appearance and nearest-spot release on 6 September 2026. That approved release was deployed and verified in both environments. See [HANDOVER.md](HANDOVER.md) and [release notes](RELEASE_2026-09-06_PRESENTATION.md) for the approved revision, deployment IDs, checks and rollback. No database migration or copy was performed. Future changes require a new staging review before production.
 
 | Environment | Git branch | Vercel project       | Neon branch                     |
 | ----------- | ---------- | -------------------- | ------------------------------- |
@@ -13,7 +15,7 @@ Both projects use application root `surf`. Neon project: `shy-paper-68550619`.
 
 ## Local setup
 
-Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Verify that the database endpoint belongs to the staging branch before running migrations or local write operations. Never commit credentials.
+Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing/short/development values. Keep existing valid environment secrets when deploying this fix so active sessions survive. Verify that the database endpoint belongs to the staging branch before running migrations or local write operations. Never commit credentials.
 
 Run `npm run dev`, `npm test` and `npm run build` from `surf`.
 

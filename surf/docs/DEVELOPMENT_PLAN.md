@@ -1,266 +1,193 @@
 # MyWavePlan development plan
 
-Last updated: 6 September 2026.
+Reviewed and rewritten: 7 September 2026.
 
-This is the current working plan. Update it after meaningful changes. The previous detailed plan and change log are preserved in `DEVELOPMENT_PLAN_ARCHIVE_2026-06.md`. Findings and implementation limits are in `UX_AUDIT_2026-09.md`.
+Status: proposed roadmap saved for discussion and implementation planning. The owner requested this review, not implementation or deployment of the new features. Prices, policies and provider choices below are recommendations, not live configuration or approved expenditure.
 
-## Current direction agreed with the owner
+The previous plan is preserved unchanged in [the September archive](DEVELOPMENT_PLAN_ARCHIVE_2026-09-07.md); the [June archive](DEVELOPMENT_PLAN_ARCHIVE_2026-06.md) retains older detail. Release evidence belongs in [handover](HANDOVER.md) and dated release notes. This plan describes future work rather than repeating the release history.
 
-Build and review a working proposal at https://staging.mywaveplan.com. Use Figma as a supporting design reference when useful.
+## Recommendation
 
-Standing deployment instruction, clarified by the owner on 6 September 2026: deploy changes to staging, complete the checks and tell the owner staging is ready. Stop before production and wait for the owner's explicit approval of that change after they have tested staging. Passing automated checks, approval of an earlier release or a request for further changes does not authorise production deployment. This applies to small visual corrections as well as larger releases.
+Build a complete self-service journey next: someone discovers conditions, finds a suitable lesson, creates an account and books; a school creates its workspace, invites instructors and publishes lessons without platform-admin help.
 
-The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
+Start with secure accounts and school permissions, then make that journey work. Introduce school subscriptions after schools can reach this useful outcome. Add online lesson payments next, then lesson packages. Keep the current forecast free for surfers while testing whether it brings schools bookings.
 
-Current release status, 6 September 2026: forecast refresh recovery and the login tagline “Made for surfers and surf schools” are live and verified on both environments in application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. The owner explicitly authorised both deployments for this change. Earlier presentation, appearance, nearest-spot, home-screen, viewport and São Pedro calibration releases remain complete. Calibration stays database-owned, with Bico and Bafureira retaining separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](HANDOVER.md) and [forecast refresh release](RELEASE_2026-09-06_FORECAST_REFRESH.md).
+The forecasts and visual direction are now a product baseline the owner is happy with. Preserve them. The next work should improve the service around them, not start another visual redesign.
 
-Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
+## Baseline and gaps
 
-## Completed: forecast refresh recovery, 6 September 2026
+Current application revision on staging and production: `729489e909204135ace79c399ce1fe5cc6c7b5c6`, the 7 September session-security release. The earlier login-caption revision was `8e9a9bb`. Earlier releases established forecasts, database calibration, responsive conditions, appearance selection and home-screen support. The owner approved production after staging checks; both environments received the same session-security revision and post-deployment checks. See [session-security release](RELEASE_2026-09-07_SESSION_SECURITY.md).
 
-- [x] Diagnose production/staging differences using live API responses, deployment revisions, cache records and runtime logs.
-- [x] Retry transient source failures once, retain complete compatible forecasts with truthful timestamps and respect provider retry deadlines.
-- [x] Shorten incomplete-cache retries, wait for concurrent refreshes and prevent late expiry updates from invalidating a completed refresh.
-- [x] Keep forecasts visible during refresh, show a disabled “Refreshing…” button, retry automatically after failure and correct misleading unavailable wording.
-- [x] Change the login tagline to “Made for surfers and surf schools”.
-- [x] Pass 58 tests, the build, controlled-failure browser checks and live desktop/mobile, all-spot, lesson and concurrent-refresh checks on staging followed by production.
-- [x] Update architecture, release notes and handover. No schema or calibration migration is needed.
+| Area | Current position from code and project documentation | Implication |
+| --- | --- | --- |
+| Forecasts | 17 seeded spots, 16 days, generic versioned database calibration, tides/daylight, swell components, energy/power, water temperature, experience levels and lesson conditions | Maintain accuracy and freshness; use this as the acquisition entry point |
+| Design | Task-oriented screens, mobile layouts, quality colours, device/light/dark appearance and nearest-spot selection | Reuse existing components and visual language |
+| Identity | One primary school and one role on a user; admin-created accounts | A surfer cannot yet use one independent account naturally across schools |
+| Sessions | Signed cookies and scrypt password hashes; production-secret enforcement, server-side expiry/revocation and Secure-cookie handling need work | Complete security hardening before self-registration |
+| Booking | Capacity checks and SQL locking exist; cross-school student booking is constrained by the current identity model | Prove concurrency and privacy, then support discovery-to-booking across schools |
+| Commerce | No implemented plan, subscription, payment or package-credit domain | Establish a common model before adding payment buttons |
+| Privacy | Legal page currently covers data licences; no complete consent, privacy-notice or erasure workflow | Build privacy controls alongside onboarding |
+| Media and measurement | Photo URL fields exist; no managed upload lifecycle or GA4/GTM consent implementation found | Add object storage and consent-first measurement |
 
-## September release: generic database calibration
+Code reviewed: [authentication](../lib/auth.js), [user creation](../pages/api/users/index.js), [booking](../pages/api/lessons/[id]/book.js), [schema](../db/schema.sql), package versions and public/legal routes. This is a planning review, not a completed security audit.
 
-Owner decision, 6 September 2026: all surf calibration values and configurable rules must live in the database in a proper generic schema. This is the next development priority. Keep the reusable calculation engine and validation in code; remove spot-specific branches, named spot presets and hard-coded calibration defaults from it.
+## Proposed commercial model
 
-Scope:
+Charge schools first. A useful free surfer product can bring repeat use and bookings. Restricting the existing forecast now would make that growth loop harder to establish before we know what users value.
 
-- [x] Inventory every calibration value and rule in the existing model, including wave gains, directional curves, period response and limits, wind adjustments, tide suitability, score weights and penalties, quality boundaries, experience thresholds, severe-condition limits and displayed surf-range factors.
-- [x] Design a documented, versioned database schema for model profiles, generic rule definitions and spot assignments or overrides. Specify types, units, valid ranges, required fields and rule precedence, with database and API validation. A loosely structured JSON object alone is not sufficient. Shared defaults must also be stored and versioned in the database.
-- [x] Replace `bico` and `bafureira` tide presets with generic tide-range rules conditional on swell or other supported inputs. Replace `northWindShelter` with a reusable wind-direction exposure curve. No rule may depend on a spot name, slug or forecast date.
-- [x] Make the shared engine load a complete validated configuration for both the Conditions screen and lesson forecasts. Missing or unsupported configuration must produce a clear error instead of silently using hard-coded calibration values. Keep mathematical operations, unit conversions and configuration validation in code.
-- [x] Provide platform-admin editing for all calibration settings, with units, validation, change notes, source references, version history, concurrent-edit protection and restoration of earlier versions. Record which engine/configuration versions produced an assessment and make cache reuse respect those versions.
-- [x] Migrate all existing spots and shared defaults into the new schema, preserving current forecast behaviour, spot IDs, lesson links and calibration history. Keep rollback available. Treat this task as a structural cleanup; changes to forecast assumptions require separate evidence and review.
-- [x] Verify equivalent results using fixed forecast inputs before and after migration. Cover Bico's swell-dependent tide range, Bafureira, directional interpolation and north wrap, Caparica, score/experience boundaries and missing data. Demonstrate that a new spot and its calibration can be configured entirely through the database-backed admin workflow without changing application code.
-- [x] Update the algorithm and schema documentation, deploy to staging and verify desktop/mobile admin editing plus forecast/lesson consistency. Promote after staging checks pass, as authorised by the owner.
+| Audience / offer | Recommended initial access | Revenue proposal |
+| --- | --- | --- |
+| Surfer | Current 16-day forecast and all current parameters; find/book lessons, manage own bookings and profile | Free; lesson charges remain separate |
+| Instructor | Own profile, school invitations and assigned lessons/attendance | Free personal account; management capabilities depend on the school's plan |
+| School listing | Public profile, spot information and enquiry link; ability to start a trial | Free; no permanent free management tier initially |
+| School trial | 30 days of shipped management features, starting when the owner activates the workspace | No card required; one trial per genuine school |
+| School paid plan | Lesson, instructor and booking management, public bookable schedule and operational reporting; payments/packages when released | Test **€39 per school per month**; confirm VAT presentation before publication |
+| Optional Surfer Plus, later | Alerts, saved preferences, favourites across devices, spot comparisons and planning tools | Test willingness to pay first; **€3.99/month** is an experiment candidate, not a launch commitment |
 
-Completion means every tunable surf calibration value and supported calibration rule is database-owned, validated and versioned; the same generic engine evaluates every spot without embedded local exceptions.
+These prices are hypotheses, not researched market benchmarks. Validate the offer through 5–10 school conversations and a pilot of 3–5 schools. Compare willingness to pay, time saved, booking volume and cost to serve before fixing prices or annual contracts.
 
-Current implementation references: [algorithm and architecture](CONDITIONS_ARCHITECTURE.md), [spot schema and coefficients](SPOT_DATA_MODEL.md), and [`lib/conditions/model.mjs`](../lib/conditions/model.mjs).
+Do not charge separately for instructors at launch. Avoid per-student charges and many tiers until schools demonstrate a need. Keep forecast safety information and required experience available to everyone. Paid access must not imply greater forecast certainty when it uses the same model and data.
 
-## September release: swell energy and water temperature
+At trial expiry/downgrade, stop new paid-plan activity but preserve existing bookings, lesson fulfilment, cancellation/refund tools, required records and export. Never cancel a student's lesson because the school's subscription expires. Agree the grace period before billing goes live.
 
-Owner request, 6 September 2026: calculate swell energy and present it clearly in forecasts and lesson conditions. Schedule this after the generic database calibration cleanup.
+Initially propose **no additional MyWavePlan percentage on lesson sales**, with processor costs clearly assigned and disclosed. Revisit this after measuring support, payment and acquisition costs. A booking fee or Growth plan needs a separate decision. Do not advertise unimplemented features as part of a paid plan.
 
-- [x] Define the metric, formula, units and assumptions using authoritative references. Distinguish energy from wave power, verify which height and period variables the provider supplies, and document any approximation.
-- [x] Calculate the metric consistently for the available swell components and define how they combine without double-counting. Distinguish offshore values from any estimated local values; use the generic calibration schema for all tunable coefficients, thresholds and display bands.
-- [x] Show swell energy in the Conditions screen and lesson details, with clear units and a short explanation. Values must follow the selected graph time or lesson time, refresh with the forecast and remain readable on mobile.
-- [x] Keep energy separate from surf quality and required experience so a high value does not imply good or beginner-friendly conditions. Review any future influence on those scores as a separate model change.
-- [x] Verify reference calculations, units, multiple swells, missing inputs, time selection and lesson consistency. Document the method and validate the desktop/mobile presentation on staging before the authorised production deployment.
+## Delivery order
 
-Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete application release `ae55e26` passed live API and browser checks on staging and production. All 17 database spot configurations, the schema and default profile match between environments. Existing production business records and legacy calibrations were verified unchanged. See [release notes](RELEASE_2026-09-06.md).
+Each phase consists of small staging releases. Payment design can be written early; live payments depend on reliable accounts and booking. Effort estimates should follow the identity and payment design decisions, not precede them.
 
-- [x] Add independent best-match marine sea-surface temperature ingestion, join it by UTC timestamp and preserve missing values beyond its forecast horizon. A temperature outage must not disable the wave forecast.
-- [x] Present energy and water in matching teal cards in selected conditions, expanded mobile hours and lesson details, with compact desktop hourly values and optional explanations.
-- [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
-- [x] Complete live staging verification for both additions, then migrate production and deploy the same code.
+### Phase 0: secure the foundation and define launch responsibilities
 
-## Presentation adjustment: equal emphasis for forecast parameters
+Outcome: existing users and schools can safely support self-service flows.
 
-Owner feedback, 6 September 2026: energy and water temperature should have the same visual emphasis as the other parameters. The separate teal cards and icons were replaced with shared metric cells in selected conditions, expanded mobile hours and lesson details. Values, units, explanations and selected-time behaviour were preserved. Commit `1938804` was deployed to staging and production before the owner clarified the approval requirement above. All subsequent changes must wait for the owner's staging review and explicit production approval.
+- [x] Released to staging and production: require a production signing secret of at least 32 bytes, remove the production development-secret fallback, use Secure/HttpOnly cookies, enforce seven-day expiry and reject malformed/tampered cookies. Release `729489e`; staging verified, then production explicitly approved and verified.
+- [ ] Add revocable sessions and current server-side membership/account checks. The bounded session-security release above does not complete these broader controls.
+- [ ] Add login/recovery rate limiting, safe errors, enumeration protection and CSRF/origin protection for mutations. Require platform-admin MFA before commercial operation; assess the authentication implementation and migration first.
+- [ ] Audit tenant boundaries, instructor/student privacy and public playground routes. Remove `/test/*` production routes. Isolate the shared demo from real customer bookings, payments and private data.
+- [ ] Review Next.js 14.2.3 and dependencies against supported security releases; plan a tested upgrade without making a router rewrite a prerequisite.
+- [ ] Confirm operator/contact details, controller/processor responsibilities, hosting regions, subprocessors and contracts. Review retention, minors, consumer terms, VAT and invoicing with Portuguese legal/accounting support.
+- [ ] Verify commercial rights and costs for all forecast/tide/weather sources, including attribution and caching. Open-Meteo's free hosted API is restricted to non-commercial use; confirm the appropriate service before commercial launch. Budget weighted API usage, not just HTTP request count. [Open-Meteo pricing](https://open-meteo.com/en/pricing)
+- [ ] Establish backups/restore checks, redacted monitoring and an incident/support process. Use synthetic/anonymised staging data; do not routinely copy production personal data there.
 
-## Completed presentation review: consistent emphasis for forecast parameters
+Done when: expired/revoked/deleted-user sessions are rejected; cross-school access tests pass; production rejects the development secret; demo access cannot reach real customer data; restore and upgrade checks pass; legal/licensing launch gates have a named owner.
 
-Owner clarification, 6 September 2026: no forecast parameter should be visually highlighted above the others. Include surf quality and required experience in the same metric grid as the physical conditions. Remove filled score badges and oversized score typography from selected forecasts, lessons, daily outlooks and mobile hours. Keep clear labels, units, quality descriptions and readable experience levels. The final version was reviewed on staging and approved for production on 6 September. Later feedback restored semantic quality colours and tinted daily tiles while retaining equal metric sizes.
+### Phase 1: self-service accounts, onboarding and privacy controls
 
-## Decision: keep our swell-energy measure
+Depends on Phase 0 session and tenant controls. This is the first substantial product release to build next.
 
-Owner request, 6 September 2026: investigate Surfline's energy units and try to provide a comparable scale. Surfline uses kJ with height, period and spot-direction effects. Its public explanation does not specify the full coefficients or reference dimensions needed to reproduce the numbers. Our current offshore kJ/m² density and kW/m power cannot be converted to that scale by changing the unit label.
+- [ ] Introduce global user identity plus `user_school_roles` memberships. One user can be a surfer and coach and work with several schools. Keep platform-admin authority separate.
+- [ ] Migrate users, student/coach records and memberships without losing IDs, lessons or booking history. Link coach records to users. Do not merge people by matching names or silently claim an existing school.
+- [ ] Build verified-email sign-up, password recovery, profile editing, logout everywhere and invitation acceptance. Keep telephone optional and existing username login working.
+- [ ] Let a new school owner create a draft workspace, set timezone/spots/contact details, invite staff and publish a first lesson through a short checklist. Verify ownership before claiming an existing listing.
+- [ ] Let instructors self-register and request/accept affiliation. Choosing “instructor” must not grant access to a school's records. A solo instructor can operate as a school business after the same verification.
+- [ ] Let surfers register independently. Proposed change to the older plan: a verified user may book an eligible public lesson without prior school-admin approval; staff membership still requires approval. Create a school customer/student link when needed; retain invitation-only lessons where configured.
+- [ ] Publish reviewed privacy/terms documents and record versioned acceptance/notice delivery. Add optional marketing consent, history and withdrawal; implement cookie choice before enabling analytics.
+- [ ] Add photo uploads to object storage, data export and account deletion. Transfer school ownership or close the school properly before deleting its sole owner.
+- [ ] Set the initial age policy: adult self-registration; guardian-managed children only after the required booking, consent and safeguarding flow exists. Do not silently allow unrestricted child accounts.
 
-- [x] Verify Surfline's published definition and document the distinction in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md#surfline-units-investigation-on-6-september-2026).
-- [x] Owner decision after reviewing the finding: keep our existing energy density in kJ/m² and estimated power in kW/m. No Surfline-scale conversion is scheduled. Preserve equal visual emphasis with the other parameters.
+Done when: a surfer, instructor and school owner can each onboard without platform-admin help; recovery works; one user accesses two authorised schools and no others; invitation abuse tests pass; existing accounts/bookings survive migration; photo/deletion flows work on mobile and desktop; refusing optional consent does not block registration.
 
-The research did not change the algorithm or units. The presentation work was subsequently approved and released to production as recorded below.
+### Phase 2: forecast-to-lesson discovery and reliable booking
 
-## Completed release: conditions layout and hourly parity
+Depends on Phase 1 identity; public discovery design can start earlier.
 
-Owner request, 6 September 2026: keep every forecast parameter available on desktop and mobile, add desktop hourly swell components, restrict spot settings to platform admins, improve dropdown spacing, order spots alphabetically and simplify the screen without removing data.
+- [ ] Add “Find a lesson” from the chosen spot/day/time. Preserve this context through search and registration. Keep Conditions first/default unless an explicit deep link requests another task.
+- [ ] Make forecasts, public school profiles and lesson browsing available without login, with shareable spot/day links. Ask for an account when booking or saving personal preferences. Apply the licensing, caching, rate and cost controls from Phase 0 before public access.
+- [ ] Show skill level, lesson conditions, school/instructor, total price, capacity, duration, meeting point and cancellation terms. Search by spot/date/level; show useful alternatives when no lesson exists.
+- [ ] Build a public school page and bookable schedule. Add attendance and assigned-instructor access. Support transactional confirmations, cancellations, weather rescheduling and calendar links.
+- [ ] Prove capacity and duplicate-booking behaviour under concurrent requests. Add idempotent reservations and explicit booking/attendance states before paid checkout.
+- [ ] Define customer cancellation, school cancellation, weather and minimum-attendance policies. Keep an audit trail; forecast scores must not automatically certify a lesson as safe.
+- [ ] Add consent-controlled GA4/GTM and the event contract in the architecture note. Set up Search Console, public sitemap/canonical URLs and indexing protection for private/staging content.
 
-- [x] Reuse one hourly details component in expandable desktop rows and mobile cards. Include primary, secondary and tertiary swell height, period and direction; gusts; tide height/stage/trend; weather and rain; swell energy and power; water temperature; and assessment notes. Keep quality, experience and estimated surf in the hour summary.
-- [x] Put the tide/time control before selected-time metrics. Preserve daylight markers, tide extremes, keyboard and touch selection. Add selected-time gusts and tide stage/trend.
-- [x] Remove duplicated spot headings and instructional banners. Use compact, unfilled disclosures for swell components and one forecast guide. Keep uncertainty, missing-data notices and operational assessment reasons.
-- [x] Keep all metric values at the same visual level and retain the workspace typography, colours and form styles. Give native dropdown chevrons a 14 px right inset and reserve text space.
-- [x] Sort the shared spot-list API alphabetically, ignoring case and accents. Both Conditions and lesson dropdowns use this list. Remove the obsolete priority input while preserving stored values.
-- [x] Keep editor controls and direct editor URLs restricted to platform admins. Verify spot writes and calibration settings/history access are denied for other roles.
-- [x] Deploy application commit `48b3a49` to staging and verify its custom domain: all 17 spots in alphabetical order, equal desktop/mobile hourly details, five viewport widths, explicit refresh, chosen-time keyboard/touch interaction, lesson conditions, missing data and role access. Production stayed on `1938804` during staging review.
-- [x] Owner reviewed staging and explicitly approved production on 6 September 2026.
-- [x] Deploy approved revision `2ea5905` to production, complete live checks and update the release records, plan and [handover](HANDOVER.md). No database migration was required or performed.
+Done when: a new surfer moves from a forecast to a confirmed lesson across school boundaries; concurrency cannot oversell or duplicate confirmation; each role sees only appropriate information; denying consent sends no analytics traffic; mobile search, booking and no-results paths work.
 
-Review findings and decisions are in [the conditions design review](UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
+The initial pilot may use clearly disclosed pay-at-school lessons. Do not present these as paid online. Gather activation evidence before charging subscriptions.
 
-## Completed release: appearance, quality colours and nearest spots
+### Phase 3: configurable plans and school subscriptions
 
-Owner requests, 6 September 2026: add light/dark mode with a device-based default; restore quality colours before staging deployment and colour the daily tiles as well as the text; sort spots by distance automatically when the app opens. These changes joined the conditions-layout candidate. The owner reviewed and approved the combined staging release before production deployment.
+Depends on usable school onboarding and booking. Establish the entitlement schema earlier where needed; build the full pricing console here.
 
-- [x] Add shared semantic colours across the app, a System/Light/Dark selector, pre-paint preference application, live device changes, local preference persistence and tab synchronisation. Preserve readable native controls and charts; handle blocked browser storage.
-- [x] Restore green/yellow/orange/red surf-quality text and dots, plus subtle daily-tile fills. Preserve neutral missing data, a distinct selected-day outline and separate required experience. Keep all metric values at the same typographic scale.
-- [x] Share the spot picker between Conditions and lesson forms. Automatically request browser location when the first picker opens after login. Sort nearest first using a worldwide distance calculation; include approximate distances. Preserve the selected spot and offer A–Z with a safe fallback, retry and late-callback cancellation. Keep coordinates in memory only; no server transmission or map-service dependency.
-- [x] Pass 44 automated tests and the production build. Verify the appearance controls, text contrast, responsive layouts, tide touch interaction and location permission/failure paths with synthetic coordinates in the browser.
-- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production stayed on `1938804` during staging review. The verification is recorded in [HANDOVER.md](HANDOVER.md).
-- [x] Owner tested staging and explicitly approved production on 6 September 2026.
-- [x] Deploy approved revision `2ea5905` to production (`dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`). Verify both themes, all five widths, location sorting, hourly parity, keyboard/touch graph, lesson conditions and role access. Update documentation and handover. No database migration or business-record copy was performed; no browser exceptions, observed 5xx responses or deployment-scoped error/fatal logs were found during verification.
-
-## Home-screen support and browser icons
-
-Owner request, 6 September 2026: make the app addable to smartphone home screens, including iPhone, with proper browser-tab and home-screen icons. The owner explicitly authorised both staging and production for this change; verify staging before promoting.
-
-- [x] Reuse the existing wave logo in SVG/ICO browser icons, an opaque Apple touch icon, 192/512 px app icons and a maskable Android icon.
-- [x] Add a shared manifest and Apple metadata, root scope, stable app identity and a standalone launch into Conditions. Preserve normal login, authorisation and forecast refresh behaviour.
-- [x] Make the browser theme colour follow the app appearance. Pass all 44 tests, the build, icon validation and local browser installation diagnostics with no errors.
-- [x] Deploy revision `1b47423` to staging (`dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`) and pass live installation/launch checks, then deploy the same code to production (`dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`) and repeat the checks successfully.
-- [x] Record live verification and update the handover. Manifest, icon assets, installation diagnostics, launch/login, theme colours and mobile layouts pass on both domains. Physical iPhone installation was not claimed as tested. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
-
-## Mobile browser viewport correction
-
-Owner report, 6 September 2026: a physical iPhone browser screenshot showed the Conditions workspace scaled into roughly 85% of the available width, with a dark strip at the right edge.
-
-- [x] Add an explicit device-width viewport with an initial scale and iPhone safe-area support, while retaining pinch zoom.
-- [x] Make the app root, workspace, mobile header and main content fill the available width without hiding overflow.
-- [x] Pass all 44 tests and the production build. Check iPhone Safari and iPhone browser profiles at 320, 375, 390, 393, 402, 430, 499, 589, 760 and 761 px, including the width shown in the owner's screenshot.
-- [x] Verify long spot names, the 760 px responsive breakpoint, larger text, browser zoom, horizontal overflow and browser exceptions.
-- [x] Deploy application revision `23bdcc3` to staging (`dpl_5RT6XfaU3RwuJNvvX8H6DDAZRrPi`) and production (`dpl_4wBXGTptaTpdmJrueUvGiNsmQqmW`). Both custom domains passed the same live checks, with no deployment-scoped error or fatal logs.
-
-No database, conditions data, forecast-model or permission change was required.
-
-## São Pedro local calibration: WNW swell
-
-Owner request, 6 September 2026: use local knowledge and the supplied Surfline forecast screenshots to allow small rideable surf around 283°, including Bico and Bafureira, through generic database settings. Staging and production are explicitly authorised for this adjustment.
-
-- [x] Review the dated 0.9 m / 10 s / 283° reference, distinguish forecast comparison from measured observations, and compare it with fresh app provider data.
-- [x] Tune only the three spots' directional exposure and continuous small-wave score ceiling. Keep their distinct tide, minimum swell, gain and experience rules, and retain strong shelter above 290°.
-- [x] Save through the existing versioned platform-admin API with change notes, sources, concurrency protection and prior-version history.
-- [x] Pass all 49 tests and the build, including five new calibration regressions and the existing 5,712 migration-parity cases.
-- [x] Verify staging before applying the same settings to production. Each environment passed 1,224 hourly comparisons, 16-day coverage, unrelated-spot preservation, student denial and desktop/mobile display checks.
-- [x] Confirm all 17 database spot configurations and versions match between environments. Record São Pedro revision 4, Bico revision 5 and Bafureira revision 4 with rollback instructions in the [release record](CALIBRATION_2026-09-06_SAO_PEDRO.md).
-
-This is a database-only forecasting update. The repository additions are documentation and test-only evidence; the app has no spot-name or date-specific code change.
-
-## Environments and design references
-
-- Application: Next.js Pages Router in `surf/`, React, SQL through Neon.
-- Repository: `pawelpap/mysurfplan`.
-- `main` publishes through Vercel project `mywaveplan-prod` to mywaveplan.com.
-- `staging` publishes through Vercel project `mysurfplan-staging` to staging.mywaveplan.com.
-- Both Vercel projects use root directory `surf`.
-- Neon project `shy-paper-68550619`: production branch `br-weathered-silence-adp30k9s`, staging branch `br-small-salad-adx0nsj2`.
-- Work branch: `codex/task-oriented-staging`.
-- Figma: https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ
-- Current page: `CURRENT - Task-oriented UX - September 2026` (`309:2`).
-- Previous page: `ARCHIVE - Previous app design - June 2026` (`20:2`).
-
-## Milestone 1: working UX proposal on staging
-
-Implementation:
-
-- [x] Inspect source, existing plans, live screens, GitHub, Vercel, Neon and Figma.
-- [x] Document the audit and distinguish implemented functions from missing features.
-- [x] Build a consistent workspace shell with visible school context and role-based navigation.
-- [x] Give lists, details, create/edit forms and booking management separate screens.
-- [x] Preserve school, screen, selected record and lesson period in URLs.
-- [x] Default to upcoming lessons; add Past and student My bookings views.
-- [x] Add search and role/level filters to the main lists.
-- [x] Implement lesson detail editing, including duration and capacity, with server validation.
-- [x] Add dedicated instructor assignment and booking tasks.
-- [x] Add school editing and focused account forms.
-- [x] Simplify login and public schedules; preserve the lesson through login.
-- [x] Exclude expired public lessons and remove instructor emails from public lesson responses.
-- [x] Restrict student attendee data to their own booking.
-- [x] Replace CDN Tailwind styling with local CSS; keep Poppins and system-font fallback.
-- [x] Remove mock forecasts and misleading inactive controls from the proposal.
-- [x] Add focused validation tests and declare the Neon dependency directly.
-- [x] Complete production build using Node.js 22 and six validation tests.
-- [x] Verify mobile lesson list, single-column form, menu and Escape dismissal at 390 px.
-- [x] Verify the final login illustration and date/time fix on staging.
-- [x] Publish the initial proposal on staging.
-- [x] Verify the final update on staging.
-- [x] Owner reviewed the UX proposal positively and approved production promotion on 5 September 2026.
-- [x] Promote the accepted version to production and verify it there.
+- [ ] Add versioned plans/prices, trial policies, feature flags and usage limits for school or personal billing accounts. Separate role permissions from paid entitlements and enforce both through APIs.
+- [ ] Build platform-admin-only plan draft/publish/archive screens: typed values, currencies, intervals, effective dates, change previews, grandfathering/migration policy and audited overrides. Do not change existing prices silently.
+- [ ] Integrate Stripe Billing and hosted Checkout/customer portal for MyWavePlan subscriptions. Show plan, renewal, invoices, cancellation and payment-recovery state in School settings.
+- [ ] Persist subscription state from verified events and reconcile it. Define trial expiry, grace, failed payment, period-end cancellation, downgrade and restoration.
+- [ ] Explain reached limits and the exact upgrade price without blocking existing student commitments or privacy/account rights.
 
-No database migration is required for this milestone. No payment module, real forecast or attendance state is claimed as complete.
+Done when: an admin publishes a plan without a code change; API calls cannot bypass limits; a school can trial, subscribe, recover payment and cancel; duplicate/out-of-order events cannot corrupt access; price changes have explicit customer impact; legal/invoicing gates pass before live charging.
 
-## Milestone 2: spot and lesson conditions
+### Phase 4: online payments for individual lessons
 
-The owner authorised this work on staging and explicitly asked to keep production unchanged.
+Depends on reliable booking and a confirmed merchant/payment architecture. This is separate from charging schools for software.
 
-- [x] Add a separate Conditions task with a spot selector and sixteen forecast days.
-- [x] Store 17 nearby spots in Neon, including separate São Pedro Bico and Bafureira profiles.
-- [x] Require an active database spot for lesson creation, editing and new bookings.
-- [x] Add global spot creation and editable local calibration with version history.
-- [x] Integrate real swell, wind and simplified weather forecasts.
-- [x] Calculate full-horizon astronomical tides from open harmonic constants.
-- [x] Show quality and required experience separately, including lesson-level mismatch warnings.
-- [x] Show time-specific conditions across the complete lesson duration.
-- [x] Refresh on page reload, share duplicate requests briefly, and check automatically while open.
-- [x] Build responsive desktop and mobile forecast layouts with tide curves and direction arrows.
-- [x] Start the default hourly forecast at 06:00 and include first light, sunrise, sunset and last light.
-- [x] Add the staging `teststudent` account with student permissions; only platform admins can manage spots.
-- [x] Verify live 16-day coverage for every seeded spot and test permissions, missing data and time zones.
-- [x] Deploy and verify this work at staging.mywaveplan.com.
-- [x] Owner reviewed the conditions and approved production promotion. Continue tuning spot assumptions using local observations.
+- [ ] Use Stripe Connect to onboard schools for lesson payments. Proposed model: the school sells/supplies the lesson; MyWavePlan sells software. Confirm merchant, dispute, refund, tax and negative-balance responsibilities before choosing charge/account configuration.
+- [ ] Add a school product catalogue with single lessons first: currency, price/tax treatment, eligibility and cancellation policy. Snapshot purchased terms and price on each order.
+- [ ] Implement seat holds, expiry and atomic booking confirmation after trusted payment confirmation. Handle abandoned checkout, delayed payment and payment arriving after the hold expires.
+- [ ] Add receipts/invoice references, partial/full refunds, school cancellation, disputes, payout status and support tools. Keep booking status separate from payment status; do not store card details.
+- [ ] Reconcile transactions, orders and refunds. Test connected-account isolation and webhook retries/signatures. Start with supported card methods; add local methods after handling their asynchronous behaviour.
 
-See [Conditions architecture, sources and limitations](CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
+Done when: sandbox purchase/refund/dispute scenarios pass; competing checkouts cannot oversell; a charged student has a confirmed booking or a defined recovery/refund path; money and receipts belong to the right school; the owner approves a controlled live-money pilot and its limits.
 
-## Core reliability backlog
+### Phase 5: packages and school operations
 
-Continue after the conditions tasks above:
+Depends on settled single-lesson payment behaviour.
 
-1. Link instructor login accounts to teaching profiles. Migrate existing records safely and keep account/profile changes consistent.
-2. Harden sessions and account lifecycle: required production secret, expiry enforcement, Secure cookies, revocation, login rate limiting and consistent permission checks.
-3. Verify school scoping, student privacy and booking/capacity integrity with integration tests, including concurrent requests.
-4. Add actual attendance states and instructor access for assigned lessons. Keep attendance inside the lesson workflow.
-5. Add student registration, multi-school memberships and school-admin approval.
-6. Add self-service profile editing, profile image upload and password reset delivery.
-7. Remove public playground routes and standardise error responses and authenticated cache behaviour.
+- [ ] Let schools configure products such as 1 lesson or 5 lessons, with their own price, eligible lesson types, validity and terms. Changes create new product versions.
+- [ ] Add a school-scoped credit ledger for purchase, reservation, use, release, expiry and refund. Show balance/history to both surfer and school. Prevent duplicate/concurrent spending.
+- [ ] Agree unused/part-used refund and weather-reschedule rules before sale. No cross-school wallet, transferable money balance or stored payment value initially.
+- [ ] Add waitlists, reminders, recurring lesson creation and occupancy/revenue reporting according to pilot demand. Separate lesson sales, platform revenue and outstanding package credits.
 
-Preserved product decisions:
+Done when: package purchase/use works across eligible lessons; cancellation restores the right credit; concurrent redemption and partial-refund tests pass; every balance is explainable from its ledger.
 
-- Password login is sufficient for now; passwords use versioned scrypt hashes.
-- Telephone number is optional and stored on users.
-- People share first name, family name, email, telephone, photo and description fields.
-- A user should eventually belong to multiple schools through `user_school_roles`; `users.school_id` is a temporary single-school model.
-- Students should self-register and request school membership; school admins approve access.
-- School admins manage lessons and bookings. Instructors should manage attendance for assigned lessons.
-- Keep the `/` workspace and public `/:slug` schedules while validating UX. Query routes currently give each task a distinct URL without introducing `/admin` route churn.
-- Conditions is the first menu item and the default workspace after login, including for the shared `teststudent` account. Explicit links to lessons and other tasks retain their destination.
+### Phase 6: feedback, retention and measured expansion
 
-## Conditions architecture and future payments
+- [ ] Collect post-lesson feedback on the lesson, school and instructor only from verified attendees. Start privately; introduce public reviews after moderation, reporting, reply and dispute processes work.
+- [ ] Consider rankings only with enough verified feedback. School ranking requires school-admin opt-in; each instructor separately opts in personally. Defaults are off and withdrawal is available. School approval cannot override a person's choice; review employment-related consent validity.
+- [ ] Publish ranking criteria, minimum sample and freshness rules. Prevent review manipulation, paid placement in organic rankings and unsafe incentives. Leaderboards are not a launch requirement.
+- [ ] Test Surfer Plus after repeat free use and willingness to pay are demonstrated. Use the same entitlement engine for personal plans if justified.
+- [ ] Add Portuguese alongside English, then regions/currencies according to demand. Keep timezone, spot models, tide provenance and currency explicit.
+- [ ] Capture structured observations of actual surf conditions with calibration-version provenance. Validate changes across dates/spots before release.
 
-The conditions architecture, generic database calibration, swell energy and water temperature are implemented. The conditions presentation, appearance and nearest-spot release above is complete on production and staging. Use instructor observations to refine each break and verify new regional tide references. Keep the difference between surf quality and required experience visible.
+Done when: reviews require completed attendance; visibility/withdrawal and moderation work; paid/geographic expansion has evidence of demand and an understood operating cost.
 
-Payments are a future module. Agree booking/payment states, cancellation and refund rules, currencies and provider before implementation.
+## Architecture and privacy direction
 
-## Verification and deployment log
+The [Commercial and privacy architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) contains the proposed schema, payment flows, consent records, retention controls and event contract. It is a design proposal, not a migration ready to apply.
 
-- 5 September 2026: Baseline build passed. Production and staging logins, public desktop/mobile screens, service access and environment mapping reviewed.
-- 5 September 2026: Six validation tests and the production build passed with Node.js 22.
-- 5 September 2026: Initial proposal deployed as `dcbd97d`. Follow-up: remove the staging label, improve mobile layouts, restore the surf illustration on login, and fix native date/time form saving. Conditions will start only after the owner provides the next instructions.
-- 5 September 2026: Final application update `5c7e944` deployed successfully to staging (`dpl_GMLEteELqb2PuW9rb7ZJbAdA9oVy`). Verified the illustrated login on desktop and mobile, lesson creation, date/time/duration/capacity editing, instructor assignment, bookings, full-capacity validation and person editing. Mobile checks at 390 × 844 covered list/form layout, navigation and Escape dismissal. Public date filtering passed without browser errors after the timezone hydration fix.
-- Review data is available in the staging-only school `Demo Surf School - UX review`, with two lessons, sample instructors and two bookings. Sample user profiles have no login password configured. Existing user-created schools were preserved.
-- This pass does not establish full student/instructor end-to-end coverage or concurrent booking correctness. Those remain in the reliability backlog. Production remains on `520d826` at mywaveplan.com. The UX proposal was subsequently accepted for staging; conditions instructions are now incorporated into Milestone 2.
+Keep one application with clear identity, booking, billing, catalogue, media and privacy modules. No microservice rewrite is needed. Use Neon for relational records/metadata, object storage for images and Stripe for payment collection. Enforce permissions and entitlements on the server.
 
-- 5 September 2026: Applied the additive conditions migration to staging only. Seeded 17 spots, mapped existing lessons and verified complete 16-day live forecasts for every spot. Reload and duplicate-refresh checks passed.
+Use Stripe Billing for platform subscriptions and Connect for school lesson payments. Charge type affects fund flows and dispute/refund liability, so choose it explicitly. Prices and limits belong in database configuration; feature definitions, supported operations and validation remain in code. New amounts require new Stripe Price objects. [Stripe charge types](https://docs.stripe.com/connect/charges), [Stripe price management](https://docs.stripe.com/products-prices/manage-prices)
 
-- 5 September 2026: Conditions code `3b0d00b` deployed successfully to staging (`dpl_Ht1GcpjdBvVGT8VRZwzFaBcs2HTM`). Verified all 16 outlook cards, last-day tide events, mobile width and lesson conditions on the custom staging domain. The browser sends `refresh=1` when a conditions page or lesson opens. All 17 automated tests and the production build passed. Production remains on `520d826` / `dpl_G8bxGKWi1rNNeTfif2TrQr63t2ZW`.
+Proposed operator identity, supplied by the owner: **PAWEL PAPLINSKI, tax number PT311219217**. Confirm legal form, address, privacy contact and VAT/invoicing treatment before publishing documents. This information alone does not establish compliance.
 
-## Historical production promotion checklist, completed 5 September 2026
+Document purposes and lawful bases per processing activity. Terms acceptance and privacy-notice acknowledgement are separate from consent. Core account/booking processing should use the appropriate contractual or other justified basis; optional analytics, marketing and public visibility need separate controls. Consent must be freely given, specific, informed and withdrawable. [EDPB guidance](https://www.edpb.europa.eu/sme/be-compliant/process-personal-data-lawfully_en)
 
-The conditions, optional-username, São Pedro exposure and Caparica wave-sample migrations and the student-only `teststudent` login were included in the approved production release below. These are completed steps, not instructions to repeat them. The current presentation candidate requires no migration or account provisioning; follow the current staging review and handover above.
+Use consent-first analytics: no GTM/GA requests before opt-in, equally accessible accept/reject controls and a persistent settings link. Start with basic Consent Mode and advertising disabled. The CNPD identifies analytics cookies as requiring consent; a banner/Consent Mode is only one part of compliance. [CNPD guidance](https://www.cnpd.pt/media/x2zdus50/nota-informativa-cnpd_cookies_20210625.pdf), [Google consent modes](https://developers.google.com/tag-platform/security/concepts/consent-mode)
 
-- 5 September 2026 follow-up: added civil twilight and solar markers directly to the tide graph, student username login, strict platform-admin spot writes, compact mobile hourly cards and São Pedro directional sheltering. The corrected model treats swell partitions and wind waves separately and prevents flat surf receiving Good scores. Twenty-six automated checks and the Node.js 22 build passed before deployment.
+Deletion, withdrawal, export and retention are Phase 1 requirements. Financial/legal retention exceptions need documented purposes and restricted access. Publish the reviewed storage policy/subprocessor list and make deletion propagate to images, caches and restore procedures.
 
-- Later 5 September follow-up: retain São João's established wave sample for both Caparica beaches, reject entirely zero-filled wave grids, smooth the small-surf score threshold and simplify experience labels across forecast and lesson views. Rename the staging test school to Demo Surf School. All 29 automated checks and the Node.js 22 build passed. Mobile tide dragging, vertical scrolling, keyboard selection, outside-tap menu dismissal and Escape focus restoration were verified on staging.
+## The next implementation brief
 
-- Follow-up UI: graph-selected time drives all summary parameters. Mobile supports direct touch/drag, expandable hour cards, a standard hamburger menu, outside-tap dismissal and Escape. Technical forecast commentary is removed from everyday screens; data attribution is retained on Legal.
+**Next task: continue secure self-service accounts and multi-school membership.** The bounded expiry/cookie release is complete on staging and production; revocation and current membership checks still need implementation before the additive identity migration and onboarding screens. Build and test on staging before commerce.
 
-## Approved production release, 5 September 2026
+1. Write the authentication/identity decision and permission matrix; rehearse migration of existing student/coach links.
+2. Implement session hardening, tenant isolation and revocation tests.
+3. Add independent surfer sign-up, email verification and password recovery.
+4. Add school creation and staff invitations, with safe claiming of existing records.
+5. Add privacy/terms version records and separate optional choices; media and deletion follow within the same onboarding phase.
 
-The owner requested production parity with staging, then confirmed that production-only records should first be added to staging. The isolated merge rehearsal passed, including a repeat run with no duplicate inserts. Jonny's existing login credential was copied only after explicit approval. The student-only `teststudent` account, Demo Surf School, all 17 spots and their latest calibration are included.
+Acceptance scenario: an existing school retains lessons/bookings; a new person verifies their address and joins the authorised role through invitation; one account can use two authorised schools and no others; revocation takes effect immediately; refusing optional consent still allows account use. Next, connect this account to forecast-led discovery and booking.
 
-The release database is a fresh copy of the combined staging database. Schema comparison and fingerprints of all 12 business/reference tables matched. Forecast caches are copied too, then refresh independently. Original production data and the pre-merge staging state are retained as rollback resources. Environment-specific session-signing secrets are configured. See `README-staging.md` for the current branch mapping and rollback details.
+Decisions to resolve before the relevant launch: legal contacts/policies; authentication/email provider; adult/guardian scope; trial/grace and final price; merchant/Connect liability; VAT/invoicing provider; commercial forecast licence/budget; media retention/provider. None prevents saving/reviewing this roadmap.
+
+## Validation, rollout and measures
+
+- Rehearse additive migrations with representative anonymised data, reconcile records/links and document rollback. Never copy a full staging database over production to release a feature.
+- Test permissions, state transitions, concurrency and money; reuse forecast regressions. Review complete desktop/mobile journeys, dark/light modes, keyboard access and errors. Include a physical iPhone check before broad onboarding release where available.
+- Use separate staging payment credentials, webhooks and media storage; keep demo/test transactions out of live financial and product metrics.
+- Standing workflow: deploy to staging, verify, tell the owner it is ready and wait for approval before production. Explicit authorisation for both environments applies only to that change. After production, test and update handover, release notes and this plan.
+- Pilot before scaling acquisition. Measure first lesson published, first confirmed/attended booking, repeat bookings, trial-to-paid conversion, active paying schools, cancellation/refund rate and cost per active school. Establish baselines before targets; show consented analytics coverage rather than treating it as all users.
+- Maintain forecast freshness/error rate, capacity errors, reconciliation exceptions and support response time. Reassess after the onboarding/booking pilot and first billing cycle, not arbitrary calendar dates.
+
+## Deferred deliberately
+
+Native mobile apps, a cross-school wallet, automatic forecast-based lesson cancellation, paid rankings, a large tariff matrix and broad marketplace expansion are not prerequisites. The current home-screen experience is sufficient for the next stages. Revisit these only when user evidence justifies the operating cost.
