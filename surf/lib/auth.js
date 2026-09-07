@@ -1,10 +1,12 @@
 import crypto from 'crypto';
 import { promisify } from 'util';
 import { sql } from './db';
+import { createSessionCodec } from './auth-session.mjs';
 
-const SESSION_COOKIE = 'msp_session';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-insecure-session-secret';
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const sessionCodec = createSessionCodec({
+  secret: process.env.SESSION_SECRET,
+  production: process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test',
+});
 const ROLES = new Set(['admin', 'platform_admin', 'school_admin', 'coach', 'student']);
 const scryptAsync = promisify(crypto.scrypt);
 
@@ -19,47 +21,6 @@ const PASSWORD_SCRYPT_OPTIONS = {
   p: 1,
   maxmem: 64 * 1024 * 1024,
 };
-
-function base64url(input) {
-  return Buffer.from(input).toString('base64url');
-}
-
-function sign(value) {
-  return crypto.createHmac('sha256', SESSION_SECRET).update(value).digest('base64url');
-}
-
-function parseCookies(header = '') {
-  return header
-    .split(';')
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .reduce((acc, part) => {
-      const idx = part.indexOf('=');
-      if (idx === -1) return acc;
-      const key = part.slice(0, idx);
-      const value = part.slice(idx + 1);
-      acc[key] = decodeURIComponent(value);
-      return acc;
-    }, {});
-}
-
-function encodeSession(payload) {
-  const encoded = base64url(JSON.stringify(payload));
-  return `${encoded}.${sign(encoded)}`;
-}
-
-function decodeSession(raw) {
-  if (!raw || typeof raw !== 'string') return null;
-  const [encoded, signature] = raw.split('.');
-  if (!encoded || !signature) return null;
-  if (sign(encoded) !== signature) return null;
-
-  try {
-    return JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
-  } catch {
-    return null;
-  }
-}
 
 export function normalizeEmail(email) {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
@@ -163,30 +124,17 @@ export async function resolveSchoolScope(school) {
 }
 
 export function getAuthSession(req) {
-  const cookies = parseCookies(req.headers.cookie || '');
-  const payload = decodeSession(cookies[SESSION_COOKIE]);
-  if (!payload || !payload.role || !ROLES.has(payload.role)) return null;
+  const payload = sessionCodec.read(req.headers?.cookie);
+  if (!payload || !ROLES.has(payload.role)) return null;
   return payload;
 }
 
 export function clearAuthSession(res) {
-  res.setHeader(
-    'Set-Cookie',
-    `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
-  );
+  res.setHeader('Set-Cookie', sessionCodec.clear());
 }
 
 export function setAuthSessionCookie(res, payload) {
-  const cookieValue = encodeSession({
-    ...payload,
-    iat: Math.floor(Date.now() / 1000),
-  });
-  res.setHeader(
-    'Set-Cookie',
-    `${SESSION_COOKIE}=${encodeURIComponent(
-      cookieValue
-    )}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_TTL_SECONDS}`
-  );
+  res.setHeader('Set-Cookie', sessionCodec.issue(payload));
 }
 
 export function setUserAuthSession(res, user) {
