@@ -2,7 +2,13 @@
 
 Updated 7 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: forecast calibration and tile cleanup, 7 September 2026
+## Current release: nearest spot selection, 7 September 2026
+
+Application revision `c02da003ec56376750ff0620eef2e264a601fb9f` is deployed and verified on staging and production. Distance sorting already worked; the missing automatic selection is now fixed. A fresh Conditions page selects the nearest spot after location succeeds. Explicit spot links and manual choices take precedence, sorting changes preserve selection, and a requested date is retained. Location failure still falls back to A–Z. Lesson forms retain deliberate spot selection.
+
+All 68 regression tests and both builds passed. Live desktop/mobile checks confirmed automatic selection, distance ordering, manual choice preservation and alphabetical fallback. Staging also passed requested-date and linked-spot checks. Deployment error/fatal scans were empty. The two test tabs were closed and the temporary viewport was reset. See [verification and rollback](RELEASE_2026-09-07_NEAREST_SPOT.md). No database data changed; the preceding calibration parity remains valid.
+
+## Previous release: forecast calibration and tile cleanup, 7 September 2026
 
 Application revision `428d35f3c2b4b03bec3d95edff4f806945e2690f` is deployed and verified on staging and production. The owner approved production promotion of the reviewed spot data and the removal of “Long-range” from daily tiles. The selected-day confidence/outlook reminder was also removed. No probability or replacement label was added; colours, experience levels and forecast parameters are preserved.
 
