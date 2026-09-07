@@ -178,7 +178,6 @@ function SpotForecast({ spot, date, onDate }) {
   const selectedLabel = finite(selectedTime)
     ? hourLabel(selectedTime, spot.timezone)
     : "12:00";
-  const daysAhead = d.dates.indexOf(selected);
   const chooseTime = (time) => setChosen({ day: selected, time });
   const sunlight = d.sunlight?.find((day) => day.day === selected);
   const visible = forecastViewingHours(
@@ -258,7 +257,6 @@ function SpotForecast({ spot, date, onDate }) {
                     : "Surf estimate unavailable"}
                 </span>
                 <Experience level={h?.level} />
-                {i >= 7 && <small>Long-range</small>}
               </button>
             );
           })}
@@ -274,15 +272,6 @@ function SpotForecast({ spot, date, onDate }) {
             <p className="selected-conditions-time">
               Conditions at {selectedLabel}
             </p>
-            {daysAhead >= 3 && (
-              <p>
-                {daysAhead >= 7
-                  ? "Long-range · low confidence"
-                  : daysAhead >= 3
-                    ? "Outlook may change"
-                    : ""}
-              </p>
-            )}
           </div>
         </div>
         <TideChart
