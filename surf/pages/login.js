@@ -55,7 +55,7 @@ export default function Login() {
             <br />
             Catch the wave.
           </h2>
-          <p className="story-caption">Lessons and people, in one place.</p>
+          <p className="story-caption">Lessons, people and forecasts in one place.</p>
         </div>
         <div className="login-sun" aria-hidden="true" />
         <svg className="login-surf" viewBox="0 0 560 430" aria-hidden="true">
