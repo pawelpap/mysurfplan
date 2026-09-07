@@ -2,7 +2,7 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
-Current release, 7 September: session-security revision `729489e` is verified on staging (`dpl_EXKgZYtiV5XwTpzMTJZBLPtCtn8F`) and, after explicit owner approval, production (`dpl_6LEtFTbQ8cYcATF4acVyX7eLKhrG`). See [session-security release](RELEASE_2026-09-07_SESSION_SECURITY.md).
+Current release, 7 September: revocable-session revision `aa695a9` is verified on staging (`dpl_2w1L1GqYVjNF5qmCzaWKdiGNPC6z`) and, following the owner's conditional approval, production (`dpl_J9LhMTb81ZG6qe82G33GBMzaJcDC`). See [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
 
 Historical release: the owner approved the conditions-presentation, appearance and nearest-spot release on 6 September 2026. That approved release was deployed and verified in both environments. See [HANDOVER.md](HANDOVER.md) and [release notes](RELEASE_2026-09-06_PRESENTATION.md) for the approved revision, deployment IDs, checks and rollback. No database migration or copy was performed. Future changes require a new staging review before production.
 
@@ -15,9 +15,11 @@ Both projects use application root `surf`. Neon project: `shy-paper-68550619`.
 
 ## Local setup
 
-Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing/short/development values. Keep existing valid environment secrets when deploying this fix so active sessions survive. Verify that the database endpoint belongs to the staging branch before running migrations or local write operations. Never commit credentials.
+Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing/short/development values. Keep existing valid environment secrets. This release requires a one-time re-login for legacy stateless cookies; subsequent releases preserve database-backed sessions unless explicitly revoked. Verify that the database endpoint belongs to the staging branch before running migrations or local write operations. Never commit credentials.
 
-Run `npm run dev`, `npm test` and `npm run build` from `surf`.
+Apply `db/migrations/20260907_revocable_sessions.sql` before running the new authentication code against an older database. It is additive and idempotent; it has already been applied separately to the current staging and production branches. Do not copy either business database as part of this deployment.
+
+Run `npm run dev`, `npm test` and `npm run build` from `surf`. Session rehearsal and deployed verification scripts are linked from the release notes. Use explicit private connection files, verify their Neon branch and remove disposable fixtures afterwards.
 
 ## Home-screen installation
 

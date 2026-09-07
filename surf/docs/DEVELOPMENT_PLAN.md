@@ -16,14 +16,14 @@ The forecasts and visual direction are now a product baseline the owner is happy
 
 ## Baseline and gaps
 
-Current application revision on staging and production: `729489e909204135ace79c399ce1fe5cc6c7b5c6`, the 7 September session-security release. The earlier login-caption revision was `8e9a9bb`. Earlier releases established forecasts, database calibration, responsive conditions, appearance selection and home-screen support. The owner approved production after staging checks; both environments received the same session-security revision and post-deployment checks. See [session-security release](RELEASE_2026-09-07_SESSION_SECURITY.md).
+Current application revision on staging and production: `aa695a964c362e53712a5990a305ee2174e6d818`, the 7 September revocable-session release. Staging passed before the owner-authorised production deployment; both environments passed API and desktop/mobile checks. Expiry/cookie hardening was released earlier as `729489e`. The accepted forecast model and design are preserved. See [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
 
 | Area | Current position from code and project documentation | Implication |
 | --- | --- | --- |
 | Forecasts | 17 seeded spots, 16 days, generic versioned database calibration, tides/daylight, swell components, energy/power, water temperature, experience levels and lesson conditions | Maintain accuracy and freshness; use this as the acquisition entry point |
 | Design | Task-oriented screens, mobile layouts, quality colours, device/light/dark appearance and nearest-spot selection | Reuse existing components and visual language |
 | Identity | One primary school and one role on a user; admin-created accounts | A surfer cannot yet use one independent account naturally across schools |
-| Sessions | Signed cookies and scrypt password hashes; production-secret enforcement, server-side expiry/revocation and Secure-cookie handling need work | Complete security hardening before self-registration |
+| Sessions | Seven-day database-backed sessions, hashed tokens, secure cookies, current account/role/school checks and single/global logout are deployed | Complete abuse, CSRF and tenant/privacy controls before self-registration |
 | Booking | Capacity checks and SQL locking exist; cross-school student booking is constrained by the current identity model | Prove concurrency and privacy, then support discovery-to-booking across schools |
 | Commerce | No implemented plan, subscription, payment or package-credit domain | Establish a common model before adding payment buttons |
 | Privacy | Legal page currently covers data licences; no complete consent, privacy-notice or erasure workflow | Build privacy controls alongside onboarding |
@@ -61,7 +61,7 @@ Each phase consists of small staging releases. Payment design can be written ear
 Outcome: existing users and schools can safely support self-service flows.
 
 - [x] Released to staging and production: require a production signing secret of at least 32 bytes, remove the production development-secret fallback, use Secure/HttpOnly cookies, enforce seven-day expiry and reject malformed/tampered cookies. Release `729489e`; staging verified, then production explicitly approved and verified.
-- [ ] Add revocable sessions and current server-side membership/account checks. The bounded session-security release above does not complete these broader controls.
+- [x] Add revocable sessions and current server-side account/role/school checks. Deployed and verified on staging and production: single/global logout, password/status invalidation, disabled/deleted-account rejection and live single-school permissions. Multi-school membership remains in Phase 1.
 - [ ] Add login/recovery rate limiting, safe errors, enumeration protection and CSRF/origin protection for mutations. Require platform-admin MFA before commercial operation; assess the authentication implementation and migration first.
 - [ ] Audit tenant boundaries, instructor/student privacy and public playground routes. Remove `/test/*` production routes. Isolate the shared demo from real customer bookings, payments and private data.
 - [ ] Review Next.js 14.2.3 and dependencies against supported security releases; plan a tested upgrade without making a router rewrite a prerequisite.
@@ -77,7 +77,7 @@ Depends on Phase 0 session and tenant controls. This is the first substantial pr
 
 - [ ] Introduce global user identity plus `user_school_roles` memberships. One user can be a surfer and coach and work with several schools. Keep platform-admin authority separate.
 - [ ] Migrate users, student/coach records and memberships without losing IDs, lessons or booking history. Link coach records to users. Do not merge people by matching names or silently claim an existing school.
-- [ ] Build verified-email sign-up, password recovery, profile editing, logout everywhere and invitation acceptance. Keep telephone optional and existing username login working.
+- [ ] Build verified-email sign-up, password recovery, profile editing and invitation acceptance. Logout everywhere is already available in My profile. Keep telephone optional and existing username login working.
 - [ ] Let a new school owner create a draft workspace, set timezone/spots/contact details, invite staff and publish a first lesson through a short checklist. Verify ownership before claiming an existing listing.
 - [ ] Let instructors self-register and request/accept affiliation. Choosing “instructor” must not grant access to a school's records. A solo instructor can operate as a school business after the same verification.
 - [ ] Let surfers register independently. Proposed change to the older plan: a verified user may book an eligible public lesson without prior school-admin approval; staff membership still requires approval. Create a school customer/student link when needed; retain invitation-only lessons where configured.
@@ -167,10 +167,12 @@ Deletion, withdrawal, export and retention are Phase 1 requirements. Financial/l
 
 ## The next implementation brief
 
-**Next task: continue secure self-service accounts and multi-school membership.** The bounded expiry/cookie release is complete on staging and production; revocation and current membership checks still need implementation before the additive identity migration and onboarding screens. Build and test on staging before commerce.
+**Next bounded task: protect login and state-changing requests.** Session expiry and revocation are complete. Add shared server-side login rate limiting, consistent safe errors and protection against account enumeration; apply CSRF/origin checks to all authenticated mutations. Keep the existing username login and test account working. Test denied requests, recovery after rate limits and authorised desktop/mobile flows on staging before production.
 
-1. Write the authentication/identity decision and permission matrix; rehearse migration of existing student/coach links.
-2. Implement session hardening, tenant isolation and revocation tests.
+Then:
+
+1. Audit tenant boundaries and instructor/student privacy, remove production playground routes and isolate the shared demo. Review supported Next.js/dependency security upgrades.
+2. Write the authentication/identity decision and permission matrix; rehearse an additive migration to global users and multi-school memberships, preserving student/coach links.
 3. Add independent surfer sign-up, email verification and password recovery.
 4. Add school creation and staff invitations, with safe claiming of existing records.
 5. Add privacy/terms version records and separate optional choices; media and deletion follow within the same onboarding phase.

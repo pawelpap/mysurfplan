@@ -28,8 +28,17 @@ try{
   f=JSON.parse(await fs.readFile(stateFile,'utf8'));assert.equal(f.base,base);
   if(mode==='cleanup'){
    await c.query('BEGIN');
-   for(const who of['admin','member','student','outsider'])await c.query('DELETE FROM users WHERE id=$1 AND email=$2',[f[who].id,f[who].email]);
-   for(const school of f.schools)await c.query('DELETE FROM schools WHERE id=$1 AND slug=$2',[school.id,school.slug]);
+   const ids=['admin','member','student','outsider'].map(k=>f[k].id),schoolIds=f.schools.map(s=>s.id);
+   const lockedSchools=await c.query('SELECT id,name FROM schools WHERE id=ANY($1::uuid[]) FOR UPDATE',[schoolIds]);
+   assert.equal(lockedSchools.rowCount,2);assert(lockedSchools.rows.every(s=>s.name.startsWith('Session release check ')));
+   const lockedUsers=await c.query('SELECT id,name,family_name,email FROM users WHERE id=ANY($1::uuid[]) FOR UPDATE',[ids]);
+   assert.equal(lockedUsers.rowCount,4);
+   for(const who of['admin','member','student','outsider'])assert(lockedUsers.rows.some(u=>u.id===f[who].id&&u.email===f[who].email&&u.name==='Session'&&u.family_name==='Check'));
+   assert.equal((await c.query('SELECT count(*)::int AS n FROM users WHERE school_id=ANY($1::uuid[]) AND NOT(id=ANY($2::uuid[]))',[schoolIds,ids])).rows[0].n,0);
+   for(const table of['lessons','coaches','students'])assert.equal((await c.query(`SELECT count(*)::int AS n FROM ${table} WHERE school_id=ANY($1::uuid[])`,[schoolIds])).rows[0].n,0);
+   for(const table of['coaches','students'])assert.equal((await c.query(`SELECT count(*)::int AS n FROM ${table} WHERE user_id=ANY($1::uuid[])`,[ids])).rows[0].n,0);
+   for(const who of['admin','member','student','outsider'])assert.equal((await c.query('DELETE FROM users WHERE id=$1 AND email=$2',[f[who].id,f[who].email])).rowCount,1);
+   for(const school of f.schools)assert.equal((await c.query('DELETE FROM schools WHERE id=$1 AND slug=$2',[school.id,school.slug])).rowCount,1);
    await c.query('COMMIT');await fs.unlink(stateFile);console.log(`${env}: disposable accounts, sessions and schools removed.`);
   }else{
    let n=0;const check=async(name,fn)=>{await fn();n++;console.log(`PASS ${env}: ${name}`);};
@@ -37,7 +46,8 @@ try{
    const denied=async(cookie)=>assert.equal((await call('/api/users',cookie)).status,401);
    let admin=await login(f,'admin'),a,b,s=await login(f,'student');
    const patch=async(body)=>assert.equal((await call(`/api/users/${f.member.id}`,admin,'PATCH',body)).status,200);
-   await check('legacy cookie rejected',async()=>{assert.equal(await active(f.beforeCookie),null);await denied(f.beforeCookie);});
+   const beforePayload=JSON.parse(Buffer.from(decodeURIComponent(f.beforeCookie.split('=')[1]).split('.')[0],'base64url').toString());
+   await check('pre-release cookie compatibility',async()=>{if(beforePayload.sid){assert.equal((await active(f.beforeCookie)).userId,f.member.id);}else{assert.equal(await active(f.beforeCookie),null);await denied(f.beforeCookie);}});
    await check('new session and no-store responses',async()=>{a=await login(f);b=await login(f);assert.equal((await active(a)).userId,f.member.id);assert.match((await call('/api/auth/session',a)).headers.get('cache-control'),/no-store/);});
    await check('student and cross-school permissions',async()=>{assert.equal((await call('/api/users',s)).status,403);const o=await login(f,'outsider');assert.equal((await call(`/api/users/${f.member.id}`,o)).status,403);});
    await check('single logout rejects replay and preserves a second session',async()=>{assert.equal((await call('/api/auth/session',a,'DELETE')).status,200);await denied(a);assert.equal((await active(b)).userId,f.member.id);});
