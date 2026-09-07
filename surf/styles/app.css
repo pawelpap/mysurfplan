@@ -496,6 +496,12 @@ textarea::placeholder {
   background: var(--sea-soft);
   color: var(--success-ink);
 }
+.profile-access {
+  margin-top: 20px;
+}
+.profile-access p {
+  margin: 8px 0 18px;
+}
 .form-screen {
   max-width: 760px;
 }

@@ -411,7 +411,7 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
           )}
         </dl>
       </section>
-      <section className="surface padded">
+      <section className="surface padded profile-access">
         <h2>Account access</h2>
         <p className="muted">Log out on all browsers and devices, including this one.</p>
         <Button onClick={onLogoutAll} disabled={loggingOut}>
