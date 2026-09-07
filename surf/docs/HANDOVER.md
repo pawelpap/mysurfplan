@@ -2,15 +2,25 @@
 
 Updated 7 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Staging-only spot calibration review, 7 September 2026
+## Current release: forecast calibration and tile cleanup, 7 September 2026
+
+Application revision `428d35f3c2b4b03bec3d95edff4f806945e2690f` is deployed and verified on staging and production. The owner approved production promotion of the reviewed spot data and the removal of “Long-range” from daily tiles. The selected-day confidence/outlook reminder was also removed. No probability or replacement label was added; colours, experience levels and forecast parameters are preserved.
+
+Both databases have the same 17 active spots, full calibrations and disposable test lesson data: 7 lessons, 5 bookings and 4 coach assignments. Production received the 16 reviewed configurations and Praia da Torre; generic São Pedro and six production-only test lessons were removed under the owner's explicit authorisation. Accounts, shared settings and schemas were preserved. Operational timestamps, calibration history event IDs, authentication sessions and caches remain environment-specific.
+
+All 68 regression tests passed, and both deployments passed checks for 17 live forecasts and 6,936 scored hours, current configuration versions, student write denial and deleted-spot 404. Desktop and mobile browser checks at 1710 and 390 px passed, including a later selected forecast day. Deployment error/fatal log scans were empty. See [release evidence and rollback](RELEASE_2026-09-07_FORECAST_CALIBRATION.md). Verified deployment IDs are staging `dpl_G4FBsNGEBHEChCWTu3q3qN18m6KD` and production `dpl_AeVESYAoN7mfLn8V8aYuW2NwgrkQ`; documentation-only follow-ups do not change runtime behaviour.
+
+The next application-development task remains login abuse protection and CSRF/origin controls. No probability work or Surfline session import is included.
+
+## Earlier staging review, now promoted, 7 September 2026
 
 At 19:45 UTC, the owner's authorised data-only review revised 16 local spot configurations, added Praia da Torre and deleted generic São Pedro do Estoril with its five explicitly disposable test lessons, five bookings and three coach assignments. Seven other lessons remain. Staging has 17 active spots. Bico is version 6; Bafureira and both Caparica beaches are version 5; the other revised spots are version 3; Torre is version 1. All use the existing generic schema v3 and retain provisional status. No application code or shared profile changed and no deployment was needed.
 
-Production spot fingerprints are unchanged and production approval is pending. Do not promote this data review automatically or assume the two spot inventories match. The application's existing production release below remains current. The owner deferred Surfline session data work; no session history was imported.
+Production spot fingerprints were unchanged at the end of that staging-only review. The owner subsequently approved promotion, completed at 20:11 UTC as recorded in the current release above. The owner deferred Surfline session data work; no session history was imported.
 
 Validation passed: 68 existing regression tests, 61,200 scenario combinations, all 17 live staging forecasts (6,936 scored hours), exact configuration/version checks, student write denial and deleted-spot 404. Chrome confirmed the reloaded selector and Torre forecast. Water-temperature coverage is shorter than the surf forecast and is not extrapolated. See [the review, sources, exact changes and rollout instructions](calibration/2026-09-07-local-review/README.md). Numerical adjustments remain estimates requiring local observations; the Surfline comparison still shows some rating differences and is not proof of accuracy.
 
-## Current release: revocable sessions, 7 September 2026
+## Previous release: revocable sessions, 7 September 2026
 
 Application revision `aa695a964c362e53712a5990a305ee2174e6d818` is deployed and verified on both environments: staging `dpl_2w1L1GqYVjNF5qmCzaWKdiGNPC6z`, production `dpl_J9LhMTb81ZG6qe82G33GBMzaJcDC`. The owner explicitly authorised production after staging passed. Follow-up documentation/test-script commits do not change runtime behaviour.
 

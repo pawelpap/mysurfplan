@@ -1,0 +1,450 @@
+{
+  "applicationRevision": "428d35f3c2b4b03bec3d95edff4f806945e2690f",
+  "database": {
+    "appliedAt": "2026-09-07T20:11:01.157Z",
+    "spots": 17,
+    "removedTestLessons": 6,
+    "lessons": 7,
+    "bookings": 5,
+    "coachAssignments": 4,
+    "history": [
+      {
+        "slug": "abano",
+        "version": 3,
+        "historyId": "63"
+      },
+      {
+        "slug": "adraga",
+        "version": 3,
+        "historyId": "64"
+      },
+      {
+        "slug": "carcavelos",
+        "version": 3,
+        "historyId": "65"
+      },
+      {
+        "slug": "cornelia-caparica",
+        "version": 5,
+        "historyId": "66"
+      },
+      {
+        "slug": "cresmina",
+        "version": 3,
+        "historyId": "67"
+      },
+      {
+        "slug": "guincho",
+        "version": 3,
+        "historyId": "68"
+      },
+      {
+        "slug": "magoito",
+        "version": 3,
+        "historyId": "69"
+      },
+      {
+        "slug": "parede",
+        "version": 3,
+        "historyId": "70"
+      },
+      {
+        "slug": "praia-da-torre",
+        "version": 1,
+        "historyId": "71"
+      },
+      {
+        "slug": "praia-das-macas",
+        "version": 3,
+        "historyId": "72"
+      },
+      {
+        "slug": "praia-grande-sintra",
+        "version": 3,
+        "historyId": "73"
+      },
+      {
+        "slug": "praia-pequena-sintra",
+        "version": 3,
+        "historyId": "74"
+      },
+      {
+        "slug": "sao-joao-caparica",
+        "version": 5,
+        "historyId": "75"
+      },
+      {
+        "slug": "sao-juliao",
+        "version": 3,
+        "historyId": "76"
+      },
+      {
+        "slug": "sao-pedro-bafureira",
+        "version": 5,
+        "historyId": "77"
+      },
+      {
+        "slug": "sao-pedro-bico",
+        "version": 6,
+        "historyId": "78"
+      },
+      {
+        "slug": "tamariz",
+        "version": 3,
+        "historyId": "79"
+      }
+    ]
+  },
+  "verification": {
+    "staging": {
+      "checkedAt": "2026-09-07T20:09:41.863Z",
+      "spots": [
+        {
+          "slug": "parede",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-pedro-bico",
+          "version": 6,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-pedro-bafureira",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "carcavelos",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "guincho",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "abano",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-grande-sintra",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "cresmina",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-pequena-sintra",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-das-macas",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "adraga",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "magoito",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-juliao",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "cornelia-caparica",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-joao-caparica",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-da-torre",
+          "version": 1,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "tamariz",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        }
+      ]
+    },
+    "production": {
+      "checkedAt": "2026-09-07T20:16:10.726Z",
+      "spots": [
+        {
+          "slug": "sao-pedro-bico",
+          "version": 6,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-pedro-bafureira",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "parede",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "carcavelos",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "abano",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "guincho",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-grande-sintra",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "cresmina",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-pequena-sintra",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "magoito",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-das-macas",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "adraga",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-joao-caparica",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "cornelia-caparica",
+          "version": 5,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "sao-juliao",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "tamariz",
+          "version": 3,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        },
+        {
+          "slug": "praia-da-torre",
+          "version": 1,
+          "hours": 408,
+          "dates": 16,
+          "waterHours": 271,
+          "issues": [],
+          "stale": false,
+          "checked": 408
+        }
+      ]
+    }
+  }
+}
