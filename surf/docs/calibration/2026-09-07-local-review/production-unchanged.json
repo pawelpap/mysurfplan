@@ -1,0 +1,109 @@
+{
+  "checkedAt": "2026-09-07T19:52:28.843Z",
+  "branch": "br-weathered-silence-adp30k9s",
+  "unchanged": true,
+  "fingerprints": [
+    {
+      "slug": "abano",
+      "version": 2,
+      "config_hash": "fd0f93bf59d9edfdd534083b84191016",
+      "active": true
+    },
+    {
+      "slug": "adraga",
+      "version": 2,
+      "config_hash": "851cc7953563471fe2f2f276252f5cca",
+      "active": true
+    },
+    {
+      "slug": "carcavelos",
+      "version": 2,
+      "config_hash": "e74c5f535682c19775b1394e92fadff4",
+      "active": true
+    },
+    {
+      "slug": "cornelia-caparica",
+      "version": 4,
+      "config_hash": "dff21c0570aa325467ebee0da3dc050b",
+      "active": true
+    },
+    {
+      "slug": "cresmina",
+      "version": 2,
+      "config_hash": "5ffc59ca9a0efb92202f0496fb533f59",
+      "active": true
+    },
+    {
+      "slug": "guincho",
+      "version": 2,
+      "config_hash": "44a20aa584bac1ec9b9f2d5e78c3013a",
+      "active": true
+    },
+    {
+      "slug": "magoito",
+      "version": 2,
+      "config_hash": "48b3dedce3fb18a2cd18f2168b73f751",
+      "active": true
+    },
+    {
+      "slug": "parede",
+      "version": 2,
+      "config_hash": "82eeeaead018025dd54e9bd2fb4339d6",
+      "active": true
+    },
+    {
+      "slug": "praia-das-macas",
+      "version": 2,
+      "config_hash": "48b3dedce3fb18a2cd18f2168b73f751",
+      "active": true
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "version": 2,
+      "config_hash": "7aa07325c8d84e267983e02afd033522",
+      "active": true
+    },
+    {
+      "slug": "praia-pequena-sintra",
+      "version": 2,
+      "config_hash": "dbf1355a47772b66d15345f6f5e3260b",
+      "active": true
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 4,
+      "config_hash": "a444e88e3b679fffafc750e0e2d7fbd7",
+      "active": true
+    },
+    {
+      "slug": "sao-juliao",
+      "version": 2,
+      "config_hash": "48b3dedce3fb18a2cd18f2168b73f751",
+      "active": true
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 4,
+      "config_hash": "a8cc80b776c385b04949094c68cd3ad5",
+      "active": true
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 5,
+      "config_hash": "721cb41ec3b98c6e1d3504d4c7def9cb",
+      "active": true
+    },
+    {
+      "slug": "sao-pedro-estoril",
+      "version": 4,
+      "config_hash": "161101eb667de8988d6eeb93c8ef918f",
+      "active": true
+    },
+    {
+      "slug": "tamariz",
+      "version": 2,
+      "config_hash": "a9dabe579eddab688c1b68aca0929a65",
+      "active": true
+    }
+  ]
+}

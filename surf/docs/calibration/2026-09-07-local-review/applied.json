@@ -1,0 +1,118 @@
+{
+  "appliedAt": "2026-09-07T19:45:59.191Z",
+  "environment": "staging",
+  "branchId": "br-small-salad-adx0nsj2",
+  "updated": 16,
+  "added": 1,
+  "removed": 1,
+  "removedTestLessons": 5,
+  "removedBookings": 5,
+  "removedCoachAssignments": 3,
+  "removedHistory": 4,
+  "removedCache": 1,
+  "remainingLessons": 7,
+  "revisions": [
+    {
+      "slug": "sao-pedro-bico",
+      "id": "fdcdf763-f256-4bae-b7d4-3e4c5ec59e1a",
+      "version": 6,
+      "historyId": "46"
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "id": "4365a1d4-a70a-4a54-9ec3-32b719763bf9",
+      "version": 5,
+      "historyId": "47"
+    },
+    {
+      "slug": "parede",
+      "id": "b12e6fa8-822d-4bf9-be7f-64c31e894847",
+      "version": 3,
+      "historyId": "48"
+    },
+    {
+      "slug": "carcavelos",
+      "id": "5d9c114d-4a0d-486c-91dd-a107afff17d3",
+      "version": 3,
+      "historyId": "49"
+    },
+    {
+      "slug": "guincho",
+      "id": "0063cf22-bacc-4328-b4bc-44638d612f31",
+      "version": 3,
+      "historyId": "50"
+    },
+    {
+      "slug": "abano",
+      "id": "f46cc23a-f8b8-499a-a65d-410633919808",
+      "version": 3,
+      "historyId": "51"
+    },
+    {
+      "slug": "cresmina",
+      "id": "cb8eb06f-3825-43e7-84a4-712505291002",
+      "version": 3,
+      "historyId": "52"
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "id": "18f2be11-e329-4f23-8861-37cf5852ef1f",
+      "version": 3,
+      "historyId": "53"
+    },
+    {
+      "slug": "praia-pequena-sintra",
+      "id": "caa72b61-7318-43d0-bd5f-092d6f4380de",
+      "version": 3,
+      "historyId": "54"
+    },
+    {
+      "slug": "adraga",
+      "id": "a5d3771e-ee4b-4633-83a4-b5db9821148e",
+      "version": 3,
+      "historyId": "55"
+    },
+    {
+      "slug": "magoito",
+      "id": "8c2a7756-5ac8-4076-8956-a1c4a459d681",
+      "version": 3,
+      "historyId": "56"
+    },
+    {
+      "slug": "praia-das-macas",
+      "id": "e98dd799-a88e-4086-8b08-fa2b50f5a032",
+      "version": 3,
+      "historyId": "57"
+    },
+    {
+      "slug": "sao-juliao",
+      "id": "a042936d-4afb-4be2-b692-391467b083ff",
+      "version": 3,
+      "historyId": "58"
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "id": "86257939-0d29-4660-8662-9429cf4aa044",
+      "version": 5,
+      "historyId": "59"
+    },
+    {
+      "slug": "cornelia-caparica",
+      "id": "70e9ed2c-f70d-465f-bd58-6f5994acb449",
+      "version": 5,
+      "historyId": "60"
+    },
+    {
+      "slug": "tamariz",
+      "id": "cb9af580-b97c-4688-8215-46779fbfb668",
+      "version": 3,
+      "historyId": "61"
+    },
+    {
+      "slug": "praia-da-torre",
+      "id": "042ccba0-88f2-4669-9a44-b1d47bb1ef38",
+      "version": 1,
+      "historyId": "62"
+    }
+  ]
+}

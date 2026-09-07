@@ -1,0 +1,4468 @@
+[
+  {
+    "id": "f46cc23a-f8b8-499a-a65d-410633919808",
+    "slug": "abano",
+    "name": "Abano",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.7374,
+    "longitude": -9.4728,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.74,
+    "marine_longitude": -9.59,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.9,
+      "shadowFloor": 0.08,
+      "shoreNormal": 275,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "low-mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Small beach north of Guincho. Initial exposure settings need observations at the actual lesson area.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.9,
+      "tideRules": [
+        {
+          "low": 0,
+          "high": 0.6,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 275,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "a5d3771e-ee4b-4633-83a4-b5db9821148e",
+    "slug": "adraga",
+    "name": "Adraga",
+    "region": "Sintra",
+    "country_code": "PT",
+    "latitude": 38.8039,
+    "longitude": -9.4846,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.8,
+    "marine_longitude": -9.6,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1.02,
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Open Atlantic exposure, cliffs and rocks. Mid-tide weighting is an initial assumption, not a measured calibration.",
+    "sources": [
+      {
+        "url": "https://visitsintra.travel/en/visit/beaches",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1.02,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "5d9c114d-4a0d-486c-91dd-a107afff17d3",
+    "slug": "carcavelos",
+    "name": "Carcavelos",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.67983,
+    "longitude": -9.335344,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.6,
+    "marine_longitude": -9.55,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.85,
+      "shadowFloor": 0.12,
+      "shoreNormal": 210,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid-high",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "South-southwest exposure. North winds are offshore; banks and crowding change which part of the beach works.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "url": "https://360.cascais.pt/pt/visitar/praia-de-carcavelos",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.85,
+      "tideRules": [
+        {
+          "low": 0.4,
+          "high": 1,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.12,
+      "shoreNormal": 210,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "2"
+  },
+  {
+    "id": "cb8eb06f-3825-43e7-84a4-712505291002",
+    "slug": "cresmina",
+    "name": "Cresmina",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.7245,
+    "longitude": -9.4778,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.72,
+    "marine_longitude": -9.6,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.98,
+      "shadowFloor": 0.08,
+      "shoreNormal": 270,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "low-mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Nearby Guincho conditions provide the initial reference. Local shelter and sandbanks still need calibration.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.98,
+      "tideRules": [
+        {
+          "low": 0,
+          "high": 0.6,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 270,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "0063cf22-bacc-4328-b4bc-44638d612f31",
+    "slug": "guincho",
+    "name": "Guincho",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.732,
+    "longitude": -9.474,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.73,
+    "marine_longitude": -9.59,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1.05,
+      "shadowFloor": 0.08,
+      "shoreNormal": 280,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1.2,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "low-mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Exposed beach with strong local wind effects. Mid to low tide is an initial preference; sandbanks vary.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1.05,
+      "tideRules": [
+        {
+          "low": 0,
+          "high": 0.6,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 280,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1.2,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "1"
+  },
+  {
+    "id": "8c2a7756-5ac8-4076-8956-a1c4a459d681",
+    "slug": "magoito",
+    "name": "Magoito",
+    "region": "Sintra",
+    "country_code": "PT",
+    "latitude": 38.8631,
+    "longitude": -9.4508,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.86,
+    "marine_longitude": -9.57,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1,
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Exposed coast beneath cliffs. Initial wave and tide settings require local calibration.",
+    "sources": [
+      {
+        "url": "https://visitsintra.travel/pt/visitar/praias/praia-do-magoito",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "b12e6fa8-822d-4bf9-be7f-64c31e894847",
+    "slug": "parede",
+    "name": "Parede",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.68446,
+    "longitude": -9.35156,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.6,
+    "marine_longitude": -9.55,
+    "break_type": "Point / reef",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.68,
+      "shadowFloor": 0.12,
+      "shoreNormal": 200,
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Point break with a rocky bottom and potentially long paddle. Initial preference is mid tide.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.68,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.12,
+      "shoreNormal": 200,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "18f2be11-e329-4f23-8861-37cf5852ef1f",
+    "slug": "praia-grande-sintra",
+    "name": "Praia Grande",
+    "region": "Sintra",
+    "country_code": "PT",
+    "latitude": 38.8146,
+    "longitude": -9.4789,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.81,
+    "marine_longitude": -9.6,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1.08,
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 0.7,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Exposed Atlantic beach. Mid tide is an initial preference; conditions depend on sandbanks. Northern-wind shelter varies along the beach.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "url": "https://visitsintra.travel/en/visit/beaches/grande-beach",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1.08,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [
+        {
+          "to": 45,
+          "from": 315,
+          "gain": 0.7
+        }
+      ],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "caa72b61-7318-43d0-bd5f-092d6f4380de",
+    "slug": "praia-pequena-sintra",
+    "name": "Praia Pequena",
+    "region": "Sintra",
+    "country_code": "PT",
+    "latitude": 38.8207,
+    "longitude": -9.4753,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.82,
+    "marine_longitude": -9.6,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.95,
+      "shadowFloor": 0.08,
+      "shoreNormal": 290,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 0.7,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Smaller beach north of Praia Grande, with some northern-wind shelter. Observe the banks and rocks before a lesson.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "url": "https://visitsintra.travel/en/visit/beaches/pequena-beach",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.95,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 290,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [
+        {
+          "to": 45,
+          "from": 315,
+          "gain": 0.7
+        }
+      ],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "1"
+  },
+  {
+    "id": "70e9ed2c-f70d-465f-bd58-6f5994acb449",
+    "slug": "cornelia-caparica",
+    "name": "Praia da Cornélia · Caparica",
+    "region": "Costa da Caparica",
+    "country_code": "PT",
+    "latitude": 38.6277,
+    "longitude": -9.226,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.66,
+    "marine_longitude": -9.37,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.92,
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 255,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "sourceRevision": "caparica-sao-joao-20260905",
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Southern part of Praia da Saúde, known as Cornélia. Initial settings represent a sandy west-facing beach and need local observations.",
+    "sources": [
+      {
+        "url": "https://www.cm-almada.pt/visitar/passear/praias-visitar",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 4,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.92,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 255,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "e98dd799-a88e-4086-8b08-fa2b50f5a032",
+    "slug": "praia-das-macas",
+    "name": "Praia das Maçãs",
+    "region": "Sintra",
+    "country_code": "PT",
+    "latitude": 38.8264,
+    "longitude": -9.4702,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.83,
+    "marine_longitude": -9.59,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1,
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Beach at the river mouth. Sandbanks and local currents can change; initial settings need instructor observations.",
+    "sources": [
+      {
+        "url": "https://visitsintra.travel/en/visit/beaches",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "86257939-0d29-4660-8662-9429cf4aa044",
+    "slug": "sao-joao-caparica",
+    "name": "Praia de São João · Caparica",
+    "region": "Costa da Caparica",
+    "country_code": "PT",
+    "latitude": 38.6616,
+    "longitude": -9.253,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.66,
+    "marine_longitude": -9.37,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.82,
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 265,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "sourceRevision": "caparica-sao-joao-20260905",
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Sandy beach near the Tagus mouth. Banks, currents and shelter vary along the beach; mid-tide preference is provisional.",
+    "sources": [
+      {
+        "url": "https://www.cm-almada.pt/visitar/passear/praias-visitar",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      },
+      {
+        "url": "https://www.azondasurfclub.com/a-nossa-praia",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 4,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.82,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 265,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "a042936d-4afb-4be2-b692-391467b083ff",
+    "slug": "sao-juliao",
+    "name": "São Julião",
+    "region": "Sintra / Mafra",
+    "country_code": "PT",
+    "latitude": 38.9333,
+    "longitude": -9.4205,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.93,
+    "marine_longitude": -9.54,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 1,
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 85,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Open-coast beach at the Sintra and Mafra boundary. Initial settings need confirmation for the selected banks.",
+    "sources": [
+      {
+        "url": "https://visitsintra.travel/en/visit/beaches",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 1,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.08,
+      "shoreNormal": 285,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 85,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "88185aaa-f463-4d11-b195-981eb07d991d",
+    "slug": "sao-pedro-estoril",
+    "name": "São Pedro do Estoril",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.693816,
+    "longitude": -9.371291,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.693816,
+    "marine_longitude": -9.371291,
+    "break_type": "Mixed",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.72,
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 195,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v2",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "low-mid",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "directionRevision": "sao-pedro-20260905",
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "The general beach area. Choose Bico or Bafureira for a break-specific estimate. West and south-west swell preferred. WNW swell around 280–283° can still produce small rideable surf; shelter increases sharply towards 290°. Local tuning based on owner knowledge and forecast comparison, pending measured beach observations.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "url": "https://360.cascais.pt/pt/visitar/praia-de-s-pedro-do-estoril?id=276",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      },
+      {
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied.",
+        "title": "Owner comparison with Surfline, 5 September 2026"
+      },
+      {
+        "url": "https://www.surfline.com/surf-report/sao-pedro-do-estoril/640b9d679b6fab7dac307b39",
+        "note": "Owner local knowledge, 6 September 2026: WNW 280–283° around 0.9 m / 10 s can produce small rideable surf. Supplied Surfline screenshots show Tuesday 08:00 0.3–0.6 m, Poor to fair, at 283°, shortly after low tide. Forecast comparison, not a measured beach observation. Adjust only exposureByDirection and sizeCeilingCurve; retain strong shelter from 290°, each break's tide/swell/experience rules and all other settings. No date-dependent rule or forecast-input correction.",
+        "title": "Owner local knowledge and supplied Surfline screenshots, 6 September 2026",
+        "accessed": "2026-09-06"
+      }
+    ],
+    "active": true,
+    "version": 4,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T15:36:22.799Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.72,
+      "tideRules": [
+        {
+          "low": 0,
+          "high": 0.6,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 195,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.45,
+          60
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.72
+        ],
+        [
+          280,
+          0.7
+        ],
+        [
+          282,
+          0.69
+        ],
+        [
+          283,
+          0.68
+        ],
+        [
+          285,
+          0.35
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "5"
+  },
+  {
+    "id": "4365a1d4-a70a-4a54-9ec3-32b719763bf9",
+    "slug": "sao-pedro-bafureira",
+    "name": "São Pedro do Estoril · Bafureira",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.6916,
+    "longitude": -9.3663,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.6916,
+    "marine_longitude": -9.3663,
+    "break_type": "Reef",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.68,
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 190,
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 1.2,
+      "modelVersion": "surf-heuristic-v2",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "bafureira",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "directionRevision": "sao-pedro-20260905",
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Local guidance: favours mid to high tide with higher swell. Published school guidance also identifies mid tide. Rocky bottom. West and south-west swell preferred. WNW swell around 280–283° can still produce small rideable surf; shelter increases sharply towards 290°. Local tuning based on owner knowledge and forecast comparison, pending measured beach observations.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "note": "Bico: low tide, mid tide with bigger swell. Bafureira: mid-high tide with higher swell.",
+        "title": "Owner observations, 5 September 2026"
+      },
+      {
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied.",
+        "title": "Owner comparison with Surfline, 5 September 2026"
+      },
+      {
+        "url": "https://www.surfline.com/surf-report/sao-pedro-do-estoril/640b9d679b6fab7dac307b39",
+        "note": "Owner local knowledge, 6 September 2026: WNW 280–283° around 0.9 m / 10 s can produce small rideable surf. Supplied Surfline screenshots show Tuesday 08:00 0.3–0.6 m, Poor to fair, at 283°, shortly after low tide. Forecast comparison, not a measured beach observation. Adjust only exposureByDirection and sizeCeilingCurve; retain strong shelter from 290°, each break's tide/swell/experience rules and all other settings. No date-dependent rule or forecast-input correction.",
+        "title": "Owner local knowledge and supplied Surfline screenshots, 6 September 2026",
+        "accessed": "2026-09-06"
+      }
+    ],
+    "active": true,
+    "version": 4,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T15:36:23.384Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.68,
+      "tideRules": [
+        {
+          "low": 0.4,
+          "high": 1,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 190,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 1.2,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.45,
+          60
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.72
+        ],
+        [
+          280,
+          0.7
+        ],
+        [
+          282,
+          0.69
+        ],
+        [
+          283,
+          0.68
+        ],
+        [
+          285,
+          0.35
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  },
+  {
+    "id": "fdcdf763-f256-4bae-b7d4-3e4c5ec59e1a",
+    "slug": "sao-pedro-bico",
+    "name": "São Pedro do Estoril · Bico",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.6933,
+    "longitude": -9.372,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.6933,
+    "marine_longitude": -9.372,
+    "break_type": "Point / reef",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.72,
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 200,
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v2",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "bico",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "directionRevision": "sao-pedro-20260905",
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.65
+        ],
+        [
+          280,
+          0.32
+        ],
+        [
+          282,
+          0.18
+        ],
+        [
+          285,
+          0.08
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Local guidance: works well at low tide; mid tide can work with bigger swell. Rock bottom and access need an instructor assessment. West and south-west swell preferred. WNW swell around 280–283° can still produce small rideable surf; shelter increases sharply towards 290°. Local tuning based on owner knowledge and forecast comparison, pending measured beach observations.",
+    "sources": [
+      {
+        "url": "https://www.surfcascais.com/pt/post/cascais-surf-spots",
+        "title": "Surf Cascais first-hand spot guide",
+        "accessed": "2026-09-05"
+      },
+      {
+        "note": "Bico: low tide, mid tide with bigger swell. Bafureira: mid-high tide with higher swell.",
+        "title": "Owner observations, 5 September 2026"
+      },
+      {
+        "note": "São Pedro is strongly direction-dependent; useful swell around 272°, marginal near 282–283°, usually flat above 290°. Initial curve is a local observation, not a verified universal cutoff. GFS bearings are retained as supplied.",
+        "title": "Owner comparison with Surfline, 5 September 2026"
+      },
+      {
+        "url": "https://www.surfline.com/surf-report/sao-pedro-do-estoril/640b9d679b6fab7dac307b39",
+        "note": "Owner local knowledge, 6 September 2026: WNW 280–283° around 0.9 m / 10 s can produce small rideable surf. Supplied Surfline screenshots show Tuesday 08:00 0.3–0.6 m, Poor to fair, at 283°, shortly after low tide. Forecast comparison, not a measured beach observation. Adjust only exposureByDirection and sizeCeilingCurve; retain strong shelter from 290°, each break's tide/swell/experience rules and all other settings. No date-dependent rule or forecast-input correction.",
+        "title": "Owner local knowledge and supplied Surfline screenshots, 6 September 2026",
+        "accessed": "2026-09-06"
+      }
+    ],
+    "active": true,
+    "version": 5,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T15:36:23.767Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.72,
+      "tideRules": [
+        {
+          "low": 0,
+          "high": 0.35,
+          "minimumSwell": 0
+        },
+        {
+          "low": 0,
+          "high": 0.7,
+          "minimumSwell": 1.5
+        }
+      ],
+      "marineModel": "ncep_gfswave016",
+      "shadowFloor": 0.12,
+      "shoreNormal": 200,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Intermediate",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.45,
+          60
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.002
+        ],
+        [
+          90,
+          0.005
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          275,
+          0.72
+        ],
+        [
+          280,
+          0.7
+        ],
+        [
+          282,
+          0.69
+        ],
+        [
+          283,
+          0.68
+        ],
+        [
+          285,
+          0.35
+        ],
+        [
+          290,
+          0.02
+        ],
+        [
+          300,
+          0.005
+        ],
+        [
+          315,
+          0.003
+        ],
+        [
+          360,
+          0.002
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 10,
+    "lesson_count": "1"
+  },
+  {
+    "id": "cb9af580-b97c-4688-8215-46779fbfb668",
+    "slug": "tamariz",
+    "name": "Tamariz",
+    "region": "Cascais",
+    "country_code": "PT",
+    "latitude": 38.703,
+    "longitude": -9.399,
+    "timezone": "Europe/Lisbon",
+    "marine_latitude": 38.6,
+    "marine_longitude": -9.55,
+    "break_type": "Beach",
+    "tide_station_id": "ticon/cascais-209-prt-uhslc_fd",
+    "calibration": {
+      "status": "initial",
+      "swellGain": 0.55,
+      "shadowFloor": 0.12,
+      "shoreNormal": 185,
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "modelVersion": "surf-heuristic-v1",
+      "windExposure": 1,
+      "maxLessonSurf": 2.5,
+      "periodExponent": 0.35,
+      "tidePreference": "mid",
+      "directionSpread": 95,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "northWindShelter": 1,
+      "tideTimeOffsetMin": 0,
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "largerSwellThreshold": 1.5
+    },
+    "notes": "Sheltered south-facing beach. Numerical settings are provisional; confirm the chosen peak and access locally.",
+    "sources": [
+      {
+        "url": "https://360.cascais.pt/pt/visitar/praia-do-tamariz",
+        "title": "Local beach reference",
+        "accessed": "2026-09-05"
+      }
+    ],
+    "active": true,
+    "version": 2,
+    "created_at": "2026-09-05T18:21:47.587Z",
+    "updated_at": "2026-09-06T10:46:19.911Z",
+    "calibration_config": {
+      "severe": {
+        "scoreCap": 25,
+        "windAtLeast": 35,
+        "gustsAtLeast": 45,
+        "weatherCodes": [
+          95,
+          96,
+          99
+        ]
+      },
+      "status": "initial",
+      "weights": {
+        "tide": 0.15,
+        "wind": 0.3,
+        "height": 0.4,
+        "period": 0.15
+      },
+      "windFit": {
+        "calmBelow": 5,
+        "onshorePenalty": 1.3,
+        "speedReference": 40,
+        "offshorePenalty": 0.55,
+        "crossShorePenalty": 0.95,
+        "onshoreAngleAbove": 135,
+        "offshoreAngleBelow": 45
+      },
+      "warnings": {
+        "windAbove": 20,
+        "tideFitBelow": 0.65,
+        "exposureBelow": 0.45
+      },
+      "swellGain": 0.55,
+      "tideRules": [
+        {
+          "low": 0.25,
+          "high": 0.75,
+          "minimumSwell": 0
+        }
+      ],
+      "marineModel": "ncep_gfswave025",
+      "shadowFloor": 0.12,
+      "shoreNormal": 185,
+      "tideDisplay": {
+        "lowAtMost": 0.33,
+        "highAtLeast": 0.67,
+        "minimumRange": 0.05,
+        "turningBelow": 0.035,
+        "neighbourHours": 8
+      },
+      "windSeaGain": 0.35,
+      "windSectors": [],
+      "minimumLevel": "Beginner",
+      "minimumSwell": 0,
+      "qualityBands": [
+        {
+          "tone": "good",
+          "label": "Good",
+          "minimumScore": 75
+        },
+        {
+          "tone": "fair",
+          "label": "Fair",
+          "minimumScore": 50
+        },
+        {
+          "tone": "poor",
+          "label": "Poor",
+          "minimumScore": 30
+        },
+        {
+          "tone": "bad",
+          "label": "Unfavourable",
+          "minimumScore": 0
+        }
+      ],
+      "surfRangeMax": 1.25,
+      "surfRangeMin": 0.75,
+      "tideFitFloor": 0.1,
+      "windExposure": 1,
+      "flatSurfBelow": 0.3,
+      "maxLessonSurf": 2.5,
+      "periodMinimum": 1,
+      "schemaVersion": 3,
+      "heightFitCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          1
+        ],
+        [
+          1.8,
+          1
+        ],
+        [
+          3.8,
+          0
+        ]
+      ],
+      "periodExponent": 0.35,
+      "periodFitCurve": [
+        [
+          0,
+          0.1
+        ],
+        [
+          4.8,
+          0.1
+        ],
+        [
+          12,
+          1
+        ]
+      ],
+      "directionSpread": 95,
+      "experienceRules": [
+        {
+          "level": "Beginner",
+          "maxSurf": 0.9,
+          "maxWind": 18,
+          "maxPeriod": 14
+        },
+        {
+          "level": "Intermediate",
+          "maxSurf": 1.6,
+          "maxWind": 25,
+          "maxPeriod": 100
+        },
+        {
+          "level": "Advanced",
+          "maxSurf": 100,
+          "maxWind": 500,
+          "maxPeriod": 100
+        }
+      ],
+      "periodFactorMax": 1.35,
+      "periodFactorMin": 0.7,
+      "periodReference": 10,
+      "tideHeightScale": 1,
+      "sizeCeilingCurve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          25
+        ],
+        [
+          0.5,
+          49
+        ],
+        [
+          0.65,
+          100
+        ]
+      ],
+      "tidePenaltySlope": 2.2,
+      "directionExponent": 1.3,
+      "tideTimeOffsetMin": 0,
+      "windDirectionCurve": [
+        [
+          0,
+          1
+        ],
+        [
+          360,
+          1
+        ]
+      ],
+      "exposureByDirection": [
+        [
+          0,
+          0.1
+        ],
+        [
+          90,
+          0.12
+        ],
+        [
+          180,
+          0.7
+        ],
+        [
+          225,
+          1
+        ],
+        [
+          270,
+          0.85
+        ],
+        [
+          300,
+          0.5
+        ],
+        [
+          315,
+          0.3
+        ],
+        [
+          360,
+          0.1
+        ]
+      ],
+      "minimumSwellPenalty": 0.65
+    },
+    "calibration_schema_version": 3,
+    "calibration_profile_id": "general",
+    "calibration_profile_version": 1,
+    "display_order": 0,
+    "lesson_count": "0"
+  }
+]

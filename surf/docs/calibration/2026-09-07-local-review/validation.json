@@ -1,0 +1,77 @@
+{
+  "passed": true,
+  "configurations": 17,
+  "scenarioGrid": 61200,
+  "scenarios": [
+    {
+      "name": "Bico 0.9m 10s 283° low",
+      "score": 58,
+      "quality": "Fair",
+      "range": [
+        0.3,
+        0.6
+      ],
+      "level": "Intermediate"
+    },
+    {
+      "name": "Bico 1.2m W at low",
+      "score": 97,
+      "quality": "Good",
+      "range": [
+        0.6,
+        1
+      ],
+      "level": "Intermediate"
+    },
+    {
+      "name": "Bico 1.2m W at high",
+      "score": 70,
+      "quality": "Fair",
+      "range": [
+        0.6,
+        1
+      ],
+      "level": "Intermediate"
+    },
+    {
+      "name": "Bafureira 1.5m W at low",
+      "score": 70,
+      "quality": "Fair",
+      "range": [
+        0.7,
+        1.2
+      ],
+      "level": "Intermediate"
+    },
+    {
+      "name": "Bafureira 1.5m W at mid-high",
+      "score": 97,
+      "quality": "Good",
+      "range": [
+        0.7,
+        1.2
+      ],
+      "level": "Intermediate"
+    },
+    {
+      "name": "Torre 1m 280°",
+      "score": 12,
+      "quality": "Flat / too small",
+      "range": [
+        0.1,
+        0.2
+      ],
+      "level": "Too small"
+    },
+    {
+      "name": "Torre 3m 250°",
+      "score": 96,
+      "quality": "Good",
+      "range": [
+        0.8,
+        1.3
+      ],
+      "level": "Intermediate"
+    }
+  ]
+}

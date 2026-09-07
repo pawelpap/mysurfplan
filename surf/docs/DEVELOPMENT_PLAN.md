@@ -18,6 +18,8 @@ The forecasts and visual direction are now a product baseline the owner is happy
 
 Current application revision on staging and production: `aa695a964c362e53712a5990a305ee2174e6d818`, the 7 September revocable-session release. Staging passed before the owner-authorised production deployment; both environments passed API and desktop/mobile checks. Expiry/cookie hardening was released earlier as `729489e`. The accepted forecast model and design are preserved. See [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
 
+Staging-only data review, 7 September: 16 local spot calibrations revised, Praia da Torre added and generic São Pedro removed with its five disposable test lessons. All changes use existing database parameters; no application code changed. Model and live staging checks passed. Production remains unchanged pending the owner's review. Exact settings, research and test evidence are in [Local spot calibration review](calibration/2026-09-07-local-review/README.md). Review against local observations before promoting; Surfline session data work is deferred at the owner's request. The next application-development task remains login abuse protection and CSRF/origin controls.
+
 | Area | Current position from code and project documentation | Implication |
 | --- | --- | --- |
 | Forecasts | 17 seeded spots, 16 days, generic versioned database calibration, tides/daylight, swell components, energy/power, water temperature, experience levels and lesson conditions | Maintain accuracy and freshness; use this as the acquisition entry point |

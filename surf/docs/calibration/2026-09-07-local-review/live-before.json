@@ -1,0 +1,2534 @@
+{
+  "phase": "before",
+  "checkedAt": "2026-09-07T19:44:17.947Z",
+  "spots": [
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 4,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:16.538Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.1,
+          "period": 13.3,
+          "direction": 272,
+          "wind": 14.4,
+          "gusts": 29.2,
+          "tide": 0.186,
+          "current": {
+            "score": 57,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 49,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.24,
+          "period": 12.55,
+          "direction": 274,
+          "wind": 10.5,
+          "gusts": 23,
+          "tide": 0.991,
+          "current": {
+            "score": 96,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 96,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.14,
+          "period": 11.6,
+          "direction": 276,
+          "wind": 17.8,
+          "gusts": 38.9,
+          "tide": 0.066,
+          "current": {
+            "score": 53,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 43,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 0.9,
+          "period": 10.25,
+          "direction": 280,
+          "wind": 9.9,
+          "gusts": 22.7,
+          "tide": 0.042,
+          "current": {
+            "score": 49,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 40,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 0.82,
+          "period": 9.75,
+          "direction": 281,
+          "wind": 18.1,
+          "gusts": 37.1,
+          "tide": 0.891,
+          "current": {
+            "score": 45,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break."
+            ]
+          },
+          "proposed": {
+            "score": 45,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Swell may be too small for this break."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 0.86,
+          "period": 9,
+          "direction": 294,
+          "wind": 12,
+          "gusts": 29.2,
+          "tide": 0,
+          "current": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0.52,
+          "period": 8.35,
+          "direction": 288,
+          "wind": 16.9,
+          "gusts": 33.8,
+          "tide": 0,
+          "current": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.68,
+          "period": 7.85,
+          "direction": 292,
+          "wind": 20.7,
+          "gusts": 42.5,
+          "tide": 0.735,
+          "current": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.24,
+          "period": 11.15,
+          "direction": 307,
+          "wind": 24.5,
+          "gusts": 54.7,
+          "tide": 0.015,
+          "current": {
+            "score": 0,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 1.1,
+          "period": 7.75,
+          "direction": 310,
+          "wind": 13.7,
+          "gusts": 27,
+          "tide": 0.025,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.44,
+          "period": 9.5,
+          "direction": 313,
+          "wind": 11.2,
+          "gusts": 24.1,
+          "tide": 0.539,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0,
+          "period": 0,
+          "direction": 0,
+          "wind": 22.4,
+          "gusts": 43.6,
+          "tide": 0.078,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Swell may be too small for this break.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "carcavelos",
+      "version": 2,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:16.786Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.38,
+          "period": 13.3,
+          "direction": 290,
+          "wind": 13.9,
+          "gusts": 32,
+          "tide": 0.186,
+          "current": {
+            "score": 87,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 1.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.6,
+            "surfMax": 1,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.52,
+          "period": 12.55,
+          "direction": 290,
+          "wind": 9,
+          "gusts": 22.7,
+          "tide": 0.991,
+          "current": {
+            "score": 96,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 1.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 96,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.6,
+            "surfMax": 1.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.42,
+          "period": 11.6,
+          "direction": 290,
+          "wind": 17.2,
+          "gusts": 41,
+          "tide": 0.066,
+          "current": {
+            "score": 81,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 1,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 81,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.6,
+            "surfMax": 1,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 1.16,
+          "period": 10.25,
+          "direction": 296,
+          "wind": 9.7,
+          "gusts": 25.6,
+          "tide": 0.042,
+          "current": {
+            "score": 65,
+            "quality": "Fair",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 64,
+            "quality": "Fair",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 1.1,
+          "period": 9.8,
+          "direction": 298,
+          "wind": 15.7,
+          "gusts": 32.8,
+          "tide": 0.891,
+          "current": {
+            "score": 48,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 47,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 0.92,
+          "period": 9,
+          "direction": 301,
+          "wind": 10.7,
+          "gusts": 28.4,
+          "tide": 0,
+          "current": {
+            "score": 34,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 33,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0,
+          "period": 0,
+          "direction": 0,
+          "wind": 16.3,
+          "gusts": 31.3,
+          "tide": 0,
+          "current": {
+            "score": 10,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 7,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.08,
+          "period": 13.1,
+          "direction": 325,
+          "wind": 17.9,
+          "gusts": 36.4,
+          "tide": 0.735,
+          "current": {
+            "score": 12,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 7,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.08,
+          "period": 13.9,
+          "direction": 344,
+          "wind": 21.6,
+          "gusts": 47.2,
+          "tide": 0.015,
+          "current": {
+            "score": 13,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 5,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 0.66,
+          "period": 9.8,
+          "direction": 325,
+          "wind": 12.3,
+          "gusts": 30.6,
+          "tide": 0.025,
+          "current": {
+            "score": 18,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.54,
+          "period": 11.15,
+          "direction": 339,
+          "wind": 8,
+          "gusts": 19.4,
+          "tide": 0.539,
+          "current": {
+            "score": 14,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 6,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0,
+          "period": 0,
+          "direction": 0,
+          "wind": 21.9,
+          "gusts": 45.4,
+          "tide": 0.078,
+          "current": {
+            "score": 12,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 5,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 5,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:16.784Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.1,
+          "period": 13.3,
+          "direction": 272,
+          "wind": 14.4,
+          "gusts": 29.2,
+          "tide": 0.186,
+          "current": {
+            "score": 94,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 95,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.24,
+          "period": 12.55,
+          "direction": 274,
+          "wind": 10.5,
+          "gusts": 23,
+          "tide": 0.991,
+          "current": {
+            "score": 82,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 69,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.14,
+          "period": 11.6,
+          "direction": 276,
+          "wind": 17.8,
+          "gusts": 38.9,
+          "tide": 0.066,
+          "current": {
+            "score": 92,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 93,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 0.9,
+          "period": 10.25,
+          "direction": 280,
+          "wind": 9.9,
+          "gusts": 22.7,
+          "tide": 0.042,
+          "current": {
+            "score": 62,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.6,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 62,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.6,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 0.82,
+          "period": 9.75,
+          "direction": 281,
+          "wind": 18.1,
+          "gusts": 37.1,
+          "tide": 0.891,
+          "current": {
+            "score": 50,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 50,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 0.86,
+          "period": 9,
+          "direction": 294,
+          "wind": 12,
+          "gusts": 29.2,
+          "tide": 0,
+          "current": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0.52,
+          "period": 8.35,
+          "direction": 288,
+          "wind": 16.9,
+          "gusts": 33.8,
+          "tide": 0,
+          "current": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0.1,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.68,
+          "period": 7.85,
+          "direction": 292,
+          "wind": 20.7,
+          "gusts": 42.5,
+          "tide": 0.735,
+          "current": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 1,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.24,
+          "period": 11.15,
+          "direction": 307,
+          "wind": 24.5,
+          "gusts": 54.7,
+          "tide": 0.015,
+          "current": {
+            "score": 0,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 1.1,
+          "period": 7.75,
+          "direction": 310,
+          "wind": 13.7,
+          "gusts": 27,
+          "tide": 0.025,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.44,
+          "period": 9.5,
+          "direction": 313,
+          "wind": 11.2,
+          "gusts": 24.1,
+          "tide": 0.539,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0,
+          "period": 0,
+          "direction": 0,
+          "wind": 22.4,
+          "gusts": 43.6,
+          "tide": 0.078,
+          "current": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 0,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0,
+            "surfMax": 0,
+            "windType": "Offshore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 4,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:17.569Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.38,
+          "period": 13.25,
+          "direction": 283,
+          "wind": 13.9,
+          "gusts": 32,
+          "tide": 0.186,
+          "current": {
+            "score": 88,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 90,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.52,
+          "period": 12.55,
+          "direction": 285,
+          "wind": 9,
+          "gusts": 22.7,
+          "tide": 0.991,
+          "current": {
+            "score": 86,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.4,
+          "period": 11.55,
+          "direction": 287,
+          "wind": 17.2,
+          "gusts": 41,
+          "tide": 0.066,
+          "current": {
+            "score": 81,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.8,
+            "surfMax": 1.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 82,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.8,
+            "surfMax": 1.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 1.16,
+          "period": 10.25,
+          "direction": 295,
+          "wind": 9.7,
+          "gusts": 25.6,
+          "tide": 0.042,
+          "current": {
+            "score": 83,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 85,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 1.08,
+          "period": 9.75,
+          "direction": 297,
+          "wind": 15.7,
+          "gusts": 32.8,
+          "tide": 0.891,
+          "current": {
+            "score": 80,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 82,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 1.04,
+          "period": 9,
+          "direction": 306,
+          "wind": 10.7,
+          "gusts": 28.4,
+          "tide": 0,
+          "current": {
+            "score": 79,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 80,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0.76,
+          "period": 8.3,
+          "direction": 310,
+          "wind": 16.3,
+          "gusts": 31.3,
+          "tide": 0,
+          "current": {
+            "score": 36,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 36,
+            "quality": "Poor",
+            "level": "Beginner",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.1,
+          "period": 12.85,
+          "direction": 315,
+          "wind": 17.9,
+          "gusts": 36.4,
+          "tide": 0.735,
+          "current": {
+            "score": 18,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          },
+          "proposed": {
+            "score": 18,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 13.65,
+          "direction": 334,
+          "wind": 21.6,
+          "gusts": 47.2,
+          "tide": 0.015,
+          "current": {
+            "score": 17,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 17,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 0.44,
+          "period": 11.75,
+          "direction": 335,
+          "wind": 12.3,
+          "gusts": 30.6,
+          "tide": 0.025,
+          "current": {
+            "score": 18,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 18,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.48,
+          "period": 11.25,
+          "direction": 335,
+          "wind": 8,
+          "gusts": 19.4,
+          "tide": 0.539,
+          "current": {
+            "score": 24,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          },
+          "proposed": {
+            "score": 24,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 10.3,
+          "direction": 286,
+          "wind": 21.9,
+          "gusts": 45.4,
+          "tide": 0.078,
+          "current": {
+            "score": 14,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 14,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "guincho",
+      "version": 2,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:17.619Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.38,
+          "period": 13.25,
+          "direction": 283,
+          "wind": 21.6,
+          "gusts": 55.8,
+          "tide": 0.186,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 1.3,
+            "surfMax": 2.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 1.3,
+            "surfMax": 2.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.52,
+          "period": 12.55,
+          "direction": 285,
+          "wind": 18,
+          "gusts": 43.2,
+          "tide": 0.991,
+          "current": {
+            "score": 72,
+            "quality": "Fair",
+            "level": "Advanced",
+            "surfMin": 1.3,
+            "surfMax": 2.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range.",
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 70,
+            "quality": "Fair",
+            "level": "Advanced",
+            "surfMin": 1.3,
+            "surfMax": 2.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range.",
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.4,
+          "period": 11.55,
+          "direction": 287,
+          "wind": 21.2,
+          "gusts": 54.4,
+          "tide": 0.066,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 1.2,
+            "surfMax": 1.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 1.2,
+            "surfMax": 1.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 1.16,
+          "period": 10.25,
+          "direction": 295,
+          "wind": 16,
+          "gusts": 41,
+          "tide": 0.042,
+          "current": {
+            "score": 83,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 82,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 1.08,
+          "period": 9.75,
+          "direction": 297,
+          "wind": 21.8,
+          "gusts": 49.7,
+          "tide": 0.891,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.8,
+            "surfMax": 1.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.8,
+            "surfMax": 1.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range.",
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 1.04,
+          "period": 9,
+          "direction": 306,
+          "wind": 13.7,
+          "gusts": 40.3,
+          "tide": 0,
+          "current": {
+            "score": 83,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.7,
+            "surfMax": 1.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 82,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.7,
+            "surfMax": 1.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0.76,
+          "period": 8.3,
+          "direction": 310,
+          "wind": 22.3,
+          "gusts": 48.2,
+          "tide": 0,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.1,
+          "period": 12.85,
+          "direction": 315,
+          "wind": 25.7,
+          "gusts": 57.6,
+          "tide": 0.735,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.3,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.3,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 13.65,
+          "direction": 334,
+          "wind": 29.1,
+          "gusts": 65.5,
+          "tide": 0.015,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 0.44,
+          "period": 11.75,
+          "direction": 335,
+          "wind": 17.6,
+          "gusts": 44.6,
+          "tide": 0.025,
+          "current": {
+            "score": 39,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 39,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.3,
+            "surfMax": 0.5,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.48,
+          "period": 11.25,
+          "direction": 335,
+          "wind": 18.2,
+          "gusts": 43.6,
+          "tide": 0.539,
+          "current": {
+            "score": 47,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.4,
+            "surfMax": 0.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson."
+            ]
+          },
+          "proposed": {
+            "score": 47,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surfMin": 0.4,
+            "surfMax": 0.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 10.3,
+          "direction": 286,
+          "wind": 23.4,
+          "gusts": 59.8,
+          "tide": 0.078,
+          "current": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          },
+          "proposed": {
+            "score": 25,
+            "quality": "Unfavourable",
+            "level": "Instructor review",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Stronger wind may affect the lesson.",
+              "Large surf, strong wind or thunderstorms: reassess before teaching."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "cornelia-caparica",
+      "version": 4,
+      "hours": 408,
+      "dates": 16,
+      "issues": [],
+      "stale": false,
+      "fetchedAt": "2026-09-07T19:44:17.622Z",
+      "checked": 0,
+      "comparison": [
+        {
+          "date": "2026-09-07",
+          "time": "08:00",
+          "swell": 1.38,
+          "period": 13.25,
+          "direction": 283,
+          "wind": 6.6,
+          "gusts": 14.4,
+          "tide": 0.186,
+          "current": {
+            "score": 95,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 97,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.5,
+            "windType": "Offshore",
+            "reasons": [
+              "Offshore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "12:00",
+          "swell": 1.52,
+          "period": 12.55,
+          "direction": 285,
+          "wind": 9,
+          "gusts": 26.3,
+          "tide": 0.991,
+          "current": {
+            "score": 86,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.9,
+            "surfMax": 1.6,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-07",
+          "time": "20:00",
+          "swell": 1.4,
+          "period": 11.55,
+          "direction": 287,
+          "wind": 10.9,
+          "gusts": 33.8,
+          "tide": 0.066,
+          "current": {
+            "score": 85,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.8,
+            "surfMax": 1.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surfMin": 0.8,
+            "surfMax": 1.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "08:00",
+          "swell": 1.16,
+          "period": 10.25,
+          "direction": 295,
+          "wind": 8.3,
+          "gusts": 22,
+          "tide": 0.042,
+          "current": {
+            "score": 84,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 0.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 86,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.6,
+            "surfMax": 0.9,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "12:00",
+          "swell": 1.08,
+          "period": 9.75,
+          "direction": 297,
+          "wind": 12.1,
+          "gusts": 33.1,
+          "tide": 0.891,
+          "current": {
+            "score": 83,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          },
+          "proposed": {
+            "score": 84,
+            "quality": "Good",
+            "level": "Beginner",
+            "surfMin": 0.5,
+            "surfMax": 0.8,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Cross-shore wind and a preferred tide stage."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-08",
+          "time": "20:00",
+          "swell": 1.04,
+          "period": 9,
+          "direction": 306,
+          "wind": 9.7,
+          "gusts": 32.4,
+          "tide": 0,
+          "current": {
+            "score": 61,
+            "quality": "Fair",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 61,
+            "quality": "Fair",
+            "level": "Beginner",
+            "surfMin": 0.4,
+            "surfMax": 0.7,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "08:00",
+          "swell": 0.76,
+          "period": 8.3,
+          "direction": 310,
+          "wind": 13.4,
+          "gusts": 33.1,
+          "tide": 0,
+          "current": {
+            "score": 28,
+            "quality": "Unfavourable",
+            "level": "Beginner",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 28,
+            "quality": "Unfavourable",
+            "level": "Beginner",
+            "surfMin": 0.2,
+            "surfMax": 0.4,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Outside this spot’s preferred tide range."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "12:00",
+          "swell": 0.1,
+          "period": 12.85,
+          "direction": 315,
+          "wind": 13.8,
+          "gusts": 37.1,
+          "tide": 0.735,
+          "current": {
+            "score": 11,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 11,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.2,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-09",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 13.65,
+          "direction": 334,
+          "wind": 13.4,
+          "gusts": 38.9,
+          "tide": 0.015,
+          "current": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "08:00",
+          "swell": 0.44,
+          "period": 11.75,
+          "direction": 335,
+          "wind": 3.7,
+          "gusts": 5.8,
+          "tide": 0.025,
+          "current": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Light / calm",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          },
+          "proposed": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Light / calm",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range.",
+              "The coast is sheltered from this swell direction."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "12:00",
+          "swell": 0.48,
+          "period": 11.25,
+          "direction": 335,
+          "wind": 7.9,
+          "gusts": 26.3,
+          "tide": 0.539,
+          "current": {
+            "score": 19,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          },
+          "proposed": {
+            "score": 19,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.2,
+            "surfMax": 0.3,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          }
+        },
+        {
+          "date": "2026-09-10",
+          "time": "20:00",
+          "swell": 0.12,
+          "period": 10.3,
+          "direction": 286,
+          "wind": 13.7,
+          "gusts": 38.5,
+          "tide": 0.078,
+          "current": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson.",
+              "Outside this spot’s preferred tide range."
+            ]
+          },
+          "proposed": {
+            "score": 9,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surfMin": 0.1,
+            "surfMax": 0.1,
+            "windType": "Cross-shore",
+            "reasons": [
+              "Flat or too small for a surf lesson."
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
