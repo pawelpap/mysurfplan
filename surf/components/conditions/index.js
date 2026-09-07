@@ -108,7 +108,9 @@ export default function Conditions({ session, query, go }) {
           valueKey="slug"
           value={selected?.slug || ""}
           onInitialNearest={
-            query.spot ? undefined : (spot) => go({ spot: spot.slug })
+            query.spot
+              ? undefined
+              : (spot) => go({ spot: spot.slug, date: query.date })
           }
           onChange={(e) => {
             setNotice("");
