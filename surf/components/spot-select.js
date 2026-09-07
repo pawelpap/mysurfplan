@@ -102,11 +102,13 @@ export default function SpotSelect({
   spots,
   value,
   onChange,
+  onInitialNearest,
   valueKey = "id",
   placeholder,
   required = false,
 }) {
   const id = useId();
+  const initialSelectionDone = useRef(false);
   const {
     order,
     position,
@@ -121,6 +123,19 @@ export default function SpotSelect({
   useEffect(() => initialise(), [initialise]);
   const origin = order === "nearest" ? position : null;
   const sorted = useMemo(() => orderSpots(spots, origin), [spots, origin]);
+  useEffect(() => {
+    const nearest = sorted[0];
+    if (
+      initialSelectionDone.current ||
+      !onInitialNearest ||
+      pending ||
+      !origin ||
+      nearest?.distance == null
+    )
+      return;
+    initialSelectionDone.current = true;
+    onInitialNearest(nearest.spot);
+  }, [onInitialNearest, pending, origin, sorted]);
   return (
     <div className="spot-picker">
       <div className="spot-picker-heading">
@@ -147,7 +162,10 @@ export default function SpotSelect({
       <select
         id={id}
         value={value}
-        onChange={onChange}
+        onChange={(event) => {
+          initialSelectionDone.current = true;
+          onChange(event);
+        }}
         required={required}
         aria-describedby={pending || error ? `${id}-status` : undefined}
       >
