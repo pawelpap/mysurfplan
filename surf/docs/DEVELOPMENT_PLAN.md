@@ -1,6 +1,6 @@
 # MyWavePlan development plan
 
-Reviewed and rewritten: 7 September 2026.
+Reviewed and rewritten: 7 September 2026. Implementation status updated: 8 September 2026.
 
 Status: proposed roadmap saved for discussion and implementation planning. The owner requested this review, not implementation or deployment of the new features. Prices, policies and provider choices below are recommendations, not live configuration or approved expenditure.
 
@@ -16,16 +16,16 @@ The forecasts and visual direction are now a product baseline the owner is happy
 
 ## Baseline and gaps
 
-Current application revision on staging and production: `c02da003ec56376750ff0620eef2e264a601fb9f`, the 7 September nearest-spot correction. A fresh Conditions page now selects the nearest spot after location succeeds; manual choices and explicit links take precedence. Both environments passed desktop/mobile checks. The forecast tile cleanup, revocable sessions and expiry/cookie hardening remain in place. “Long-range” and the selected-day outlook reminder were removed without adding probability. See [current release](RELEASE_2026-09-07_NEAREST_SPOT.md), [forecast calibration release](RELEASE_2026-09-07_FORECAST_CALIBRATION.md) and [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
+Current application revision on staging and production: `76bdcb73ae4713d913a2dd3ccc337a8781da5d07`. Shared login limits, consistent safe login errors and origin protection for mutations are deployed and verified. Existing sessions, forecasts, nearest-spot behaviour and calibrations are preserved. See [request-security release](RELEASE_2026-09-08_REQUEST_SECURITY.md), [nearest-spot release](RELEASE_2026-09-07_NEAREST_SPOT.md) and [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
 
-Completed data review and production promotion, 7 September: 16 local spot calibrations revised, Praia da Torre added and generic São Pedro removed. Both environments now have matching spots, configurations and disposable test lesson data. All calibration changes use existing database parameters. Model and live checks passed; the owner approved production after staging review. Exact settings, research and limitations are in [Local spot calibration review](calibration/2026-09-07-local-review/README.md). Continue validating the provisional coefficients against local observations. Surfline session data work is deferred at the owner's request. The next application-development task remains login abuse protection and CSRF/origin controls.
+Completed data review and production promotion, 7 September: 16 local spot calibrations revised, Praia da Torre added and generic São Pedro removed. Both environments now have matching spots, configurations and disposable test lesson data. All calibration changes use existing database parameters. Model and live checks passed; the owner approved production after staging review. Exact settings, research and limitations are in [Local spot calibration review](calibration/2026-09-07-local-review/README.md). Continue validating the provisional coefficients against local observations. Surfline session data work is deferred at the owner's request. The next application-development task is the tenant/privacy and public-route audit.
 
 | Area | Current position from code and project documentation | Implication |
 | --- | --- | --- |
 | Forecasts | 17 seeded spots, 16 days, generic versioned database calibration, tides/daylight, swell components, energy/power, water temperature, experience levels and lesson conditions | Maintain accuracy and freshness; use this as the acquisition entry point |
 | Design | Task-oriented screens, mobile layouts, quality colours, device/light/dark appearance and nearest-spot selection | Reuse existing components and visual language |
 | Identity | One primary school and one role on a user; admin-created accounts | A surfer cannot yet use one independent account naturally across schools |
-| Sessions | Seven-day database-backed sessions, hashed tokens, secure cookies, current account/role/school checks and single/global logout are deployed | Complete abuse, CSRF and tenant/privacy controls before self-registration |
+| Sessions | Seven-day database-backed sessions, hashed tokens, secure cookies, current account/role/school checks and single/global logout are deployed | Login abuse and CSRF controls are deployed; complete tenant/privacy controls before self-registration |
 | Booking | Capacity checks and SQL locking exist; cross-school student booking is constrained by the current identity model | Prove concurrency and privacy, then support discovery-to-booking across schools |
 | Commerce | No implemented plan, subscription, payment or package-credit domain | Establish a common model before adding payment buttons |
 | Privacy | Legal page currently covers data licences; no complete consent, privacy-notice or erasure workflow | Build privacy controls alongside onboarding |
@@ -64,7 +64,8 @@ Outcome: existing users and schools can safely support self-service flows.
 
 - [x] Released to staging and production: require a production signing secret of at least 32 bytes, remove the production development-secret fallback, use Secure/HttpOnly cookies, enforce seven-day expiry and reject malformed/tampered cookies. Release `729489e`; staging verified, then production explicitly approved and verified.
 - [x] Add revocable sessions and current server-side account/role/school checks. Deployed and verified on staging and production: single/global logout, password/status invalidation, disabled/deleted-account rejection and live single-school permissions. Multi-school membership remains in Phase 1.
-- [ ] Add login/recovery rate limiting, safe errors, enumeration protection and CSRF/origin protection for mutations. Require platform-admin MFA before commercial operation; assess the authentication implementation and migration first.
+- [x] Add shared login rate limiting, safe errors, reduced account-enumeration differences and CSRF/origin protection for mutations. Deployed and verified on both environments, 8 September.
+- [ ] Add recovery abuse controls when password recovery is implemented. Require platform-admin MFA before commercial operation; assess the authentication implementation and migration first.
 - [ ] Audit tenant boundaries, instructor/student privacy and public playground routes. Remove `/test/*` production routes. Isolate the shared demo from real customer bookings, payments and private data.
 - [ ] Review Next.js 14.2.3 and dependencies against supported security releases; plan a tested upgrade without making a router rewrite a prerequisite.
 - [ ] Confirm operator/contact details, controller/processor responsibilities, hosting regions, subprocessors and contracts. Review retention, minors, consumer terms, VAT and invoicing with Portuguese legal/accounting support.
@@ -169,11 +170,14 @@ Deletion, withdrawal, export and retention are Phase 1 requirements. Financial/l
 
 ## The next implementation brief
 
-**Next bounded task: protect login and state-changing requests.** Session expiry and revocation are complete. Add shared server-side login rate limiting, consistent safe errors and protection against account enumeration; apply CSRF/origin checks to all authenticated mutations. Keep the existing username login and test account working. Test denied requests, recovery after rate limits and authorised desktop/mobile flows on staging before production.
+**Next bounded task: audit school boundaries and privacy.** Session expiry, revocation, login limits and origin protection are complete. Test every read and write endpoint against platform admin, school admin, instructor, student and unauthenticated access. Verify that changing an ID or school filter cannot reveal or change another school's private people, lessons or bookings. Define the intended public schedule fields, remove production `/test/*` playground routes and isolate shared demo access from real customer data. Preserve forecast access and the accepted design.
+
+Acceptance: a documented permission matrix and automated denial tests cover cross-school access; public responses contain only deliberately public fields; playground routes are unavailable in production; the shared student account cannot reach real customer private data. Deploy and verify staging before production. Include a dependency security review and make any substantial upgrade a separately tested change.
 
 Then:
 
-1. Audit tenant boundaries and instructor/student privacy, remove production playground routes and isolate the shared demo. Review supported Next.js/dependency security upgrades.
+1. Resolve any remaining tenant/privacy findings and supported dependency upgrades.
+
 2. Write the authentication/identity decision and permission matrix; rehearse an additive migration to global users and multi-school memberships, preserving student/coach links.
 3. Add independent surfer sign-up, email verification and password recovery.
 4. Add school creation and staff invitations, with safe claiming of existing records.

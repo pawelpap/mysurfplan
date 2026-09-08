@@ -1,8 +1,18 @@
 # MyWavePlan handover
 
-Updated 7 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
+Updated 8 September 2026. This file records the current handover; dated release notes retain earlier deployment history.
 
-## Current release: nearest spot selection, 7 September 2026
+## Current release: login and request security, 8 September 2026
+
+Revision `76bdcb73ae4713d913a2dd3ccc337a8781da5d07` is deployed on staging and production. The owner authorised production after staging passed. Shared fixed-window login limits, consistent login errors with dummy password work, and origin protection across all writable API handlers are live. Existing passwords, sessions, forecast calculations and calibrations are preserved.
+
+Verification passed: 77 regression tests, seven isolated database scenarios and nine live API scenarios per environment. Browser checks confirmed student login/error recovery and forecasts; Chrome confirmed desktop navigation and the mobile menu. In-app workspace button automation was unreliable, so those interactions were checked independently in Chrome. Both runtime builds were READY and deployment error/fatal log scans were empty. Disposable test users and schools were removed; counters expire normally.
+
+The additive login-counter migration was applied separately to both databases after rehearsal. No business database was copied. Non-browser mutation clients must send `X-MyWavePlan-Request: 1` when Origin is absent. Older same-origin browser clients remain compatible. See [release evidence, limits and rollback](RELEASE_2026-09-08_REQUEST_SECURITY.md).
+
+Next bounded task: cross-school permissions, instructor/student privacy, public playground removal and demo isolation, with a dependency security review. Password recovery and platform-admin MFA remain future work.
+
+## Previous release: nearest spot selection, 7 September 2026
 
 Application revision `c02da003ec56376750ff0620eef2e264a601fb9f` is deployed and verified on staging and production. Distance sorting already worked; the missing automatic selection is now fixed. A fresh Conditions page selects the nearest spot after location succeeds. Explicit spot links and manual choices take precedence, sorting changes preserve selection, and a requested date is retained. Location failure still falls back to A–Z. Lesson forms retain deliberate spot selection.
 

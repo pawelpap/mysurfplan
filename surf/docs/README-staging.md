@@ -2,7 +2,7 @@
 
 The owner reviews changes at https://staging.mywaveplan.com. Production deployment is a separate step requiring the owner's approval.
 
-Current release, 7 September: revocable-session revision `aa695a9` is verified on staging (`dpl_2w1L1GqYVjNF5qmCzaWKdiGNPC6z`) and, following the owner's conditional approval, production (`dpl_J9LhMTb81ZG6qe82G33GBMzaJcDC`). See [session revocation release](RELEASE_2026-09-07_SESSION_REVOCATION.md).
+Current release, 8 September: login/request-security revision `76bdcb7` is verified on staging and production under the owner's conditional authorisation. See [release details](RELEASE_2026-09-08_REQUEST_SECURITY.md). Apply `db/migrations/20260908_login_limits.sql` before this runtime on an older database. Non-browser mutation clients must include `X-MyWavePlan-Request: 1` when Origin is absent. Valid same-origin browser requests remain compatible.
 
 Historical release: the owner approved the conditions-presentation, appearance and nearest-spot release on 6 September 2026. That approved release was deployed and verified in both environments. See [HANDOVER.md](HANDOVER.md) and [release notes](RELEASE_2026-09-06_PRESENTATION.md) for the approved revision, deployment IDs, checks and rollback. No database migration or copy was performed. Future changes require a new staging review before production.
 
