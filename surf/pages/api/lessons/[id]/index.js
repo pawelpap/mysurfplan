@@ -1,8 +1,10 @@
+import { requireMutation } from '../../../../lib/request-security.mjs';
 import { sql } from "lib/db";
 import { requireAuth } from "../../../../lib/auth";
 import { isUuid, validateLesson } from "../../../../lib/lesson-input.mjs";
 
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   const { id } = req.query;
   if (!isUuid(id))
     return res.status(400).json({ ok: false, error: "Invalid lesson id" });

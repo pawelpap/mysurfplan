@@ -1,3 +1,4 @@
+import { requireMutation } from '../../../lib/request-security.mjs';
 import crypto from "crypto";
 import { sql } from "../../../lib/db";
 import { requireAuth } from "../../../lib/auth";
@@ -10,6 +11,7 @@ import {
 } from "../../../lib/conditions/spots";
 export const config = { maxDuration: 60 };
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   res.setHeader("Cache-Control", "private, no-store");
   if (!["GET", "POST", "PUT"].includes(req.method)) {
     res.setHeader("Allow", ["GET", "POST", "PUT"]);

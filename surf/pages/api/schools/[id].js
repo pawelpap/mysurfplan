@@ -1,8 +1,10 @@
+import { requireMutation } from '../../../lib/request-security.mjs';
 // surf/pages/api/schools/[id].js
 import { sql } from '../../../lib/db';
 import { requireAuth } from '../../../lib/auth';
 
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   const { id } = req.query;
 
   try {

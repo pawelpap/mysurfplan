@@ -1,19 +1,14 @@
 import { clearAuthSession, getAuthSession } from '../../../lib/auth';
+import { requireMutation } from '../../../lib/request-security.mjs';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
+  if (!requireMutation(req, res)) return;
   try {
     if (req.method === 'GET') {
       return res.status(200).json({ ok: true, data: await getAuthSession(req) });
     }
     if (req.method === 'DELETE') {
-      // Browser requests must originate here; non-browser clients may omit Origin.
-      const origin = req.headers.origin;
-      if (origin) {
-        let host;
-        try { host = new URL(origin).host; } catch { host = null; }
-        if (host !== req.headers.host) return res.status(403).json({ ok: false, error: 'Forbidden' });
-      }
       if (req.query.all !== undefined && req.query.all !== '1') {
         return res.status(400).json({ ok: false, error: 'Invalid logout scope' });
       }

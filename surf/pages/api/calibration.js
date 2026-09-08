@@ -1,7 +1,9 @@
+import { requireMutation } from '../../lib/request-security.mjs';
 import { sql } from "../../lib/db";
 import { requireAuth } from "../../lib/auth";
 import { validateCalibration } from "../../lib/conditions/calibration.mjs";
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   res.setHeader("Cache-Control", "private, no-store");
   const session = await requireAuth(req, res, { roles: ["platform_admin"] });
   if (!session) return;

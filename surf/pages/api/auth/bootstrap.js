@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { sql } from '../../../lib/db';
+import { requireMutation } from '../../../lib/request-security.mjs';
 import {
   hashPassword,
   normalizeEmail,
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
   }
 
   const expectedToken = process.env.BOOTSTRAP_ADMIN_TOKEN;
+  if (!requireMutation(req, res)) return;
   if (!expectedToken) {
     return res.status(404).json({ ok: false, error: 'Bootstrap is disabled' });
   }

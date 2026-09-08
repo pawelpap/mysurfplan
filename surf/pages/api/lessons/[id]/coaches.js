@@ -1,8 +1,10 @@
+import { requireMutation } from '../../../../lib/request-security.mjs';
 // surf/pages/api/lessons/[id]/coaches.js
 import { sql } from "lib/db";
 import { requireAuth } from "../../../../lib/auth";
 
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   const { id } = req.query;
   if (!id || typeof id !== "string") {
     return res.status(400).json({ ok: false, error: "Missing lesson id" });

@@ -11,6 +11,7 @@ globalThis.__authTestSql = async () => { calls++; if (fail) throw new Error('dat
 const source = (await fs.readFile(new URL('../lib/auth.js',import.meta.url),'utf8'))
   .replace("import { sql } from './db';", 'const sql = globalThis.__authTestSql;')
   .replaceAll("'./auth-session.mjs'", JSON.stringify(new URL('../lib/auth-session.mjs',import.meta.url).href))
+  .replaceAll("'./request-security.mjs'", JSON.stringify(new URL('../lib/request-security.mjs',import.meta.url).href))
   .replaceAll("'./auth-store.mjs'", JSON.stringify(new URL('../lib/auth-store.mjs',import.meta.url).href));
 const auth = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 const codec = createSessionCodec({secret, production:false});

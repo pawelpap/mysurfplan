@@ -40,7 +40,7 @@ export const timeLabel = (value, timeZone) =>
 export async function request(url, options = {}) {
   const response = await fetch(url, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
+    headers: { "Content-Type": "application/json", "X-MyWavePlan-Request": "1", ...options.headers },
   });
   const json = await response.json().catch(() => ({}));
   if (response.status === 401 && !url.includes("/auth/")) {

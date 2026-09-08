@@ -1,3 +1,4 @@
+import { requireMutation } from '../../../lib/request-security.mjs';
 // /pages/api/lessons/index.js
 import { sql } from "lib/db";
 import { getAuthSession, requireAuth } from "../../../lib/auth";
@@ -8,6 +9,7 @@ import { validateLesson } from "../../../lib/lesson-input.mjs";
  * POST /api/lessons  { school: "<slug|id>", startAt: ISO8601, durationMin: 90, difficulty: "...", place: "...", coachIds?: [uuid, ...] }
  */
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   if (req.method === "GET") {
     return getLessons(req, res);
   }

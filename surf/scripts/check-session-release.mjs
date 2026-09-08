@@ -9,7 +9,7 @@ const base=env==='staging'?'https://staging.mywaveplan.com':'https://mywaveplan.
 const stateFile=`/private/tmp/mwp-revocation-${env}-fixtures.json`;
 const c=new pg.Client({connectionString:(await fs.readFile(`/private/tmp/mwp-revocation-${env}-url`,'utf8')).trim()});await c.connect();
 const call=async(path,cookie='',method='GET',body,origin)=>{
- const r=await fetch(base+path,{method,headers:{...(cookie?{cookie}:{}),...(body?{'Content-Type':'application/json'}:{}),...(origin?{Origin:origin}:{})},body:body?JSON.stringify(body):undefined});
+ const r=await fetch(base+path,{method,headers:{'X-MyWavePlan-Request':'1',...(cookie?{cookie}:{}),...(body?{'Content-Type':'application/json'}:{}),...(origin?{Origin:origin}:{})},body:body?JSON.stringify(body):undefined});
  return{status:r.status,data:await r.json(),cookie:r.headers.get('set-cookie')?.split(';')[0],headers:r.headers};
 };
 const login=async(f,who='member',password=f.password)=>{const r=await call('/api/auth/login','','POST',{email:f[who].email,password});assert.equal(r.status,200,`login ${who}`);assert(r.cookie);assert.match(r.headers.get('set-cookie'),/HttpOnly.*SameSite=Lax.*Secure/);return r.cookie;};

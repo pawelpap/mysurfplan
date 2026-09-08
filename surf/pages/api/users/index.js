@@ -1,3 +1,4 @@
+import { requireMutation } from '../../../lib/request-security.mjs';
 import { sql } from '../../../lib/db';
 import {
   getAuthSession,
@@ -43,6 +44,7 @@ async function resolveTargetSchool(session, school, role) {
 }
 
 export default async function handler(req, res) {
+  if (!requireMutation(req, res)) return;
   try {
     if (req.method === 'GET') {
       if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;

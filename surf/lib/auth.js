@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import { sql } from './db';
 import { createSessionCodec } from './auth-session.mjs';
 import { createSessionStore, validSessionToken } from './auth-store.mjs';
+import { requireMutation } from './request-security.mjs';
 
 const sessionCodec = createSessionCodec({
   secret: process.env.SESSION_SECRET,
@@ -206,6 +207,7 @@ function userSessionPayload(user) {
 
 export async function requireAuth(req, res, options = {}) {
   res.setHeader('Cache-Control', 'private, no-store');
+  if (!requireMutation(req, res)) return null;
   let session;
   try {
     session = await getAuthSession(req);
