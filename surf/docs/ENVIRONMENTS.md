@@ -31,6 +31,12 @@ For a fresh database, review [schema.sql](../db/schema.sql) and the migration re
 
 Run `npm run dev`, `npm test` and `npm run build` from `surf` for application work. The build includes `npm run lint`; development and build scripts explicitly use Webpack. Keep the reviewed Node.js 22 / Next.js 16 baseline and run `npm ls --all` plus `npm audit` before releases. See [dependency configuration](DEPENDENCY_BASELINE.md). Database rehearsal and deployed verification scripts are linked from their release records. Live verification scripts can create disposable records; inspect their scope before running them. Use explicit private connection files and clean only authorised fixtures.
 
+### B1 membership migration
+
+[Membership data model and migration procedure](MEMBERSHIP_DATA_MODEL.md) describes the versioned additive schema. Use `node scripts/migrate-memberships.mjs <environment> --audit` first; `--apply` is explicit and checks the verified direct endpoint. The runner applies the SQL, backfill and checksum in one transaction with source-data fingerprints and bounded locks. Rehearse on the existing isolated branch before staging; promote separately to production after checks. No live authority change, database copy, owner inference or email verification occurs in B1.
+
+`db/schema.sql` is now explicitly the legacy bootstrap. Apply B1 through its migration runner afterwards; do not use bootstrap SQL to upgrade an existing environment. `check-membership-schema.mjs` verifies the new constraints with rolled-back fixtures. The current `check-school-access-release.mjs` also checks B1's API compatibility and requires the B1 migration before running. Its older 13-case version is preserved in the A2 release commit for historical reproduction.
+
 ## Forecast access and database separation
 
 The app fetches Open-Meteo forecasts and calculates tides from harmonic constants. [Conditions architecture](CONDITIONS_ARCHITECTURE.md) documents providers, model, freshness, tide datum and calibration limits. The free hosted endpoint is restricted to non-commercial use. Complete the A5/L1 classification and configure server-side `OPEN_METEO_API_KEY` for licensed commercial access when required; the app selects customer endpoints automatically.

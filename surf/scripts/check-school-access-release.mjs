@@ -170,6 +170,31 @@ try {
     expect(await call(lessonPath + '/book', student.cookie, 'POST', { email: student.email }), 200);
     assert.equal(expect(await call(`/api/lessons?school=${a.id}`, student.cookie), 200)[0].bookedCount, 2);
   });
+  await check('B1 compatibility follows live user creation, role changes and school transfer', async () => {
+    const email = `a1-${crypto.randomUUID()}@example.invalid`;
+    const created = expect(await call('/api/users', platform.cookie, 'POST', {
+      school: a.id, name: 'Access check', familyName: 'Fixture', email,
+      role: 'school_admin', password: crypto.randomBytes(24).toString('base64url'),
+    }), 201);
+    users.push(created.id); await state();
+    const assignments = async () => (await client.query(`SELECT m.school_id,m.status,r.role,r.revoked_at IS NULL AS active
+      FROM school_memberships m JOIN membership_roles r ON r.membership_id=m.id WHERE m.user_id=$1 ORDER BY m.school_id,r.role`, [created.id])).rows;
+    assert.deepEqual(await assignments(), [{ school_id: a.id, status: 'active', role: 'school_admin', active: true }]);
+    expect(await call('/api/users/' + created.id, platform.cookie, 'PATCH', { role: 'coach' }), 200);
+    assert.deepEqual((await assignments()).filter(r => r.active), [{ school_id: a.id, status: 'active', role: 'coach', active: true }]);
+    expect(await call('/api/users/' + created.id, platform.cookie, 'PATCH', { school: b.id }), 200);
+    assert.deepEqual((await assignments()).filter(r => r.active), [{ school_id: b.id, status: 'active', role: 'coach', active: true }]);
+    assert((await assignments()).filter(r => r.school_id === a.id).every(r => r.status === 'left' && !r.active));
+    expect(await call('/api/users/' + created.id, platform.cookie, 'DELETE', {}), 200);
+    assert((await assignments()).every(r => r.status === 'left' && !r.active));
+  });
+  await check('new membership rows cannot grant live API authority before B2', async () => {
+    const m = (await client.query('INSERT INTO school_memberships(school_id,user_id) VALUES($1,$2) RETURNING id', [a.id, student.id])).rows[0];
+    await client.query("INSERT INTO membership_roles(membership_id,role) VALUES($1,'school_admin'),($1,'coach')", [m.id]);
+    expect(await call('/api/users?school=' + a.id, student.cookie), 403);
+    expect(await call(lessonPath, student.cookie, 'PUT', lessonInput), 403);
+    assert.equal(expect(await call('/api/auth/session', student.cookie), 200).role, 'student');
+  });
   await check('shared demo student remains isolated and receives the full forecast', async () => {
     const demo = await call('/api/auth/login', null, 'POST', { email: 'teststudent', password: 'teststudent' });
     const session = expect(demo, 200).session; assert.equal(session.role, 'student');

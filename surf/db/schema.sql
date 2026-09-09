@@ -1,5 +1,6 @@
 -- db/schema.sql
--- MyWavePlan – canonical schema (schools, users, coaches, students, lessons, bookings)
+-- MyWavePlan – legacy bootstrap schema (schools, users, coaches, students, lessons, bookings)
+-- B1 onwards use versioned migrations; see docs/MEMBERSHIP_DATA_MODEL.md.
 -- Safe to run multiple times (IF NOT EXISTS + idempotent constructs)
 
 -- 0) Extensions
@@ -422,3 +423,9 @@ CREATE TABLE IF NOT EXISTS auth_login_limits (
   expires_at timestamptz NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_auth_login_limits_expiry ON auth_login_limits(expires_at);
+
+-- B1 global membership expansion (20260909): apply the versioned SQL via
+-- scripts/migrate-memberships.mjs after this bootstrap. Its checksum ledger,
+-- transactional backfill and compatibility bridge must have one source of truth:
+-- db/migrations/20260909_global_memberships.sql. Do not copy that SQL here or
+-- use this legacy bootstrap to upgrade an existing deployment.
