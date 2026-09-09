@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       ORDER BY l.start_at ASC
       LIMIT 500
     `;
-    const rows = await sql(text, params);
+    const rows = await sql.query(text, params);
 
     const data = rows.map((r) => ({
       id: r.id,

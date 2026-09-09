@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
@@ -66,14 +67,16 @@ export default function Workspace() {
     profile: "My profile",
   };
 
+  const reloadAuth = auth.reload;
+
   useEffect(() => {
     if (auth.url && !auth.loading && !auth.error && !session)
       window.location.replace(
         `/login?school=${encodeURIComponent(requestedSchool)}&next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
       );
-  }, [auth.url, auth.loading, auth.error, session]);
+  }, [auth.url, auth.loading, auth.error, session, requestedSchool]);
   useEffect(() => {
-    const refresh = () => { if (document.visibilityState === "visible") auth.reload(); };
+    const refresh = () => { if (document.visibilityState === "visible") reloadAuth(); };
     const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("account-access") : null;
     if (channel) channel.onmessage = refresh;
     window.addEventListener("focus", refresh);
@@ -87,11 +90,11 @@ export default function Workspace() {
       window.clearInterval(timer);
       channel?.close();
     };
-  }, [auth.reload]);
+  }, [reloadAuth]);
   useEffect(() => {
-    auth.reload();
+    reloadAuth();
     if (main.current) main.current.focus({ preventScroll: true });
-  }, [router.asPath, auth.reload]);
+  }, [router.asPath, reloadAuth]);
   useEffect(() => {
     if (!menu) return;
     const previous = document.body.style.overflow;
@@ -301,9 +304,9 @@ export default function Workspace() {
           <Button tone="quiet" onClick={() => logout()} disabled={loggingOut}>
             Log out
           </Button>
-          <a className="legal-link" href="/legal">
+          <Link className="legal-link" href="/legal">
             Legal
-          </a>
+          </Link>
         </div>
       </aside>
       <main className="workspace-main" id="main" tabIndex={-1} ref={main}>

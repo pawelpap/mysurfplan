@@ -48,7 +48,7 @@ export default async function handler(req, res) {
           WHERE id = $${fields.length + 1} AND deleted_at IS NULL
           RETURNING id, name, slug, contact_email, created_at, updated_at
         `;
-        const rows = await sql(text, [...values, id]);
+        const rows = await sql.query(text, [...values, id]);
         if (!rows.length) {
           return res.status(404).json({ ok: false, error: 'Not found' });
         }

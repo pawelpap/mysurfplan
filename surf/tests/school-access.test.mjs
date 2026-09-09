@@ -26,13 +26,46 @@ async function loadHandler(path, sql, role = 'student') {
     .replace(/import \{ requireAuth \} from [^;]+;/, `const { requireAuth } = globalThis.${key};`)
     .replace(/import \{ requireMutation \} from [^;]+;/, `const { requireMutation } = globalThis.${key};`)
     .replace(/(['"])(?:\.\.\/)+lib\/school-access\.mjs\1/g, JSON.stringify(new URL('../lib/school-access.mjs', import.meta.url).href));
-  const module = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+  const loaded = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
   delete globalThis[key];
-  return module.default;
+  return loaded.default;
 }
 function response() {
   return { statusCode: 200, setHeader() {}, status(n) { this.statusCode = n; return this; }, json(value) { this.body = value; return this; } };
 }
+
+test('public lesson filters use the Neon parameterised query API', async () => {
+  const sql = async () => [{ id: schoolId }];
+  let queried = false;
+  sql.query = async (text, values) => {
+    queried = true;
+    assert.deepEqual(values, [schoolId, '2026-10-01', '2026-10-02T23:59:59', 'Beginner']);
+    assert.match(text, /l\.difficulty = \$4/);
+    assert.doesNotMatch(text, /2026-10|Beginner/);
+    return [];
+  };
+  const handler = await loadHandler('public/lessons.js', sql);
+  const res = response();
+  await handler({ method: 'GET', query: { school: schoolId, from: '2026-10-01', to: '2026-10-02', difficulty: 'Beginner' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert(queried);
+});
+
+test('school edits bind arbitrary text as values through the Neon query API', async () => {
+  const name = "O'Brien's school; SELECT 'example'";
+  const sql = async () => { throw new Error('Expected the parameterised query API'); };
+  sql.query = async (text, values) => {
+    assert.deepEqual(values, [name, 'school@example.invalid', schoolId]);
+    assert.match(text, /name = \$1, contact_email = \$2/);
+    assert.doesNotMatch(text, /O'Brien|school@example/);
+    return [{ id: schoolId, name }];
+  };
+  const handler = await loadHandler('schools/[id].js', sql, 'platform_admin');
+  const res = response();
+  await handler({ method: 'PATCH', query: { id: schoolId }, body: { name, contactEmail: 'school@example.invalid' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.data.name, name);
+});
 
 test('student and instructor directory responses omit private instructor fields', async () => {
   for (const role of ['student', 'coach', 'school_admin', 'platform_admin']) {

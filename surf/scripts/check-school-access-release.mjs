@@ -41,6 +41,16 @@ try {
     schools.push(school); await state();
   }
   const [a, b] = schools;
+  await check('platform school edits preserve parameterised values', async () => {
+    const name = `Access check ${runId} O'Brien`;
+    const updated = expect(await call('/api/schools/' + a.id, platform.cookie, 'PATCH', { name, contactEmail: 'updated@example.invalid' }), 200);
+    assert.equal(updated.name, name);
+    assert.equal(updated.contact_email, 'updated@example.invalid');
+    Object.assign(a, updated);
+    await state();
+    const stored = expect(await call('/api/schools/' + a.id, platform.cookie), 200);
+    assert.equal(stored.name, name);
+  });
   const admin = await makeUser('school_admin', a), otherAdmin = await makeUser('school_admin', b);
   const coach = await makeUser('coach', a), unassigned = await makeUser('coach', a);
   const student = await makeUser('student', a), peer = await makeUser('student', a), outsider = await makeUser('student', b);
@@ -139,7 +149,7 @@ try {
   });
   await check('public schedules retain business contact, instructor names and availability only', async () => {
     const school = expect(await call('/api/schools'), 200).find(s => s.id === a.id);
-    assert.equal(school.contact_email, 'business-a@example.invalid');
+    assert.equal(school.contact_email, 'updated@example.invalid');
     assert.deepEqual(Object.keys(school).sort(), ['contact_email', 'id', 'name', 'slug']);
     const [row] = expect(await call(`/api/public/lessons?school=${a.slug}&difficulty=Beginner`), 200);
     assert.equal(row.id, lesson.id); assert.equal(row.spotsLeft, 2);

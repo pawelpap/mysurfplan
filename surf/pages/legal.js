@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { Brand } from "../components/workspace/ui";
 import { ThemeSelector } from "../components/theme";
 
@@ -42,7 +43,7 @@ export default function Legal() {
         , under BSD-2-Clause. First and last light refer to civil twilight.
       </p>
       <p>
-        <a href="/">Back to MyWavePlan</a>
+        <Link href="/">Back to MyWavePlan</Link>
       </p>
     </main>
   );
