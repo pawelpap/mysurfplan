@@ -1,8 +1,10 @@
 # MyWavePlan development plan
 
+> Archive status: Superseded plan. Kept for historical context; its priorities and status are no longer current. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Last updated: 6 September 2026.
 
-This is the current working plan. Update it after meaningful changes. The previous detailed plan and change log are preserved in `DEVELOPMENT_PLAN_ARCHIVE_2026-06.md`. Findings and implementation limits are in `UX_AUDIT_2026-09.md`.
+This is the current working plan. Update it after meaningful changes. The previous detailed plan and change log are preserved in [DEVELOPMENT_PLAN_ARCHIVE_2026-06.md](DEVELOPMENT_PLAN_ARCHIVE_2026-06.md). Findings and implementation limits are in [UX_AUDIT_2026-09.md](../audits/UX_AUDIT_2026-09.md).
 
 ## Current direction agreed with the owner
 
@@ -12,7 +14,7 @@ Standing deployment instruction, clarified by the owner on 6 September 2026: dep
 
 The earlier instruction allowing automatic promotion of the calibration, swell-energy and water-temperature release was specific to that completed release. It must not be reused for later changes.
 
-Current release status, 6 September 2026: forecast refresh recovery and the login tagline “Made for surfers and surf schools” are live and verified on both environments in application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. The owner explicitly authorised both deployments for this change. Earlier presentation, appearance, nearest-spot, home-screen, viewport and São Pedro calibration releases remain complete. Calibration stays database-owned, with Bico and Bafureira retaining separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](HANDOVER.md) and [forecast refresh release](RELEASE_2026-09-06_FORECAST_REFRESH.md).
+Current release status, 6 September 2026: forecast refresh recovery and the login tagline “Made for surfers and surf schools” are live and verified on both environments in application revision `657333b8dc1c37798cf3c342ae59370f4a7c65d1`. The owner explicitly authorised both deployments for this change. Earlier presentation, appearance, nearest-spot, home-screen, viewport and São Pedro calibration releases remain complete. Calibration stays database-owned, with Bico and Bafureira retaining separate behaviour. Future releases follow the standing approval workflow unless the owner explicitly authorises both environments for that particular change. See [handover](../../HANDOVER.md) and [forecast refresh release](../releases/RELEASE_2026-09-06_FORECAST_REFRESH.md).
 
 Each screen should support one task. Lists help people find a record. Details explain a record. Creation, editing and booking management use dedicated screens with a clear route back. Avoid combining unrelated tasks or presenting future functionality as if it works.
 
@@ -43,7 +45,7 @@ Scope:
 
 Completion means every tunable surf calibration value and supported calibration rule is database-owned, validated and versioned; the same generic engine evaluates every spot without embedded local exceptions.
 
-Current implementation references: [algorithm and architecture](CONDITIONS_ARCHITECTURE.md), [spot schema and coefficients](SPOT_DATA_MODEL.md), and [`lib/conditions/model.mjs`](../lib/conditions/model.mjs).
+Current implementation references: [algorithm and architecture](../../CONDITIONS_ARCHITECTURE.md), [spot schema and coefficients](../../SPOT_DATA_MODEL.md), and [`lib/conditions/model.mjs`](../../../lib/conditions/model.mjs).
 
 ## September release: swell energy and water temperature
 
@@ -55,11 +57,11 @@ Owner request, 6 September 2026: calculate swell energy and present it clearly i
 - [x] Keep energy separate from surf quality and required experience so a high value does not imply good or beginner-friendly conditions. Review any future influence on those scores as a separate model change.
 - [x] Verify reference calculations, units, multiple swells, missing inputs, time selection and lesson consistency. Document the method and validate the desktop/mobile presentation on staging before the authorised production deployment.
 
-Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete application release `ae55e26` passed live API and browser checks on staging and production. All 17 database spot configurations, the schema and default profile match between environments. Existing production business records and legacy calibrations were verified unchanged. See [release notes](RELEASE_2026-09-06.md).
+Implemented and locally verified: 37 tests pass, including 5,712 legacy parity cases. API mutation tests on a disposable Neon branch cover creation, validation, version conflicts, history restoration, default-profile revision and student denial. Browser checks pass at 1440, 390 and 320 px, including native touch, keyboard time selection, exact metric synchronisation, lesson cards, missing future temperature and admin editor layout. Calibration-only staging release `41bbb72` is live and its API checks pass. The complete application release `ae55e26` passed live API and browser checks on staging and production. All 17 database spot configurations, the schema and default profile match between environments. Existing production business records and legacy calibrations were verified unchanged. See [release notes](../releases/RELEASE_2026-09-06.md).
 
 - [x] Add independent best-match marine sea-surface temperature ingestion, join it by UTC timestamp and preserve missing values beyond its forecast horizon. A temperature outage must not disable the wave forecast.
 - [x] Present energy and water in matching teal cards in selected conditions, expanded mobile hours and lesson details, with compact desktop hourly values and optional explanations.
-- [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
+- [x] Document the formula, units, partition mapping, period approximation, offshore interpretation and water-data horizon in [Swell energy and water temperature](../../SWELL_ENERGY_AND_WATER_TEMPERATURE.md).
 - [x] Complete live staging verification for both additions, then migrate production and deploy the same code.
 
 ## Presentation adjustment: equal emphasis for forecast parameters
@@ -74,7 +76,7 @@ Owner clarification, 6 September 2026: no forecast parameter should be visually 
 
 Owner request, 6 September 2026: investigate Surfline's energy units and try to provide a comparable scale. Surfline uses kJ with height, period and spot-direction effects. Its public explanation does not specify the full coefficients or reference dimensions needed to reproduce the numbers. Our current offshore kJ/m² density and kW/m power cannot be converted to that scale by changing the unit label.
 
-- [x] Verify Surfline's published definition and document the distinction in [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md#surfline-units-investigation-on-6-september-2026).
+- [x] Verify Surfline's published definition and document the distinction in [Swell energy and water temperature](../../SWELL_ENERGY_AND_WATER_TEMPERATURE.md#surfline-units-investigation-on-6-september-2026).
 - [x] Owner decision after reviewing the finding: keep our existing energy density in kJ/m² and estimated power in kW/m. No Surfline-scale conversion is scheduled. Preserve equal visual emphasis with the other parameters.
 
 The research did not change the algorithm or units. The presentation work was subsequently approved and released to production as recorded below.
@@ -91,9 +93,9 @@ Owner request, 6 September 2026: keep every forecast parameter available on desk
 - [x] Keep editor controls and direct editor URLs restricted to platform admins. Verify spot writes and calibration settings/history access are denied for other roles.
 - [x] Deploy application commit `48b3a49` to staging and verify its custom domain: all 17 spots in alphabetical order, equal desktop/mobile hourly details, five viewport widths, explicit refresh, chosen-time keyboard/touch interaction, lesson conditions, missing data and role access. Production stayed on `1938804` during staging review.
 - [x] Owner reviewed staging and explicitly approved production on 6 September 2026.
-- [x] Deploy approved revision `2ea5905` to production, complete live checks and update the release records, plan and [handover](HANDOVER.md). No database migration was required or performed.
+- [x] Deploy approved revision `2ea5905` to production, complete live checks and update the release records, plan and [handover](../../HANDOVER.md). No database migration was required or performed.
 
-Review findings and decisions are in [the conditions design review](UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
+Review findings and decisions are in [the conditions design review](../audits/UX_AUDIT_2026-09.md#conditions-presentation-review-6-september-2026).
 
 ## Completed release: appearance, quality colours and nearest spots
 
@@ -103,7 +105,7 @@ Owner requests, 6 September 2026: add light/dark mode with a device-based defaul
 - [x] Restore green/yellow/orange/red surf-quality text and dots, plus subtle daily-tile fills. Preserve neutral missing data, a distinct selected-day outline and separate required experience. Keep all metric values at the same typographic scale.
 - [x] Share the spot picker between Conditions and lesson forms. Automatically request browser location when the first picker opens after login. Sort nearest first using a worldwide distance calculation; include approximate distances. Preserve the selected spot and offer A–Z with a safe fallback, retry and late-callback cancellation. Keep coordinates in memory only; no server transmission or map-service dependency.
 - [x] Pass 44 automated tests and the production build. Verify the appearance controls, text contrast, responsive layouts, tide touch interaction and location permission/failure paths with synthetic coordinates in the browser.
-- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production stayed on `1938804` during staging review. The verification is recorded in [HANDOVER.md](HANDOVER.md).
+- [x] Deploy application commit `d1ddea8` to staging (`dpl_FdtZhk6qH5oNi8WND2qcsiVF9JkD`). Live appearance/location checks passed, including all five widths, lesson/forecast picker parity, touch chart, public schedule and admin forms. Production stayed on `1938804` during staging review. The verification is recorded in [HANDOVER.md](../../HANDOVER.md).
 - [x] Owner tested staging and explicitly approved production on 6 September 2026.
 - [x] Deploy approved revision `2ea5905` to production (`dpl_AfTvG9kcZfHKp3xY1s31VeYnZTH9`). Verify both themes, all five widths, location sorting, hourly parity, keyboard/touch graph, lesson conditions and role access. Update documentation and handover. No database migration or business-record copy was performed; no browser exceptions, observed 5xx responses or deployment-scoped error/fatal logs were found during verification.
 
@@ -115,7 +117,7 @@ Owner request, 6 September 2026: make the app addable to smartphone home screens
 - [x] Add a shared manifest and Apple metadata, root scope, stable app identity and a standalone launch into Conditions. Preserve normal login, authorisation and forecast refresh behaviour.
 - [x] Make the browser theme colour follow the app appearance. Pass all 44 tests, the build, icon validation and local browser installation diagnostics with no errors.
 - [x] Deploy revision `1b47423` to staging (`dpl_BGDLjaWwUpohyH5cxQMaA2Jmfqar`) and pass live installation/launch checks, then deploy the same code to production (`dpl_2rgdYZy7hcmtLSVu9nLnVcABNKUi`) and repeat the checks successfully.
-- [x] Record live verification and update the handover. Manifest, icon assets, installation diagnostics, launch/login, theme colours and mobile layouts pass on both domains. Physical iPhone installation was not claimed as tested. Installation instructions and asset details are in [Home-screen support](HOME_SCREEN.md).
+- [x] Record live verification and update the handover. Manifest, icon assets, installation diagnostics, launch/login, theme colours and mobile layouts pass on both domains. Physical iPhone installation was not claimed as tested. Installation instructions and asset details are in [Home-screen support](../../HOME_SCREEN.md).
 
 ## Mobile browser viewport correction
 
@@ -138,7 +140,7 @@ Owner request, 6 September 2026: use local knowledge and the supplied Surfline f
 - [x] Save through the existing versioned platform-admin API with change notes, sources, concurrency protection and prior-version history.
 - [x] Pass all 49 tests and the build, including five new calibration regressions and the existing 5,712 migration-parity cases.
 - [x] Verify staging before applying the same settings to production. Each environment passed 1,224 hourly comparisons, 16-day coverage, unrelated-spot preservation, student denial and desktop/mobile display checks.
-- [x] Confirm all 17 database spot configurations and versions match between environments. Record São Pedro revision 4, Bico revision 5 and Bafureira revision 4 with rollback instructions in the [release record](CALIBRATION_2026-09-06_SAO_PEDRO.md).
+- [x] Confirm all 17 database spot configurations and versions match between environments. Record São Pedro revision 4, Bico revision 5 and Bafureira revision 4 with rollback instructions in the [release record](../calibration/CALIBRATION_2026-09-06_SAO_PEDRO.md).
 
 This is a database-only forecasting update. The repository additions are documentation and test-only evidence; the app has no spot-name or date-specific code change.
 
@@ -205,7 +207,7 @@ The owner authorised this work on staging and explicitly asked to keep productio
 - [x] Deploy and verify this work at staging.mywaveplan.com.
 - [x] Owner reviewed the conditions and approved production promotion. Continue tuning spot assumptions using local observations.
 
-See [Conditions architecture, sources and limitations](CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
+See [Conditions architecture, sources and limitations](../../CONDITIONS_ARCHITECTURE.md). Numerical surf coefficients are initial heuristics. Tide heights use mean sea level and a named regional reference. Commercial API access must be configured before commercial use; no paid subscription has been purchased.
 
 ## Core reliability backlog
 
@@ -263,4 +265,4 @@ The conditions, optional-username, São Pedro exposure and Caparica wave-sample 
 
 The owner requested production parity with staging, then confirmed that production-only records should first be added to staging. The isolated merge rehearsal passed, including a repeat run with no duplicate inserts. Jonny's existing login credential was copied only after explicit approval. The student-only `teststudent` account, Demo Surf School, all 17 spots and their latest calibration are included.
 
-The release database is a fresh copy of the combined staging database. Schema comparison and fingerprints of all 12 business/reference tables matched. Forecast caches are copied too, then refresh independently. Original production data and the pre-merge staging state are retained as rollback resources. Environment-specific session-signing secrets are configured. See `README-staging.md` for the current branch mapping and rollback details.
+The release database is a fresh copy of the combined staging database. Schema comparison and fingerprints of all 12 business/reference tables matched. Forecast caches are copied too, then refresh independently. Original production data and the pre-merge staging state are retained as rollback resources. Environment-specific session-signing secrets are configured. See [ENVIRONMENTS.md](../../ENVIRONMENTS.md) for the current branch mapping and rollback details.

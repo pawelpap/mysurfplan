@@ -1,5 +1,7 @@
 # São Pedro WNW swell calibration
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 6 September 2026. The owner authorised this local calibration on staging and production, including Bico and Bafureira while preserving their distinct behaviour.
 
 ## Evidence and scope

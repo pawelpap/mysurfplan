@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       const rows = await sql`
-        SELECT id, name, slug, contact_email, created_at
+        SELECT id, name, slug, contact_email
         FROM schools
         WHERE deleted_at IS NULL
         ORDER BY created_at DESC
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   } catch (err) {
     console.error('schools api error:', err);
-    return res.status(500).json({ ok: false, error: 'Server error', detail: cleanErr(err) });
+    return res.status(500).json({ ok: false, error: 'Could not load or update schools. Please try again.' });
   }
 }
 
@@ -70,8 +70,4 @@ async function readJSON(req) {
 async function getBody(req) {
   if (req.body && Object.keys(req.body).length) return req.body;
   return readJSON(req);
-}
-
-function cleanErr(e) {
-  return e?.detail || e?.message || String(e);
 }

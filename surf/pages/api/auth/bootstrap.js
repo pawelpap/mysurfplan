@@ -100,6 +100,6 @@ export default async function handler(req, res) {
     if (err?.code === '23505') {
       return res.status(409).json({ ok: false, error: 'User already exists' });
     }
-    return res.status(err?.statusCode || 500).json({ ok: false, error: err?.message || 'Server error' });
+    return res.status(500).json({ ok: false, error: 'Could not create the account. Please try again.' });
   }
 }

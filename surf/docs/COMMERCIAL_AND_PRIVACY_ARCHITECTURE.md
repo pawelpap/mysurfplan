@@ -1,17 +1,19 @@
 # Commercial and privacy architecture proposal
 
-7 September 2026. Supporting design for the [development plan](DEVELOPMENT_PLAN.md).
+7 September 2026; expansion boundaries added 9 September. Supporting design for the [development plan](DEVELOPMENT_PLAN.md).
 
-Status: proposed, not implemented. Names describe intended domains, not existing tables or final migrations. Confirm provider choices, policies and responsibilities before implementation. This document is neither a published privacy notice nor confirmation of legal compliance.
+Status: the identity/membership design was accepted on 8 September; commercial/provider/policy choices remain proposed and unimplemented. Names describe intended domains, not existing tables or final migrations. Confirm provider choices, policies and responsibilities before implementation. This document is neither a published privacy notice nor confirmation of legal compliance.
 
 ## 1. Identity, permissions and commercial access
+
+The [accepted registration and membership design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md), dated 8 September, provides the detailed target model, invitation/ownership rules, permission matrix and migration path. The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery, dependencies and launch gates. Its membership and role tables replace the earlier `user_school_roles` shorthand. School drafts precede checkout; subscriptions unlock school features and do not grant staff roles.
 
 Keep a global user separate from school membership and billing. An existing user may surf at several schools, coach at one and administer another. A school customer/student record must not automatically grant staff access.
 
 | Domain | Proposed records and important fields |
 | --- | --- |
 | Identity | `users`; revocable `sessions`; hashed verification/recovery tokens with expiry and single use |
-| School membership | `user_school_roles(user_id, school_id, role, status, approved_by, created_at)`; unique membership/role constraints; invitation records with expiry |
+| School membership | `school_memberships(user_id, school_id, status)` plus `membership_roles(membership_id, role)`; independent administrator/instructor roles, separate owner reference and expiring invitations |
 | Platform authority | Separate platform-admin assignment; no public sign-up path can set it |
 | Student/coach linkage | School-scoped student and coach records linked to global users; explicit invitation/verified linking of existing records |
 | Billing owner | `billing_accounts(id, school_id, user_id, provider_customer_id)`; exactly one owner scope, school or user |
@@ -87,6 +89,14 @@ Operator details supplied by the owner: **PAWEL PAPLINSKI; tax number PT31121921
 
 Create a processing inventory: purpose, fields, lawful basis, controller/processor role, recipients, retention, location, access and deletion mechanism. The platform and schools may have different roles for account, teaching, billing and analytics data; document these per purpose and execute the appropriate agreements. EU hosting alone does not settle international-transfer questions.
 
+The owner's 9 September preference is EU storage for the Portuguese launch. A8 chooses the exact region before provisioning and completes the rehearsed move before real registration/onboarding. Extend the inventory to backups, exports, media/derivatives, logs and each provider's storage, processing and support access. Record any non-EU transfer and its safeguards; publish the actual arrangement, not an unverified blanket EU-only claim. See the [region and migration plan](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md#region-and-environment-decision) and [European Commission transfer guidance](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/rules-international-data-transfers_en).
+
+### Language and locale preferences
+
+Roadmap A9 establishes translation catalogues, a locale resolver and a language switcher; B10 delivers English, European Portuguese (`pt-PT`) and Spanish before the pilot, with optional French. A nullable global user `preferred_locale` and a minimal device preference are independent of school membership, location and analytics consent. Explicit selection takes priority over browser inference; preserve it through login, registration, invitation/recovery links and transactional emails. The initial browser match falls back to English. Resolve account/device conflicts explicitly, preserving saved choices.
+
+Translate UI messages, forecast/skill labels, API error presentation, emails and reviewed published policy documents. Store locale-independent codes and numeric values; translate their presentation through shared catalogues. Keep exact document language/version acceptance evidence and do not silently substitute an unreviewed legal translation. Switching language does not change the school/spot timezone, price currency, teaching language, booking eligibility or underlying forecast. School-authored descriptions and proper spot names remain unchanged unless separate translations exist. Adding another interface language does not activate another country or payment market. Later billing, consent-banner and expansion features must support every enabled language.
+
 ### Separate records for separate choices
 
 | Record / control | Proposed content |
@@ -154,12 +164,30 @@ Exclude email, name, telephone, free-text search/comments, precise browser coord
 
 Set up GTM/GA4 properties under the operator's authorised account, with separate staging/test data and controlled publishing access. Define internal/demo traffic exclusion and document event owners. No account connection or provider provisioning is authorised by this planning document.
 
-Use Search Console DNS verification independently of GA4. Publish sitemaps and canonical URLs for public spot/school pages; exclude private routes and keep staging access-controlled/noindex. Public forecast pages can reduce sign-up friction, but first apply provider licensing, cache/rate protection and cost limits. Keep full account/booking actions authenticated. [Search Console verification](https://support.google.com/webmasters/answer/9008080?hl=en)
+Use Search Console DNS verification independently of GA4. Publish sitemaps and canonical URLs for public spot/school pages; exclude private routes and keep staging access-controlled/noindex. Public forecast pages can reduce sign-up friction; apply A5's permitted-use/attribution checks and cache/rate protection. L1 activates paid commercial access only before the first publication/test requiring it. Keep full account/booking actions authenticated. [Search Console verification](https://support.google.com/webmasters/answer/9008080?hl=en)
 
 ## 7. Decision and verification gates
+
+Commercial-only provider purchases are deferred to roadmap L1 immediately before the first qualifying activity, with enough time for setup and verification. A5 keeps the early terms/attribution/technical compatibility check; A7 handles genuine capacity/security/recovery needs when they arise. Review current deployment and proposed tests against provider terms; free pilots or staging are not automatically exempt. Record each service's trigger, scope, approved budget and activation evidence. Recheck existing coverage for new revenue models rather than purchasing duplicate plans. See [provider timing](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md#commercial-activation-checkpoint).
+
+The [small-launch budget](LAUNCH_COST_ESTIMATE.md) separates monthly hosting/data/email costs from Stripe processing, Billing and configuration-dependent Connect fees. It does not choose the final merchant model, invoicing integration or tax treatment, and does not authorise purchases.
 
 Before paid activation: agree school price/trial/grace; merchant and Connect configuration; dispute/refund/negative-balance responsibilities; tax/invoices; consumer terms and renewal/cancellation wording; data licence and provider budget. Confirm countries/currencies supported for the first pilot while keeping the schema extensible.
 
 Before public onboarding: verify session and tenant isolation, ownership/invite handling, optional consent, deletion/export, email delivery, demo isolation, media permissions and the age/guardian policy. Existing users must not lose their records or silently gain school access.
 
 Before broader launch: run sandbox failure/concurrency/replay tests; owner-approved controlled live payment/refund checks; mobile/desktop accessibility review; support/reconciliation drills; forecast cost/freshness monitoring. Keep staging and production credentials, webhooks, records and storage separate. Follow the staging-first approval workflow in the development plan.
+
+## 8. Boundaries for later product extensions
+
+The [expansion assessment](PRODUCT_EXPANSION_ASSESSMENT.md) and roadmap F/V/R/M describe conditional follow-up work. They preserve the accepted global-account and school-membership implementation; they do not add a vendor-role migration to the next release.
+
+- Feedback about a provider, instructor assessment of a student and leaderboard participation are separate records and visibility purposes. One global account can author eligible feedback without being staff. School access does not grant cross-school progress-note access or permission to publish someone's rank.
+- In-app feedback flows use subject-linked prompt state and server eligibility, with bounded templates/triggers, postponement, dismissal, completion, expiry and frequency limits. Operational deduplication is separate from optional analytics; a prompt view does not prove attendance, grant marketing consent or authorise publishing the response. Reuse completion state before any later cross-channel reminder.
+- Forecast archive/evaluation records need immutable issued/valid timestamps, provider/model/calibration provenance and observation quality. Keep large snapshots/media in object storage where appropriate. A historical performance metric is separate from a live forecast score or probability.
+- Provider expansion requires a business entity/capability model, with schools as an optional relationship and scoped owner/staff authority. V2 must decide any generalisation/migration before vendor commerce. The initial school/personal billing scope above remains the launch model; non-school business billing needs an explicit extension, not an unrelated user's billing account or a fictitious school.
+- Reuse order/payment modules with the actual supplier and category-specific fulfilment/refund rules. Rentals, physical sales, custom work, digital media and key custody cannot be treated as identical lesson bookings. No consumer-to-consumer sales or multi-seller cart is implied.
+- Sponsored placements belong to a separate platform-managed campaign domain. Record context, creative, dates and commercial terms; never use payment as a forecast or organic-ranking input. Advertising remains disabled in the initial C6 setup. Any later optional advertising measurement extends the consent/event contract explicitly, with no private booking/progress/GPS data shared with advertisers.
+- Mobile clients use the same server permissions, spot calculation and entitlement domains. A native release needs its own secure session lifecycle and store-specific payment classification. Physical service checkout, digital subscriptions/downloads and in-app advertiser purchases require separate review. Cache only deliberately permitted data; do not create offline private-data access merely by adding a service worker.
+
+Each extension must add its retention/deletion/export, moderation/support, consented event and operational monitoring requirements before release. Names in the assessment remain design concepts, not executable schema or approval for provider purchases.

@@ -1,3 +1,4 @@
+import { isUuid } from '../../../../lib/school-access.mjs';
 import { requireMutation } from '../../../../lib/request-security.mjs';
 // surf/pages/api/lessons/[id]/book.js
 import { sql } from "lib/db";
@@ -17,7 +18,7 @@ function normalizeName(name) {
   return typeof name === "string" ? name.trim() : "";
 }
 
-async function bookLesson(lessonId, schoolId, name, email) {
+async function bookLesson(lessonId, schoolId, name, email, studentUserId) {
   const rows = await sql`
     WITH lesson AS (
       SELECT id, school_id, capacity
@@ -35,6 +36,7 @@ async function bookLesson(lessonId, schoolId, name, email) {
       ON CONFLICT (school_id, email)
       DO UPDATE
       SET name = COALESCE(EXCLUDED.name, students.name), updated_at = now()
+      WHERE students.deleted_at IS NULL AND (${studentUserId}::uuid IS NULL OR students.user_id IS NULL OR students.user_id = ${studentUserId}::uuid)
       RETURNING id, name, email
     ),
     current_booking AS (
@@ -116,11 +118,12 @@ async function coachIsAssigned(lessonId, schoolId, userId) {
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
   const { id } = req.query;
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ ok: false, error: "Missing lesson id" });
+  if (!isUuid(id)) {
+    return res.status(400).json({ ok: false, error: "Invalid lesson id" });
   }
 
   try {
+    if (!(await requireAuth(req, res, { roles: ["school_admin", "coach", "student"] }))) return;
     const lesson = await getLesson(id);
     if (!lesson)
       return res.status(404).json({ ok: false, error: "Lesson not found" });
@@ -159,13 +162,14 @@ export default async function handler(req, res) {
       const result = await bookLesson(
         id,
         lesson.school_id,
-        normalizedName,
+        session.role === "student" ? [session.name, session.familyName].filter(Boolean).join(" ") : normalizedName,
         normalizedEmail,
+        session.role === "student" ? session.userId : null,
       );
       if (!result) {
         return res
-          .status(500)
-          .json({ ok: false, error: "Failed to create booking" });
+          .status(409)
+          .json({ ok: false, error: "Could not book this lesson. Please contact the school." });
       }
 
       if (result.outcome === "full") {
@@ -204,6 +208,7 @@ export default async function handler(req, res) {
         SELECT id
         FROM students
         WHERE school_id = ${lesson.school_id} AND email = ${normalizedEmail} AND deleted_at IS NULL
+          AND (${session.role !== "student"} OR user_id IS NULL OR user_id = ${session.userId}::uuid)
         LIMIT 1
       `;
       const student = students[0];
@@ -229,6 +234,6 @@ export default async function handler(req, res) {
     console.error("bookings error:", e);
     return res
       .status(500)
-      .json({ ok: false, error: e?.message || "Server error" });
+      .json({ ok: false, error: "Could not update the booking. Please try again." });
   }
 }

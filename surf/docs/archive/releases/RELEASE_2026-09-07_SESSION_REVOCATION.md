@@ -1,5 +1,7 @@
 # Revocable sessions – 7 September 2026
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 The owner authorised implementation and staging verification, then production deployment if staging passed. Application revision: `aa695a964c362e53712a5990a305ee2174e6d818` (session implementation `06db155`, followed by profile spacing). Both environments are deployed and verified. Follow-up documentation and verification-script commits preserve this application revision.
 
 ## Behaviour
@@ -16,7 +18,7 @@ The workspace refreshes account information on navigation, focus, visibility cha
 
 ## Database and rollout
 
-Apply [the additive migration](../db/migrations/20260907_revocable_sessions.sql) before the application deployment in each environment. It adds `users.auth_version`, `users.disabled_at`, `auth_sessions`, two indexes and an invalidation trigger. The canonical schema contains the same migration. No password, signing-secret or business-data replacement is needed.
+Apply [the additive migration](../../../db/migrations/20260907_revocable_sessions.sql) before the application deployment in each environment. It adds `users.auth_version`, `users.disabled_at`, `auth_sessions`, two indexes and an invalidation trigger. The canonical schema contains the same migration. No password, signing-secret or business-data replacement is needed.
 
 Rehearsal branch: `br-morning-glade-adu8v769`, cloned from production in Neon project `shy-paper-68550619`. Applying the migration twice passed and preserved the existing user count. Thirteen database integration scenarios and two concurrent login/logout scenarios passed; all test records were rolled back or removed. The rehearsal branch is retained for repeatable checks; it is not connected to either app. Staging migration preserved its five pre-existing users. Production migration preserved all nine users present during verification, including four disposable test accounts.
 
@@ -33,7 +35,7 @@ Do not remove the additive schema during rollback. A return to the old stateless
 - Production: the same 13 API scenarios passed. Desktop and mobile student login, Conditions, My profile and logout-everywhere passed; HttpOnly cookies were not visible to page JavaScript. Production deployment: `dpl_J9LhMTb81ZG6qe82G33GBMzaJcDC`. The logs contain the expected 403 denials from cross-school tests, with no unexpected application failures. Mobile checks are browser emulation, not a physical iPhone.
 - All disposable staging and production fixtures were removed. Original user counts returned to five in each environment; the shared teststudent account remains active with student rights. No existing user was disabled, deleted or given another role by the verification scripts. Production cleanup required an additional explicit owner approval after automatic review rejected irreversible fixture removal; that approval was received, dependencies were checked and the scoped cleanup completed.
 
-Repeatable checks: [database rehearsal](../scripts/check-revocable-sessions.mjs), [concurrency check](../scripts/check-session-concurrency.mjs) and [deployed API verification](../scripts/check-session-release.mjs). They require explicit private connection files and create only disposable fixtures. Keep those files outside Git, remove fixtures after browser verification and delete the local credential files.
+Repeatable checks: [database rehearsal](../../../scripts/check-revocable-sessions.mjs), [concurrency check](../../../scripts/check-session-concurrency.mjs) and [deployed API verification](../../../scripts/check-session-release.mjs). They require explicit private connection files and create only disposable fixtures. Keep those files outside Git, remove fixtures after browser verification and delete the local credential files.
 
 ## Remaining work
 

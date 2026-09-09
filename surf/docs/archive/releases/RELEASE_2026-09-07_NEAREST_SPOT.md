@@ -1,5 +1,7 @@
 # Nearest spot selection, 7 September 2026
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 The owner requested verification of Nearest to me. Distance sorting worked, but a fresh Conditions page still selected the first alphabetical spot while the dropdown put the nearest spot first. This did not fulfil the earlier request to open the nearest spot automatically.
 
 Application revision `c02da003ec56376750ff0620eef2e264a601fb9f` corrects initial selection. Conditions opts into a one-time callback from the shared picker after a successful location result. An explicit spot link takes precedence. A manual selection immediately prevents a late location result from replacing it. Switching sorting or updating location preserves the chosen spot. A requested forecast date is retained. Lesson forms do not opt into automatic selection.

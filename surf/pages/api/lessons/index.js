@@ -1,7 +1,7 @@
 import { requireMutation } from '../../../lib/request-security.mjs';
 // /pages/api/lessons/index.js
 import { sql } from "lib/db";
-import { getAuthSession, requireAuth } from "../../../lib/auth";
+import { requireAuth } from "../../../lib/auth";
 import { validateLesson } from "../../../lib/lesson-input.mjs";
 
 /**
@@ -10,6 +10,7 @@ import { validateLesson } from "../../../lib/lesson-input.mjs";
  */
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
+  if (!(await requireAuth(req, res, { roles: req.method === "GET" ? ["school_admin", "coach", "student"] : ["school_admin"] }))) return;
   if (req.method === "GET") {
     return getLessons(req, res);
   }
@@ -49,16 +50,10 @@ async function getLessons(req, res) {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
-    if (
-      !(await requireAuth(req, res, {
-        roles: ["admin", "school_admin", "coach", "student"],
-        schoolId,
-      }))
-    )
-      return;
-    const session = await getAuthSession(req);
+    const session = await requireAuth(req, res, { schoolId });
+    if (!session) return;
 
-    let rows = await sql`
+    const rows = await sql`
       SELECT
         l.id,
         l.school_id,
@@ -72,7 +67,9 @@ async function getLessons(req, res) {
         sp.active AS spot_active,
         l.capacity,
         COALESCE(
-          (SELECT lc.coaches FROM lesson_coach_list lc WHERE lc.lesson_id = l.id),
+          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', c.id, 'name', c.name))
+           FROM lesson_coaches lc JOIN coaches c ON c.id = lc.coach_id
+           WHERE lc.lesson_id = l.id AND c.school_id = l.school_id AND c.deleted_at IS NULL),
           '[]'::json
         ) AS coaches,
         COALESCE(
@@ -87,27 +84,23 @@ async function getLessons(req, res) {
             FROM bookings b
             JOIN students s ON s.id = b.student_id
             WHERE b.lesson_id = l.id AND b.status = 'booked'
+              AND s.school_id = l.school_id AND s.deleted_at IS NULL
+              AND (${session.role !== 'student'} OR
+                (s.user_id = ${session.userId}::uuid OR
+                 (s.user_id IS NULL AND lower(s.email) = ${session.email?.toLowerCase() || ''})))
           ),
           '[]'::json
         ) AS attendees
       FROM lessons l
       LEFT JOIN surf_spots sp ON sp.id = l.spot_id
       WHERE l.school_id = ${schoolId} AND l.deleted_at IS NULL
+        AND (${session.role !== 'coach'} OR EXISTS (
+          SELECT 1 FROM lesson_coaches lc JOIN coaches c ON c.id = lc.coach_id
+          WHERE lc.lesson_id = l.id AND c.school_id = l.school_id
+            AND c.user_id = ${session.userId}::uuid AND c.deleted_at IS NULL
+        ))
       ORDER BY l.start_at ASC;
     `;
-
-    if (session?.role === "coach") {
-      const assigned = await sql`
-        SELECT lc.lesson_id
-        FROM lesson_coaches lc
-        JOIN coaches c ON c.id = lc.coach_id
-        WHERE c.school_id = ${schoolId}
-          AND c.user_id = ${session.userId}
-          AND c.deleted_at IS NULL
-      `;
-      const assignedLessonIds = new Set(assigned.map((row) => row.lesson_id));
-      rows = rows.filter((row) => assignedLessonIds.has(row.id));
-    }
 
     const data = rows.map((r) => ({
       id: r.id,
@@ -123,12 +116,7 @@ async function getLessons(req, res) {
       capacity: r.capacity,
       bookedCount: r.booked_count,
       coaches: r.coaches || [],
-      attendees:
-        session?.role === "student"
-          ? (r.attendees || []).filter(
-              (p) => p.email?.toLowerCase() === session.email?.toLowerCase(),
-            )
-          : r.attendees || [],
+      attendees: r.attendees || [],
     }));
 
     res.status(200).json({ ok: true, data });
@@ -136,7 +124,6 @@ async function getLessons(req, res) {
     res.status(500).json({
       ok: false,
       error: "Server error",
-      detail: err?.detail || err?.message,
     });
   }
 }

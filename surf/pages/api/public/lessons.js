@@ -15,6 +15,13 @@ export default async function handler(req, res) {
     if (!school)
       return res.status(400).json({ ok: false, error: "Missing school" });
 
+    for (const date of [from, to]) {
+      if (date !== undefined && (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date + 'T00:00:00Z')) || new Date(date + 'T00:00:00Z').toISOString().slice(0, 10) !== date))
+        return res.status(400).json({ ok: false, error: 'Use a valid date in YYYY-MM-DD format.' });
+    }
+    if (difficulty !== undefined && !['Beginner', 'Intermediate', 'Advanced'].includes(difficulty))
+      return res.status(400).json({ ok: false, error: 'Choose a valid lesson level.' });
+
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
         school,
@@ -57,12 +64,11 @@ export default async function handler(req, res) {
         sp.timezone AS spot_timezone,
         l.difficulty,
         l.capacity,
-        COALESCE(lc.coaches, '[]'::json) AS coaches,
+        COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('id', c.id, 'name', c.name)) FROM lesson_coaches lc JOIN coaches c ON c.id = lc.coach_id WHERE lc.lesson_id = l.id AND c.school_id = l.school_id AND c.deleted_at IS NULL), '[]'::json) AS coaches,
         COALESCE(ls.booked_count, 0) AS booked_count,
         COALESCE(ls.spots_left, 0) AS spots_left
       FROM lessons l
       JOIN surf_spots sp ON sp.id=l.spot_id AND sp.active=true
-      LEFT JOIN lesson_coach_list lc ON lc.lesson_id = l.id
       LEFT JOIN lesson_stats ls ON ls.lesson_id = l.id
       ${where}
       ORDER BY l.start_at ASC
@@ -90,10 +96,6 @@ export default async function handler(req, res) {
     console.error("public lessons api error:", err);
     return res
       .status(500)
-      .json({ ok: false, error: "Server error", detail: cleanErr(err) });
+      .json({ ok: false, error: "Could not load lessons. Please try again." });
   }
-}
-
-function cleanErr(e) {
-  return e?.detail || e?.message || String(e);
 }

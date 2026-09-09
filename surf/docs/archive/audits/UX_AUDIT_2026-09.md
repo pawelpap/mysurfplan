@@ -1,5 +1,7 @@
 # MyWavePlan UX and development audit
 
+> Archive status: Historical audit. Findings describe the app at the review date; use the roadmap for remaining work and release records for resolved items. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Reviewed on 5 September 2026. Scope: repository source and plans, authenticated production and staging workspaces, public school schedules, Figma designs, GitHub configuration, Vercel projects and Neon schemas. This is a product and code review, not a penetration test.
 
 ## Main finding
@@ -96,7 +98,7 @@ The current Conditions screen was reviewed against the workspace design and the 
 
 Retain the existing Poppins typography, sea-colour actions, neutral surfaces, border radii and spacing language. Quality, experience, energy and water remain visually consistent with the other metrics. Selection/focus styling identifies interactive state. No forecast formula or spot calibration changes are part of this review.
 
-The combined candidate was reviewed on staging and explicitly approved for production on 6 September 2026. It is now deployed in both environments; see [release verification](RELEASE_2026-09-06_PRESENTATION.md). Future changes still require staging review and explicit production approval.
+The combined candidate was reviewed on staging and explicitly approved for production on 6 September 2026. It is now deployed in both environments; see [release verification](../releases/RELEASE_2026-09-06_PRESENTATION.md). Future changes still require staging review and explicit production approval.
 
 
 ## Appearance and spot-order follow-up, 6 September 2026

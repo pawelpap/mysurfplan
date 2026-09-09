@@ -4,18 +4,18 @@ Surf school lesson and booking management built with Next.js Pages Router, React
 
 Use Node.js 22 (`.nvmrc`). Install dependencies with `npm ci`. Configure `DATABASE_URL` and `SESSION_SECRET` in a local, ignored `.env.local`, using the staging database for development. Run `npm run dev`, `npm test` and `npm run build` from this directory.
 
-## Current work
+## Documentation and current work
 
 The approved conditions layout, device-based light/dark appearance, colour-coded quality tiles and automatic nearest-spot ordering are live on https://mywaveplan.com and https://staging.mywaveplan.com. Production follows `main`; staging follows `staging`. Future changes must be reviewed on staging and explicitly approved before production.
 
-- [Current development plan](docs/DEVELOPMENT_PLAN.md)
-- [Current handover and release status](docs/HANDOVER.md)
-- [Revocable sessions and migration, 7 September 2026](docs/RELEASE_2026-09-07_SESSION_REVOCATION.md)
-- [Add MyWavePlan to a phone home screen](docs/HOME_SCREEN.md)
-- [Conditions presentation release, 6 September 2026](docs/RELEASE_2026-09-06_PRESENTATION.md)
-- [September UX and development audit](docs/UX_AUDIT_2026-09.md)
-- [Staging environment](docs/README-staging.md)
-- [Previous plan and history](docs/DEVELOPMENT_PLAN_ARCHIVE_2026-06.md)
+- [Start here: documentation index](docs/README.md)
+- [Current handover and latest recorded release](docs/HANDOVER.md)
+- [Current implementation roadmap: tasks, effort and launch gates](docs/IMPLEMENTATION_ROADMAP.md)
+- [Current product development plan](docs/DEVELOPMENT_PLAN.md)
+- [Local setup, staging and production](docs/ENVIRONMENTS.md)
+- [Historical plans, releases, audits and calibration evidence](docs/archive/README.md)
+
+The roadmap is the canonical remaining task list; the product plan explains its direction. The next coding task is A1, school access and privacy checks. Global registration, EU migration and localisation remain planned work. Use the handover for current status rather than an older release record.
 
 The app can also be added to a phone home screen, including iPhone, with the MyWavePlan wave icon and a standalone launch into Conditions. Browser-tab icons are supplied in SVG and ICO formats.
 

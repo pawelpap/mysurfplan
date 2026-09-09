@@ -1,3 +1,4 @@
+import { isPlatformAdmin, isUuid, permitsSchoolFilter } from '../../../lib/school-access.mjs';
 import { requireMutation } from '../../../lib/request-security.mjs';
 import { sql } from '../../../lib/db';
 import {
@@ -11,10 +12,6 @@ import {
 } from '../../../lib/auth';
 
 const USER_ROLES = new Set(['platform_admin', 'school_admin', 'coach', 'student']);
-
-function isPlatformAdmin(session) {
-  return session?.role === 'platform_admin' || session?.role === 'admin';
-}
 
 function cleanUser(row) {
   return {
@@ -44,15 +41,11 @@ async function getEditableUser(id, session) {
     FROM users u
     LEFT JOIN schools s ON s.id = u.school_id
     WHERE u.id = ${id} AND u.deleted_at IS NULL
+      AND (${isPlatformAdmin(session)} OR (u.school_id = ${session.schoolId}::uuid AND u.role::text NOT IN ('admin', 'platform_admin')))
     LIMIT 1
   `;
   const user = rows[0];
   if (!user) return null;
-  if (!isPlatformAdmin(session) && user.school_id !== session.schoolId) {
-    const err = new Error('Forbidden');
-    err.statusCode = 403;
-    throw err;
-  }
   return user;
 }
 
@@ -66,8 +59,8 @@ async function resolveTargetSchool(session, school, role) {
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
   const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ ok: false, error: 'Missing user id' });
+  if (!isUuid(id)) {
+    return res.status(400).json({ ok: false, error: 'Invalid user id' });
   }
 
   try {
@@ -82,19 +75,23 @@ export default async function handler(req, res) {
 
     if (req.method === 'DELETE') {
       if (id.toLowerCase() === session.userId) return res.status(400).json({ ok: false, error: 'You cannot deactivate your own account here.' });
-      if (!isPlatformAdmin(session) && existing.role === 'platform_admin') {
+      if (!isPlatformAdmin(session) && isPlatformAdmin(existing)) {
         return res.status(403).json({ ok: false, error: 'Forbidden' });
       }
-      await sql`
+      const deleted = await sql`
         UPDATE users
         SET deleted_at = now(), updated_at = now()
-        WHERE id = ${id}
+        WHERE id = ${id} AND deleted_at IS NULL
+          AND (${isPlatformAdmin(session)} OR (school_id = ${session.schoolId}::uuid AND role::text NOT IN ('admin', 'platform_admin')))
+        RETURNING id
       `;
+      if (!deleted.length) return res.status(404).json({ ok: false, error: 'User not found' });
       return res.status(200).json({ ok: true, data: { id, deleted: true } });
     }
 
     if (req.method === 'PUT' || req.method === 'PATCH') {
       const body = req.body || {};
+      if (!permitsSchoolFilter(session, body.school)) return res.status(403).json({ ok: false, error: 'Forbidden for this school' });
       if (body.disabled !== undefined && typeof body.disabled !== 'boolean') {
         return res.status(400).json({ ok: false, error: 'Invalid account status' });
       }
@@ -125,7 +122,7 @@ export default async function handler(req, res) {
       if (!nextFamilyName) return res.status(400).json({ ok: false, error: 'Family name is required' });
       if (!nextEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
       if (!USER_ROLES.has(nextRole)) return res.status(400).json({ ok: false, error: 'Invalid role' });
-      if (!isPlatformAdmin(session) && (nextRole === 'platform_admin' || existing.role === 'platform_admin')) {
+      if (!isPlatformAdmin(session) && (nextRole === 'platform_admin' || isPlatformAdmin(existing))) {
         return res.status(403).json({ ok: false, error: 'Forbidden' });
       }
 
@@ -151,9 +148,11 @@ export default async function handler(req, res) {
               disabled_at = CASE WHEN ${body.disabled !== undefined} THEN ${disabledAt}::timestamptz ELSE disabled_at END,
               password_hash = ${passwordHash},
               updated_at = now()
-          WHERE id = ${id}
+          WHERE id = ${id} AND deleted_at IS NULL
+          AND (${isPlatformAdmin(session)} OR (school_id = ${session.schoolId}::uuid AND role::text NOT IN ('admin', 'platform_admin')))
           RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
         `;
+        if (!rows.length) return res.status(404).json({ ok: false, error: 'User not found' });
         return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
       }
 
@@ -169,9 +168,11 @@ export default async function handler(req, res) {
             role = ${nextRole},
               disabled_at = CASE WHEN ${body.disabled !== undefined} THEN ${disabledAt}::timestamptz ELSE disabled_at END,
             updated_at = now()
-        WHERE id = ${id}
+        WHERE id = ${id} AND deleted_at IS NULL
+          AND (${isPlatformAdmin(session)} OR (school_id = ${session.schoolId}::uuid AND role::text NOT IN ('admin', 'platform_admin')))
         RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
       `;
+      if (!rows.length) return res.status(404).json({ ok: false, error: 'User not found' });
       return res.status(200).json({ ok: true, data: cleanUser(rows[0]) });
     }
 
@@ -182,6 +183,6 @@ export default async function handler(req, res) {
     if (err?.code === '23505') {
       return res.status(409).json({ ok: false, error: 'User already exists' });
     }
-    return res.status(err?.statusCode || 500).json({ ok: false, error: err?.message || 'Server error' });
+    return res.status(500).json({ ok: false, error: 'Could not update or load users. Please try again.' });
   }
 }

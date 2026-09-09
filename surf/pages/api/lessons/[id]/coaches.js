@@ -1,3 +1,4 @@
+import { isUuid } from '../../../../lib/school-access.mjs';
 import { requireMutation } from '../../../../lib/request-security.mjs';
 // surf/pages/api/lessons/[id]/coaches.js
 import { sql } from "lib/db";
@@ -6,8 +7,8 @@ import { requireAuth } from "../../../../lib/auth";
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
   const { id } = req.query;
-  if (!id || typeof id !== "string") {
-    return res.status(400).json({ ok: false, error: "Missing lesson id" });
+  if (!isUuid(id)) {
+    return res.status(400).json({ ok: false, error: "Invalid lesson id" });
   }
 
   if (req.method !== "PUT") {
@@ -16,11 +17,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!(await requireAuth(req, res, { roles: ["school_admin"] }))) return;
     const { coachIds } = req.body || {};
-    if (!Array.isArray(coachIds)) {
+    if (!Array.isArray(coachIds) || coachIds.some(id => !isUuid(id))) {
       return res
         .status(400)
-        .json({ ok: false, error: "coachIds must be an array" });
+        .json({ ok: false, error: "Choose valid instructors from this school" });
     }
 
     const lessonRows = await sql`
@@ -76,7 +78,6 @@ export default async function handler(req, res) {
       .json({
         ok: false,
         error: "Server error",
-        detail: err?.detail || err?.message,
       });
   }
 }

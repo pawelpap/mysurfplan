@@ -1,12 +1,14 @@
 # Forecast calibration and tile cleanup, 7 September 2026
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 The owner approved promotion of the reviewed staging spot data to production and removal of unclear forecast reminders. Both environments now serve application revision `428d35f3c2b4b03bec3d95edff4f806945e2690f` with matching spots, calibrations and disposable test lesson data. Documentation-only follow-up commits do not change this tested runtime.
 
 ## Changes
 
 Removed “Long-range” from daily tiles and the conditional selected-day confidence/outlook reminder. No probability, replacement label or new forecast calculation was added. Quality colours, experience levels, all forecast parameters and the existing Forecast guide remain available.
 
-The data review revised 16 existing spots, added Praia da Torre and removed generic São Pedro do Estoril. Bico and Bafureira remain separate, with their individual tide and swell behaviour. All calibration settings use the existing generic database schema v3. Sources, exact coefficients, limitations and staging scenario tests are in the [local calibration review](calibration/2026-09-07-local-review/README.md). No further numerical tuning was performed during promotion. The settings remain provisional estimates, not verified accuracy claims.
+The data review revised 16 existing spots, added Praia da Torre and removed generic São Pedro do Estoril. Bico and Bafureira remain separate, with their individual tide and swell behaviour. All calibration settings use the existing generic database schema v3. Sources, exact coefficients, limitations and staging scenario tests are in the [local calibration review](../calibration/2026-09-07-local-review/README.md). No further numerical tuning was performed during promotion. The settings remain provisional estimates, not verified accuracy claims.
 
 Production was updated transactionally at `2026-09-07T20:11:01.157Z`, with version guards, configuration validation and calibration history entries. The owner had confirmed that all lesson data was disposable and requested parity with staging. Six production-only test lessons were removed, including the five attached to generic São Pedro. The remaining lesson, booking and coach-assignment records were synchronised with staging.
 
@@ -27,7 +29,7 @@ Spot IDs, metadata, active flags, calibration configurations, versions, schema/p
 - The test student could read forecasts, could not modify spots (403), and received 404 for deleted generic São Pedro. Verification logged out only its own temporary API sessions.
 - Chrome checks at 1710 px and mobile emulation at 390 × 844 px confirmed 16 coloured tiles, no removed labels, no document overflow and no reminder on a selected later forecast day. Production browser error logs were empty. This is browser emulation, not a physical iPhone test.
 - Deployment-scoped error/fatal runtime log checks returned no entries in either environment during verification.
-- Independent post-transaction database checks confirmed semantic parity for spots, lessons, bookings and coach assignments. The [promotion receipt and compact live results](calibration/2026-09-07-local-review/production-release.json) record the verified counts and versions without account or lesson contents.
+- Independent post-transaction database checks confirmed semantic parity for spots, lessons, bookings and coach assignments. The [promotion receipt and compact live results](../calibration/2026-09-07-local-review/production-release.json) record the verified counts and versions without account or lesson contents.
 
 ## Deployments and rollback
 

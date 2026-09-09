@@ -1,5 +1,7 @@
 # Conditions layout, appearance and nearest spots
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Released to production on 6 September 2026 after the owner tested staging and explicitly approved deployment. The same approved application runs in both environments. A documentation-only follow-up records completion and keeps `main` and `staging` together.
 
 ## Release references
@@ -38,4 +40,4 @@ No migration, database copy, calibration adjustment or forecast-model change was
 
 To roll back this presentation release, redeploy the previous production application reference above through the normal release process while retaining the current production database. Do not restore an old database or overwrite newer business activity to roll back UI code. Review subsequent application changes before resetting a Git branch or deployment.
 
-The owner approval completes this release only. Future work must be deployed and verified on staging, then explicitly approved before production. Current operating instructions are in [the handover](HANDOVER.md) and [development plan](DEVELOPMENT_PLAN.md).
+The owner approval completes this release only. Future work must be deployed and verified on staging, then explicitly approved before production. Current operating instructions are in [the handover](../../HANDOVER.md) and [development plan](../../DEVELOPMENT_PLAN.md).

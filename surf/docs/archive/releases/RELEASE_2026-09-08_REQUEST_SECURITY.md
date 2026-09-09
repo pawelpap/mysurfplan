@@ -1,5 +1,7 @@
 # Login and request security, 8 September 2026
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Runtime revision: `76bdcb73ae4713d913a2dd3ccc337a8781da5d07`.
 
 The owner authorised implementation, staging deployment and testing, then production if staging passed. Both environments now run this revision. Forecast calculations, spot calibrations, design, existing passwords and signing secrets were preserved.
@@ -20,7 +22,7 @@ When Origin is absent, a client must provide `X-MyWavePlan-Request: 1`. The shar
 
 ## Migration and rollout
 
-The additive migration [20260908_login_limits.sql](../db/migrations/20260908_login_limits.sql) creates auth_login_limits and its expiry index. Apply it before deploying this runtime against any older database.
+The additive migration [20260908_login_limits.sql](../../../db/migrations/20260908_login_limits.sql) creates auth_login_limits and its expiry index. Apply it before deploying this runtime against any older database.
 
 Rehearsal used existing isolated branch `br-morning-glade-adu8v769`, which is not connected to either live app. Neon refused another branch because the branch limit was full. The migration was then applied separately to staging `br-small-salad-adx0nsj2` and production `br-weathered-silence-adp30k9s` in project `shy-paper-68550619`. No business database was copied. The production migration preserved all five users.
 
@@ -43,7 +45,7 @@ Documentation and verification-script follow-ups do not change runtime behaviour
 
 Dedicated test users and schools were removed after verification. Rate counters expire through the normal policy; test cleanup does not clear real users' limits. Browser test sessions use the existing session expiry policy. The user's existing browser tabs and account sessions were preserved; temporary test tabs were closed and viewport overrides reset.
 
-Scripts: [database rehearsal](../scripts/check-login-limits.mjs), [live release check](../scripts/check-request-security-release.mjs). The live verifier requires an explicit environment, a private connection file at `/private/tmp/mwp-security-ENV-url`, and separate check/cleanup commands. It creates disposable records and must not be run as a read-only health check. Never commit connection files or fixture state.
+Scripts: [database rehearsal](../../../scripts/check-login-limits.mjs), [live release check](../../../scripts/check-request-security-release.mjs). The live verifier requires an explicit environment, a private connection file at `/private/tmp/mwp-security-ENV-url`, and separate check/cleanup commands. It creates disposable records and must not be run as a read-only health check. Never commit connection files or fixture state.
 
 ## Rollback and remaining work
 

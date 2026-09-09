@@ -1,5 +1,7 @@
 # MyWavePlan Development Plan
 
+> Archive status: Superseded plan. Kept for historical context; its priorities and status are no longer current. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Last updated: 2026-06-09
 
 This file is the persistent working plan for the app. Update it after each meaningful code change so a future session can resume without relying on chat context.

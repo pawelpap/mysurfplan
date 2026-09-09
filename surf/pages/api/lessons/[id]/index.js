@@ -13,6 +13,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
   try {
+    if (!(await requireAuth(req, res, { roles: ["school_admin"] }))) return;
     const [lesson] =
       await sql`SELECT id, school_id FROM lessons WHERE id = ${id} AND deleted_at IS NULL LIMIT 1`;
     if (!lesson)
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     )
       return;
     if (req.method === "DELETE") {
-      await sql`UPDATE lessons SET deleted_at = now(), updated_at = now() WHERE id = ${id}`;
+      await sql`UPDATE lessons SET deleted_at = now(), updated_at = now() WHERE id = ${id} AND school_id = ${lesson.school_id} AND deleted_at IS NULL`;
       return res.status(200).json({ ok: true });
     }
     let input;
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
         });
     const rows = await sql`
       UPDATE lessons SET start_at = ${startAt}, duration_min = ${durationMin}, difficulty = ${difficulty}, place = ${place}, spot_id = ${spotId}, capacity = ${capacity}, updated_at = now()
-      WHERE id = ${id} AND deleted_at IS NULL
+      WHERE id = ${id} AND school_id = ${lesson.school_id} AND deleted_at IS NULL
         AND (${capacity}::integer IS NULL OR ${capacity}::integer >= (SELECT count(*) FROM bookings WHERE lesson_id = ${id} AND status = 'booked'))
       RETURNING id, start_at, duration_min, difficulty, place, capacity
     `;

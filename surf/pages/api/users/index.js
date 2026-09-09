@@ -1,3 +1,4 @@
+import { isPlatformAdmin, permitsSchoolFilter } from '../../../lib/school-access.mjs';
 import { requireMutation } from '../../../lib/request-security.mjs';
 import { sql } from '../../../lib/db';
 import {
@@ -11,10 +12,6 @@ import {
 } from '../../../lib/auth';
 
 const USER_ROLES = new Set(['platform_admin', 'school_admin', 'coach', 'student']);
-
-function isPlatformAdmin(session) {
-  return session?.role === 'platform_admin' || session?.role === 'admin';
-}
 
 function cleanUser(row) {
   return {
@@ -50,6 +47,7 @@ export default async function handler(req, res) {
       if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
       const session = await getAuthSession(req);
       const school = Array.isArray(req.query.school) ? req.query.school[0] : req.query.school;
+      if (!permitsSchoolFilter(session, school)) return res.status(403).json({ ok: false, error: 'Forbidden for this school' });
 
       let rows;
       if (isPlatformAdmin(session)) {
@@ -95,6 +93,7 @@ export default async function handler(req, res) {
       if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
       const session = await getAuthSession(req);
       const { name, familyName, family_name, photoUrl, photo_url, description, email, phone, role, school, password } = req.body || {};
+      if (!permitsSchoolFilter(session, school)) return res.status(403).json({ ok: false, error: 'Forbidden for this school' });
       const trimmedName = typeof name === 'string' ? name.trim() : '';
       const trimmedFamilyName =
         typeof familyName === 'string'
@@ -147,6 +146,6 @@ export default async function handler(req, res) {
     if (err?.code === '23505') {
       return res.status(409).json({ ok: false, error: 'User already exists' });
     }
-    return res.status(err?.statusCode || 500).json({ ok: false, error: err?.message || 'Server error' });
+    return res.status(500).json({ ok: false, error: 'Could not update or load users. Please try again.' });
   }
 }

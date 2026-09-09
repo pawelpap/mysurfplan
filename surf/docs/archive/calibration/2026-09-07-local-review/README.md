@@ -1,6 +1,8 @@
 # Local spot calibration review, 7 September 2026
 
-Initially applied to staging at 19:45 UTC. The owner subsequently approved production promotion, completed at 20:11 UTC. Both environments now have the reviewed spot configurations. See [production release, parity and verification](../../RELEASE_2026-09-07_FORECAST_CALIBRATION.md). The calibration review itself used the existing generic schema v3 with no application code, shared default profile or provider integration change. A separate approved tile-copy cleanup was deployed with the production promotion.
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../../HANDOVER.md) and [current roadmap](../../../IMPLEMENTATION_ROADMAP.md).
+
+Initially applied to staging at 19:45 UTC. The owner subsequently approved production promotion, completed at 20:11 UTC. Both environments now have the reviewed spot configurations. See [production release, parity and verification](../../releases/RELEASE_2026-09-07_FORECAST_CALIBRATION.md). The calibration review itself used the existing generic schema v3 with no application code, shared default profile or provider integration change. A separate approved tile-copy cleanup was deployed with the production promotion.
 
 Staging now has 17 active spots: 16 existing spots revised, Praia da Torre added and generic São Pedro do Estoril deleted. The five lessons linked to generic São Pedro were explicitly confirmed as disposable test data. Their five bookings and three coach assignments were removed by the existing foreign-key cascades. The seven other lessons were preserved. Generic São Pedro's configuration and calibration history are backed up here; disposable lesson records are not retained.
 

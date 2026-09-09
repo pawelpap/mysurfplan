@@ -1,0 +1,280 @@
+# Implementation roadmap to launch
+
+Document role: **current and canonical implementation task list**. [Docs index](README.md) · [Current handover](HANDOVER.md). Older plans and dated evidence are in the [archive](archive/README.md).
+
+Updated 9 September 2026. The owner accepted the [registration and membership design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) and requested an implementation plan covering the remaining work. This file is the delivery backlog, effort estimate and release sequence. The [development plan](DEVELOPMENT_PLAN.md) retains the product/commercial rationale; the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) describes payments, entitlements and privacy domains. The [expansion assessment](PRODUCT_EXPANSION_ASSESSMENT.md) evaluates student progress, reviews, forecast accuracy, other service providers, advertising and mobile apps.
+
+Status: planning complete; all remaining implementation items below are open. Acceptance of the design is not a claim that registration is implemented or that prices, contracts, provider accounts and production releases have been approved. Existing forecast/design and deployed authentication protections remain the baseline.
+
+## Accepted decisions
+
+- One personal user account, independent of schools. No compulsory permanent surfer/instructor/owner account type.
+- Multiple school memberships; administrator and instructor roles can coexist at the same school. School ownership and platform authority are separate.
+- Create a draft school before checkout. Activate a trial explicitly; subscription access belongs to the school and does not grant staff roles.
+- Invite instructors/admins into school-scoped access. Existing accounts accept invitations; new people register through the same flow. A join request alone grants no access.
+- School admins manage school access and operational records, not global passwords, personal consent or global account status.
+- Preserve IDs, history, personal bookings, current session security and forecast behaviour during migration. Staff removal or school closure must not delete the global account.
+- Keep the current forecast useful and free for surfers. Public access, personal preferences and paid feature access are separate controls. Publish only shipped features in plans.
+- Use EU storage as the preferred starting policy for the Portuguese market. A8 selects the exact region and records storage/processing coverage before provider provisioning and real self-service onboarding; this preference does not itself migrate today's database.
+- Launch the pilot with a language switcher and complete English, European Portuguese (`pt-PT`) and Spanish journeys. Prepare French as an optional fourth language. A9 provides the shared framework before new flows; B10 completes translation and verification before G1. Language choice does not change school, timezone, currency or market availability.
+- Defer paid services required solely for commercial use until immediately before the first activity requiring them. Keep a lightweight permitted-use check early; technical capacity, security and recovery needs remain prerequisites when they arise. L1 records commercial activation separately from A5/A7 preparation.
+
+Final prices, trial/grace values, provider/merchant configuration and reviewed policies are launch decisions in the tasks below. The previous €39 school-plan and 30-day trial suggestions remain proposed catalogue values, not live configuration.
+
+The [small-launch cost estimate](LAUNCH_COST_ESTIMATE.md), checked 9 September, budgets approximately €70–100/month before tax and payment fees. The minimum configuration is €29/month for Open-Meteo Standard plus US$20/month for Vercel Pro, conditional on suitable free database/email/media tiers. A7 verifies technical consumption/recovery; L1 activates commercial-only services when required. This is a planning allowance, not a spending approval or fixed quote.
+
+## Estimates and labels
+
+**S**: a bounded decision, configuration or small change. **M**: a coherent feature or audit across several components/endpoints. **L**: a substantial migration, workflow or financial domain that must be split into smaller staging releases before coding. These are relative engineering estimates, not days, token budgets or fixed commitments. Re-estimate after the audit/provider decisions, and split L work into tasks small enough to review independently.
+
+Estimates include design, implementation, relevant automated tests, desktop/mobile checks, rollout preparation and documentation. Dedicated launch tasks cover cross-feature and operational acceptance, not a repeat of every unit test. External review, provider approval and user feedback can add waiting time outside engineering effort. Security findings or existing data conflicts can increase scope.
+
+**FE** = frontend/UI. **BE** = backend/API/jobs. **DB** = schema/data/migrations. **Ops** = hosting, provider/DNS configuration, monitoring or operating processes. **Business** = owner decisions, school validation and specialist review. DB can mean existing-table changes or data validation, not necessarily a new table.
+
+IDs are stable references for future development tasks. Dependencies identify what must be ready before completion, not an instruction to wait before starting all research/design. Shared acceptance requirements apply to every applicable item.
+
+## Launch gates
+
+| Gate | What can launch | Required work |
+| --- | --- | --- |
+| G1: controlled self-service pilot | Adults register; schools onboard; staff accept invitations; surfers find/book lessons and pay at the school, in English, European Portuguese or Spanish. Limited invited schools, no online payment claims. | A1–A9, B1–B10, C1–C4 and C7; L1 before any commercial pilot activity. Permitted non-commercial QA can precede L1 activation. Privacy/account controls and operational readiness still apply. French is optional. |
+| G2: paid school software | Schools buy MyWavePlan subscriptions; lesson payment can still happen at the school. | G1, C5–C6 and D1–D5; recheck L1 coverage for paid use. Analytics runs only after consent; tracking is not required to use the app. |
+| G3: online lesson payments | Approved pilot schools sell individual lessons in-app, followed by broader rollout after validation. | G2 and E1–E6; recheck L1 coverage for the payment pilot. Complete merchant, invoice, refund and reconciliation work before live charging. |
+| Later extensions | Packages, operations, feedback/progress, forecast evaluation, service providers, sponsorship and mobile capabilities. | The relevant F, V, R and M items. Any extension advertised at launch becomes a prerequisite for that launch. |
+
+A current internet deployment is not evidence that one of these broader readiness gates has passed. G1–G3 are future milestones. F/V/R/M are a prioritised opportunity backlog, not a commitment to implement every expansion. None blocks the core launch by default. Forecast archiving F14 and installable-web work M1 can start earlier when their dependencies permit; they do not change the next coding task, A1.
+
+## A. Foundation and launch responsibilities
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Audit/fix school boundaries, instructor/student privacy and public responses; remove production playground routes; isolate demo data | M | FE, BE, DB | None | Route/permission matrix, two-school ID/filter denial tests, minimal public payloads and a demo account that cannot reach customer-private data. |
+| A2 | Review and upgrade Next.js/dependencies to a supported security baseline | M | FE, BE, Ops | None | Version decision, dependency scan and compatible build/journey checks. No router rewrite unless required. |
+| A3 | Decide authentication, transactional email and background-job approach | S | BE, Ops | None | Written keep/migrate-auth decision; provider costs/regions reviewed; email sender/domain and durable retry approach specified. Reuse current auth if it meets verification/recovery/MFA needs; avoid a provider rewrite alongside membership migration. |
+| A4 | Resolve operator/privacy/contract, age-scope and invoice responsibilities | M | Business, Ops | None | Reviewed processing/retention inventory, operator contacts, processor agreements, adult-pilot rules and policy drafts. Resolve fiscal/merchant details again for each paid flow. |
+| A5 | Check permitted development use, data attribution and forecast-provider limits | S | BE, Ops, Business | None | Lightweight source/terms inventory, permitted test scope, storage/redistribution rules, required attribution and cache/rate limits. Record each commercial trigger for L1; no commercial subscription purchase is part of A5. |
+| A6 | Establish restore procedure, redacted monitoring, scheduled-job reliability and support/incident handling | M | BE, DB, Ops | A3 | Rehearsed restore without restoring erased data, alerts for auth/forecast/job failures, environment separation, secret handling and a named support route. Continue extending this as payments/media ship. |
+| A7 | Resolve technical capacity, recovery requirements, budgets and branch lifecycle | S | BE, DB, Ops, Business | A3 | [Live plan review](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) recorded: Hobby/Free, 10/10 branches. Verify quotas, reuse/retire approved rehearsal branches and choose sufficient tested recovery. Upgrade only for a documented technical/operational need at this stage; commercial-only upgrades move to L1. |
+| A8 | Finalise EU data-location policy, exact region and environment isolation; rehearse and execute the agreed migration | M | BE, DB, Ops, Business | A4, A7 | EU is the preferred launch target; recheck the last recorded Neon US location. Record database, recovery copies, media, runtime, logs and external-processor locations/access; choose region before provisioning. Verify staging first, then controlled production cutover, IDs/data, authentication, forecasts, restore and rollback before real signup/onboarding. Record any exception and expiry of old copies. |
+| A9 | Establish internationalisation framework, language switcher and preference storage | M | FE, BE, DB | A2, A3 | Shared message keys/catalogues and locale formatting; allowlisted English, pt-PT and Spanish, optional French. Accessible desktop/mobile selector works before and after login. Explicit selection persists, account preference follows the person across schools, browser language provides the initial default and English is the fallback. No language-dependent authorisation, duplicated forecast calculations or implicit timezone/currency changes. |
+
+A1 is the next coding task. A2–A5 and A7 discovery can be prepared independently. A5 is a lightweight compatibility check, not early commercial procurement. Resolve branch capacity before B1; complete any genuinely necessary technical purchase when its constraint arises. Start A8's location decision now alongside A1/A3/A4; settle the destination before provisioning and complete the rehearsed move before opening real self-service registration or school onboarding. A9 precedes new registration/discovery copy; B10 completes pilot-language coverage. Coding and permitted tests do not wait for commercial-only purchases in L1.
+
+## B. Global accounts, registration and privacy
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| B1 | Add membership, role and platform-authority schema; reconcile/backfill existing records and ownership | L | BE, DB | A1, A3 | Repeatable additive migration, ID/link counts, explicit ownership decisions, duplicate/claim report and rollback rehearsal. No inferred ownership from an old admin role. |
+| B2 | Move session/API/UI authorisation to global identity and school capabilities | L | FE, BE, DB | B1, A2 | No-school login, two-school access, combined admin/instructor and immediate suspension tests. School closure preserves personal/other-school access; legacy cascading user deletion removed safely. |
+| B3 | Self-registration, email verification, password recovery and personal profile | L | FE, BE, DB, Ops | B2, B6, A3, A9 | Verified signup, single-use expiry/replay checks, throttled recovery and reliable email delivery. Preserve lesson/invitation return context, language and existing username login. A8 must be complete before enabling real public registration. |
+| B4 | Staff invitations, independent roles, team administration, suspension and removal | L | FE, BE, DB | B3 | Owner/admin grant limits, matching verified identity, concurrent/replayed/expired invitation tests, revoked-inviter checks and unchanged personal bookings after removal. |
+| B5 | Draft-school creation, setup checklist, explicit publication, claiming and ownership transfer | L | FE, BE, DB | B4 | One-person school setup; no duplicate ownership grants; atomic owner transfer; unresolved legacy claims handled explicitly. Use bounded pilot access until D billing ships. |
+| B6 | Publish reviewed terms/privacy information; version acceptance and optional preferences | M | FE, BE, DB | A4 | Terms acceptance and notice delivery are separate; optional choices are off by default, withdrawable and versioned. Record minimal evidence. Must precede public signup. |
+| B7 | Secure photo uploads and storage lifecycle | M | FE, BE, DB, Ops | B2, A4 | Object storage holds images; Neon holds metadata. Authorised uploads, quotas, file validation, metadata stripping, thumbnails and orphan/replacement cleanup pass mobile tests. |
+| B8 | Account export/deletion, school closure and retention execution | L | FE, BE, DB, Ops | B5, B6, B7 | Own-data-only export; revocation, erasure/media/cache cleanup, ownership/closure paths and documented record-specific retention exceptions. Tested deletion tombstones after restore. |
+| B9 | Platform-admin MFA and sensitive-action reauthentication/recovery | M | FE, BE, DB, Ops | A3, B2 | MFA enforcement, safe recovery and recent-auth checks for ownership, security and payout-related actions; no self-signup path to platform authority. |
+| B10 | Complete English, European Portuguese and Spanish translation and language-switching QA for the pilot | L | FE, BE, DB, Ops | A9, B5, B6, B8, B9, C2, C4 | Reviewed interface, forecast labels, onboarding, account/privacy flows, lesson operations, validation/error/empty states and transactional emails in all three languages. Reviewed published legal documents retain exact language/version evidence. Mobile, keyboard, accents, text expansion, switching mid-flow and email return links pass; no missing keys or silent English gaps. Split into page/journey releases. French can follow when reviewed, without blocking G1. |
+
+B6 policy work can run before B1/B2. B3 must not open registration while B6 is missing. Invitation acceptance uses existing schools before B5 opens public school creation. During G1, requesting to join a school can use the invitation path; self-service join-request tooling is F10.
+
+A9 defines a nullable personal `preferred_locale` and a minimal functional device preference, separate from analytics consent and school membership. Use the currently selected language through signup, invitations and recovery; resolve an account/device conflict explicitly without overwriting a saved preference merely because a browser differs. Supported browser-language matching is documented; a Portuguese browser selects pt-PT for this initial release. Language names are English, Português, Español and Français when enabled, without country flags. B10 adds approved catalogues through the same mechanism; no schema change is needed merely to add a language. School-authored text and proper spot names remain as authored unless separate translations are supplied. Monetary amounts, lesson times and forecast calculations retain their underlying values. Subsequent C5/C6 and D/E/F/V/R/M work must ship in every enabled language. Additional markets remain F8.
+
+## C. Discovery, booking and pilot
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| C1 | Public forecast/spot links with bounded caching and abuse/cost controls | M | FE, BE, DB, Ops | A1, A5, A6, A9 | Forecast works without login, no private payloads, shared spot/date links, honest freshness/failure states and controlled provider load. Build/test within permitted scope; apply L1 before publication that constitutes commercial use. Preserve current parameters/design. |
+| C2 | Public school pages and forecast-to-lesson search | M | FE, BE, DB | C1, B5 | Search by spot/date/level, usable no-results alternatives and complete lesson details: instructor, price, capacity, duration, meeting point and terms. |
+| C3 | Cross-school personal bookings and booking integrity | L | FE, BE, DB | B3, C2 | Identity-linked customers, own-booking access, duplicate/capacity race tests, invitation-only eligibility and separately authorised staff booking-on-behalf. Pay-at-school status is explicit. |
+| C4 | Daily school/instructor operations: attendance, cancellations, weather rescheduling and confirmations | M | FE, BE, DB, Ops | B4, C3 | Assigned-instructor controls, customer/school cancellation rules, auditable attendance, reliable transactional emails and calendar links. Forecasts do not automatically cancel/certify lessons. |
+| C5 | Cookie/analytics consent banner and persistent settings | M | FE, BE, DB | B6 | Equally usable accept/reject, withdrawal, no optional tracking before consent and no replay of pre-consent events. Keep disabled if tracking is not yet installed. |
+| C6 | GTM, GA4, dataLayer events, Search Console and public SEO | M | FE, BE, Ops | C1, C2, C5 | Authorised account setup, consent-gated PII-free events, staging/demo exclusions, sanitised URLs, sitemap/canonicals and private/staging indexing protection. Measure acquisition and first useful action. |
+| C7 | Pilot acceptance, accessibility/mobile review and controlled release | L | FE, BE, DB, Ops, Business | A1–A9, B1–B10, C1–C4; L1 before commercial testing | End-to-end journeys in English, pt-PT and Spanish, desktop/mobile/light/dark/keyboard and physical iPhone checks, restore/support drill and blocker fixes. Complete permitted QA before paid activation; commercial pilot/release waits for L1 and verification of any changed provider configuration. |
+
+G1 may launch without C5/C6 only while optional tracking remains disabled. C6's technical foundation lands before G2; paid transaction events are implemented and checked with D/E, not invented in advance. Invite 3–5 schools as the existing pilot recommendation, subject to their availability.
+
+## L. Commercial-use activation at the first applicable release or test
+
+This checkpoint is scheduled by the activity, not by the date coding starts or the first Stripe charge. Prepare requirements and integration beforehand; complete necessary procurement/configuration with enough time to verify it immediately before the first use requiring commercial rights. If a proposed earlier test or the existing deployment already meets a provider's commercial definition, L1 is due then. A staging label, a free account or test-mode payment does not establish a licence exemption.
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| L1 | Activate required commercial licences/services before the first qualifying launch or test | S | BE, Ops, Business | A5, A7 | Per-service trigger/scope and current terms checked; exact plans/budgets approved; necessary commercial access activated and verified in each affected environment. Includes forecast APIs, hosting and any other commercial-use-only restrictions. Can record no purchase for a specific permitted test; new commercial activity requires a fresh coverage check. |
+
+| Activity | Timing rule |
+| --- | --- |
+| Local fixtures, offline development or permitted provider evaluation/prototyping | Continue under the applicable terms/quotas; no commercial-only purchase merely to start coding. Verify the deployed/provider-backed scope rather than assuming all development is exempt. |
+| Free business pilot, promotional demonstration, public offer or real school operations | Review against each provider's definition before starting. Complete L1 if triggered, even when no app subscription is charged. The planned school pilot is not presumed non-commercial. |
+| Paid subscriptions, live lesson payment tests, sponsored placements or vendor commercial pilots | Recheck/complete L1 before the activity. Existing licences may cover it; purchase only a missing entitlement, without duplicate subscriptions. |
+| Capacity, required scheduling, security, delivery or restore limitations | Resolve when the technical/operational need arises through A3/A6/A7 or the affected feature. This may require an earlier paid plan independently of commercial launch. |
+
+Open-Meteo advertises free evaluation/prototyping, while its terms restrict the free hosted API's commercial use. A5 retains data attribution/storage checks; L1 purchases the required hosted-service entitlement. Vercel defines commercial use broadly, including service promotion. See the sourced [provider timing review](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md#commercial-activation-checkpoint). Do not infer that today's public prototype is exempt; classify its actual use during the lightweight check.
+
+## D. Configurable plans and paid school subscriptions
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| D1 | Validate school offer, prices, trial/grace and pilot success criteria | S | Business, Ops | C7 | Owner-approved offer informed by pilot conversations; clear included features, price/tax presentation, cancellation and grace policy. Research can start earlier. |
+| D2 | Versioned plan/entitlement model, limits, trials and overrides | L | FE, BE, DB | B2, B5 | Typed school/personal scope; server enforcement; transactional quotas count members once; expiry/downgrade preserves existing commitments and privacy/account access. |
+| D3 | Platform-admin plan catalogue and pricing console | M | FE, BE, DB | D2 | Draft/publish/archive, impact preview, immutable price versions, explicit grandfathering/migration and audited overrides. School admins cannot edit platform tariffs. |
+| D4 | School subscription checkout, billing settings and payment recovery | L | FE, BE, DB, Ops | D1, D3, A4 | Provider mapping, verified/idempotent events, reconciliation, invoices, failed-payment recovery and cancellation/restore. Browser redirects do not activate access. Add consented subscription tracking. |
+| D5 | Paid-school launch checks and operating handover | M | FE, BE, DB, Ops, Business | C7, C5, C6, D4, L1 | Configured live billing/policy gates, current commercial-service coverage, sandbox lifecycle cases, owner-authorised bounded live purchase/cancellation/refund test, support runbook and plan-limit monitoring. |
+
+G2 launches paid software independently of lesson payment collection. Trial values are configured here; pilot grants are converted through an explicit transition, without silently charging existing schools.
+
+## E. Online individual lesson payments
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| E1 | Finalise lesson merchant/Connect architecture, terms and tax/invoicing integration | M | BE, DB, Ops, Business | A4, C3 | Account/charge model and responsibilities decided; provider requirements, cancellation/refund/dispute handling and fiscal invoice flow specified. Keep school lesson sales separate from platform SaaS revenue. |
+| E2 | School product catalogue for individual lessons | M | FE, BE, DB | E1 | School-admin product setup, immutable prices/terms, eligibility, currency/tax treatment and order snapshots. Package-specific products follow in F1. |
+| E3 | School payment-provider onboarding and status management | L | FE, BE, DB, Ops | E1, B5 | Owner-controlled hosted onboarding, school/provider-account mapping, capability restrictions and secure payout configuration; no card/bank verification documents in Neon. |
+| E4 | Checkout, order/payment states, seat holds and booking confirmation | L | FE, BE, DB, Ops | E2, E3, C3 | Capacity-safe holds/expiry, signed/deduplicated events, server-calculated totals, abandoned/late/failed payment recovery and no cross-account object confusion. Add consented checkout/purchase events. |
+| E5 | Receipts/invoices, refunds, disputes, reconciliation and finance support | L | FE, BE, DB, Ops | E4 | Full/partial refunds, school cancellation, correct connected-account scope, reconciliation/retry tooling and auditable unmatched-money resolution. Test invoice integration decided in E1. |
+| E6 | Online-payment pilot and broader release decision | M | FE, BE, DB, Ops, Business | D5, E5, L1 | Current commercial-service coverage, replay/concurrency/dispute scenarios and owner-authorised limited live-money tests; student gets a booking or defined refund/recovery; rollback stops new sales while preserving outstanding obligations. |
+
+G3 requires the full E flow, not merely a working payment button. Start with the approved countries/currency/payment methods; local asynchronous methods are a later extension of the same tested state machine.
+
+## F. Further requested work and expansion
+
+These are retained in the roadmap but do not block G1–G3 unless included in an advertised launch offer.
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| F1 | Lesson packages, credit ledger, balances and partial-use refunds | L | FE, BE, DB | E6 | School-configured X-lesson products, validity/eligibility, atomic reservation/redemption/release and explainable balances; no double spending or cross-school wallet. |
+| F2 | Waitlists and lesson reminders | M | FE, BE, DB, Ops | C4 | Fair capacity promotion, expiry/notifications and communication preferences, without accidental charges or overbooking. |
+| F3 | Recurring lesson creation and occupancy/revenue reporting | L | FE, BE, DB | C4; E5 for finance | Recurrence/timezone exceptions and bulk-edit controls; separate school sales, platform income and outstanding package credits. |
+| F4 | Private verified feedback on the lesson, school and instructor | M | FE, BE, DB | C4 | One eligible response per attended lesson, separate rating dimensions and subject links, correction/audit rules and restricted visibility. Student performance assessments are F12. |
+| F5 | Public lesson, school and instructor reviews with moderation and replies | M | FE, BE, DB, Ops | F4, B6 | Separate publication choice, verified eligibility, report/appeal/reply tools and aggregates with sample counts. Ratings follow the correct subject; cancelled-lesson service complaints use a separate route. No automatic publication of private feedback. |
+| F6 | Opt-in school/instructor leaderboards | M | FE, BE, DB | F5, B6 | Independent person/school choices and withdrawal, comparable cohorts, versioned criteria, sample/recency controls and small-sample adjustment. New entrants are unranked; no paid boosts, spend-based ranking or reward for risky conditions. |
+| F7 | Saved spots, alerts, comparisons and possible Surfer Plus | L | FE, BE, DB, Ops | C6, D2 | Validate demand before a paid personal offer; reuse entitlement/billing domains; preserve the free forecast and make no paid-accuracy claims. |
+| F8 | Additional markets and optional languages beyond the initial localisation release | M | FE, BE, DB, Ops | C7, B10 | Initial English/pt-PT/Spanish and the switcher already ship through A9/B10. Complete optional French here if deferred. Review each additional market's offer, contracts, currency, payments and tide coverage; a translated UI does not establish support for that country. Split substantial expansion into separately estimated work. |
+| F9 | Structured observations of actual surf conditions | M | FE, BE, DB | A5, C1 | Spot/time/measurement definitions, observer/source provenance, confidence, quality checks and privacy controls. Collect flat/poor days too. F14 preserves forecasts; F15 evaluates them. Surfline session import remains deferred pending the owner's export. |
+| F10 | Instructor join requests and independent teaching-profile workflow | M | FE, BE, DB | B4, B5 | School approval and personal acceptance, duplicate/rate controls; no access from choosing an instructor label. Reuse invitations for initial launch. |
+| F11 | Guardian-managed children and participant accounts | L | FE, BE, DB, Ops, Business | B8, C3 | Separate purchaser/attendee, reviewed guardian/consent/safeguarding policies and privacy-safe booking/media flows before opening child registration. |
+| F12 | Private student progress and instructor-assessed milestones | M | FE, BE, DB | C4, B6 | Versioned skill rubric, coach/lesson evidence, correction and student access. Students control any cross-school sharing; staff cannot read another school's notes by default. Adult scope until F11. |
+| F13 | Optional student cohort leaderboards | M | FE, BE, DB | F12, B6 | Private school/course cohorts first, explicit personal opt-in and withdrawal, comparable starting levels and capped progress-based criteria. No global best-surfer score or rankings by spending, wave size or raw attendance. Exclude minors pending F11 and a separate visibility review. |
+| F14 | Archive forecasts as issued, before their valid time | M | BE, DB, Ops | A5, A6 | Immutable forecast/input/configuration versions, issued/retrieved/valid timestamps, fixed lead-time samples and cache-age provenance. Bounded retention and compressed object storage where appropriate; Neon holds searchable metadata. Archive misses remain missing, never reconstructed as historical predictions. |
+| F15 | Forecast verification dashboard and evidence-based calibration trials | M | FE, BE, DB, Ops | F9, F14 | Matched observations, bias/error and false-good/false-flat rates by spot and horizon, sample/coverage reports, baselines and held-out dates. Candidate changes are reproducible and promoted only after staging review. No invented probability on forecast tiles; public accuracy claims wait for representative evidence. |
+| F16 | In-app feedback prompts and follow-up journeys | M | FE, BE, DB | B6; F4 for lesson feedback; F9 for conditions; F12 for progress | Incremental dismissible pop-ups/cards after eligible activity, one response per subject, complete/later/dismiss states, account-wide cooldowns and an opt-out from optional prompts. Server eligibility and privacy checks, cross-device deduplication and no prompts during checkout/critical tasks. Request actual observations without assuming a forecast view or GPS proves a surf session. |
+
+Prioritise F14 data collection early because historical forecasts cannot be recovered honestly afterwards. F9/F15 assess forecast accuracy against observations; comparison with another forecast service is a secondary benchmark. F4/F5 follow reliable attendance, F12 supports teaching, and F6/F13 wait for enough participation and feedback. F16 starts alongside each eligible feedback flow; do not wait for the whole extension backlog before asking for useful feedback. The [assessment](PRODUCT_EXPANSION_ASSESSMENT.md) defines measurement, prompt and visibility boundaries.
+
+## V. Other surf services and local partners
+
+Validate demand in one region before building a transactional marketplace. V2 delivers profiles/discovery/enquiries first. V3–V6 are separate category choices, not a requirement to build every category. Online charging for each category requires an extension of E1–E6's merchant, order, refund and reconciliation design; school payment onboarding is not automatically valid for another provider. Key custody needs its own operating pilot.
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| V1 | Validate provider categories and a bounded local pilot | S | Business, Ops | C7 | Interviews and demand evidence for rentals, equipment sales, shaping/repairs, photo/video and key storage; select the first category and define success/stop criteria. |
+| V2 | Provider profiles, business access, spot-based directory and enquiries | L | FE, BE, DB, Ops | V1, B2, B5, B6, B7, C1 | Generic business/service categories with scoped owner/staff access, claim checks, service area/hours, moderated publication and spam-controlled enquiries. Existing school businesses can add services without a second personal account; no school-private data granted to vendors. |
+| V3 | Equipment rental inventory, reservations and returns | L | FE, BE, DB, Ops | V2, E6 | Sizes/units/availability, collection/return, late/damage/deposit terms, overselling tests and category-specific payment approval. Treat any deposit authorisation separately from an ordinary lesson payment. |
+| V4 | Equipment sales catalogue, orders and fulfilment | L | FE, BE, DB, Ops | V2, E6 | Stock/variants, collection or delivery, seller identity, returns/warranty support and category-specific invoicing/payment review. No multi-seller cart or consumer-to-consumer resale in the first release. |
+| V5 | Shaper and board-repair quote/job workflow | M | FE, BE, DB | V2 | Bounded requests with private photos, quotes and acceptance history, turnaround/status and completion. First release supports enquiries/pay-at-provider; deposits or staged online payments require separate E-domain design and estimation. |
+| V6 | Photographer/videographer service booking and delivery workflow | M | FE, BE, DB, Ops | V2, C3 | Date/spot requests, provider acceptance, usage/subject visibility choices and private delivery links. Public portfolios need separate permission. Initial scope excludes a video hosting/transcoding platform and digital-download shop; review payment classification before online sales. |
+| V7 | Design and validate a staffed key-custody partner pilot | S | Business, Ops | V1, A4 | Partner interviews, opening/closing coverage, storage and handover procedure, responsibility/insurance review, lost-token/key and emergency recovery procedure. Confirm demand before building reservations. |
+| V8 | Key-custody check-in, receipt and verified collection | L | FE, BE, DB, Ops, Business | V2, V7, B9 | Partner staff permissions, capacity/hours, expiring receipt/token, verified release and exception audit. Minimise key/car identifiers; no public car-location mapping. Pilot operational incidents and support before expansion; review E flows separately if paid. |
+
+## R. Advertising and sponsorship
+
+Prepare a small direct local sponsorship experiment after useful traffic exists; complete/recheck L1 before the first qualifying campaign or promotional test. Sponsored placements are visually separate from organic recommendations, quality scores and leaderboards. General ad networks and behavioural targeting are deferred, not implicitly enabled by GA4 setup.
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| R1 | Validate local sponsorship offer and economics | S | Business, Ops | C7, A4, A5, A7 | Advertiser interviews, observed eligible audience, proposed fixed placement fee, content/claims rules and operator invoicing. No assumed revenue or promised impressions; review forecast/provider commercial rights and user-experience impact. |
+| R2 | Platform-managed contextual sponsored placements | M | FE, BE, DB, Ops | R1, B7, C1, C5, C6; L1 before live campaign | Admin draft/review/schedule/pause, spot/region context, creative ownership, clear Sponsored label and accessible mobile layout. First-party assets, no third-party tracking by default; consented measurement excludes demo/bots and declares coverage. Payment cannot affect forecast/ranking logic. |
+
+R2 starts with manually sold campaigns and approved invoicing. Self-service advertiser checkout, network integration, personal targeting and an ad-free tariff are separate future decisions after evidence. An analytics choice does not grant marketing/tracking permission.
+
+## M. Mobile delivery
+
+The existing [manifest](../public/manifest.webmanifest), icons and [iOS metadata](../pages/_document.js) provide the home-screen starting point. Offline/service-worker behaviour and push are not currently implemented. Improve this installable web app before committing to App Store/Google Play delivery. Keep school administration usable on the web.
+
+| ID | Task | Effort | Touches | Depends on | Completion evidence |
+| --- | --- | --- | --- | --- | --- |
+| M1 | Improve installable-web onboarding, resilience and mobile journeys | M | FE, BE, Ops | A2, C1 | Non-intrusive installation help, installed-state handling, deep links/login return, safe areas/keyboard and real iPhone/Android checks. Explicit offline fallback and bounded last-saved public forecasts show their age; booking/auth/billing stay online. Versioned cache/update recovery preserves fresh forecasts. |
+| M2 | Opt-in web push for operational reminders and forecast alerts | M | FE, BE, DB, Ops | M1, C4, B6, A6; F7 for forecast alerts | Contextual permission request, per-device subscriptions/preferences, quiet hours, deduplicated jobs, expiry/revocation and secure destination access. Use compatible home-screen web push on iPhone; email remains the operational fallback. Forecast alerts require F7's rules and cost controls. |
+| M3 | Decide whether a native app is justified and choose architecture | S | FE, BE, Ops, Business | C7, M1, M2 | Review mobile retention, installation friction, push reliability and unmet needs. Compare continued web, a capable hybrid app and a shared iOS/Android client. Decide scope/budget, API/auth approach, store/payment rules and support ownership before committing. |
+| M4 | Build and release an iOS/Android app if M3 supports it | L | FE, BE, DB, Ops | M3, B2, B8 | Split into separately estimated discovery prototype, API/mobile-auth work, iOS beta, Android beta and store release. Reuse server permissions/entitlements/calculations, test secure sessions/deep links/push/deletion, complete store privacy/billing review and real-device checks. L is a programme placeholder, not a one-sprint promise. |
+
+Native payment design must distinguish in-person lessons/rentals from digital subscriptions, digital media and advertiser purchases. Recheck the current rules per store/market; do not assume the web Stripe checkout is valid for every in-app purchase. See the sourced [mobile assessment](PRODUCT_EXPANSION_ASSESSMENT.md#mobile-web-first-native-when-justified).
+
+A cross-school money wallet, automatic forecast-based cancellation and paid placement inside organic rankings remain outside the roadmap. Native apps and marketplace categories are now explicit conditional extensions, not core launch requirements.
+
+## Tracking delivery is part of launch
+
+C5 implements consent before C6 enables optional tags. C6 covers the actual GTM container, GA4 property/streams, Search Console verification, dataLayer contract, event/key-event setup, testing and basic acquisition/activation reporting. Reuse only the owner's authorised accounts; resolve the destination explicitly before provisioning or changing a connection. Keep staging/test/demo traffic out of production product metrics.
+
+| When | Events and outcome | Ownership |
+| --- | --- | --- |
+| C6 foundation, before growth/paid-school launch | Consent-gated SPA page views, `forecast_view`, `spot_selected`, `lesson_search`, `view_item`; sanitised page/referrer/UTM handling | C6 |
+| Registration and activation | `sign_up` after verification, `school_created`, `lesson_published` with first-action indicators | Define hooks in B3/B5/C4; validate in C6 |
+| Booking | `booking_confirmed`, cancellation and attendance outcome definitions, without confusing a reservation with revenue | C3/C4 plus C6 contract |
+| Subscriptions | `begin_checkout`, `subscription_started` and agreed upgrade/cancel funnel events; actual subscription status comes from backend records | D4 |
+| Lesson purchases | `begin_checkout`, consented `purchase` and agreed refund reporting; opaque transaction reference, currency/value, correct school/provider scope | E4/E5 |
+| Follow-up measurement | First lesson published, first confirmed/attended booking, repeat booking, trial-to-paid conversion and feedback | C7, D5, E6 |
+| Optional extensions, when shipped | Defined provider enquiry/fulfilment, sponsored placement/click and mobile install/push activation outcomes; keep operational counts distinct from consented analytics | V2–V8, R2, M1–M4 extend the C6 contract |
+| Feedback prompts | Eligible/shown/started/submitted/postponed/dismissed outcomes, completion and prompt-fatigue measures; no answers or private notes in analytics | F16 with F4/F9/F12; optional analytics follows C6 consent |
+
+Every event has a documented trigger, owner, allowed properties and deduplication rule. Test first visit, reject, accept, withdraw, reload, SPA navigation, duplicate confirmation and token-bearing links. Do not send names, email, telephone, precise device coordinates, invitation/recovery tokens or private notes. Do not replay events from before consent or bypass a declined choice with server-side analytics. Financial and operational truth comes from application records; GA4 reports the consented measurement subset. Search Console setup and basic SEO do not depend on opting into analytics.
+
+The detailed domain event/consent design is in [commercial architecture section 6](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md#6-consent-first-measurement-and-discoverability). Add key-event/funnel reports and a short tracking verification record to C6 completion evidence; installing a tag alone does not complete tracking setup.
+
+## How the accepted identity change will be implemented
+
+### 1. Define the boundary and protect the existing application
+
+A1 inventories routes, database joins and UI actions. Use the accepted permission matrix to identify current gaps, but distinguish immediate repairs from capabilities that depend on B1/B2. Create representative two-school fixtures with student, instructor, admin, combined-role target and platform-admin cases. Tests must cover response fields and resource IDs as well as response status.
+
+A3 records the authentication/email decision before new verification/MFA code. Keep identity and school membership independent of authentication provider. Do not couple a provider migration to membership cutover unless the decision shows it is necessary. Decide how invitation, recovery and booking emails are retried, deduplicated and monitored; do not rely on a best-effort response callback for delivery.
+
+### 2. Expand the database without changing permission authority
+
+B1 adds membership/role/platform-assignment tables and owner/invitation support with explicit foreign keys and uniqueness. Keep old columns readable while old code runs. Reconcile user-to-coach/student links, case-normalised identifiers and unclaimed records. Backfill proven assignments only; report ambiguous links and legacy ownership for resolution.
+
+A backfill is not sufficient if staff data can change afterwards. Use a compatibility writer that updates the old and new representation in one transaction, or a short controlled pause on staff/ownership edits for the final backfill. Record which option is chosen in the migration release. Before cutover, the existing permission model remains authoritative; do not union it with new grants.
+
+Retain source IDs and compare users, active assignments, bookings, lessons and customer/instructor links before/after. Rehearse on an isolated branch with suitable anonymised/synthetic data. Apply migrations separately to staging and production; never replace production with the staging database.
+
+### 3. Cut over server permissions and then the UI
+
+B2 introduces a server capability resolver from global user, active membership, school ownership, resource relationship and commercial entitlement where applicable. Global session validity depends on the user, not on one school's continued existence. A school context in a URL or UI is validated on every request.
+
+Update all writable and private-read routes, including people, schools, lessons, instructor assignments, bookings, media and future billing. Remove school-admin control of global password/email/account status. Personal self-booking uses user identity; staff booking-on-behalf is a separate permission. Keep existing password/session formats and the deployed revocation/origin/rate protections unless the authentication decision explicitly requires migration.
+
+The UI consumes effective capabilities. Add personal My bookings, My teaching and a school workspace selector; retain Conditions first and deep-link context. Use independent administrator/instructor choices and explicit owner controls. Never treat hidden buttons as enforcement.
+
+Remove the old non-platform-school requirement, global coach/student uniqueness and cascading school-to-user relationship at the tested transition point. Do not allow a no-school or multi-school account before the runtime can authorise it correctly. Resolve ownership before activating legacy schools in self-service mode. Contract/drop obsolete fields only after reconciliation and post-release validation.
+
+### 4. Ship registration and invitations through the new model
+
+B3 depends on B6 so account creation has reviewed notices and versioned acceptance. Verification/recovery tokens expire, are hashed and single-use; raw tokens never enter logs/analytics/referrers. Recovery does not reveal account existence. Preserve the original lesson/spot/invitation destination after signup.
+
+B4 accepts invitations atomically after checking verified identity, current inviter authority, requested role, school/member state and quotas. Reject stale, replayed and privilege-escalating requests. An invitation cannot silently unsuspend someone. B5 creates school plus owner membership atomically, separates draft/publication/trial states and supports claiming and ownership transfer with explicit acceptance and recent authentication.
+
+Privacy, media and account lifecycle work proceeds with onboarding, not after collecting public users. During the pilot use explicit bounded access grants and pay-at-school booking. D2/D4 later add configured trial/subscription behaviour without changing identity or role semantics.
+
+### 5. Define rollback before enabling new account shapes
+
+Before multi-school/no-school registration is enabled, the additive release can return to the old authority path only while compatibility data is complete. Once users depend on the new model, old single-school code is no longer a safe rollback target. Use a tested compatible revision or a forward repair; temporarily stop new signup/invitations/school creation if necessary while preserving existing login and bookings. Do not silently discard memberships to make an old schema fit.
+
+Each release records its migration version, feature activation order, reconciliation results and rollback boundary. Financial rollbacks must preserve incoming webhook/reconciliation processing for existing orders while stopping new sales when required.
+
+## Shared definition of done
+
+- Acceptance criteria and negative cases are written before implementation. Unit/contract tests cover meaningful behaviour; database tests cover constraints, transactions and races; provider sandbox tests cover asynchronous events.
+- Check the entire affected task on desktop and mobile, light/dark modes and keyboard access. Keep forecast parameters visually consistent. Before each broad launch include a physical iPhone/home-screen check where available and record any coverage gap.
+- After A9, use shared message keys and locale formatting for new UI/email text. B10 and subsequent releases verify every enabled language, including validation, consent, long labels and email/deep-link return context. Preserve school/spot timezone, currency and source values when switching languages.
+- New APIs minimise returned personal fields, verify school/record scope and preserve the existing origin and abuse protections. Feature limits apply on the server and under concurrent requests.
+- Review errors, loading/empty/recovery states, logging redaction, background retries, retention and user support paths. Do not imply unavailable forecasts are current or that unpaid lessons were paid online.
+- Deploy to staging, run the affected real journeys and record evidence. Production requires the owner's release approval unless the current task explicitly authorises promotion after tests. After promotion, verify production and clean only authorised disposable fixtures.
+- Before a test/release, apply the recorded provider-use classification. L1 commercial activation is conditional on that activity's requirements, not a blanket dependency on all coding. Recheck it for new revenue models; record technical upgrades separately with their actual constraint.
+- Update task status, dated release evidence, handover and migrations/rollback notes. Keep environment-specific secrets, caches, sessions, customer data and provider IDs separate. Close temporary test tabs.
+
+## Maintenance of this roadmap
+
+Mark an item complete only after its defined release is implemented and verified; saving a design is not completion. Record the release link beside the ID, and note whether it is staging-only or production. Add discovered work under the relevant ID or create a new ID, preserving existing references. Re-estimate the remaining large-effort items after A1/A3 and again after pilot feedback. A5/A7 now retain lightweight permitted-use and technical readiness work; commercial-only procurement moves to L1 immediately before its triggering activity. The 9 September assessment refines F4–F6 and splits F9 observation collection from F14 archive/F15 evaluation; V/R/M and student progress are proposed extensions, not implemented features.
+
+9 September location/localisation update: EU is now the owner's preferred initial storage policy. A8 finalises and implements the destination before real onboarding. New A9/B10 move language infrastructure and English/pt-PT/Spanish coverage ahead of G1; optional French and later market expansion remain distinct. Existing task IDs are retained, with F8 narrowed to later expansion.
+
+Next execution: A1, followed by the supported dependency work and B1/B2 preparation. A3–A5 and A8 location decisions can progress alongside the audit; A9 establishes localisation before new registration/discovery flows. Do not schedule subscription implementation ahead of usable onboarding and booking merely because checkout is easy to demonstrate.

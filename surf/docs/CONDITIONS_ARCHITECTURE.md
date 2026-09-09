@@ -2,7 +2,9 @@
 
 Implemented and promoted to production on 5 September 2026. Documentation reviewed against the source code on 6 September 2026. The conditions module is live in both staging and production.
 
-For the complete spot schema, coefficient definitions and a current Bico calibration example, see [Spot data model and local coefficients](SPOT_DATA_MODEL.md). The calculation is implemented in [`scoreConditions()`](../lib/conditions/model.mjs); provider selection is in [`provider.mjs`](../lib/conditions/provider.mjs), and tide calculation is in [`tides.mjs`](../lib/conditions/tides.mjs).
+Document role: maintained algorithm reference. Dated rollout sections and numerical examples below describe their original revisions; live spot records and calibration history are authoritative. The [7 September local review](archive/calibration/2026-09-07-local-review/README.md) is the latest documented calibration rollout. Use the [handover](HANDOVER.md) for current release status.
+
+For the complete spot schema, coefficient definitions and dated Bico examples, see [Spot data model and local coefficients](SPOT_DATA_MODEL.md). The calculation is implemented in [`scoreConditions()`](../lib/conditions/model.mjs); provider selection is in [`provider.mjs`](../lib/conditions/provider.mjs), and tide calculation is in [`tides.mjs`](../lib/conditions/tides.mjs).
 
 ## Generic database calibration, 6 September 2026
 
@@ -59,7 +61,7 @@ Tide suitability affects quality, while local wind affects both quality and expe
 
 Quality combines height suitability (40%), wind (30%), period (15%) and tide suitability (15%). Missing tide produces a clearly labelled partial score using the other weights. Low swell for a particular break reduces the score. Quality labels are Good at 75+, Fair at 50+, Poor at 30+ and Unfavourable below 30. Central surf below 0.3 m is labelled Flat / too small and capped at 25 × surf / 0.3; the size ceiling then rises continuously through 49 at 0.5 m to 100 at 0.65 m. This prevents a small height difference from jumping directly from Poor to Good. Favourable wind or tide cannot make flat surf green.
 
-These numerical settings describe the initial database profiles, not constants embedded in the engine. On 6 September, the three São Pedro spot configurations were tuned to allow a 60-point ceiling at 0.45 m of central surf, while retaining the 0.3 m flat threshold and 100-point ceiling at 0.65 m. Their directional exposure now retains useful WNW swell around 280–283° and decreases sharply towards 290°. Tide, wind, swell thresholds and severe-condition constraints still determine the score beneath that ceiling. See the [dated calibration record](CALIBRATION_2026-09-06_SAO_PEDRO.md) for the evidence, exact curves and preserved break differences.
+These numerical settings describe the initial database profiles, not constants embedded in the engine. On 6 September, the three São Pedro spot configurations were tuned to allow a 60-point ceiling at 0.45 m of central surf, while retaining the 0.3 m flat threshold and 100-point ceiling at 0.65 m. Their directional exposure now retains useful WNW swell around 280–283° and decreases sharply towards 290°. Tide, wind, swell thresholds and severe-condition constraints still determine the score beneath that ceiling. See the [dated calibration record](archive/calibration/CALIBRATION_2026-09-06_SAO_PEDRO.md) for the evidence, exact curves and preserved break differences.
 
 Experience is independent of quality:
 
@@ -103,7 +105,7 @@ Provider cache version, wave-model identifier and sample coordinates must match 
 node scripts/migrate-conditions.mjs --staging
 ```
 
-The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Staging uses Neon branch `br-small-salad-adx0nsj2`. Production uses `br-weathered-silence-adp30k9s`, copied from staging after the approved merge of production-only records. Both include the conditions migrations. The previous production branch `br-gentle-dawn-ad5l1p9y` is retained for rollback. See [deployment and database release notes](README-staging.md).
+The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Staging uses Neon branch `br-small-salad-adx0nsj2`. Production uses `br-weathered-silence-adp30k9s`, copied from staging after the approved merge of production-only records. Both include the conditions migrations. The previous production branch `br-gentle-dawn-ad5l1p9y` is retained for rollback. See [deployment and database release notes](ENVIRONMENTS.md).
 
 Deploy GitHub `staging` through Vercel project `mysurfplan-staging`, root `surf`. A preview generated in the separate production project is not a production promotion. Do not move the production alias or push `main` without owner approval.
 
@@ -141,7 +143,7 @@ A direct model comparison at midday returned GFS 0.25° at the original offshore
 
 `20260905_sao_pedro_exposure.sql` updates only the three São Pedro profiles, preserves tide settings and stores a new calibration history version. The initial exposure falls from 0.85 at 270° to 0.65 at 275°, 0.18 at 282°, 0.02 at 290° and 0.005 at 300°. The 282° transition is owner guidance, not a measured universal cutoff. Non-zero residual exposure allows for some wrap on very large swell; this heuristic does not resolve bathymetric refraction or directional spreading. Instructor observations should refine the curve. This migration was included in the approved production release. On a new database, apply it after the initial seed.
 
-That paragraph records the historical migration. The later [6 September database revision](CALIBRATION_2026-09-06_SAO_PEDRO.md) supersedes its 275–285° multipliers after the owner's further local guidance. A fresh legacy seed/migration does not contain later admin calibration revisions; use the current database configurations and their history when reproducing the current forecast. Do not overwrite later saved revisions by rerunning historical seeds.
+That paragraph records the historical migration. The later [6 September database revision](archive/calibration/CALIBRATION_2026-09-06_SAO_PEDRO.md) supersedes its 275–285° multipliers after the owner's further local guidance. A fresh legacy seed/migration does not contain later admin calibration revisions; use the current database configurations and their history when reproducing the current forecast. Do not overwrite later saved revisions by rerunning historical seeds.
 
 On mobile, hourly forecasts use compact expandable cards with time, estimated surf, quality, experience, wind and tide visible in the summary. Expanded content includes directions, period, gusts, weather and swell components. Desktop retains the comparison table.
 

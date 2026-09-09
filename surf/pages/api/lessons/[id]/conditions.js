@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     if (!session) return;
     if (session.role === "coach") {
       const assigned =
-        await sql`SELECT 1 FROM lesson_coaches lc JOIN coaches c ON c.id=lc.coach_id WHERE lc.lesson_id=${lesson.id} AND c.user_id=${session.userId} AND c.deleted_at IS NULL`;
+        await sql`SELECT 1 FROM lesson_coaches lc JOIN coaches c ON c.id=lc.coach_id WHERE lc.lesson_id=${lesson.id} AND c.school_id=${lesson.school_id} AND c.user_id=${session.userId} AND c.deleted_at IS NULL`;
       if (!assigned.length)
         return res
           .status(403)

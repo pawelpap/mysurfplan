@@ -1,5 +1,7 @@
 # Session security release
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 7 September 2026. Application revision: `729489e909204135ace79c399ce1fe5cc6c7b5c6`.
 
 The owner authorised a bounded security task with staging verification, then explicitly authorised production after successful checks. The same application revision is now deployed to both environments. Subsequent documentation commits do not change runtime behaviour.
@@ -36,7 +38,7 @@ Browser automation required DOM-based activation of some rendered controls when 
 
 ## Scope limits and next work
 
-This release does not add server-side session revocation, password-change invalidation, immediate role/membership refresh, login rate limiting or CSRF protection. Browser logout clears the browser cookie; a copied valid token remains usable until expiry. Those broader controls remain in Phase 0 of the [development plan](DEVELOPMENT_PLAN.md). No public registration or forecast access gate is implemented here.
+This release does not add server-side session revocation, password-change invalidation, immediate role/membership refresh, login rate limiting or CSRF protection. Browser logout clears the browser cookie; a copied valid token remains usable until expiry. Those broader controls remain in Phase 0 of the [development plan](../../DEVELOPMENT_PLAN.md). No public registration or forecast access gate is implemented here.
 
 The operator should retain a randomly generated environment-specific signing secret of at least 32 bytes. The length check alone cannot prove key entropy. See [Node.js constant-time comparison](https://nodejs.org/api/crypto.html#cryptotimingsafeequala-b) for the comparison primitive's scope.
 

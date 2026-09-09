@@ -1,5 +1,7 @@
 # Forecast refresh recovery
 
+> Archive status: Dated implementation evidence. Statements about current deployments, data, approvals and rollback refer to this record’s date; they are not new deployment instructions. See the [current handover](../../HANDOVER.md) and [current roadmap](../../IMPLEMENTATION_ROADMAP.md).
+
 Application revision: `657333b8dc1c37798cf3c342ae59370f4a7c65d1`.
 
 The owner reported unavailable forecasts on production on 6 September 2026 while staging and mobile appeared to work. They subsequently confirmed recovery and explicitly authorised the fixes on both staging and production, with checks afterwards. The same release changes the login copy to “Made for surfers and surf schools”.
