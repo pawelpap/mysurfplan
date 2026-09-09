@@ -2,11 +2,13 @@
 
 7 September 2026; expansion boundaries added 9 September. Supporting design for the [development plan](DEVELOPMENT_PLAN.md).
 
-Status: the identity/membership design was accepted on 8 September; commercial/provider/policy choices remain proposed and unimplemented. Names describe intended domains, not existing tables or final migrations. Confirm provider choices, policies and responsibilities before implementation. This document is neither a published privacy notice nor confirmation of legal compliance.
+Status: the identity/membership design was accepted on 8 September; A3’s authentication/email/jobs direction was documented on 9 September. Commercial/policy choices and provider activation remain pending. Names describe intended domains, not existing tables or final migrations. Confirm provider choices, policies and responsibilities before implementation. This document is neither a published privacy notice nor confirmation of legal compliance.
 
 ## 1. Identity, permissions and commercial access
 
 The [accepted registration and membership design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md), dated 8 September, provides the detailed target model, invitation/ownership rules, permission matrix and migration path. The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery, dependencies and launch gates. Its membership and role tables replace the earlier `user_school_roles` shorthand. School drafts precede checkout; subscriptions unlock school features and do not grant staff roles.
+
+The [A3 decision](AUTH_EMAIL_AND_JOBS_DECISION.md) retains current authentication, with lifecycle/password hardening and MFA still to implement. It selects Mailjet Free for initial outgoing transactional email and a Neon outbox with a Vercel minute worker. The owner-selected support address needs a receiving mailbox. A4/A8 must review processor agreements, regional data coverage and retention before activation. No email provider or mailbox is configured.
 
 Keep a global user separate from school membership and billing. An existing user may surf at several schools, coach at one and administer another. A school customer/student record must not automatically grant staff access.
 
@@ -75,7 +77,7 @@ Recommended state separation:
 - Subscription: provider lifecycle plus the application's explicit trial/grace/access policy.
 - Package: purchased credits, reserved credits, redeemed credits, released/expired/refunded credits, derived from the ledger.
 
-The server recalculates order totals from the selected product version. Never trust a client amount or school ID. Reserve capacity transactionally before opening checkout, expire holds reliably, and atomically consume a valid hold on payment success. On late payment, either reacquire capacity safely or follow a documented recovery/refund path; do not silently oversell. Confirmation emails are idempotent.
+The server recalculates order totals from the selected product version. Never trust a client amount or school ID. Reserve capacity transactionally before opening checkout, expire holds reliably, and atomically consume a valid hold on payment success. On late payment, either reacquire capacity safely or follow a documented recovery/refund path; do not silently oversell. Persist a uniquely keyed confirmation job with the business transaction. Delivery follows A3’s retry and uncertain-send policy; exactly-once email delivery is not guaranteed.
 
 Verify webhook signatures against the raw body, deduplicate event IDs, handle retries and retrieve authoritative provider state when necessary. Stripe does not guarantee event order, so timestamp comparisons alone are not a reliable processing strategy. A scheduled reconciliation job should detect missing events and unmatched money. [Stripe webhook guidance](https://docs.stripe.com/webhooks)
 

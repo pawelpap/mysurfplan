@@ -15,7 +15,9 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 
 | Document | Status and purpose |
 | --- | --- |
+| [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Implementation remains in A6/B3/B9. |
 | [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted target design; implementation pending. One account, multiple school memberships and independent roles. |
+| [Conditions UX review proposal](CONDITIONS_UX_REVIEW_PROPOSAL.md) | Piotr's feedback recorded 9 September. Future calendar, spot comparison and chart proposals; F17 Figma/owner review before F18 implementation. No UI work started. |
 | [Commercial and privacy architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) | Target architecture. Billing, entitlements, privacy and consent are planned; final provider and policy decisions remain open. |
 | [Infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) | Account observations dated 8 September and current upgrade/EU-region decisions. Recheck live quotas before changes. |
 | [Launch cost estimate](LAUNCH_COST_ESTIMATE.md) | Budget checked 9 September, with assumptions and sources. An estimate, not an invoice or spending approval. |

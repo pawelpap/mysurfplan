@@ -9,6 +9,7 @@ Finish the secure self-service forecast-to-lesson journey first. Start preservin
 | Idea | Assessment and first useful version | Priority / task references |
 | --- | --- | --- |
 | Forecast accuracy | Strong fit with the existing product. Archive issued predictions, collect real observations and evaluate by spot/horizon. | Begin collection early: F14; observations F9, evaluation F15 |
+| Conditions-page clarity | [Piotr's feedback and design brief](CONDITIONS_UX_REVIEW_PROPOSAL.md): calendar weeks, concise tiles, spot cards, icons and a conditions chart. Preserve the parameter set and current visual language. | F17 Figma/owner review first, then F18 approved implementation; future work, not a launch prerequisite |
 | Lesson, school and instructor ratings | Helps students choose and schools improve. Separate these subjects and require verified attendance. | After reliable attendance: F4/F5, already planned and now clarified |
 | Student leaderboards | Progress is useful; competition is optional. Start with private progress records, then opt-in course/school cohorts if students want them. | F12 before F13; no public global ranking at launch |
 | School/instructor leaderboards | Potential discovery aid, but a raw average rewards tiny samples and is easy to manipulate. | F6 after enough verified public feedback; already planned |
@@ -18,7 +19,7 @@ Finish the secure self-service forecast-to-lesson journey first. Start preservin
 | Advertising | Possible secondary revenue. Begin with a limited direct local sponsorship offer and measure its value. | R1/R2 after audience and commercial-use readiness |
 | Mobile apps | Strong mobile experience matters now. Store distribution is a separate investment with ongoing release/support work. | Installable web M1, push M2, native decision M3 and conditional build M4 |
 
-The roadmap holds S/M/L estimates, FE/BE/DB/Ops/Business impact, dependencies and acceptance evidence. The extension list is a set of options to validate, not an expanded minimum launch scope. A1, the school-boundary/privacy audit, remains the next coding task.
+The roadmap holds S/M/L estimates, Design/FE/BE/DB/Ops/Business impact, dependencies and acceptance evidence. The extension list is a set of options to validate, not an expanded minimum launch scope. The [current handover](HANDOVER.md) identifies the next development task; this assessment does not set a separate delivery sequence.
 
 ## Ratings, reviews and student progress
 

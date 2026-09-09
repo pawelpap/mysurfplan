@@ -4,7 +4,7 @@ Account state checked 8 September 2026; purchase timing revised 9 September at t
 
 Commercial-only purchases are scheduled immediately before the first use that requires them, with time to configure and test. Early work checks permitted use and technical limits without activating subscriptions unnecessarily. Capacity, security and recovery requirements remain reasons to upgrade earlier. This replaces the previous default recommendation to prepare immediate Vercel spending and target Neon Launch for every G1 pilot.
 
-The [9 September monthly estimate](LAUNCH_COST_ESTIMATE.md) uses current public prices and explicit small-launch assumptions: €29 forecast access plus US$20 hosting as the minimum paid combination, and approximately €70–100/month as a working allowance with conditional database/email costs. It includes both environments' consumption, distinguishes usage estimates from licence prices and separates payment fees. Effective account billing still needs verification before purchase.
+The [9 September monthly estimate](LAUNCH_COST_ESTIMATE.md), revised after A3, budgets approximately €90–120/month for both minute workers, outbound email and one mailbox. The earlier €50 minimal forecast configuration assumes suitable free tiers and excludes those new flows. Database continuous active time is now explicit. This is a future scenario, not measured billing or approval to purchase.
 
 ## Live account findings
 
@@ -27,7 +27,7 @@ Hobby is restricted to personal, non-commercial use. Vercel includes financial-g
 
 Pro is currently listed from **US$20/month**, with **US$20 usage credit**, plus applicable resource usage, additional paid seats and taxes. Staging and production are projects in the same team; do not budget a separate base subscription for each project without checking the selected billing configuration. Exact seats, included usage and charges require the team's checkout/usage view. [Vercel pricing](https://vercel.com/pricing)
 
-There can also be an earlier technical reason: Hobby cron jobs run at most daily with an hourly scheduling window; Pro supports minute-level schedules. A3/A6 must select a job approach that meets actual email retry, booking expiry and reconciliation needs. Upgrade through A7 if the chosen technical requirement needs it, rather than postponing required reliability to L1. Workers still need idempotency, retries and request-time expiry checks. [Vercel cron limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)
+A3 selected a Neon outbox with a Vercel worker triggered every minute, plus an immediate bounded attempt for urgent email. This creates a technical upgrade trigger before live B3 delivery: Hobby only supports daily cron with an hourly scheduling window, while Pro supports minute scheduling. Resolve this through A7 before enabling jobs, independently of L1. Cron invokes the worker; the app still owns durable retries, uncertain-send handling, locks and request-time expiry. [A3 contract](AUTH_EMAIL_AND_JOBS_DECISION.md), [Vercel cron limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)
 
 No evidence currently justifies Enterprise. Revisit only for an explicit support/SLA/security requirement or a measured need outside Pro. High usage alone first requires cost/query/cache optimisation and a Pro usage estimate, not an automatic Enterprise upgrade.
 
@@ -41,9 +41,15 @@ The currently published comparison lists Free at 100 CU-hours/month/project, 0.5
 
 Request the paid-plan decision earlier if the measured/projected compute, storage or transfer would reach a verified cap, if branch capacity blocks necessary work, or if the chosen recovery policy exceeds Free's effective capabilities. Do not use an arbitrary user-count threshold. Frequent app polling and background jobs can keep both staging and production computes active even with few users.
 
+A3’s minute schedule can keep both endpoints active continuously: two endpoints at 0.25 CU over 720 hours produce 360 CU-hours/month, above the published Free example. At the published Launch rate, that is US$38.16 compute alone; the revised working database allowance is US$40–60, with higher load able to exceed it. Recheck effective Marketplace terms and measure the rehearsal. Do not assume few users mean the earlier US$10–25 intermittent-use estimate applies. Staging worker suspension outside tests must be explicit and cannot stop production recovery.
+
 Compare Launch if a documented constraint remains after sensible branch/data lifecycle management. Revisit Scale only when its restore/security/support capabilities or measured compute ceiling are needed. Do not treat a website's typical-spend example as a fixed subscription quote, and do not promise a total monthly bill from the current small database size.
 
 The organisation is Vercel-managed. Neon Native Integration billing is managed through Vercel; review the existing integration's plan configuration rather than reconnecting or creating another provider account. Hosting Pro and Neon Launch are separate decisions and costs. [Neon on Vercel](https://vercel.com/integrations/neon)
+
+## Email setup after A3
+
+Mailjet Free is the selected initial-pilot email service; SES, Scaleway and MailerSend are assessed alternatives in A3. The owner selected `support@mywaveplan.com`, but no domain email service or receiving mailbox is configured. Before B3, arrange an owner-controlled Mailjet account, sender/DNS verification, staging separation and delivery/quota tests. No AWS account or IAM/SNS configuration is required. The free daily cap can delay account mail, so approve a paid upgrade before projected peaks exhaust headroom. A4/A8 review agreements, regional coverage and mailbox residency. No purchase/account change was made. See the [decision](AUTH_EMAIL_AND_JOBS_DECISION.md) and [budget](LAUNCH_COST_ESTIMATE.md).
 
 ## Commercial activation checkpoint
 

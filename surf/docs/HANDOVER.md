@@ -23,13 +23,17 @@ Forecasts include 17 active database spots, lesson conditions, tides/daylight, s
 
 Staging and production databases are separate. Spot/configuration parity was checked at the documented release; sessions, caches and operational records can subsequently differ. Do not copy a business database to make a presentation release or assume historical row counts are current.
 
-## Next development step
+## Latest planning decision and next development step
 
-**A3: decide the authentication, transactional email and background-job approach. Effort S; BE and Ops.**
+**A3 is complete as a decision, with no runtime deployment.** The [authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) retains current accounts/sessions, records password and MFA gaps for B3/B9, selects Mailjet Free for the initial pilot, and specifies a Neon outbox plus Vercel Pro minute worker. Including the future conditions UX work below, the roadmap now has 70 items: three complete and 67 open.
 
-Document whether to retain or migrate the current authentication, based on email verification, password recovery and platform-admin MFA requirements. Select the proposed email provider, sender/domain setup and durable retries/jobs, with costs and EU-region requirements. Keep provider purchases, account changes and provisioning separate from this decision. A3 should give B1/B2 a stable basis for global users, school memberships and independent roles.
+The owner accepted Mailjet as the initial pilot direction after reconsidering SES. The [decision](AUTH_EMAIL_AND_JOBS_DECISION.md) also compares Scaleway and MailerSend; SES remains a possible later alternative. Production From/Reply-To is `MyWavePlan <support@mywaveplan.com>`, which still needs a receiving mailbox. Before B3, arrange the Mailjet account, sender approval, quota tests and mailbox setup. **Do not request AWS signup for the current plan.** No provider account, DNS, subscription, email send or application/database change was made. B1 requires no email account.
 
-A1 and A2 are complete. Prepare B1's additive membership schema/backfill and B2's authorisation change after A3. A4/A5 privacy and permitted-use decisions, A7 capacity/recovery and A8's EU destination work remain open. Localisation is still plan-only. Task estimates, dependencies and completion evidence are maintained in the [roadmap](IMPLEMENTATION_ROADMAP.md).
+**Next: B1, additive global membership schema and backfill. Effort L; BE and DB.** Begin with branch capacity and an identity/ownership reconciliation report, then a reversible migration rehearsal. Preserve user IDs, password/session compatibility, existing permissions and bookings. Do not infer school ownership or mark old emails verified. B2 changes live authorisation after the additive migration passes. The A3 document specifies the security and email acceptance contracts; it does not implement them.
+
+**Piotr's design feedback is recorded for later, 9 September.** The [conditions UX brief](CONDITIONS_UX_REVIEW_PROPOSAL.md) assesses calendar weeks, hiding inapplicable experience labels, spot comparison cards/photos, icons, simpler day summaries and a conditions chart above tides. F17 is Figma design and owner review; F18 implements only the approved scope, with staging review before production. No Figma proposal, UI change or deployment has been made for this feedback. B1 remains next. Preserve the existing design until the future proposal is approved.
+
+A4/A5 privacy and permitted-use decisions, A7 capacity/recovery and A8’s EU destination work remain open. Minute polling changes Neon consumption, so A7 must settle the technical plan before enabling live jobs. Localisation remains plan-only until authorised. The [roadmap](IMPLEMENTATION_ROADMAP.md) owns dependencies and implementation status.
 
 ## Accepted direction and pending implementation
 
@@ -38,7 +42,7 @@ A1 and A2 are complete. Prepare B1's additive membership schema/backfill and B2'
 - Localisation is roadmap-only at the owner's explicit request. A9 establishes the switcher and language framework; B10 completes English, European Portuguese and Spanish before G1. French is optional. No localisation implementation has started.
 - G1 is a controlled self-service/pay-at-school pilot; G2 adds paid school software; G3 adds online lesson payments. Consent, GTM, GA4, dataLayer events and Search Console are included in C5/C6, with payment events added when commerce ships.
 - Keep the current surfer forecast free. Prices, trial/grace periods, payment configuration and legal policies remain proposals until their recorded decisions. Paid commercial services activate through L1 immediately before their first qualifying use; technical capacity/recovery upgrades happen when needed.
-- The [small-launch budget](LAUNCH_COST_ESTIMATE.md) is €70–100/month before tax and payment fees under its assumptions. No purchase was made. The last account review recorded Vercel Hobby, Vercel-managed Neon Free and 10/10 occupied branch slots; recheck capacity before migration rehearsal. See [infrastructure decisions](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
+- The [small-launch budget](LAUNCH_COST_ESTIMATE.md) is now €90–120/month before tax/payment fees for the proposed minute-worker and email setup. Continuous polling can keep Neon active; this is a future scenario, not today’s bill. No purchase was made. The last account review recorded Vercel Hobby, Vercel-managed Neon Free and 10/10 occupied branch slots; recheck capacity before migration rehearsal. See [infrastructure decisions](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 - Later reviews, progress, opt-in rankings, feedback prompts, forecast evaluation, service providers, advertising and mobile apps are conditional roadmap work. Surfline session imports remain deferred. Do not add artificial forecast probabilities or let payment affect organic rankings or forecast scores.
 
 ## Release and verification workflow
