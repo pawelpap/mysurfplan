@@ -2,7 +2,7 @@
 
 Document role: **current product and delivery strategy**. The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) owns task status, estimates and dependencies; the [handover](HANDOVER.md) owns the latest recorded runtime and next action. [Docs index](README.md).
 
-Reviewed and rewritten: 7 September 2026. Implementation status updated: 8 September 2026. Expansion roadmap reviewed: 9 September 2026.
+Reviewed and rewritten: 7 September 2026. Implementation status updated: 9 September 2026. Expansion roadmap reviewed: 9 September 2026.
 
 Status: the owner accepted the registration/identity design on 8 September and requested the delivery plan through launch. The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) is now the canonical remaining task list, with stable IDs, S/M/L estimates, FE/BE/DB impact, dependencies, completion evidence and launch gates. The [accepted registration design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) specifies roles and user journeys. Prices, final policy values and provider purchases still require their recorded launch decisions. This update changes documentation only.
 

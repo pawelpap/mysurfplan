@@ -41,7 +41,7 @@ The new school-edit scenario exposed two test-fixture assumptions: cleanup neede
 
 No schema migration, database copy, spot/calibration write or account reset was required. Each completed environment check removed its own schools, accounts, lessons and bookings. Post-release counts in each environment: 17 active spots, seven active schools, five active accounts and no A1/A2 access-check fixture schools/accounts. Sessions, login counters and forecast caches can change normally during testing and subsequent use.
 
-Private connection exports were temporary; do not commit them or browser session state. Temporary browser contexts and local test servers were closed. Disposable test records were selected by exact IDs and unique run names; unrelated records were preserved.
+All three private database connection exports were removed after verification. Do not commit connection exports or browser session state. Temporary browser contexts and local test servers were closed. Disposable test records were selected by exact IDs and unique run names; unrelated records were preserved.
 
 The previous Git baseline was `b6e13451a9b6e5357c7b1f608294df0d666918e5`, with A1 runtime `9c96b5fc76f51153f6081da62b9ee788915b04e7`. An application rollback does not require restoring the database. Prefer a forward fix: returning to the previous dependency set would restore the dated audit findings. Rebuild a rollback in the correct Vercel project/environment and verify its custom domain; do not alias a staging artifact onto production. Contentful settings are unnecessary for either A1 or A2 and should not be restored for rollback.
 
