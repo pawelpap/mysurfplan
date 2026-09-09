@@ -1,5 +1,5 @@
-import { isUuid } from '../../../../lib/school-access.mjs';
-import { requireMutation } from '../../../../lib/request-security.mjs';
+import { isUuid, schoolAccess } from "../../../../lib/school-access.mjs";
+import { requireMutation } from "../../../../lib/request-security.mjs";
 // surf/pages/api/lessons/[id]/book.js
 import { sql } from "lib/db";
 import { normalizeEmail, requireAuth } from "../../../../lib/auth";
@@ -16,88 +16,6 @@ async function getLesson(id) {
 
 function normalizeName(name) {
   return typeof name === "string" ? name.trim() : "";
-}
-
-async function bookLesson(lessonId, schoolId, name, email, studentUserId) {
-  const rows = await sql`
-    WITH lesson AS (
-      SELECT id, school_id, capacity
-      FROM lessons
-      WHERE id = ${lessonId}
-        AND school_id = ${schoolId}
-        AND deleted_at IS NULL
-        AND EXISTS (SELECT 1 FROM surf_spots sp WHERE sp.id=lessons.spot_id AND sp.active=true)
-      FOR UPDATE
-    ),
-    student AS (
-      INSERT INTO students (school_id, name, email)
-      SELECT school_id, ${name || null}, ${email}
-      FROM lesson
-      ON CONFLICT (school_id, email)
-      DO UPDATE
-      SET name = COALESCE(EXCLUDED.name, students.name), updated_at = now()
-      WHERE students.deleted_at IS NULL AND (${studentUserId}::uuid IS NULL OR students.user_id IS NULL OR students.user_id = ${studentUserId}::uuid)
-      RETURNING id, name, email
-    ),
-    current_booking AS (
-      SELECT b.id, b.status
-      FROM bookings b
-      JOIN student s ON s.id = b.student_id
-      WHERE b.lesson_id = ${lessonId}
-      ORDER BY CASE WHEN b.status = 'booked' THEN 0 ELSE 1 END, b.created_at DESC
-      LIMIT 1
-    ),
-    booking_count AS (
-      SELECT COUNT(*)::int AS booked_count
-      FROM bookings
-      WHERE lesson_id = ${lessonId} AND status = 'booked'
-    ),
-    reactivated AS (
-      UPDATE bookings b
-      SET status = 'booked', cancelled_at = NULL, updated_at = now()
-      FROM student s, lesson l, booking_count bc
-      WHERE b.id = (
-          SELECT cb.id
-          FROM current_booking cb
-          WHERE cb.status = 'cancelled'
-        )
-        AND b.lesson_id = l.id
-        AND b.student_id = s.id
-        AND NOT EXISTS (
-          SELECT 1 FROM current_booking cb WHERE cb.status = 'booked'
-        )
-        AND (l.capacity IS NULL OR bc.booked_count < l.capacity)
-      RETURNING b.id
-    ),
-    inserted AS (
-      INSERT INTO bookings (lesson_id, student_id, status)
-      SELECT l.id, s.id, 'booked'
-      FROM lesson l
-      CROSS JOIN student s
-      CROSS JOIN booking_count bc
-      WHERE NOT EXISTS (SELECT 1 FROM current_booking)
-        AND NOT EXISTS (SELECT 1 FROM reactivated)
-        AND (l.capacity IS NULL OR bc.booked_count < l.capacity)
-      RETURNING id
-    )
-    SELECT
-      s.id AS student_id,
-      s.name,
-      s.email,
-      l.capacity,
-      bc.booked_count,
-      CASE
-        WHEN EXISTS (SELECT 1 FROM current_booking cb WHERE cb.status = 'booked') THEN 'already_booked'
-        WHEN EXISTS (SELECT 1 FROM reactivated) THEN 'booked'
-        WHEN EXISTS (SELECT 1 FROM inserted) THEN 'booked'
-        ELSE 'full'
-      END AS outcome
-    FROM lesson l
-    CROSS JOIN student s
-    CROSS JOIN booking_count bc
-  `;
-
-  return rows[0] || null;
 }
 
 async function coachIsAssigned(lessonId, schoolId, userId) {
@@ -123,53 +41,58 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!(await requireAuth(req, res, { roles: ["school_admin", "coach", "student"] }))) return;
+    const identity = await requireAuth(req, res);
+    if (!identity) return;
     const lesson = await getLesson(id);
     if (!lesson)
       return res.status(404).json({ ok: false, error: "Lesson not found" });
 
     if (req.method === "POST") {
       if (!lesson.spot_id || !lesson.spot_active)
-        return res
-          .status(409)
-          .json({
-            ok: false,
-            error:
-              "A school admin must choose an active database spot before this lesson can be booked.",
-          });
+        return res.status(409).json({
+          ok: false,
+          error:
+            "A school admin must choose an active database spot before this lesson can be booked.",
+        });
       if (new Date(lesson.start_at).getTime() <= Date.now())
         return res
           .status(409)
           .json({ ok: false, error: "This lesson has already started." });
-      const { name, email } = req.body || {};
-      const normalizedEmail = normalizeEmail(email);
+      const { name, email, onBehalf = false } = req.body || {};
+      const normalizedEmail = onBehalf ? normalizeEmail(email) : identity.email;
       const normalizedName = normalizeName(name);
       if (!normalizedEmail)
         return res.status(400).json({ ok: false, error: "Missing email" });
-      const session = await requireAuth(req, res, {
-        roles: ["admin", "school_admin", "coach", "student"],
-        schoolId: lesson.school_id,
-        studentEmail: normalizedEmail,
-      });
-      if (!session) return;
-      if (
-        session.role === "coach" &&
-        !(await coachIsAssigned(id, lesson.school_id, session.userId))
-      ) {
+      if (typeof onBehalf !== "boolean")
+        return res
+          .status(400)
+          .json({ ok: false, error: "Invalid booking mode" });
+      if (!onBehalf && email && normalizeEmail(email) !== identity.email)
+        return res
+          .status(403)
+          .json({ ok: false, error: "Use your own account to book." });
+      const access = schoolAccess(identity, lesson.school_id);
+      const assigned =
+        access.teach &&
+        (await coachIsAssigned(id, lesson.school_id, identity.userId));
+      if (onBehalf && !access.manageSchool && !assigned)
         return res.status(403).json({ ok: false, error: "Forbidden" });
-      }
+      if (
+        (req.method === "POST" || onBehalf) &&
+        !(await requireAuth(req, res, { schoolId: lesson.school_id }))
+      )
+        return;
+      const session = identity;
 
-      const result = await bookLesson(
-        id,
-        lesson.school_id,
-        session.role === "student" ? [session.name, session.familyName].filter(Boolean).join(" ") : normalizedName,
-        normalizedEmail,
-        session.role === "student" ? session.userId : null,
-      );
+      const [result] =
+        await sql`SELECT * FROM reserve_lesson(${session.userId}::uuid,${id}::uuid,${onBehalf},${normalizedName},${normalizedEmail})`;
       if (!result) {
         return res
           .status(409)
-          .json({ ok: false, error: "Could not book this lesson. Please contact the school." });
+          .json({
+            ok: false,
+            error: "Could not book this lesson. Please contact the school.",
+          });
       }
 
       if (result.outcome === "full") {
@@ -187,28 +110,36 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
-      const { email } = req.body || {};
-      const normalizedEmail = normalizeEmail(email);
+      const { email, onBehalf = false } = req.body || {};
+      const normalizedEmail = onBehalf ? normalizeEmail(email) : identity.email;
       if (!normalizedEmail)
         return res.status(400).json({ ok: false, error: "Missing email" });
-      const session = await requireAuth(req, res, {
-        roles: ["admin", "school_admin", "coach", "student"],
-        schoolId: lesson.school_id,
-        studentEmail: normalizedEmail,
-      });
-      if (!session) return;
-      if (
-        session.role === "coach" &&
-        !(await coachIsAssigned(id, lesson.school_id, session.userId))
-      ) {
+      if (typeof onBehalf !== "boolean")
+        return res
+          .status(400)
+          .json({ ok: false, error: "Invalid booking mode" });
+      if (!onBehalf && email && normalizeEmail(email) !== identity.email)
+        return res
+          .status(403)
+          .json({ ok: false, error: "Use your own account to book." });
+      const access = schoolAccess(identity, lesson.school_id);
+      const assigned =
+        access.teach &&
+        (await coachIsAssigned(id, lesson.school_id, identity.userId));
+      if (onBehalf && !access.manageSchool && !assigned)
         return res.status(403).json({ ok: false, error: "Forbidden" });
-      }
+      if (
+        (req.method === "POST" || onBehalf) &&
+        !(await requireAuth(req, res, { schoolId: lesson.school_id }))
+      )
+        return;
+      const session = identity;
 
       const students = await sql`
         SELECT id
         FROM students
-        WHERE school_id = ${lesson.school_id} AND email = ${normalizedEmail} AND deleted_at IS NULL
-          AND (${session.role !== "student"} OR user_id IS NULL OR user_id = ${session.userId}::uuid)
+        WHERE school_id = ${lesson.school_id} AND deleted_at IS NULL
+          AND (CASE WHEN ${onBehalf} THEN email = ${normalizedEmail} ELSE user_id = ${session.userId}::uuid END)
         LIMIT 1
       `;
       const student = students[0];
@@ -231,9 +162,24 @@ export default async function handler(req, res) {
     res.setHeader("Allow", ["POST", "DELETE"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (e) {
-    console.error("bookings error:", e);
+    if (e?.code === "P0003")
+      return res.status(409).json({ ok: false, error: "Lesson is full" });
+    if (["23505", "23514"].includes(e?.code))
+      return res
+        .status(409)
+        .json({
+          ok: false,
+          error:
+            "This booking needs the school’s help. No existing record has been claimed or changed.",
+        });
+    if (e?.code === "42501")
+      return res.status(403).json({ ok: false, error: "Forbidden" });
+    console.error("bookings error:", { code: e?.code });
     return res
       .status(500)
-      .json({ ok: false, error: "Could not update the booking. Please try again." });
+      .json({
+        ok: false,
+        error: "Could not update the booking. Please try again.",
+      });
   }
 }

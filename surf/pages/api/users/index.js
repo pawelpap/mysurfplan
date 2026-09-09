@@ -1,151 +1,69 @@
-import { isPlatformAdmin, permitsSchoolFilter } from '../../../lib/school-access.mjs';
-import { requireMutation } from '../../../lib/request-security.mjs';
-import { sql } from '../../../lib/db';
+import { sql } from "../../../lib/db";
 import {
-  getAuthSession,
   hashPassword,
   normalizeEmail,
   normalizePhone,
   requireAuth,
   resolveSchoolScope,
   validatePassword,
-} from '../../../lib/auth';
-
-const USER_ROLES = new Set(['platform_admin', 'school_admin', 'coach', 'student']);
-
-function cleanUser(row) {
-  return {
-    id: row.id,
-    schoolId: row.school_id,
-    schoolSlug: row.school_slug,
-    schoolName: row.school_name,
-    name: row.name,
-    familyName: row.family_name,
-    photoUrl: row.photo_url,
-    description: row.description,
-    email: row.email,
-    phone: row.phone,
-    role: row.role,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    lastLoginAt: row.last_login_at,
-    disabledAt: row.disabled_at,
-  };
-}
-
-async function resolveTargetSchool(session, school, role) {
-  if (role === 'platform_admin') return null;
-  if (!isPlatformAdmin(session)) return session.schoolId;
-  const scope = await resolveSchoolScope(school);
-  return scope?.id || null;
-}
-
+} from "../../../lib/auth";
+import { listAccounts, accountError } from "../../../lib/account-admin";
 export default async function handler(req, res) {
-  if (!requireMutation(req, res)) return;
+  const session = await requireAuth(req, res, { roles: ["platform_admin"] });
+  if (!session) return;
   try {
-    if (req.method === 'GET') {
-      if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
-      const session = await getAuthSession(req);
-      const school = Array.isArray(req.query.school) ? req.query.school[0] : req.query.school;
-      if (!permitsSchoolFilter(session, school)) return res.status(403).json({ ok: false, error: 'Forbidden for this school' });
-
-      let rows;
-      if (isPlatformAdmin(session)) {
-        if (school) {
-          const scope = await resolveSchoolScope(school);
-          if (!scope) return res.status(404).json({ ok: false, error: 'School not found' });
-          rows = await sql`
-            SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                   u.name, u.family_name, u.photo_url, u.description,
-                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
-            FROM users u
-            LEFT JOIN schools s ON s.id = u.school_id
-            WHERE u.deleted_at IS NULL AND u.school_id = ${scope.id}
-            ORDER BY lower(COALESCE(u.family_name, '')), lower(u.name), lower(u.email)
-          `;
-        } else {
-          rows = await sql`
-            SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                   u.name, u.family_name, u.photo_url, u.description,
-                   u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
-            FROM users u
-            LEFT JOIN schools s ON s.id = u.school_id
-            WHERE u.deleted_at IS NULL
-            ORDER BY lower(COALESCE(u.family_name, '')), lower(u.name), lower(u.email)
-          `;
-        }
-      } else {
-        rows = await sql`
-          SELECT u.id, u.school_id, s.slug AS school_slug, s.name AS school_name,
-                 u.name, u.family_name, u.photo_url, u.description,
-                 u.email, u.phone, u.role, u.created_at, u.updated_at, u.last_login_at, u.disabled_at
-          FROM users u
-          LEFT JOIN schools s ON s.id = u.school_id
-          WHERE u.deleted_at IS NULL AND u.school_id = ${session.schoolId}
-          ORDER BY lower(COALESCE(u.family_name, '')), lower(u.name), lower(u.email)
-        `;
-      }
-
-      return res.status(200).json({ ok: true, data: rows.map(cleanUser) });
+    if (req.method === "GET")
+      return res.json({ ok: true, data: await listAccounts() });
+    if (req.method !== "POST") {
+      res.setHeader("Allow", ["GET", "POST"]);
+      return res.status(405).json({ ok: false, error: "Method not allowed" });
     }
-
-    if (req.method === 'POST') {
-      if (!(await requireAuth(req, res, { roles: ['school_admin'] }))) return;
-      const session = await getAuthSession(req);
-      const { name, familyName, family_name, photoUrl, photo_url, description, email, phone, role, school, password } = req.body || {};
-      if (!permitsSchoolFilter(session, school)) return res.status(403).json({ ok: false, error: 'Forbidden for this school' });
-      const trimmedName = typeof name === 'string' ? name.trim() : '';
-      const trimmedFamilyName =
-        typeof familyName === 'string'
-          ? familyName.trim()
-          : typeof family_name === 'string'
-          ? family_name.trim()
-          : '';
-      const normalizedEmail = normalizeEmail(email);
-      const normalizedPhone = normalizePhone(phone);
-      const normalizedPhotoUrl =
-        typeof photoUrl === 'string'
-          ? photoUrl.trim()
-          : typeof photo_url === 'string'
-          ? photo_url.trim()
-          : '';
-      const normalizedDescription = typeof description === 'string' ? description.trim() : '';
-      const requestedRole = typeof role === 'string' ? role : '';
-
-      if (!trimmedName) return res.status(400).json({ ok: false, error: 'Name is required' });
-      if (!trimmedFamilyName) return res.status(400).json({ ok: false, error: 'Family name is required' });
-      if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
-      if (!USER_ROLES.has(requestedRole)) {
-        return res.status(400).json({ ok: false, error: 'Invalid role' });
-      }
-      if (!isPlatformAdmin(session) && requestedRole === 'platform_admin') {
-        return res.status(403).json({ ok: false, error: 'Only platform admins can create platform admins' });
-      }
-
-      const passwordError = validatePassword(password);
-      if (passwordError) return res.status(400).json({ ok: false, error: passwordError });
-
-      const schoolId = await resolveTargetSchool(session, school, requestedRole);
-      if (requestedRole !== 'platform_admin' && !schoolId) {
-        return res.status(400).json({ ok: false, error: 'School is required for this role' });
-      }
-
-      const passwordHash = await hashPassword(password);
-      const rows = await sql`
-        INSERT INTO users (school_id, name, family_name, photo_url, description, email, phone, role, password_hash)
-        VALUES (${schoolId}, ${trimmedName}, ${trimmedFamilyName}, ${normalizedPhotoUrl || null}, ${normalizedDescription || null}, ${normalizedEmail}, ${normalizedPhone || null}, ${requestedRole}, ${passwordHash})
-        RETURNING id, school_id, name, family_name, photo_url, description, email, phone, role, created_at, updated_at, last_login_at, disabled_at
-      `;
-      return res.status(201).json({ ok: true, data: cleanUser(rows[0]) });
-    }
-
-    res.setHeader('Allow', ['GET', 'POST']);
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
-  } catch (err) {
-    console.error('users api error:', err);
-    if (err?.code === '23505') {
-      return res.status(409).json({ ok: false, error: 'User already exists' });
-    }
-    return res.status(500).json({ ok: false, error: 'Could not update or load users. Please try again.' });
+    const b = req.body || {};
+    const details = {
+      name: typeof b.name === "string" ? b.name.trim() : "",
+      familyName: typeof b.familyName === "string" ? b.familyName.trim() : "",
+      email: normalizeEmail(b.email),
+      phone: normalizePhone(b.phone),
+      description:
+        typeof b.description === "string" ? b.description.trim() : "",
+    };
+    if (
+      !details.name ||
+      !details.familyName ||
+      !details.email ||
+      details.email.length > 320
+    )
+      return res
+        .status(400)
+        .json({
+          ok: false,
+          error: "Name, family name and email are required.",
+        });
+    const error = validatePassword(b.password);
+    if (error) return res.status(400).json({ ok: false, error });
+    if (
+      !["student", "coach", "school_admin", "platform_admin"].includes(b.role)
+    )
+      return res.status(400).json({ ok: false, error: "Invalid role" });
+    const school = b.school ? await resolveSchoolScope(b.school) : null;
+    if (b.school && !school)
+      return res.status(404).json({ ok: false, error: "School not found" });
+    const roles = Array.isArray(b.roles)
+      ? b.roles
+      : ["coach", "school_admin"].includes(b.role)
+        ? [b.role]
+        : [];
+    if (roles.length && !school)
+      return res
+        .status(400)
+        .json({ ok: false, error: "Choose a school for staff access." });
+    const hash = await hashPassword(b.password);
+    const [created] =
+      await sql`SELECT create_global_account(${session.userId}::uuid,${JSON.stringify(details)}::jsonb,${hash},${school?.id || null}::uuid,${roles}::text[],${b.role === "platform_admin"}) AS id`;
+    return res
+      .status(201)
+      .json({ ok: true, data: (await listAccounts(created.id))[0] });
+  } catch (e) {
+    return accountError(res, e);
   }
 }

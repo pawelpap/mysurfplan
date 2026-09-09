@@ -15,7 +15,6 @@ import {
   dateLabel,
   timeLabel,
   fullName,
-  isAdmin,
   request,
   useData,
 } from "./ui";
@@ -26,10 +25,7 @@ import {
 } from "../../lib/lesson-input.mjs";
 
 const levelOptions = levels.map((value) => ({ value, label: value }));
-const bookedBy = (lesson, session) =>
-  (lesson.attendees || []).some(
-    (p) => p.email?.toLowerCase() === session.email?.toLowerCase(),
-  );
+const bookedBy = (lesson) => lesson.isMine === true;
 const instructors = (lesson) =>
   lesson.coaches?.map((c) => c.name).join(", ") || "Not assigned";
 const spaces = (lesson) =>
@@ -37,14 +33,26 @@ const spaces = (lesson) =>
     ? `${lesson.bookedCount} booked · No limit`
     : `${lesson.bookedCount} / ${lesson.capacity} booked`;
 
-export default function Lessons({ school, session, query, go, onForecast }) {
+export default function Lessons({
+  school,
+  session,
+  query,
+  go,
+  onForecast,
+  mode = "school",
+}) {
   const source = useData(
-    school ? `/api/lessons?school=${encodeURIComponent(school.slug)}` : null,
+    mode !== "school"
+      ? `/api/lessons?scope=${mode}`
+      : school
+        ? `/api/lessons?school=${encodeURIComponent(school.slug)}`
+        : null,
   );
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState("");
   const [notice, setNotice] = useState("");
-  const admin = isAdmin(session.role);
+  const admin =
+    mode === "school" && Boolean(session.capabilities?.manageSchool);
   const period = ["past", "mine"].includes(query.period)
     ? query.period
     : "upcoming";
@@ -62,7 +70,7 @@ export default function Lessons({ school, session, query, go, onForecast }) {
     });
   };
 
-  if (!school)
+  if (!school && mode === "school")
     return (
       <Empty title="Choose a school">Select a school to see its lessons.</Empty>
     );
@@ -113,7 +121,7 @@ export default function Lessons({ school, session, query, go, onForecast }) {
       );
     if (
       ["bookings", "add-booking"].includes(query.action) &&
-      session.role !== "student"
+      lesson.capabilities?.manageBookings
     )
       return (
         <Bookings
@@ -170,11 +178,19 @@ export default function Lessons({ school, session, query, go, onForecast }) {
   return (
     <>
       <PageHeading
-        title={session.role === "coach" ? "Your lessons" : "Lessons"}
+        title={
+          mode === "bookings"
+            ? "My bookings"
+            : mode === "teaching"
+              ? "My teaching"
+              : "School lessons"
+        }
         description={
-          session.role === "coach"
-            ? "Review the lessons you are assigned to teach."
-            : "Find a lesson and open it to see the details."
+          mode === "bookings"
+            ? "Your booked lessons across schools."
+            : mode === "teaching"
+              ? "Lessons you are assigned to teach."
+              : "Find a lesson and open it to see the details."
         }
         action={
           admin && (
@@ -190,7 +206,7 @@ export default function Lessons({ school, session, query, go, onForecast }) {
       <div className="segment" aria-label="Lesson period">
         {[
           ["upcoming", "Upcoming"],
-          ...(session.role === "student" ? [["mine", "My bookings"]] : []),
+          ...(mode === "school" ? [["mine", "My bookings"]] : []),
           ["past", "Past"],
         ].map(([value, label]) => (
           <button
@@ -245,6 +261,7 @@ export default function Lessons({ school, session, query, go, onForecast }) {
               </span>
               <span>
                 <strong>{lesson.spotName || lesson.place}</strong>
+                {mode !== "school" && <small>{lesson.schoolName}</small>}
                 {lesson.spotName && <small>{lesson.place}</small>}
                 <small>{lesson.difficulty}</small>
               </span>
@@ -304,7 +321,11 @@ export default function Lessons({ school, session, query, go, onForecast }) {
             : period === "upcoming"
               ? admin
                 ? "Create the next lesson to start filling your schedule."
-                : "Your school has not published any upcoming lessons yet."
+                : mode === "bookings"
+                  ? "You have no upcoming bookings."
+                  : mode === "teaching"
+                    ? "You have no upcoming teaching assignments."
+                    : "This school has no upcoming lessons."
               : period === "mine"
                 ? "Choose a lesson from Upcoming to make a booking."
                 : "Completed lessons will appear here."}
@@ -547,7 +568,7 @@ function LessonDetail({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const admin = isAdmin(session.role);
+  const admin = Boolean(lesson.capabilities?.manageSchool);
   const booked = bookedBy(lesson, session);
   const status = lessonStatus(lesson);
   async function book() {
@@ -559,7 +580,11 @@ function LessonDetail({
     try {
       await request(`/api/lessons/${lesson.id}/book`, {
         method: booked ? "DELETE" : "POST",
-        body: JSON.stringify({ name: fullName(session), email: session.email }),
+        body: JSON.stringify({
+          name: fullName(session),
+          email: session.email,
+          onBehalf: false,
+        }),
       });
       setSuccess(
         booked
@@ -613,6 +638,10 @@ function LessonDetail({
             <dd>{lesson.spotName || "Not assigned"}</dd>
           </div>
           <div>
+            <dt>School</dt>
+            <dd>{lesson.schoolName}</dd>
+          </div>
+          <div>
             <dt>Meeting point</dt>
             <dd>{lesson.place}</dd>
           </div>
@@ -634,7 +663,7 @@ function LessonDetail({
           </div>
         </dl>
         <div className="task-actions">
-          {session.role === "student" ? (
+          {!lesson.capabilities?.manageBookings ? (
             <>
               <Button
                 tone="primary"
@@ -642,7 +671,10 @@ function LessonDetail({
                 disabled={
                   busy ||
                   status === "Past" ||
-                  (!booked && (status === "Full" || !lesson.spotActive))
+                  (!booked &&
+                    (status === "Full" ||
+                      !lesson.spotActive ||
+                      !lesson.capabilities?.bookSelf))
                 }
               >
                 {busy
@@ -694,7 +726,7 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const admin = isAdmin(session.role);
+  const admin = Boolean(lesson.capabilities?.manageSchool);
   const status = lessonStatus(lesson);
   async function submit(e) {
     e.preventDefault();
@@ -703,7 +735,7 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
     try {
       await request(`/api/lessons/${lesson.id}/book`, {
         method: "POST",
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name, email, onBehalf: true }),
       });
       reload();
       onList();
@@ -723,7 +755,7 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
     try {
       await request(`/api/lessons/${lesson.id}/book`, {
         method: "DELETE",
-        body: JSON.stringify({ email: person.email }),
+        body: JSON.stringify({ email: person.email, onBehalf: true }),
       });
       reload();
     } catch (e) {

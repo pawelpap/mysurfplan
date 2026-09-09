@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
 import Conditions from "../components/conditions";
 import { ThemeSelector } from "../components/theme";
+import Memberships from "../components/workspace/memberships";
+import { withSchool, schoolAccess } from "../lib/school-access.mjs";
 import People from "../components/workspace/people";
 import Schools from "../components/workspace/schools";
 import {
@@ -36,31 +38,45 @@ export default function Workspace() {
   const main = useRef(null);
   const availableSchools = isPlatform(session?.role)
     ? schools.data
-    : schools.data.filter((s) => s.id === session?.schoolId);
+    : schools.data.filter((s) =>
+        session?.schools?.some((a) => a.id === s.id && a.open),
+      );
   const requestedSchool =
     typeof router.query.school === "string" ? router.query.school : "";
   const school =
     requestedSchool === "all" &&
     isPlatform(session?.role) &&
-    router.query.view === "people"
+    router.query.view === "accounts"
       ? null
       : availableSchools.find(
           (s) => s.slug === requestedSchool || s.id === requestedSchool,
         ) ||
         availableSchools[0] ||
         null;
+  const scopedSession =
+    school && session ? withSchool(session, school.id) : session;
+  const schoolCapabilities = schoolAccess(session, school?.id);
   const allowed = [
     "conditions",
-    "lessons",
-    ...(isAdmin(session?.role) ? ["people"] : []),
-    ...(isPlatform(session?.role) ? ["schools"] : []),
+    "bookings",
+    ...(session?.schools?.some(
+      (s) => s.open && s.status === "active" && s.roles.includes("coach"),
+    )
+      ? ["teaching"]
+      : []),
+    ...(school ? ["lessons"] : []),
+    ...(schoolCapabilities.manageSchool ? ["people"] : []),
+    ...(isPlatform(session?.role) ? ["accounts", "schools"] : []),
     "profile",
   ];
   const view = allowed.includes(router.query.view)
     ? router.query.view
     : "conditions";
   const labels = {
-    lessons: "Lessons",
+    lessons: "School lessons",
+    bookings: "My bookings",
+    teaching: "My teaching",
+    accounts: "Accounts",
     conditions: "Conditions",
     people: "People",
     schools: "Schools",
@@ -76,8 +92,13 @@ export default function Workspace() {
       );
   }, [auth.url, auth.loading, auth.error, session, requestedSchool]);
   useEffect(() => {
-    const refresh = () => { if (document.visibilityState === "visible") reloadAuth(); };
-    const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("account-access") : null;
+    const refresh = () => {
+      if (document.visibilityState === "visible") reloadAuth();
+    };
+    const channel =
+      typeof BroadcastChannel === "function"
+        ? new BroadcastChannel("account-access")
+        : null;
     if (channel) channel.onmessage = refresh;
     window.addEventListener("focus", refresh);
     window.addEventListener("account-access-changed", refresh);
@@ -152,7 +173,9 @@ export default function Workspace() {
     setLoggingOut(true);
     setError("");
     try {
-      await request(`/api/auth/session${all === true ? "?all=1" : ""}`, { method: "DELETE" });
+      await request(`/api/auth/session${all === true ? "?all=1" : ""}`, {
+        method: "DELETE",
+      });
       if (typeof BroadcastChannel === "function") {
         const channel = new BroadcastChannel("account-access");
         channel.postMessage("logout");
@@ -243,17 +266,20 @@ export default function Workspace() {
           <label htmlFor="current-school">
             <small>Current school</small>
           </label>
-          {isPlatform(session.role) ? (
+          {availableSchools.length > 1 || isPlatform(session.role) ? (
             <select
               id="current-school"
               value={school?.slug || "all"}
               onChange={(e) =>
                 go(view === "profile" ? "lessons" : view, {
+                  ...(view === "conditions"
+                    ? { spot: router.query.spot, date: router.query.date }
+                    : {}),
                   school: e.target.value,
                 })
               }
             >
-              {view === "people" && <option value="all">All schools</option>}
+              {view === "accounts" && <option value="all">All schools</option>}
               {availableSchools.map((s) => (
                 <option value={s.slug} key={s.id}>
                   {s.name}
@@ -261,7 +287,7 @@ export default function Workspace() {
               ))}
             </select>
           ) : (
-            <strong>{school?.name || "No school assigned"}</strong>
+            <strong>{school?.name || "Personal account"}</strong>
           )}
           {school && (
             <a
@@ -298,7 +324,11 @@ export default function Workspace() {
             <Avatar person={session} />
             <span>
               <strong>{fullName(session)}</strong>
-              <small>{roleName(session.role)}</small>
+              <small>
+                {isPlatform(session.role)
+                  ? roleName(session.role)
+                  : "Personal account"}
+              </small>
             </span>
           </button>
           <Button tone="quiet" onClick={() => logout()} disabled={loggingOut}>
@@ -314,17 +344,20 @@ export default function Workspace() {
           <span>
             {view === "schools"
               ? "Platform workspace"
-              : school?.name || "All schools"}
+              : ["bookings", "teaching", "profile"].includes(view)
+                ? "Personal workspace"
+                : school?.name || "Personal workspace"}
           </span>
         </div>
         <Message>{error}</Message>
-        {view === "lessons" && (
+        {["lessons", "bookings", "teaching"].includes(view) && (
           <Lessons
-            key={school?.id || "none"}
+            key={`${view}:${school?.id || "none"}:${JSON.stringify(session.schools)}`}
             school={school}
-            session={session}
+            session={view === "lessons" ? scopedSession : session}
+            mode={view === "lessons" ? "school" : view}
             query={router.query}
-            go={(values) => go("lessons", values)}
+            go={(values) => go(view, values)}
             onForecast={(spot, date) => go("conditions", { spot, date })}
           />
         )}
@@ -335,14 +368,21 @@ export default function Workspace() {
             go={(values) => go("conditions", values)}
           />
         )}
-        {view === "people" && (
+        {view === "people" && school && (
+          <Memberships
+            key={school.id}
+            school={school}
+            session={scopedSession}
+          />
+        )}
+        {view === "accounts" && (
           <People
             key={school?.id || "all"}
             school={school}
             schools={availableSchools}
             session={session}
             query={router.query}
-            go={(values) => go("people", values)}
+            go={(values) => go("accounts", values)}
           />
         )}
         {view === "schools" && (
@@ -362,7 +402,7 @@ export default function Workspace() {
             onEdit={
               isAdmin(session.role)
                 ? () =>
-                    go("people", {
+                    go("accounts", {
                       school: session.schoolSlug || "all",
                       person: session.userId,
                       action: "edit",
@@ -394,7 +434,11 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
           <Avatar person={session} />
           <div>
             <h2>{fullName(session)}</h2>
-            <p className="muted">{roleName(session.role)}</p>
+            <p className="muted">
+              {isPlatform(session.role)
+                ? roleName(session.role)
+                : "Personal account"}
+            </p>
           </div>
         </div>
         <dl className="detail-grid">
@@ -414,16 +458,41 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
           )}
         </dl>
       </section>
+      {session.schools?.length > 0 && (
+        <section className="surface padded profile-access">
+          <h2>School access</h2>
+          <dl className="detail-grid">
+            {session.schools.map((s) => (
+              <div key={s.id}>
+                <dt>{s.name}</dt>
+                <dd>
+                  {!s.open
+                    ? "School closed"
+                    : s.status === "suspended"
+                      ? "Staff access suspended"
+                      : s.status === "left"
+                        ? "Staff access removed"
+                        : [s.owner ? "Owner" : "", ...s.roles.map(roleName)]
+                            .filter(Boolean)
+                            .join(" · ") || "Surfer"}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
       <section className="surface padded profile-access">
         <h2>Account access</h2>
-        <p className="muted">Log out on all browsers and devices, including this one.</p>
+        <p className="muted">
+          Log out on all browsers and devices, including this one.
+        </p>
         <Button onClick={onLogoutAll} disabled={loggingOut}>
           {loggingOut ? "Logging out…" : "Log out everywhere"}
         </Button>
       </section>
       {!onEdit && (
         <p className="muted-note">
-          Contact your school admin to update your account details.
+          Contact support to update your account details.
         </p>
       )}
     </div>

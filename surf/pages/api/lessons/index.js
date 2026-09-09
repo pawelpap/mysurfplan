@@ -1,4 +1,4 @@
-import { requireMutation } from '../../../lib/request-security.mjs';
+import { requireMutation } from "../../../lib/request-security.mjs";
 // /pages/api/lessons/index.js
 import { sql } from "lib/db";
 import { requireAuth } from "../../../lib/auth";
@@ -10,7 +10,15 @@ import { validateLesson } from "../../../lib/lesson-input.mjs";
  */
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
-  if (!(await requireAuth(req, res, { roles: req.method === "GET" ? ["school_admin", "coach", "student"] : ["school_admin"] }))) return;
+  if (
+    !(await requireAuth(req, res, {
+      roles:
+        req.method === "GET"
+          ? ["school_admin", "coach", "student"]
+          : ["school_admin"],
+    }))
+  )
+    return;
   if (req.method === "GET") {
     return getLessons(req, res);
   }
@@ -38,93 +46,76 @@ async function resolveSchoolId(school) {
 }
 
 async function getLessons(req, res) {
-  const school = Array.isArray(req.query.school)
-    ? req.query.school[0]
-    : req.query.school;
-  if (!school) {
-    res.status(400).json({ ok: false, error: "Missing ?school=<slug>" });
-    return;
-  }
-
   try {
-    const schoolId = await resolveSchoolId(school);
-    if (!schoolId)
-      return res.status(404).json({ ok: false, error: "School not found" });
-    const session = await requireAuth(req, res, { schoolId });
+    const personal = req.query.scope === "bookings";
+    const teaching = req.query.scope === "teaching";
+    if (req.query.scope && !personal && !teaching)
+      return res.status(400).json({ ok: false, error: "Invalid lesson view" });
+    let schoolId = null;
+    if (!personal && !teaching) {
+      if (typeof req.query.school !== "string")
+        return res.status(400).json({ ok: false, error: "Choose a school." });
+      schoolId = await resolveSchoolId(req.query.school);
+      if (!schoolId)
+        return res.status(404).json({ ok: false, error: "School not found" });
+    }
+    const session = await requireAuth(req, res, schoolId ? { schoolId } : {});
     if (!session) return;
-
     const rows = await sql`
-      SELECT
-        l.id,
-        l.school_id,
-        l.start_at,
-        l.duration_min,
-        l.difficulty,
-        l.place,
-        l.spot_id,
-        sp.name AS spot_name,
-        sp.timezone AS spot_timezone,
-        sp.active AS spot_active,
-        l.capacity,
-        COALESCE(
-          (SELECT JSON_AGG(JSON_BUILD_OBJECT('id', c.id, 'name', c.name))
-           FROM lesson_coaches lc JOIN coaches c ON c.id = lc.coach_id
-           WHERE lc.lesson_id = l.id AND c.school_id = l.school_id AND c.deleted_at IS NULL),
-          '[]'::json
-        ) AS coaches,
-        COALESCE(
-          (SELECT ls.booked_count FROM lesson_stats ls WHERE ls.lesson_id = l.id),
-          0
-        ) AS booked_count,
-        COALESCE(
-          (
-            SELECT JSON_AGG(
-              JSON_BUILD_OBJECT('id', s.id, 'name', s.name, 'email', s.email)
-            )
-            FROM bookings b
-            JOIN students s ON s.id = b.student_id
-            WHERE b.lesson_id = l.id AND b.status = 'booked'
-              AND s.school_id = l.school_id AND s.deleted_at IS NULL
-              AND (${session.role !== 'student'} OR
-                (s.user_id = ${session.userId}::uuid OR
-                 (s.user_id IS NULL AND lower(s.email) = ${session.email?.toLowerCase() || ''})))
-          ),
-          '[]'::json
-        ) AS attendees
-      FROM lessons l
-      LEFT JOIN surf_spots sp ON sp.id = l.spot_id
-      WHERE l.school_id = ${schoolId} AND l.deleted_at IS NULL
-        AND (${session.role !== 'coach'} OR EXISTS (
-          SELECT 1 FROM lesson_coaches lc JOIN coaches c ON c.id = lc.coach_id
-          WHERE lc.lesson_id = l.id AND c.school_id = l.school_id
-            AND c.user_id = ${session.userId}::uuid AND c.deleted_at IS NULL
-        ))
-      ORDER BY l.start_at ASC;
-    `;
-
-    const data = rows.map((r) => ({
-      id: r.id,
-      schoolId: r.school_id,
-      startAt: r.start_at,
-      durationMin: r.duration_min,
-      difficulty: r.difficulty,
-      place: r.place,
-      spotId: r.spot_id,
-      spotName: r.spot_name,
-      spotTimezone: r.spot_timezone,
-      spotActive: Boolean(r.spot_active),
-      capacity: r.capacity,
-      bookedCount: r.booked_count,
-      coaches: r.coaches || [],
-      attendees: r.attendees || [],
-    }));
-
-    res.status(200).json({ ok: true, data });
-  } catch (err) {
-    res.status(500).json({
-      ok: false,
-      error: "Server error",
+      SELECT l.id,l.school_id,sc.name AS school_name,l.start_at,l.duration_min,l.difficulty,l.place,l.spot_id,l.capacity,
+       sp.name AS spot_name,sp.timezone AS spot_timezone,sp.active AS spot_active,
+       sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended') AS school_open,
+       access.manage,access.teach,access.mine,
+       COALESCE((SELECT json_agg(json_build_object('id',c.id,'name',c.name)) FROM lesson_coaches lc JOIN coaches c ON c.id=lc.coach_id
+         WHERE lc.lesson_id=l.id AND c.school_id=l.school_id AND c.deleted_at IS NULL),'[]'::json) AS coaches,
+       (SELECT count(*)::int FROM bookings b WHERE b.lesson_id=l.id AND b.status='booked') AS booked_count,
+       COALESCE((SELECT json_agg(json_build_object('id',s.id,'name',s.name,'email',s.email)) FROM bookings b JOIN students s ON s.id=b.student_id
+         WHERE b.lesson_id=l.id AND b.status='booked' AND s.school_id=l.school_id AND s.deleted_at IS NULL
+          AND ((NOT ${personal} AND (access.manage OR access.teach)) OR s.user_id=${session.userId}::uuid)),'[]'::json) AS attendees
+      FROM lessons l JOIN schools sc ON sc.id=l.school_id LEFT JOIN surf_spots sp ON sp.id=l.spot_id
+      CROSS JOIN LATERAL (SELECT account_manages_school(${session.userId}::uuid,l.school_id) AS manage,
+       EXISTS(SELECT 1 FROM account_school_access a JOIN coaches c ON c.school_id=a.school_id AND c.user_id=a.user_id
+        JOIN lesson_coaches lc ON lc.coach_id=c.id WHERE a.user_id=${session.userId}::uuid AND a.school_id=l.school_id
+        AND a.school_open AND a.status='active' AND 'coach'=ANY(a.roles) AND c.deleted_at IS NULL AND lc.lesson_id=l.id) AS teach,
+       EXISTS(SELECT 1 FROM bookings b JOIN students s ON s.id=b.student_id WHERE b.lesson_id=l.id AND b.status='booked'
+        AND s.user_id=${session.userId}::uuid AND s.school_id=l.school_id AND s.deleted_at IS NULL) AS mine) access
+      WHERE l.deleted_at IS NULL AND
+       CASE WHEN ${personal} THEN access.mine WHEN ${teaching} THEN access.teach
+       ELSE l.school_id=${schoolId}::uuid AND sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended')
+        AND (${session.role !== "coach"} OR access.teach) END
+      ORDER BY l.start_at ASC LIMIT 500`;
+    return res.json({
+      ok: true,
+      data: rows.map((r) => ({
+        id: r.id,
+        schoolId: r.school_id,
+        schoolName: r.school_name,
+        startAt: r.start_at,
+        durationMin: r.duration_min,
+        difficulty: r.difficulty,
+        place: r.place,
+        spotId: r.spot_id,
+        spotName: r.spot_name,
+        spotTimezone: r.spot_timezone,
+        spotActive: Boolean(r.spot_active),
+        schoolOpen: r.school_open,
+        capacity: r.capacity,
+        bookedCount: r.booked_count,
+        isMine: r.mine,
+        coaches: r.coaches,
+        attendees: r.attendees,
+        capabilities: {
+          manageSchool: !personal && r.manage,
+          manageBookings: !personal && (r.manage || r.teach),
+          bookSelf: r.school_open,
+          cancelSelf: r.mine,
+        },
+      })),
     });
+  } catch {
+    return res
+      .status(500)
+      .json({ ok: false, error: "Could not load lessons. Please try again." });
   }
 }
 
@@ -136,7 +127,12 @@ async function createLesson(req, res) {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
-    if (!(await requireAuth(req, res, { roles: ["admin", "school_admin"], schoolId })))
+    if (
+      !(await requireAuth(req, res, {
+        roles: ["admin", "school_admin"],
+        schoolId,
+      }))
+    )
       return;
     let input;
     try {
@@ -156,12 +152,10 @@ async function createLesson(req, res) {
     const [spot] =
       await sql`SELECT id FROM surf_spots WHERE id=${spotId} AND active=true`;
     if (!spot)
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          error: "Choose an active surf spot from the list.",
-        });
+      return res.status(400).json({
+        ok: false,
+        error: "Choose an active surf spot from the list.",
+      });
     if (coachIds.length) {
       const valid =
         await sql`SELECT id FROM coaches WHERE school_id = ${schoolId} AND id = ANY(${coachIds}::uuid[]) AND deleted_at IS NULL`;

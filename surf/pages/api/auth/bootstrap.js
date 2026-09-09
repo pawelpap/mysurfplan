@@ -1,13 +1,13 @@
-import crypto from 'crypto';
-import { sql } from '../../../lib/db';
-import { requireMutation } from '../../../lib/request-security.mjs';
+import crypto from "crypto";
+import { sql } from "../../../lib/db";
+import { requireMutation } from "../../../lib/request-security.mjs";
 import {
   hashPassword,
   normalizeEmail,
   normalizePhone,
   setUserAuthSession,
   validatePassword,
-} from '../../../lib/auth';
+} from "../../../lib/auth";
 
 function tokenMatches(actual, expected) {
   if (!actual || !expected) return false;
@@ -21,43 +21,58 @@ function tokenMatches(actual, expected) {
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
   const expectedToken = process.env.BOOTSTRAP_ADMIN_TOKEN;
   if (!requireMutation(req, res)) return;
   if (!expectedToken) {
-    return res.status(404).json({ ok: false, error: 'Bootstrap is disabled' });
+    return res.status(404).json({ ok: false, error: "Bootstrap is disabled" });
   }
 
   try {
-    const { token, name, familyName, family_name, photoUrl, photo_url, description, email, phone, password } = req.body || {};
+    const {
+      token,
+      name,
+      familyName,
+      family_name,
+      photoUrl,
+      photo_url,
+      description,
+      email,
+      phone,
+      password,
+    } = req.body || {};
     if (!tokenMatches(token, expectedToken)) {
-      return res.status(403).json({ ok: false, error: 'Forbidden' });
+      return res.status(403).json({ ok: false, error: "Forbidden" });
     }
 
     const normalizedEmail = normalizeEmail(email);
     const normalizedPhone = normalizePhone(phone);
-    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    const trimmedName = typeof name === "string" ? name.trim() : "";
     const trimmedFamilyName =
-      typeof familyName === 'string'
+      typeof familyName === "string"
         ? familyName.trim()
-        : typeof family_name === 'string'
-        ? family_name.trim()
-        : '';
+        : typeof family_name === "string"
+          ? family_name.trim()
+          : "";
     const normalizedPhotoUrl =
-      typeof photoUrl === 'string'
+      typeof photoUrl === "string"
         ? photoUrl.trim()
-        : typeof photo_url === 'string'
-        ? photo_url.trim()
-        : '';
-    const normalizedDescription = typeof description === 'string' ? description.trim() : '';
+        : typeof photo_url === "string"
+          ? photo_url.trim()
+          : "";
+    const normalizedDescription =
+      typeof description === "string" ? description.trim() : "";
     const passwordError = validatePassword(password);
-    if (!trimmedName) return res.status(400).json({ ok: false, error: 'Name is required' });
-    if (!normalizedEmail) return res.status(400).json({ ok: false, error: 'Email is required' });
-    if (passwordError) return res.status(400).json({ ok: false, error: passwordError });
+    if (!trimmedName)
+      return res.status(400).json({ ok: false, error: "Name is required" });
+    if (!normalizedEmail)
+      return res.status(400).json({ ok: false, error: "Email is required" });
+    if (passwordError)
+      return res.status(400).json({ ok: false, error: passwordError });
 
     const existing = await sql`
       SELECT COUNT(*)::int AS count
@@ -65,16 +80,30 @@ export default async function handler(req, res) {
       WHERE deleted_at IS NULL
     `;
     if ((existing[0]?.count || 0) > 0) {
-      return res.status(409).json({ ok: false, error: 'Bootstrap user already exists' });
+      return res
+        .status(409)
+        .json({ ok: false, error: "Bootstrap user already exists" });
     }
 
     const passwordHash = await hashPassword(password);
-    const inserted = await sql`
-      INSERT INTO users (school_id, name, family_name, photo_url, description, email, phone, role, password_hash, email_verified_at)
-      VALUES (NULL, ${trimmedName}, ${trimmedFamilyName || null}, ${normalizedPhotoUrl || null}, ${normalizedDescription || null}, ${normalizedEmail}, ${normalizedPhone || null}, 'platform_admin', ${passwordHash}, now())
-      RETURNING password_hash, id, school_id, name, family_name, photo_url, description, email, phone, role, NULL::text AS school_slug
-    `;
-    const user = inserted[0];
+    const results = await sql.transaction([
+      sql`SELECT pg_advisory_xact_lock(90490902)`,
+      sql`WITH created AS (
+        INSERT INTO users (school_id,name,family_name,photo_url,description,email,phone,role,password_hash,email_verified_at)
+        SELECT NULL,${trimmedName},${trimmedFamilyName || null},${normalizedPhotoUrl || null},${normalizedDescription || null},${normalizedEmail},${normalizedPhone || null},
+          CASE WHEN authority='legacy_shadow' THEN 'platform_admin'::user_role ELSE 'student'::user_role END,${passwordHash},now()
+        FROM identity_migration_state WHERE singleton AND NOT EXISTS(SELECT 1 FROM users WHERE deleted_at IS NULL)
+        RETURNING *
+      ), granted AS (
+        INSERT INTO platform_role_assignments(user_id,origin) SELECT id,'explicit' FROM created
+        ON CONFLICT(user_id,role) WHERE revoked_at IS NULL DO NOTHING
+      ) SELECT id,password_hash FROM created`,
+    ]);
+    const user = results[1][0];
+    if (!user)
+      return res
+        .status(409)
+        .json({ ok: false, error: "Bootstrap user already exists" });
     const session = await setUserAuthSession(res, user);
 
     return res.status(201).json({
@@ -82,24 +111,23 @@ export default async function handler(req, res) {
       data: {
         session,
         user: {
-          id: user.id,
-          schoolId: user.school_id,
-          schoolSlug: user.school_slug,
-          name: user.name,
-          familyName: user.family_name,
-          photoUrl: user.photo_url,
-          description: user.description,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
+          id: session.userId,
+          name: session.name,
+          email: session.email,
+          role: session.role,
         },
       },
     });
   } catch (err) {
-    console.error('bootstrap error:', err);
-    if (err?.code === '23505') {
-      return res.status(409).json({ ok: false, error: 'User already exists' });
+    console.error("bootstrap error:", err);
+    if (err?.code === "23505") {
+      return res.status(409).json({ ok: false, error: "User already exists" });
     }
-    return res.status(500).json({ ok: false, error: 'Could not create the account. Please try again.' });
+    return res
+      .status(500)
+      .json({
+        ok: false,
+        error: "Could not create the account. Please try again.",
+      });
   }
 }

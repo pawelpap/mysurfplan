@@ -16,22 +16,35 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: "Missing school" });
 
     for (const date of [from, to]) {
-      if (date !== undefined && (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date + 'T00:00:00Z')) || new Date(date + 'T00:00:00Z').toISOString().slice(0, 10) !== date))
-        return res.status(400).json({ ok: false, error: 'Use a valid date in YYYY-MM-DD format.' });
+      if (
+        date !== undefined &&
+        (typeof date !== "string" ||
+          !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+          !Number.isFinite(Date.parse(date + "T00:00:00Z")) ||
+          new Date(date + "T00:00:00Z").toISOString().slice(0, 10) !== date)
+      )
+        return res
+          .status(400)
+          .json({ ok: false, error: "Use a valid date in YYYY-MM-DD format." });
     }
-    if (difficulty !== undefined && !['Beginner', 'Intermediate', 'Advanced'].includes(difficulty))
-      return res.status(400).json({ ok: false, error: 'Choose a valid lesson level.' });
+    if (
+      difficulty !== undefined &&
+      !["Beginner", "Intermediate", "Advanced"].includes(difficulty)
+    )
+      return res
+        .status(400)
+        .json({ ok: false, error: "Choose a valid lesson level." });
 
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
         school,
       );
     const byId = isUuid
-      ? await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL`
+      ? await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR listing_status='published')`
       : [];
     const bySlug = byId.length
       ? []
-      : await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL`;
+      : await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR listing_status='published')`;
     const schoolId = byId[0]?.id || bySlug[0]?.id;
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });

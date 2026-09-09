@@ -18,9 +18,7 @@ import {
 } from "./ui";
 
 export default function People({ school, schools, session, query, go }) {
-  const source = useData(
-    `/api/users${school ? `?school=${encodeURIComponent(school.slug)}` : ""}`,
-  );
+  const source = useData("/api/users");
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
   const [notice, setNotice] = useState("");
@@ -98,12 +96,8 @@ export default function People({ school, schools, session, query, go }) {
   return (
     <>
       <PageHeading
-        title="People"
-        description={
-          school
-            ? `Manage login accounts for ${school.name}.`
-            : "Manage accounts across all schools."
-        }
+        title="Accounts"
+        description={"Manage personal accounts across the platform."}
         action={
           <Button
             tone="primary"
@@ -297,7 +291,7 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
     phone: person?.phone || "",
     description: person?.description || "",
     role: person?.role || "student",
-    school: person?.schoolId || school?.id || "",
+    ...(!person ? { school: school?.id || "" } : {}),
     password: "",
     disabled: Boolean(person?.disabledAt),
   });
@@ -367,15 +361,21 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
           />
           <SelectField
             label="Role"
-            options={roles.map((value) => ({ value, label: roleName(value) }))}
+            options={(person ? ["student", "platform_admin"] : roles).map(
+              (value) => ({
+                value,
+                label:
+                  value === "student" ? "Personal account" : roleName(value),
+              }),
+            )}
             {...bind("role")}
           />
-          {form.role !== "platform_admin" && (
+          {!person && form.role !== "platform_admin" && (
             <SelectField
               label="School"
-              required
+              required={form.role !== "student"}
               options={[
-                { value: "", label: "Select school" },
+                { value: "", label: "No school" },
                 ...schools.map((s) => ({ value: s.id, label: s.name })),
               ]}
               {...bind("school")}
@@ -388,8 +388,16 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
             <SelectField
               label="Account status"
               value={form.disabled ? "disabled" : "active"}
-              options={[{ value: "active", label: "Active" }, { value: "disabled", label: "Disabled" }]}
-              onChange={(e) => setForm((old) => ({ ...old, disabled: e.target.value === "disabled" }))}
+              options={[
+                { value: "active", label: "Active" },
+                { value: "disabled", label: "Disabled" },
+              ]}
+              onChange={(e) =>
+                setForm((old) => ({
+                  ...old,
+                  disabled: e.target.value === "disabled",
+                }))
+              }
             />
           )}
           <Field
