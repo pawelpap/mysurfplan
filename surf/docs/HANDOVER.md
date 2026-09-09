@@ -4,14 +4,16 @@ Updated 9 September 2026. This is the single current handover. [Documentation in
 
 ## Current position
 
-The forecasting module and accepted visual design are the implemented baseline. The latest recorded runtime on both staging and production is `76bdcb73ae4713d913a2dd3ccc337a8781da5d07`, verified on 8 September. This documentation tidy-up did not recheck live deployments, change application code, migrate data or deploy anything.
+The forecasting module and accepted visual design remain the baseline. A1's school-access and response-privacy fixes are deployed on staging and production at runtime commit `9c96b5fc76f51153f6081da62b9ee788915b04e7`, verified on 9 September. The same release includes the requested documentation organisation and accepted planning documents.
 
-| Environment | URL | Git branch | Vercel project | Recorded runtime deployment |
+| Environment | URL | Git branch | Vercel project | Verified runtime deployment |
 | --- | --- | --- | --- | --- |
-| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_9qXjY5xNZcP4ehuYuTBicqbYfN6x` |
-| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_44J4FUH7pZeon6twpNYonzcP73zX` |
+| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_81dZvnSnJuEY4awz6dsccEhLPtg1` |
+| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_3rByNTGo2PX76qZciHCXLTA4gKwc` |
 
-The latest release added shared login limits, safe login errors and mutation-origin protection. Its additive migration was applied separately to both databases. Recorded verification: 77 regression tests, seven isolated database scenarios, nine live API scenarios per environment and desktop/mobile browser checks. These are prior release results, not tests rerun during this tidy-up. See [request-security evidence and rollback](archive/releases/RELEASE_2026-09-08_REQUEST_SECURITY.md).
+Students receive only their own attendee record and instructor names/IDs. Instructors' lesson queries are restricted to assigned lessons. School-admin filters and user writes enforce the authorised school; public schedules retain business contact details and availability without personal contacts. Database errors are safe for display and `/test/*` pages have been removed. See [current permissions](ACCESS_CONTROL.md) and [release evidence/rollback](archive/releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md).
+
+Verification: 81 regression tests, successful production build and 12 real API/database scenarios on the isolated rehearsal branch, staging and production. Each run removed its own disposable records. No schema migration, spot/calibration update, database copy or account reset was required. Runtime error/fatal log checks returned no matching entries in the verification window. Desktop/mobile browser checks passed. Simulated locations at Bico and Praia Grande confirmed automatic nearest selection and the full 17-spot distance order on both environments, with A–Z switching, manual-selection preservation and explicit spot links. Location-denied fallback was checked on staging.
 
 Forecasts include 17 active database spots, lesson conditions, tides/daylight, swell components, energy/power, water temperature and required experience. Generic São Pedro was removed; Bico and Bafureira remain separate, and Praia da Torre is included. Calibration uses generic database parameters. Preserve the accepted colours, equal metric emphasis, selected-time graph interaction, mobile layout, appearance selector and nearest-spot behaviour. [Latest documented spot rollout](archive/calibration/2026-09-07-local-review/README.md).
 
@@ -19,14 +21,11 @@ Staging and production databases are separate. Spot/configuration parity was che
 
 ## Next development step
 
-**A1: audit and fix school boundaries, public-response privacy and demo isolation. Effort M; FE, BE and DB.**
+**A2: review and upgrade Next.js and dependencies to a supported security baseline. Effort M; FE, BE and Ops.**
 
-- Inventory read/write endpoints and verify platform-admin, school-admin, instructor, student and unauthenticated access.
-- Test two-school isolation, including altered resource IDs/filters and private response fields.
-- Remove production `/test/*` playground routes and prevent demo access to customer-private records.
-- Preserve existing legitimate access, session/origin/rate protections, forecasts and design. Record gaps that need the later membership migration.
+Review the existing Next.js 14.2.3 dependency tree, choose a supported compatible release, apply the bounded upgrade and repeat build, authentication, access, forecast and booking checks on staging before production. Avoid a router or design rewrite unless the dependency decision requires it. A1 is complete for the current single-school model; combined roles and global identity remain B1/B2.
 
-Then complete supported dependency work and prepare B1/B2's global identity and school-membership migration. A3–A5 provider/policy decisions and A8's EU destination decision can progress alongside A1. Task estimates, dependencies and completion evidence are maintained only in the [roadmap](IMPLEMENTATION_ROADMAP.md).
+Prepare B1/B2's global identity and school-membership migration after A3's authentication decision. A3–A5 provider/policy decisions and A8's EU destination decision can progress alongside A2. Task estimates, dependencies and completion evidence are maintained only in the [roadmap](IMPLEMENTATION_ROADMAP.md).
 
 ## Accepted direction and pending implementation
 

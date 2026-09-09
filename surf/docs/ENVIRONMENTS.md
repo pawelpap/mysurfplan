@@ -1,6 +1,6 @@
 # Environments and release workflow
 
-Maintained operating reference, organised 9 September 2026. Environment facts below come from recorded releases and the 8 September infrastructure review; they were not rechecked live during the documentation tidy-up. [Docs index](README.md) · [Current handover](HANDOVER.md).
+Maintained operating reference, organised 9 September 2026. Project/branch mapping and A1 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
 
@@ -11,7 +11,7 @@ Maintained operating reference, organised 9 September 2026. Environment facts be
 
 Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-The latest recorded runtime is `76bdcb73ae4713d913a2dd3ccc337a8781da5d07` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [request-security release evidence](archive/releases/RELEASE_2026-09-08_REQUEST_SECURITY.md) records the last rollout.
+The latest recorded runtime is `9c96b5fc76f51153f6081da62b9ee788915b04e7` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [school-access release evidence](archive/releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md) records the last rollout.
 
 ## Local setup and database prerequisites
 
@@ -49,6 +49,6 @@ The first spot picker after login requests location once per page load. A fresh 
 
 Push the reviewed change to `staging`, wait for READY, then verify the staging custom domain. Leave production on its existing release until the owner approves, unless the specific task already authorises promotion after successful staging tests. Historical release approvals do not authorise new changes. After promotion through `main`, verify production and record evidence, compatible rollback and remaining limits in the current handover and a dated archive/releases record.
 
-The student-only `teststudent` account and Demo Surf School are available in both recorded environments. A1 still needs to audit demo isolation. Use dedicated test fixtures and preserve unrelated records. Lessons must select a database spot. Keep credentials and private test state outside committed documentation.
+The student-only `teststudent` account and Demo Surf School are available in both recorded environments. A1 verified demo isolation against two disposable schools; [current permissions](ACCESS_CONTROL.md) document its scope. Use dedicated test fixtures and preserve unrelated records. Lessons must select a database spot. Keep credentials and private test state outside committed documentation.
 
 Do not synchronise entire databases as part of a UI release. For any migration, rehearse first, preserve writes during cutover and define a rollback that accounts for subsequent data. Inspect historical rollback branches before relying on them. Close temporary testing tabs and reset viewport overrides afterwards.

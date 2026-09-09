@@ -16,7 +16,8 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
-| 8 September | [Login and request security](releases/RELEASE_2026-09-08_REQUEST_SECURITY.md). This supports the latest runtime recorded in the current handover. |
+| 9 September | [School access and response privacy](releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md), A1 verification and rollback. |
+| 8 September | [Login and request security](releases/RELEASE_2026-09-08_REQUEST_SECURITY.md). |
 | 7 September | [Nearest-spot selection](releases/RELEASE_2026-09-07_NEAREST_SPOT.md) |
 | 7 September | [Forecast calibration and tile cleanup](releases/RELEASE_2026-09-07_FORECAST_CALIBRATION.md) |
 | 7 September | [Revocable sessions](releases/RELEASE_2026-09-07_SESSION_REVOCATION.md) |
