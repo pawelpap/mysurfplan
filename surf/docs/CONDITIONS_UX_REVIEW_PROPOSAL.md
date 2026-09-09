@@ -2,7 +2,7 @@
 
 Recorded 9 September 2026. Source: design feedback from **Piotr**, relayed by the owner in this conversation. Status: **future design brief, not an approved design or implemented change**. The owner requested Figma design and review before implementation, with no work on the interface now.
 
-The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: design and review** and **F18: implementation of the approved scope**. B1 remains the next development task. The current design remains the production baseline until a replacement is reviewed. This proposal changes presentation, not forecasting calculations or spot calibrations.
+The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: design and review** and **F18: implementation of the approved scope**. The [current handover](HANDOVER.md) identifies the next development task. The current design remains the production baseline until a replacement is reviewed. This proposal changes presentation, not forecasting calculations or spot calibrations.
 
 ## Assessment of Piotr's suggestions
 

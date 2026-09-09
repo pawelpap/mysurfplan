@@ -1,8 +1,10 @@
 # Registration, school membership and ownership
 
-8 September 2026. Status: accepted by the owner as the target registration and identity design; implementation is pending. This defines the model and journeys for the [development plan](DEVELOPMENT_PLAN.md) and refines the identity section of the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md). The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery tasks, S/M/L estimates, dependencies, migration/cutover steps and launch gates. Table names below describe a target model, not an executable migration. This approval records the design; provider purchases, final commercial values and release deployment follow their separate task decisions.
+8 September 2026. Status: accepted by the owner as the target registration and identity design; B1 storage is implemented, while runtime and self-service journeys remain pending. This defines the model and journeys for the [development plan](DEVELOPMENT_PLAN.md) and refines the identity section of the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md). The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery tasks, S/M/L estimates, dependencies, migration/cutover steps and launch gates. Table names below describe a target model, not an executable migration. This approval records the design; provider purchases, final commercial values and release deployment follow their separate task decisions.
 
 A3 implementation decision, 9 September: [retain the current account/session foundation](AUTH_EMAIL_AND_JOBS_DECISION.md), with password, verification/recovery and MFA work in B3/B9. Mailjet and a Neon outbox handle planned transactional delivery, starting with Mailjet Free for the pilot. B1/B2 preserve user IDs and existing login compatibility. Provider setup is pending and does not block the additive schema work.
+
+B1 implementation update, 9 September: the [additive membership data model](MEMBERSHIP_DATA_MODEL.md) is deployed and tested on staging and production. It adds membership/role/platform assignments, ownership constraints, invitation storage and a transactional compatibility bridge. Current permissions remain legacy-authoritative until B2. The target flows below remain pending; B1 does not enable signup, invitations or school claiming.
 
 ## Accepted model
 

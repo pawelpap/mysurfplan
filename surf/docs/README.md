@@ -29,7 +29,7 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | --- | --- |
 | [Dependency baseline](DEPENDENCY_BASELINE.md) | A2 versions, cleanup, lint/build configuration and maintenance checks. |
 | [School access and privacy](ACCESS_CONTROL.md) | A1 route permissions, public/private fields, demo isolation and verification. |
-| [Membership data model](MEMBERSHIP_DATA_MODEL.md) | B1 additive schema, ownership/invitation constraints, compatibility bridge, reconciliation and migration/rollback procedure. Deployment status is recorded in the handover. |
+| [Membership data model](MEMBERSHIP_DATA_MODEL.md) | B1 deployed and verified on staging and production, 9 September. Additive schema, ownership/invitation constraints, compatibility bridge, reconciliation and migration/rollback procedure. |
 | [Conditions architecture](CONDITIONS_ARCHITECTURE.md) | Forecast calculation, providers, freshness and tide model. Dated calibration examples remain historical. |
 | [Spot data model](SPOT_DATA_MODEL.md) | Generic spot schema, database-owned coefficients and admin workflow. Live database revisions are authoritative for numerical settings. |
 | [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md) | Calculations, units, sources and presentation decisions. |

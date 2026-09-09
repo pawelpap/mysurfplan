@@ -1,6 +1,6 @@
 # Membership data model and B1 migration
 
-Prepared 9 September 2026. B1 implements the additive database foundation from the [accepted registration design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md). See the [handover](HANDOVER.md) for verified deployment status and the [roadmap](IMPLEMENTATION_ROADMAP.md) for remaining work. This document describes B1's schema and migration contract, not a completed self-service registration flow.
+Deployed and verified on staging and production, 9 September 2026. [Release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md). B1 implements the additive database foundation from the [accepted registration design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md). See the [handover](HANDOVER.md) for verified deployment status and the [roadmap](IMPLEMENTATION_ROADMAP.md) for remaining work. This document describes B1's schema and migration contract, not a completed self-service registration flow.
 
 ## Authority and scope
 

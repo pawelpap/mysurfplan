@@ -16,6 +16,7 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
+| 9 September | [Membership foundation](releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md), B1 migration, reconciliation, compatibility and staged rollout verification. |
 | 9 September | [Dependency baseline and Contentful cleanup](releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md), A2 verification and rollback. |
 | 9 September | [School access and response privacy](releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md), A1 verification and rollback. |
 | 8 September | [Login and request security](releases/RELEASE_2026-09-08_REQUEST_SECURITY.md). |

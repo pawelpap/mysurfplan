@@ -6,7 +6,7 @@ Maintained reference for A1, 9 September 2026. [Docs index](README.md) · [Roadm
 
 The deployed account model has one school per non-platform user. Every private request reads the current database-backed session. Browser-selected school IDs, slugs, roles and email addresses cannot grant authority. Legacy `admin` and `platform_admin` are global roles; `school_admin` is scoped to its school. Surf spot/calibration administration requires `platform_admin` explicitly.
 
-This release repairs the existing model. It does not implement the future global account, school ownership, independent administrator/instructor roles or invitations. Those require B1/B2. A school admin can still manage school-bound user credentials/status under the current design; this must change before global multi-school accounts are introduced.
+The A1 release repaired the existing model. B1 now adds [membership, ownership and invitation storage](MEMBERSHIP_DATA_MODEL.md), while live authorisation remains unchanged. B2 will use global identity and independent roles; B3–B5 will implement registration and invitation/ownership flows. A school admin can still manage school-bound user credentials/status under the current design; this must change before global multi-school accounts are introduced.
 
 ## Current route permissions
 
@@ -30,7 +30,7 @@ This release repairs the existing model. It does not implement the future global
 | `/api/health` | Connectivity status only | Same | Same | Same | Same |
 | `/test/coaches`, `/test/lessons`, `/test/schools` | 404 | 404 | 404 | 404 | 404 |
 
-The current instructor booking API permits limited operational booking actions on assigned lessons. The present UI exposes roster modification to administrators; this release does not add new instructor controls. Independent administrator/instructor combinations cannot yet be represented and remain B1/B2 acceptance cases.
+The current instructor booking API permits limited operational booking actions on assigned lessons. The present UI exposes roster modification to administrators; this release does not add new instructor controls. B1 can represent independent administrator/instructor combinations in storage; enabling them in runtime/UI remains a B2 acceptance case.
 
 All mutations retain origin verification. Authenticated responses use `private, no-store`. A foreign user ID is indistinguishable from a missing user (404); explicit foreign-school requests return 403. Malformed identifiers return validation errors. Database failure details are kept out of HTTP responses.
 
@@ -41,7 +41,7 @@ All mutations retain origin verification. Authenticated responses use `private, 
 - Private lesson list: instructor IDs/names for every role. School admins use the separately authorised instructor/people directory for contact details.
 - Students: attendee rows are filtered in SQL to their verified user link, or an unlinked legacy record matching their session email. Another linked user's record cannot be claimed through a matching email. Booking names come from the session for student requests.
 - Instructors: SQL selects only assigned lessons, with same-school, active instructor links. Required attendee details are available for those lessons only.
-- Joins exclude deleted or foreign-school people even if an inconsistent legacy relationship exists. A1 does not add database constraints or reconcile historical records; B1/B2 must add generic relationship guarantees during migration. Aggregate availability still follows the existing booking statistics view.
+- Joins exclude deleted or foreign-school people even if an inconsistent legacy relationship exists. B1 preserves explicit instructor/customer links and reports incompatible ones; B2 must enforce the new membership relationship at cutover. Aggregate availability still follows the existing booking statistics view.
 
 The shared `teststudent` account has student rights in Demo Surf School. Tests verify that it cannot reach another school's private lessons, people or booking operations, or administer spots. Keep real customer operational records in their own schools. Public school schedules remain intentionally accessible.
 

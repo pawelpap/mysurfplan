@@ -1,6 +1,6 @@
 # Environments and release workflow
 
-Maintained operating reference, organised 9 September 2026. Project/branch mapping and A2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
+Maintained operating reference, organised 9 September 2026. Project/branch mapping and B1 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
 
@@ -11,7 +11,7 @@ Maintained operating reference, organised 9 September 2026. Project/branch mappi
 
 Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-The latest recorded runtime is `4f9d93fb64b5d4ccc046849d8eb9d795caa3857c` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [dependency release evidence](archive/releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md) records the last rollout.
+The latest fully verified release is `f006f4608b2979bf4b0d1a74944279075c61da40` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md) records the B1 rollout. The application dependency baseline remains A2.
 
 ## Local setup and database prerequisites
 
