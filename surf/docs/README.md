@@ -25,6 +25,7 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 
 | Document | Purpose |
 | --- | --- |
+| [Dependency baseline](DEPENDENCY_BASELINE.md) | A2 versions, cleanup, lint/build configuration and maintenance checks. |
 | [School access and privacy](ACCESS_CONTROL.md) | A1 route permissions, public/private fields, demo isolation and verification. |
 | [Conditions architecture](CONDITIONS_ARCHITECTURE.md) | Forecast calculation, providers, freshness and tide model. Dated calibration examples remain historical. |
 | [Spot data model](SPOT_DATA_MODEL.md) | Generic spot schema, database-owned coefficients and admin workflow. Live database revisions are authoritative for numerical settings. |

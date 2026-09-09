@@ -4,16 +4,20 @@ Updated 9 September 2026. This is the single current handover. [Documentation in
 
 ## Current position
 
-The forecasting module and accepted visual design remain the baseline. A1's school-access and response-privacy fixes are deployed on staging and production at runtime commit `9c96b5fc76f51153f6081da62b9ee788915b04e7`, verified on 9 September. The same release includes the requested documentation organisation and accepted planning documents.
+The forecasting module and accepted visual design remain the baseline. A1 school-access/privacy protections and A2 dependency/security cleanup are deployed on staging and production. The verified runtime commit is `4f9d93fb64b5d4ccc046849d8eb9d795caa3857c`, released on 9 September.
 
 | Environment | URL | Git branch | Vercel project | Verified runtime deployment |
 | --- | --- | --- | --- | --- |
-| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_81dZvnSnJuEY4awz6dsccEhLPtg1` |
-| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_3rByNTGo2PX76qZciHCXLTA4gKwc` |
+| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_3fbAuy5PCQYosxCvjAqsTPiVwh3R` |
+| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_AXGvebpEZyjMn6f2nQB6ivLCYjRU` |
 
-Students receive only their own attendee record and instructor names/IDs. Instructors' lesson queries are restricted to assigned lessons. School-admin filters and user writes enforce the authorised school; public schedules retain business contact details and availability without personal contacts. Database errors are safe for display and `/test/*` pages have been removed. See [current permissions](ACCESS_CONTROL.md) and [release evidence/rollback](archive/releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md).
+The table identifies builds that received the full runtime checks. Documentation-only follow-ups can produce later deployment IDs with the same application code.
 
-Verification: 81 regression tests, successful production build and 12 real API/database scenarios on the isolated rehearsal branch, staging and production. Each run removed its own disposable records. No schema migration, spot/calibration update, database copy or account reset was required. Runtime error/fatal log checks returned no matching entries in the verification window. Desktop/mobile browser checks passed. Simulated locations at Bico and Praia Grande confirmed automatic nearest selection and the full 17-spot distance order on both environments, with A–Z switching, manual-selection preservation and explicit spot links. Location-denied fallback was checked on staging.
+The runtime uses Next.js 16.3.4, React 19.2.8 and Neon driver 1.1.0 on Node.js 22. Webpack remains the explicit development/build bundler after a local Turbopack rehearsal exposed nested lesson-route 404s. Two dynamic queries use the new driver's parameterised API. Contentful's empty generated directory and three unused settings per Vercel project were removed, together with five unused packages. [Dependency decision and maintenance](DEPENDENCY_BASELINE.md), [release evidence and rollback](archive/releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md).
+
+Verification: clean install, zero known npm audit findings, no invalid peers, 83 regression tests, successful build and 13 real API/database scenarios on the isolated rehearsal branch, staging and production. Browser checks passed at desktop/mobile widths with hourly swell details, tide interaction, light/dark appearance, refresh, legal navigation and logout. Simulated locations at Bico and Praia Grande confirmed automatic nearest selection and all 17 spots in distance order. A–Z/manual-selection behaviour, explicit spot links and location-denied fallback passed on both live environments. Staging checks completed before production promotion. No matching runtime error/fatal logs were returned during verification. A physical iPhone/Safari session was not tested in this release.
+
+No schema migration, spot/calibration update, database copy or account reset was required. Disposable release fixtures were removed. One existing lint warning for avatar images remains for B7's media work. A1's [current permissions](ACCESS_CONTROL.md) remain in force; independent admin/instructor roles and global membership are future B1/B2 work.
 
 Forecasts include 17 active database spots, lesson conditions, tides/daylight, swell components, energy/power, water temperature and required experience. Generic São Pedro was removed; Bico and Bafureira remain separate, and Praia da Torre is included. Calibration uses generic database parameters. Preserve the accepted colours, equal metric emphasis, selected-time graph interaction, mobile layout, appearance selector and nearest-spot behaviour. [Latest documented spot rollout](archive/calibration/2026-09-07-local-review/README.md).
 
@@ -21,11 +25,11 @@ Staging and production databases are separate. Spot/configuration parity was che
 
 ## Next development step
 
-**A2: review and upgrade Next.js and dependencies to a supported security baseline. Effort M; FE, BE and Ops.**
+**A3: decide the authentication, transactional email and background-job approach. Effort S; BE and Ops.**
 
-Review the existing Next.js 14.2.3 dependency tree, choose a supported compatible release, apply the bounded upgrade and repeat build, authentication, access, forecast and booking checks on staging before production. Avoid a router or design rewrite unless the dependency decision requires it. A1 is complete for the current single-school model; combined roles and global identity remain B1/B2.
+Document whether to retain or migrate the current authentication, based on email verification, password recovery and platform-admin MFA requirements. Select the proposed email provider, sender/domain setup and durable retries/jobs, with costs and EU-region requirements. Keep provider purchases, account changes and provisioning separate from this decision. A3 should give B1/B2 a stable basis for global users, school memberships and independent roles.
 
-Prepare B1/B2's global identity and school-membership migration after A3's authentication decision. A3–A5 provider/policy decisions and A8's EU destination decision can progress alongside A2. Task estimates, dependencies and completion evidence are maintained only in the [roadmap](IMPLEMENTATION_ROADMAP.md).
+A1 and A2 are complete. Prepare B1's additive membership schema/backfill and B2's authorisation change after A3. A4/A5 privacy and permitted-use decisions, A7 capacity/recovery and A8's EU destination work remain open. Localisation is still plan-only. Task estimates, dependencies and completion evidence are maintained in the [roadmap](IMPLEMENTATION_ROADMAP.md).
 
 ## Accepted direction and pending implementation
 

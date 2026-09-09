@@ -1,6 +1,6 @@
 # Environments and release workflow
 
-Maintained operating reference, organised 9 September 2026. Project/branch mapping and A1 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
+Maintained operating reference, organised 9 September 2026. Project/branch mapping and A2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
 
@@ -9,13 +9,13 @@ Maintained operating reference, organised 9 September 2026. Project/branch mappi
 | Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `br-small-salad-adx0nsj2` |
 | Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `br-weathered-silence-adp30k9s` |
 
-Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
+Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-The latest recorded runtime is `9c96b5fc76f51153f6081da62b9ee788915b04e7` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [school-access release evidence](archive/releases/RELEASE_2026-09-09_SCHOOL_ACCESS_PRIVACY.md) records the last rollout.
+The latest recorded runtime is `4f9d93fb64b5d4ccc046849d8eb9d795caa3857c` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [dependency release evidence](archive/releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md) records the last rollout.
 
 ## Local setup and database prerequisites
 
-Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing, short or development values. Preserve existing valid environment secrets. Never commit credentials, connection exports or browser sessions.
+Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing, short or development values. Preserve existing valid environment secrets. Contentful is unused; its three legacy variables were removed from both Vercel projects in A2 and must not be recreated for normal setup. Never commit credentials, connection exports or browser sessions.
 
 Verify the database endpoint and branch before local writes. Prefer a confirmed isolated rehearsal branch for migration tests. The last account review found 10/10 occupied branches; do not delete a branch or assume another one can be created without reviewing its purpose and capacity.
 
@@ -29,7 +29,7 @@ They have already been applied to the recorded staging and production databases.
 
 For a fresh database, review [schema.sql](../db/schema.sql) and the migration requirements of the target runtime before initialisation. The historical conditions setup uses `node scripts/migrate-conditions.mjs --staging` after verifying the endpoint. Its `--staging` flag is an acknowledgement, not automatic endpoint verification. It loads `.env.local`, adds conditions tables/lesson references and seeds initial spots/tide data while preserving existing spot edits. Initial seeds do not reproduce later admin calibrations or the current reviewed catalogue; preserve or migrate the intended current spot records/history. See [spot data model](SPOT_DATA_MODEL.md).
 
-Run `npm run dev`, `npm test` and `npm run build` from `surf` for application work. Database rehearsal and deployed verification scripts are linked from their release records. Live verification scripts can create disposable records; inspect their scope before running them. Use explicit private connection files and clean only authorised fixtures.
+Run `npm run dev`, `npm test` and `npm run build` from `surf` for application work. The build includes `npm run lint`; development and build scripts explicitly use Webpack. Keep the reviewed Node.js 22 / Next.js 16 baseline and run `npm ls --all` plus `npm audit` before releases. See [dependency configuration](DEPENDENCY_BASELINE.md). Database rehearsal and deployed verification scripts are linked from their release records. Live verification scripts can create disposable records; inspect their scope before running them. Use explicit private connection files and clean only authorised fixtures.
 
 ## Forecast access and database separation
 

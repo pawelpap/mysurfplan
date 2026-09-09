@@ -2,11 +2,11 @@
 
 Surf school lesson and booking management built with Next.js Pages Router, React and Neon Postgres.
 
-Use Node.js 22 (`.nvmrc`). Install dependencies with `npm ci`. Configure `DATABASE_URL` and `SESSION_SECRET` in a local, ignored `.env.local`, using the staging database for development. Run `npm run dev`, `npm test` and `npm run build` from this directory.
+Use Node.js 22 (`.nvmrc`). Install dependencies with `npm ci`. Configure `DATABASE_URL` and `SESSION_SECRET` in a local, ignored `.env.local`, using the staging database for development. Run `npm run dev`, `npm test` and `npm run build` from this directory. Builds include linting; see the [dependency baseline](docs/DEPENDENCY_BASELINE.md) for versions, audit and bundler decisions.
 
 ## Documentation and current work
 
-The approved conditions layout, device-based light/dark appearance, colour-coded quality tiles and automatic nearest-spot ordering are live on https://mywaveplan.com and https://staging.mywaveplan.com. Production follows `main`; staging follows `staging`. Future changes must be reviewed on staging and explicitly approved before production.
+The approved conditions layout, device-based light/dark appearance, colour-coded quality tiles and automatic nearest-spot ordering are live on https://mywaveplan.com and https://staging.mywaveplan.com. Production follows `main`; staging follows `staging`. Future changes must be verified on staging before production, with the owner’s approval or task-specific authorisation to promote after passing tests.
 
 - [Start here: documentation index](docs/README.md)
 - [Current handover and latest recorded release](docs/HANDOVER.md)
@@ -15,7 +15,7 @@ The approved conditions layout, device-based light/dark appearance, colour-coded
 - [Local setup, staging and production](docs/ENVIRONMENTS.md)
 - [Historical plans, releases, audits and calibration evidence](docs/archive/README.md)
 
-The roadmap is the canonical remaining task list; the product plan explains its direction. The next coding task is A1, school access and privacy checks. Global registration, EU migration and localisation remain planned work. Use the handover for current status rather than an older release record.
+The roadmap is the canonical remaining task list; the product plan explains its direction. A1 access/privacy and A2 dependency/security cleanup are complete. A3, the authentication/email/background-job decision, is next before B1/B2 membership implementation. Global registration, EU migration and localisation remain planned work. Use the handover for current status rather than an older release record.
 
 The app can also be added to a phone home screen, including iPhone, with the MyWavePlan wave icon and a standalone launch into Conditions. Browser-tab icons are supplied in SVG and ICO formats.
 
