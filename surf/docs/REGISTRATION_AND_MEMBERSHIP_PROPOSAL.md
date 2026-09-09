@@ -1,10 +1,10 @@
 # Registration, school membership and ownership
 
-8 September 2026. Status: accepted by the owner as the target registration and identity design; B1 storage is implemented, while runtime and self-service journeys remain pending. This defines the model and journeys for the [development plan](DEVELOPMENT_PLAN.md) and refines the identity section of the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md). The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery tasks, S/M/L estimates, dependencies, migration/cutover steps and launch gates. Table names below describe a target model, not an executable migration. This approval records the design; provider purchases, final commercial values and release deployment follow their separate task decisions.
+8 September 2026. Status: accepted by the owner as the target registration and identity design; B1 storage and B2 runtime authorisation are implemented; self-service journeys remain pending. This defines the model and journeys for the [development plan](DEVELOPMENT_PLAN.md) and refines the identity section of the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md). The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) records delivery tasks, S/M/L estimates, dependencies, migration/cutover steps and launch gates. Table names below describe a target model, not an executable migration. This approval records the design; provider purchases, final commercial values and release deployment follow their separate task decisions.
 
 A3 implementation decision, 9 September: [retain the current account/session foundation](AUTH_EMAIL_AND_JOBS_DECISION.md), with password, verification/recovery and MFA work in B3/B9. Mailjet and a Neon outbox handle planned transactional delivery, starting with Mailjet Free for the pilot. B1/B2 preserve user IDs and existing login compatibility. Provider setup is pending and does not block the additive schema work.
 
-B1 implementation update, 9 September: the [additive membership data model](MEMBERSHIP_DATA_MODEL.md) is deployed and tested on staging and production. It adds membership/role/platform assignments, ownership constraints, invitation storage and a transactional compatibility bridge. Current permissions remain legacy-authoritative until B2. The target flows below remain pending; B1 does not enable signup, invitations or school claiming.
+B1 implementation update, 9 September: the [additive membership data model](MEMBERSHIP_DATA_MODEL.md) is deployed and tested on staging and production. It adds membership/role/platform assignments, ownership constraints, invitation storage and a transactional compatibility bridge. B2 has now retired that bridge and activated global identity and school capabilities. See [current runtime](MEMBERSHIP_AUTHORISATION.md). Signup, invitations and school claiming remain pending.
 
 ## Accepted model
 
@@ -25,6 +25,8 @@ A school has one accountable workspace owner at launch, several possible adminis
 | Sofia | Books lessons | Customer | Customer |
 
 All three have one login each. Customer relationships do not grant staff membership. Miguel's permissions at School A do not apply at School B. A paid subscription belongs to the relevant school, so Miguel does not need to purchase one personally to teach there.
+
+The owner’s 9 September B2 interface review is recorded in the [account and lifecycle UI follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md). Its account creation, multi-school overview and removal/closure/erasure requirements belong to B3/B4/B5/B8/C4.
 
 ## Registration journeys
 
@@ -142,7 +144,7 @@ Ownership transfer requires the current owner's recent authentication, an active
 
 Reviewed against the repository schema and authentication/booking handlers on 8 September 2026. This was a code/document review, not a new live database audit.
 
-- `users.role` currently holds one role and `users.school_id` one school. The schema requires a school for every non-platform user. Replace these as permission authorities with global users and memberships. Drop the old school-scope check only as part of the tested cutover.
+- B2 has retired `users.role` and `users.school_id` as staff permission authorities and removed the required-school check. New accounts may have no school; current memberships grant school capabilities. Historical columns remain guarded pending later schema cleanup.
 - The current `users.school_id` FK cascades school deletion into users. Remove that relationship when identity becomes global; closing/deleting one school must never delete a global account.
 - Both active coach/user and student/user unique indexes currently cover only `user_id`. Replace them with school-and-user uniqueness so one person can have records in several schools. Reconcile duplicates and old unlinked rows before adding new constraints.
 - Session creation and lookup currently join the user's single school and reject non-platform users without one. Update session lookup and login eligibility to allow a healthy global account with no membership, and when one school closes. Preserve password hashes, session revocation and auth-version controls.

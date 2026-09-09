@@ -9,7 +9,7 @@
 3. Keep pending work in a **transactional Neon outbox**, processed by a bounded Vercel function. Attempt urgent email immediately after committing the job, then use **Vercel Pro Cron every minute** to recover due work. Do not add a separate queue platform initially. This requires a technical hosting/capacity decision before live email, and increases database active time.
 4. Use **`MyWavePlan <support@mywaveplan.com>`** for production email, as selected by the owner. No email service for the domain has been configured. A receiving mailbox is a separate setup requirement; Mailjet provides outgoing delivery, not that inbox.
 
-B1 can proceed without an email account, subscription or DNS changes. B3 must not enable real signup until delivery, support replies, EU migration, policies and the other roadmap prerequisites pass. A3 does not certify the existing application as ready for public self-registration.
+B1/B2 completed without an email account, subscription or DNS changes. B3 must not enable real signup until delivery, support replies, EU migration, policies and the other roadmap prerequisites pass. A3 does not certify the existing application as ready for public self-registration.
 
 ## Authentication: keep the foundation, complete its lifecycle
 
@@ -139,7 +139,7 @@ Full calculations, alternative scenarios and exclusions are in [LAUNCH_COST_ESTI
 
 | When | Action required from the owner |
 | --- | --- |
-| A3 / B1 now | No account registration or purchase needed. Sender address and pending Mailjet/mailbox setup are recorded above. |
+| A3 / B1 / B2, completed | No account registration or purchase needed. Sender address and pending Mailjet/mailbox setup are recorded above. |
 | Before B3 email integration | Create/authorise the business Mailjet account, complete sender verification and approve test recipients. No AWS signup is needed. Confirm any paid-plan decision only if tested limits require it. |
 | A4 / before publishing support contact | Choose/activate the receiving mailbox or explicitly nominate a forwarding destination. Confirm who monitors `support@mywaveplan.com`. |
 | A7 / before minute jobs | Approve the concrete Vercel/Neon plan and spending controls if the existing entitlement cannot support the tested requirements. No blanket provider account reconnection. |
@@ -147,4 +147,4 @@ Full calculations, alternative scenarios and exclusions are in [LAUNCH_COST_ESTI
 
 A6/B3/B9 acceptance must cover transaction rollback, concurrent claims, worker termination, stale leases, provider timeouts before/after acceptance, duplicate/out-of-order/forged events, exhausted quota, invalid recipients, old/superseded tokens, scanner GETs, recovery races, account deletion, MFA recovery and lost keys. Test staging isolation and the entire existing login/forecast/nearest-spot journey before production. Verify email readability on mobile and desktop and delivery to the owner-approved inboxes, with no tracking in the received message. Test actual incoming support replies separately.
 
-A3 verification is limited to source/code review, cost arithmetic, document consistency and local links. A3 itself made no runtime changes. Subsequent B1 work completed the additive membership migration, identity/ownership reconciliation and rollback rehearsal on 9 September; see the [release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md). **Next: B2**, changing live authorisation to global identity and school memberships. B3 supplies registration and email through this decision.
+A3 verification is limited to source/code review, cost arithmetic, document consistency and local links. A3 itself made no runtime changes. B1 and B2 subsequently completed the membership foundation and runtime switch on 9 September; see the [B2 release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md). Next recommended design work is F17. B3 provides registration and email through this decision after its prerequisites; Mailjet and the support inbox are not yet activated.

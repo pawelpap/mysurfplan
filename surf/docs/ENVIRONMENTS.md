@@ -1,6 +1,6 @@
 # Environments and release workflow
 
-Maintained operating reference, organised 9 September 2026. Project/branch mapping and B1 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
+Maintained operating reference, organised 9 September 2026. Project/branch mapping and B2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
 
@@ -11,7 +11,7 @@ Maintained operating reference, organised 9 September 2026. Project/branch mappi
 
 Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-The latest fully verified release is `f006f4608b2979bf4b0d1a74944279075c61da40` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md) records the B1 rollout. The application dependency baseline remains A2.
+The latest fully verified release is `bcb5ceaa640571915129b070ad4ad94b188ea80f` on both environments. Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
 
 ## Local setup and database prerequisites
 
@@ -31,17 +31,25 @@ For a fresh database, review [schema.sql](../db/schema.sql) and the migration re
 
 Run `npm run dev`, `npm test` and `npm run build` from `surf` for application work. The build includes `npm run lint`; development and build scripts explicitly use Webpack. Keep the reviewed Node.js 22 / Next.js 16 baseline and run `npm ls --all` plus `npm audit` before releases. See [dependency configuration](DEPENDENCY_BASELINE.md). Database rehearsal and deployed verification scripts are linked from their release records. Live verification scripts can create disposable records; inspect their scope before running them. Use explicit private connection files and clean only authorised fixtures.
 
-### B1 membership migration
+### Current B2 migration and checks
+
+Both live databases use `memberships` authority. [B2 runtime and migration contract](MEMBERSHIP_AUTHORISATION.md) records the two-phase prepare → compatible deployment → activate sequence. Use `migrate-membership-authority.mjs`, `check-membership-authority-schema.mjs` and `check-membership-release.mjs` for current verification. B1 compatibility tests must not run against an activated B2 database. An old application rollback is unsafe; use B2-compatible code or a forward repair.
+
+### Historical B1 membership migration
+
+The following procedure applies only to an older database before B2 activation.
 
 [Membership data model and migration procedure](MEMBERSHIP_DATA_MODEL.md) describes the versioned additive schema. Use `node scripts/migrate-memberships.mjs <environment> --audit` first; `--apply` is explicit and checks the verified direct endpoint. The runner applies the SQL, backfill and checksum in one transaction with source-data fingerprints and bounded locks. Rehearse on the existing isolated branch before staging; promote separately to production after checks. No live authority change, database copy, owner inference or email verification occurs in B1.
 
-`db/schema.sql` is now explicitly the legacy bootstrap. Apply B1 through its migration runner afterwards; do not use bootstrap SQL to upgrade an existing environment. `check-membership-schema.mjs` verifies the new constraints with rolled-back fixtures. The current `check-school-access-release.mjs` also checks B1's API compatibility and requires the B1 migration before running. Its older 13-case version is preserved in the A2 release commit for historical reproduction.
+`db/schema.sql` is now explicitly the legacy bootstrap. Apply B1 through its migration runner afterwards; do not use bootstrap SQL to upgrade an existing environment. `check-membership-schema.mjs` verifies the new constraints with rolled-back fixtures. The historical `check-school-access-release.mjs` checks B1's API compatibility and requires the B1 migration before running. Its older 13-case version is preserved in the A2 release commit for historical reproduction.
 
 ## Forecast access and database separation
 
 The app fetches Open-Meteo forecasts and calculates tides from harmonic constants. [Conditions architecture](CONDITIONS_ARCHITECTURE.md) documents providers, model, freshness, tide datum and calibration limits. The free hosted endpoint is restricted to non-commercial use. Complete the A5/L1 classification and configure server-side `OPEN_METEO_API_KEY` for licensed commercial access when required; the app selects customer endpoints automatically.
 
 Production was initialised from reviewed merged data on 5 September and subsequently received separate migrations and calibration updates. The databases remain independent. Bookings, sessions, operational timestamps and caches can diverge; a later code or presentation release does not copy or reset them. See the [dated database promotion](archive/releases/RELEASE_2026-09-05_DATABASE_PROMOTION.md) for historical merge and rollback resources, and the [7 September spot promotion](archive/releases/RELEASE_2026-09-07_FORECAST_CALIBRATION.md) for the latest documented calibration synchronisation.
+
+The owner authorised a one-off B2 cleanup on 9 September. Both environments now retain the two named accounts, Demo Surf School, its test-student customer link and matching forecast configuration. All other disposable operational records were removed. Protected passwords/session records were not copied or changed; caches and security counters remain separate. This does not change the policy against routine database cloning. See the B2 release evidence.
 
 ## Useful browser checks
 

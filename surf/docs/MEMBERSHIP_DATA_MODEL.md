@@ -2,9 +2,11 @@
 
 Deployed and verified on staging and production, 9 September 2026. [Release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md). B1 implements the additive database foundation from the [accepted registration design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md). See the [handover](HANDOVER.md) for verified deployment status and the [roadmap](IMPLEMENTATION_ROADMAP.md) for remaining work. This document describes B1's schema and migration contract, not a completed self-service registration flow.
 
-## Authority and scope
+> Current status: B2 has replaced B1’s live authority and retired its bridge. This file retains the dated B1 migration contract. Use [Membership authorisation](MEMBERSHIP_AUTHORISATION.md) for current behaviour and operators’ commands. Do not run B1 compatibility checks against an activated B2 database. The B1 data counts below precede the owner-authorised B2 test-data cleanup.
 
-**B1 keeps `users.role` and `users.school_id` authoritative.** Existing sessions, API permissions, profiles, booking links and forecast calculations use their current code. The new tables can represent several memberships and independent administrator/instructor roles, but adding such rows does not grant live application access yet. B2 will switch the permission resolver and UI to them.
+## Historical B1 authority and scope
+
+**B1 kept `users.role` and `users.school_id` authoritative until the B2 cutover.** Existing sessions, API permissions, profiles, booking links and forecast calculations use their current code. The new tables can represent several memberships and independent administrator/instructor roles, but adding such rows does not grant live application access yet. B2 has since switched the permission resolver and UI to them. The rest of this section describes the earlier B1-only phase.
 
 Students are personal accounts and school customer records, not staff memberships. Global account disabling remains separate from membership suspension. An account's role or school assignment is evidence for backfill; a matching email address is not evidence of a verified account claim or school ownership.
 

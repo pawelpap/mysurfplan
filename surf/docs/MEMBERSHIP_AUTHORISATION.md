@@ -1,6 +1,6 @@
 # B2 global identity and school authorisation
 
-Implementation and rollout reference, 9 September 2026. Release verification is in progress; the [handover](HANDOVER.md) records the last fully verified deployment. This completes the runtime part of the [B1 membership schema](MEMBERSHIP_DATA_MODEL.md). Self-registration, invitations and ownership claims remain B3–B5.
+Implementation and rollout reference, 9 September 2026. Deployed and verified on staging and production; the [release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) and [handover](HANDOVER.md) record the rollout. This completes the runtime part of the [B1 membership schema](MEMBERSHIP_DATA_MODEL.md). Self-registration, invitations and ownership claims remain B3–B5.
 
 ## Runtime contract
 
@@ -28,6 +28,10 @@ A newly granted instructor role creates a new explicitly linked instructor recor
 The platform's Accounts screen is separate from the selected school's People screen. Global accounts may have no school. Staff roles are edited in People using independent checkboxes. The workspace selector includes all available school relationships. Conditions remains first. My bookings and My teaching are personal views across schools. The existing school lesson and roster controls remain available according to current capabilities.
 
 The UI refreshes account access on focus, visibility changes, account-change events and its existing periodic refresh. Changes to school capabilities remount lesson data so an old staff roster is not reused in a reduced-permission view. Every API request still enforces current permissions independently of UI state.
+
+## Remaining account and lifecycle UI
+
+The platform Add person form still offers one initial school/role. Multiple schools and simultaneous roles work through People → School access. The owner accepted the [B3/B4 account-form and B5/B8/C4 lifecycle follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md). Current detail screens expose school/lesson removal, account deactivation and membership removal; full self-service erasure and school closure remain future work.
 
 ## Booking identity and concurrency
 

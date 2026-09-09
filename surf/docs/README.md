@@ -16,7 +16,8 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | Document | Status and purpose |
 | --- | --- |
 | [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Implementation remains in A6/B3/B9. |
-| [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted target design; implementation pending. One account, multiple school memberships and independent roles. |
+| [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted design. B1/B2 identity and membership runtime are implemented; self-registration/invitations remain pending. |
+| [Account and lifecycle UI follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) | Owner’s B2 review: clearer account/membership forms and removal/closure/deletion flows, tracked in B3/B4/B5/B8/C4. |
 | [Conditions UX review proposal](CONDITIONS_UX_REVIEW_PROPOSAL.md) | Piotr's feedback recorded 9 September. Future calendar, spot comparison and chart proposals; F17 Figma/owner review before F18 implementation. No UI work started. |
 | [Commercial and privacy architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) | Target architecture. Billing, entitlements, privacy and consent are planned; final provider and policy decisions remain open. |
 | [Infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) | Account observations dated 8 September and current upgrade/EU-region decisions. Recheck live quotas before changes. |
@@ -28,8 +29,9 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | Document | Purpose |
 | --- | --- |
 | [Dependency baseline](DEPENDENCY_BASELINE.md) | A2 versions, cleanup, lint/build configuration and maintenance checks. |
-| [School access and privacy](ACCESS_CONTROL.md) | A1 route permissions, public/private fields, demo isolation and verification. |
-| [Membership data model](MEMBERSHIP_DATA_MODEL.md) | B1 deployed and verified on staging and production, 9 September. Additive schema, ownership/invitation constraints, compatibility bridge, reconciliation and migration/rollback procedure. |
+| [School access and privacy](ACCESS_CONTROL.md) | Current A1/B2 route permissions, public/private fields, demo isolation and verification. |
+| [Membership data model](MEMBERSHIP_DATA_MODEL.md) | Dated B1 foundation contract; its live compatibility bridge was retired by B2. |
+| [Membership authorisation](MEMBERSHIP_AUTHORISATION.md) | B2 deployed on both environments: global sessions, independent school roles, personal bookings/teaching, migration and recovery contract. |
 | [Conditions architecture](CONDITIONS_ARCHITECTURE.md) | Forecast calculation, providers, freshness and tide model. Dated calibration examples remain historical. |
 | [Spot data model](SPOT_DATA_MODEL.md) | Generic spot schema, database-owned coefficients and admin workflow. Live database revisions are authoritative for numerical settings. |
 | [Swell energy and water temperature](SWELL_ENERGY_AND_WATER_TEMPERATURE.md) | Calculations, units, sources and presentation decisions. |
