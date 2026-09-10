@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
-  Field,
   Message,
   Loading,
   PageHeading,
@@ -488,13 +487,6 @@ function SpotForecast({
             <p className="selected-conditions-time">Conditions at {clock}</p>
           </div>
           <div className="actions">
-            <Field
-              label="Time"
-              type="time"
-              step="60"
-              value={clock}
-              onChange={(e) => onClock(e.target.value)}
-            />
             <Button onClick={onNow}>Now</Button>
             {onLessons && (
               <Button

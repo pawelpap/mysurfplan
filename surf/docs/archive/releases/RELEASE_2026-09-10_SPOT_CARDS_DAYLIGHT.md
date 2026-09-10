@@ -27,3 +27,5 @@ Production custom-domain inspection still resolves to `dpl_9uSc1nTvVFCwNS3pfk8sC
 No schema, calibration, account or provider change. Normal forecast cache writes and temporary verification sessions only. Production remains on B2. Roll back this follow-up to `08462b72cbaf1112929c683ac7c75485a130e79e` for the preceding F18 staging application; no database rollback is needed.
 
 Final refinement: the heading derives “Now”, “Today at sunrise” or “Tomorrow at sunrise” from the loaded cards. Exact local times remain on each card. A passed server boundary has a one-minute retry floor to prevent request loops on a device with an ahead-of-server clock. These refinements passed the local unit/build checks; their final staging check is recorded below once deployed.
+
+The owner also requested one time display above the charts. The separate time input is removed; “Conditions at …”, linked chart cursors, keyboard controls, Now and hourly-row selection remain. Browser verification sets the time through Home/PageUp/Arrow keys and asserts that no time input remains.

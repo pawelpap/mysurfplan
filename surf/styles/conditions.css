@@ -437,13 +437,8 @@
   padding: 24px;
   border-radius: 14px;
 }
-.selected-day-heading .field {
-  margin: 0;
-  min-width: 106px;
-}
-.selected-day-heading .field label {
-  font-size: 11px;
-}
+
+
 .selected-day-heading .actions {
   align-items: end;
 }
@@ -901,10 +896,7 @@
   .selected-day-heading .actions {
     width: 100%;
   }
-  .selected-day-heading .field {
-    flex: 1;
-    max-width: 140px;
-  }
+
   .forecast-hour-summary {
     grid-template-columns: 48px minmax(80px, 1fr) minmax(75px, 1fr);
     gap: 10px;

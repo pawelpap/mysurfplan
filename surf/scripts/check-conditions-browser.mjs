@@ -71,7 +71,10 @@ export async function checkConditionsBrowser({ base, cookie }) {
       path: "/private/tmp/f18-desktop.png",
       fullPage: true,
     });
-    await page.getByLabel("Time", { exact: true }).fill("09:00");
+    assert.equal(await page.locator('input[type="time"]').count(), 0);
+    const timeSlider = page.getByRole("slider", { name: /Forecast time/ });
+    await timeSlider.press("Home");
+    for (let hour = 0; hour < 9; hour++) await timeSlider.press("PageUp");
     await page.waitForFunction(() =>
       document
         .querySelector(".selected-conditions-time")
