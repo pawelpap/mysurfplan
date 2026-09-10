@@ -1,6 +1,6 @@
 # Conditions Figma review, 9 September 2026
 
-Status: **F17 approved; F18 is being implemented for staging review.** The owner authorised staging implementation and refined tile/time behaviour on 10 September. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) takes precedence over illustrative Figma values and earlier proposals. Production approval is still required.
+Status: **F17 approved; F18 is deployed and verified on staging, awaiting owner review.** The owner authorised staging implementation and refined tile/time behaviour on 10 September. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) takes precedence over illustrative Figma values and earlier proposals. Production approval is still required.
 
 ## Review links
 
@@ -62,6 +62,6 @@ This is **design verification**, not browser, accessibility or live-app testing.
 
 ## Next action
 
-Complete F18 staging verification and obtain the owner’s review before production. The owner confirmed the final time model: spot cards always show now; day tiles show 12:00; the chart cursor changes both charts and detailed parameters only. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records login and responsive changes. No forecast-model or calibration change is included.
+Staging verification passed. Obtain the owner’s review before production. The owner confirmed the final time model: spot cards always show now; day tiles show 12:00; the chart cursor changes both charts and detailed parameters only. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records login and responsive changes. No forecast-model or calibration change is included.
 
 Before implementation, settle summary freshness, caching, pagination and request deduplication under A5/A7. Never fetch every spot's full 16-day forecast on each page load. Preserve refresh behaviour, automatic nearest selection, manual/deep-linked spots and platform-admin-only spot settings. Test real desktop/mobile browsers, both themes, every calendar start weekday, month/DST/timezone boundaries, missing data, location permission states, keyboard/touch interactions and lesson no-results. Staging review and the owner's production approval still precede promotion for this design change.

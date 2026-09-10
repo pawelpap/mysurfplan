@@ -16,6 +16,7 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
+| 10 September | [Conditions UX on staging](releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md), F18 verification and final tile/time decisions; production approval pending. |
 | 9 September | [Membership authorisation](releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), B2 runtime cutover, verification and owner-authorised test-data cleanup. |
 | 9 September | [Membership foundation](releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md), B1 migration, reconciliation, compatibility and staged rollout verification. |
 | 9 September | [Dependency baseline and Contentful cleanup](releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md), A2 verification and rollback. |

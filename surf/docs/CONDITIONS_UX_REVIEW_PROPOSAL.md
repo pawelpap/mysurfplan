@@ -1,6 +1,6 @@
 # Conditions UX review proposal
 
-Recorded and reviewed 9 September 2026. Source: design feedback from **Piotr**, relayed by the owner, followed by the owner's live review comments. Status: **F17 approved; F18 implementation under verification for staging**. The owner subsequently started the Figma work. See the [Figma review, decisions and visual checks](CONDITIONS_UX_FIGMA_REVIEW.md) for the current proposal and frame links.
+Recorded and reviewed 9 September 2026. Source: design feedback from **Piotr**, relayed by the owner, followed by the owner's live review comments. Status: **F17 approved; F18 implementation deployed and verified on staging**. The owner subsequently started the Figma work. See the [Figma review, decisions and visual checks](CONDITIONS_UX_FIGMA_REVIEW.md) for the current proposal and frame links.
 
 The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: design and review** and **F18: implementation of the approved scope**. The [current handover](HANDOVER.md) identifies the next development task. The current design remains the production baseline until a replacement is reviewed. This proposal changes presentation, not forecasting calculations or spot calibrations.
 

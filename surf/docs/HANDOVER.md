@@ -4,16 +4,16 @@ Updated 10 September 2026. This is the single current handover. [Documentation i
 
 ## Current position
 
-**F18 is under verification for staging review. Production remains on B2.** The owner authorised staging only. [Conditions UX implementation](CONDITIONS_UX_IMPLEMENTATION.md) is the current behaviour contract; numerical ratings are absent from spot/day tiles, spot cards show now and day tiles show 12:00. The chart cursor controls the detailed view only.
+**F18 is deployed and verified on staging, awaiting owner review. Production remains on B2.** The owner authorised staging only. [Conditions UX implementation](CONDITIONS_UX_IMPLEMENTATION.md) is the current behaviour contract; numerical ratings are absent from spot/day tiles, spot cards show now and day tiles show 12:00. The chart cursor controls the detailed view only.
 
 **B2 is deployed and verified on staging and production.** Full release checks ran on `bcb5ceaa640571915129b070ad4ad94b188ea80f`. Memberships now govern school capabilities; global accounts work with no school, several schools and combined administrator/instructor roles. Conditions remains first. Personal My bookings/My teaching and the school workspace selector are available.
 
 | Environment | URL | Git branch | Vercel project | Fully checked deployment |
 | --- | --- | --- | --- | --- |
-| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_DHN9eYgHAo8jtXp3v9mU3BtNkEAL` |
+| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_5YDRPKe2UJqMVjmZjzpTW6FSRGaF` (F18) |
 | Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_FETHv1xL5N3Cgiq5y7LoRLCzaGif` |
 
-Documentation-only follow-ups can produce newer deployment IDs with identical application code. [B2 release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), [runtime and migration contract](MEMBERSHIP_AUTHORISATION.md), [current permissions](ACCESS_CONTROL.md).
+F18 application commit is `2bb99fe17fbf5a9731ca61b16f496a6796f7448d`. Production custom-domain inspection still resolves to B2 documentation commit `91bc4fe2f9cd4c230f05f8ba7928e13610e2e9f3`, deployment `dpl_9uSc1nTvVFCwNS3pfk8sC9JHLa8s`; its last full B2 journey checks are recorded in the table. Documentation-only follow-ups can produce newer deployment IDs with identical application code. [B2 release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), [runtime and migration contract](MEMBERSHIP_AUTHORISATION.md), [current permissions](ACCESS_CONTROL.md).
 
 Both databases have the same schema and checksummed B1/B2 migrations, with `memberships` authority. B2 retired the B1 bridge, blocked legacy authority writes, removed the compulsory school and replaced cascading school-to-user deletion with SET NULL. School administrators cannot manage global credentials/status. Personal bookings use explicit user links; staff booking-on-behalf is separate. School suspension/closure preserves personal login and other-school access.
 
@@ -25,7 +25,7 @@ Next.js 16.3.4, React 19.2.8, Neon driver 1.1.0, Node.js 22 and explicit Webpack
 
 ## Next development step and planning decisions
 
-**F17 is approved; finish F18 staging verification and owner review next.** The [Figma handoff](CONDITIONS_UX_FIGMA_REVIEW.md) retains design evidence; the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records later owner decisions. Do not deploy to production before approval. After F18, core onboarding continues with B3 and its privacy, EU, email and localisation prerequisites.
+**F17 is approved; owner review of F18 staging is next.** The [Figma handoff](CONDITIONS_UX_FIGMA_REVIEW.md) retains design evidence; the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records later owner decisions. Do not deploy to production before approval. After F18, core onboarding continues with B3 and its privacy, EU, email and localisation prerequisites.
 
 The owner reviewed the account interface during B2 and accepted a following UI release. The [account and lifecycle follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) documents the exact scope: B3/B4 replace the older single-initial-role/school account form with clearer global account creation and multi-membership management; B5/B8/C4 improve school closure, account deletion and lesson-removal journeys. Current detail screens already provide school/lesson removal, global account deactivation and membership removal. Deactivation is not permanent erasure. This remains scheduled work, not a missing database capability.
 
@@ -57,4 +57,4 @@ The 9 September tidy-up kept the current roadmap, product plan, handover and sup
 
 The [full prior handover](archive/handovers/HANDOVER_2026-09-09_BEFORE_DOCS_CLEANUP.md) preserves older deployment IDs, rollout decisions and verification history. Historical rollback resources are evidence to recheck, not current instructions. No historical evidence was intentionally discarded.
 
-Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging deployment verification is next.
+Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging also passed all eight API and nine browser groups, including vertical touch scrolling and restoration of the saved signed-in theme. [Release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md).

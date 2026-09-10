@@ -1,6 +1,6 @@
 # Conditions UX implementation
 
-F18, 10 September 2026. F17 is approved and the owner authorised staging implementation. Verification is in progress; production remains on B2 until staging approval. [Handover](HANDOVER.md) owns deployment status.
+F18, 10 September 2026. F17 is approved and the owner authorised staging implementation. Staging verification passed; production remains on B2 until owner approval. [Handover](HANDOVER.md) owns deployment status.
 
 ## Final time behaviour
 
@@ -37,4 +37,4 @@ Use Node.js 22, unit tests, lint/build, dependency checks and browser/API verifi
 
 No database clone, migration or calibration promotion is part of F18. Only temporary verification sessions and normal forecast caches are written. Production requires owner approval. The preceding B2 application is a compatible rollback, without a database rollback.
 
-Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging deployment verification is next.
+Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging also passed all eight API and nine browser groups, including vertical touch scrolling and restoration of the saved signed-in theme. [Release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md).
