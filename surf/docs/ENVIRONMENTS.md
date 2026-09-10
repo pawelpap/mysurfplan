@@ -1,5 +1,7 @@
 # Environments and release workflow
 
+**Staging-only follow-up, 10 September:** numerical wind/swell bearings, wind speed and swell energy are now on the forecast tiles. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `f700797c5f1a58da3b9bdc3c156d653b5a89de14`, deployment `dpl_DodyqiGT2kRMdzBPNg8LZiCjwpRk`, passed 14 API and nine browser groups. Production remains at `172080d763a1e6dd04acea04beb71a67f192ee71`; promotion of this amendment requires owner approval. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
+
 Maintained operating reference, organised 9 September 2026. Project/branch mapping and B2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
@@ -11,7 +13,7 @@ Maintained operating reference, organised 9 September 2026. Project/branch mappi
 
 Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-Both environments run the approved F18 application `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`, promoted with documentation commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b` on 10 September. Production passed the same API/browser checks as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). No database migration or copy was required. [F18 daylight/cache/mobile staging evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
+Before the staging-only amendment above, both environments ran the approved F18 application `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`, promoted with documentation commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b` on 10 September. Production passed the same API/browser checks as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). No database migration or copy was required. [F18 daylight/cache/mobile staging evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
 
 ## Local setup and database prerequisites
 

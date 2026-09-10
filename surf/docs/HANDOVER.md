@@ -1,5 +1,7 @@
 # MyWavePlan current handover
 
+**Staging-only follow-up, 10 September:** numerical wind/swell bearings, wind speed and swell energy are now on the forecast tiles. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `f700797c5f1a58da3b9bdc3c156d653b5a89de14`, deployment `dpl_DodyqiGT2kRMdzBPNg8LZiCjwpRk`, passed 14 API and nine browser groups. Production remains at `172080d763a1e6dd04acea04beb71a67f192ee71`; promotion of this amendment requires owner approval. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
+
 Updated 10 September 2026. This is the single current handover. [Documentation index](README.md) · [Current task roadmap](IMPLEMENTATION_ROADMAP.md) · [Product plan](DEVELOPMENT_PLAN.md) · [Environment guide](ENVIRONMENTS.md).
 
 ## Current position
@@ -10,7 +12,7 @@ Updated 10 September 2026. This is the single current handover. [Documentation i
 
 | Environment | URL | Git branch | Vercel project | Fully checked deployment |
 | --- | --- | --- | --- | --- |
-| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_AzDRrH8jRXr33oLKPdZvvS9iBBee` (F18 daylight follow-up) |
+| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_DodyqiGT2kRMdzBPNg8LZiCjwpRk` (tile/menu amendment) |
 | Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_GyGUyg9Eoj3oGXupTzSCQePFoxMe` (F18) |
 
 F18 application commit is `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`. The owner-approved daylight/cache/mobile follow-up passed local and staging checks; [release evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production was promoted through `main` at approved staging commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b`, deployment `dpl_GyGUyg9Eoj3oGXupTzSCQePFoxMe`. The production custom domain passed the same 14 API and nine browser groups. [Production release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). Documentation-only follow-ups can produce newer deployment IDs with identical application code. [B2 release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), [runtime and migration contract](MEMBERSHIP_AUTHORISATION.md), [current permissions](ACCESS_CONTROL.md).

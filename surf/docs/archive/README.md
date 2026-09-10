@@ -16,6 +16,7 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
+| 10 September | [Tile parameters and mobile menu](releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md), verified staging-only amendment, awaiting production approval. |
 | 10 September | [Conditions UX production promotion](releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md), owner-approved F18 promotion and production verification. |
 | 10 September | [Spot-card daylight, caching and mobile width](releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md), verified F18 staging follow-up, subsequently promoted to production. |
 | 10 September | [Conditions UX on staging](releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md), F18 staging verification and tile/time decisions; subsequent refinements and production promotion are recorded above. |
