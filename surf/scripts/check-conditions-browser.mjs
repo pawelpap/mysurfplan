@@ -37,6 +37,10 @@ export async function checkConditionsBrowser({ base, cookie }) {
       latitude: bico.latitude,
       longitude: bico.longitude,
     });
+    const summaryRequests = [];
+    page.on("request", (r) => {
+      if (new URL(r.url()).pathname === "/api/conditions/summaries") summaryRequests.push(r.url());
+    });
     await page.goto(base + "/?view=conditions");
     await page
       .getByRole("heading", { name: "16-day forecast", exact: true })
@@ -55,6 +59,10 @@ export async function checkConditionsBrowser({ base, cookie }) {
     );
     checks++;
     console.log("Passed browser group", checks);
+    await page.waitForFunction(() => document.querySelector(".spot-card.selected .spot-card-time")?.textContent.trim());
+    const initialSpotTime = await page.locator(".spot-card.selected .spot-card-time").innerText();
+    assert.match(initialSpotTime, /(?:Now|Today|Tomorrow).*\d\d:\d\d/);
+    assert.ok(summaryRequests.some((url) => new URL(url).searchParams.get("spots").split(",").length > 1));
     await page.screenshot({
       path: "/private/tmp/f18-desktop.png",
       fullPage: true,
@@ -74,9 +82,7 @@ export async function checkConditionsBrowser({ base, cookie }) {
         ?.textContent.includes("09:15"),
     );
     assert.ok(
-      (await page.locator(".spot-comparison-time").innerText()).startsWith(
-        "Now",
-      ),
+      (await page.locator(".spot-comparison-time").innerText()).includes("Local times"),
     );
     for (const text of await page
       .locator(".calendar-day")
@@ -124,13 +130,16 @@ export async function checkConditionsBrowser({ base, cookie }) {
     await page.getByLabel("Search spots", { exact: true }).fill("");
     assert.equal(await page.getByLabel("Time", { exact: true }).count(), 0);
     assert.ok(
-      (await page.locator(".spot-comparison-time").innerText()).startsWith(
-        "Now",
-      ),
+      (await page.locator(".spot-comparison-time").innerText()).includes("Local times"),
     );
+    await page.waitForFunction(() => [...document.querySelectorAll(".spot-catalogue-grid .spot-card-time")].every((el) => el.textContent.trim()));
+    const beforeScrollBack = summaryRequests.length;
     await page
       .getByRole("button", { name: "Back to forecast", exact: true })
       .click();
+    await page.waitForTimeout(800);
+    assert.equal(summaryRequests.length, beforeScrollBack, "returning to loaded cards reuses the cache");
+    assert.equal(await page.locator(".spot-card.selected .spot-card-time").innerText(), initialSpotTime);
     await page.locator(".calendar-day").nth(1).click();
     await page.waitForFunction(() =>
       document
@@ -138,9 +147,7 @@ export async function checkConditionsBrowser({ base, cookie }) {
         ?.textContent.includes("12:00"),
     );
     assert.ok(
-      (await page.locator(".spot-comparison-time").innerText()).startsWith(
-        "Now",
-      ),
+      (await page.locator(".spot-comparison-time").innerText()).includes("Local times"),
     );
     checks++;
     console.log("Passed browser group", checks);
@@ -176,6 +183,14 @@ export async function checkConditionsBrowser({ base, cookie }) {
       .waitFor();
     checks++;
     console.log("Passed browser group", checks);
+    await page.setViewportSize({ width: 430, height: 932 });
+    await page.waitForTimeout(200);
+    const carousel = await page.locator(".spot-carousel").boundingBox();
+    const cardWidth = (await page.locator(".spot-card").first().boundingBox()).width;
+    assert.ok(cardWidth * 2 + 12 <= carousel.width + 1, "two mobile cards fit at iPhone Pro Max width");
+    await page.waitForFunction(() => document.querySelector(".spot-card.selected .spot-card-time")?.textContent.trim());
+    await page.locator(".spot-browser").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: "/private/tmp/f18-spot-cards-mobile.png" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "Open menu", exact: true }).click();
     await page.getByLabel("Dark theme", { exact: true }).check();

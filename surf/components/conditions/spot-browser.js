@@ -14,19 +14,24 @@ import {
   meaningfulExperience,
   weatherIcon,
 } from "../../lib/conditions/presentation.mjs";
+import { createSummaryCache, summaryTimeLabel } from "../../lib/conditions/spot-summaries.mjs";
 import Icon from "../icon";
 import { value } from "./shared";
 
 export function useConditionsClock() {
   const [now, setNow] = useState(null);
   useEffect(() => {
-    const update = () => setNow(Date.now());
+    const update = () => {
+      if (document.visibilityState === "visible") setNow(Date.now());
+    };
     update();
     const timer = setInterval(update, 60000);
     window.addEventListener("focus", update);
+    document.addEventListener("visibilitychange", update);
     return () => {
       clearInterval(timer);
       window.removeEventListener("focus", update);
+      document.removeEventListener("visibilitychange", update);
     };
   }, []);
   return now;
@@ -87,91 +92,38 @@ export function DirectionWeather({ condition: h, numeric = false }) {
   );
 }
 
-// In-memory page cache only. Full forecast data remains on the server. At most
-// three compact requests run together, and only the visible/browsed set is read.
-function useSummaries(ids, at, refreshVersion) {
-  const cache = useRef(new Map());
-  const lastRefresh = useRef(refreshVersion);
-  const [tick, setTick] = useState(0);
+// Keep loaded cards visible while the shared cache revalidates in batches.
+function useSummaries(ids, now, refreshVersion) {
+  const cache = useRef(null);
+  const [data, setData] = useState({});
   useEffect(() => {
-    const update = () => {
-      if (document.visibilityState === "visible") setTick((v) => v + 1);
-    };
-    const timer = setInterval(update, 60000);
-    window.addEventListener("focus", update);
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("focus", update);
-    };
+    const store = createSummaryCache({
+      onChange: setData,
+      fetchBatch: (spots, refresh, signal) => {
+        const query = new URLSearchParams({ spots: spots.join(",") });
+        if (refresh.length) query.set("refresh", refresh.join(","));
+        return request(`/api/conditions/summaries?${query}`, { signal });
+      },
+    });
+    cache.current = store;
+    return () => store.dispose();
   }, []);
-  const [state, setState] = useState({ at: null, data: {} });
   const key = ids.join(",");
   useEffect(() => {
-    if (!at || !key) return;
-    const forceRefresh = refreshVersion !== lastRefresh.current;
-    lastRefresh.current = refreshVersion;
-    const controller = new AbortController();
-    const queue = key.split(",");
-    const data = {};
-    for (const id of queue) {
-      const stored = cache.current.get(`${id}:${at}`);
-      if (
-        stored &&
-        Date.now() - stored.saved < (stored.data.stale ? 60000 : 5 * 60000) &&
-        stored.version === refreshVersion
-      )
-        data[id] = stored.data;
-    }
-    setState((old) => ({
-      at,
-      data: { ...(old.at === at ? old.data : {}), ...data },
-    }));
-    const missing = queue.filter((id) => !data[id]);
-    async function worker() {
-      while (missing.length && !controller.signal.aborted) {
-        const id = missing.shift();
-        let result;
-        try {
-          result = await request(
-            `/api/conditions/summary?spot=${encodeURIComponent(id)}&at=${at}${forceRefresh ? "&refresh=1" : ""}`,
-            { signal: controller.signal },
-          );
-        } catch (e) {
-          if (controller.signal.aborted) return;
-          result = { condition: null, error: e.message };
-        }
-        if (controller.signal.aborted) return;
-        if (!result.error)
-          cache.current.set(`${id}:${at}`, {
-            data: result,
-            saved: Date.now(),
-            version: refreshVersion,
-          });
-        // Bound the cache when people browse many days and regions.
-        if (cache.current.size > 250)
-          cache.current.delete(cache.current.keys().next().value);
-        setState((old) => ({
-          at,
-          data: { ...(old.at === at ? old.data : {}), [id]: result },
-        }));
-      }
-    }
-    const timer = setTimeout(
-      () =>
-        Promise.all(
-          Array.from({ length: Math.min(3, missing.length) }, worker),
-        ),
-      500,
-    );
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
+    const update = () => {
+      if (now) cache.current?.update(
+        document.visibilityState === "visible" && key ? key.split(",") : [],
+        refreshVersion,
+      );
     };
-  }, [key, at, refreshVersion, tick]);
-  return state.at === at ? state.data : {};
+    update();
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, [key, now, refreshVersion]);
+  return data;
 }
 
-function SpotCard({ entry, summary, selected, onChoose }) {
+function SpotCard({ entry, summary, selected, onChoose, now }) {
   const { spot, distance } = entry;
   const h = summary?.condition;
   const quality = h?.quality || "Unavailable";
@@ -190,6 +142,9 @@ function SpotCard({ entry, summary, selected, onChoose }) {
           ? ` · ${distanceLabel(distance)}`
           : ` · ${spot.countryCode}`}
       </span>
+      <span className="spot-card-time" title={spot.timezone}>
+        {summaryTimeLabel(summary, spot, now)}
+      </span>
       <span className="spot-card-condition">
         <Icon name="waves" />
         {!summary ? (
@@ -197,9 +152,14 @@ function SpotCard({ entry, summary, selected, onChoose }) {
         ) : (
           <span>
             {quality}
-            {finite(h?.surfMin)
-              ? ` · ${value(h.surfMin)}–${value(h.surfMax)} m`
-              : ""}
+            {finite(h?.surfMin) && (
+              <>
+                <span className="spot-card-separator"> · </span>
+                <span className="spot-card-surf">
+                  {value(h.surfMin)}–{value(h.surfMax)} m
+                </span>
+              </>
+            )}
           </span>
         )}
       </span>
@@ -267,11 +227,6 @@ export default function SpotBrowser({
     initialDone.current = true;
     onChoose(spot);
   };
-  const zone =
-    spots.find((s) => s.id === selected || s.slug === selected)?.timezone ||
-    entries[0]?.spot.timezone ||
-    "UTC";
-  const at = now ? Math.floor(now / 60000) * 60000 : null;
   const distanceEntries = useMemo(
     () =>
       entries.map((entry) => ({
@@ -292,7 +247,7 @@ export default function SpotBrowser({
     : entries.slice(range.start, range.start + range.count + 1);
   const summaries = useSummaries(
     displayed.map(({ spot }) => spot.id),
-    at,
+    now,
     refreshVersion + revision,
   );
   const matching = filterSpots(displayed, summaries, filters);
@@ -373,7 +328,7 @@ export default function SpotBrowser({
         <div>
           <h2>{catalogue ? "All spots" : "Surf spots"}</h2>
           <p className="spot-comparison-time">
-            {at ? `Now · ${hourLabel(at, zone)} · ${zone}` : "Loading…"}
+            Now or next sunrise · Local times
           </p>
         </div>
         <div className="actions">
@@ -513,6 +468,7 @@ export default function SpotBrowser({
               <SpotCard
                 key={entry.spot.id}
                 entry={entry}
+                now={now}
                 summary={summaries[entry.spot.id]}
                 selected={
                   entry.spot.id === selected || entry.spot.slug === selected
@@ -552,6 +508,7 @@ export default function SpotBrowser({
             <SpotCard
               key={entry.spot.id}
               entry={entry}
+              now={now}
               summary={summaries[entry.spot.id]}
               selected={
                 entry.spot.id === selected || entry.spot.slug === selected

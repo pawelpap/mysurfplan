@@ -10,17 +10,19 @@ import {
   usableForecast,
 } from "./refresh-policy.mjs";
 import { predictTides } from "./tides.mjs";
-import { sunlightForDay } from "./sunlight.mjs";
+import { sunlightForDay, spotSummaryTime } from "./sunlight.mjs";
 import { dateKey, interpolateHour, scoreConditions, tideAt } from "./model.mjs";
 import { hoursAround } from "./presentation.mjs";
 const HOUR = 3600000;
 export async function getConditions(
   id,
   force = false,
-  { summary = false, at = Date.now() } = {},
+  { summary = false, at = Date.now(), daylight = false } = {},
 ) {
   const spot = await getSpot(id);
   if (!spot || (summary && !spot.active)) return null;
+  const timing = summary && daylight ? spotSummaryTime(at, spot) : null;
+  if (timing) at = timing.at;
   const [schemaRow] =
     await sql`SELECT schema FROM calibration_schema_versions WHERE version=${spot.calibrationSchemaVersion}`;
   validateCalibration(spot.calibration, schemaRow?.schema);
@@ -144,6 +146,7 @@ export async function getConditions(
     return {
       spotId: spot.id,
       at,
+      ...(timing || {}),
       fetchedAt: row?.fetched_at || null,
       retryAt: row?.retry_after || null,
       stale,

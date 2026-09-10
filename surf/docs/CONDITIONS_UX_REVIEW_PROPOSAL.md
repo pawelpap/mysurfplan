@@ -35,7 +35,7 @@ Keep a readable quality label alongside colour. A green tile can still require A
 
 ### Spot comparison and optional photos
 
-The owner chose **current-hour conditions** for spot cards and the All spots catalogue. They stay independent of the calendar and graph selection. Compare summaries for the same current instant, with each spot's local time available; do not mix a noon or selected-future forecast for one beach with now for another. Use the freshest available forecast and roll summaries forward when the hour changes. Describe predictions as forecasts, not observed conditions. Unavailable or older cached data must remain recognisable.
+The owner’s 10 September refinement chooses **now during daylight or the next sunrise at night** for spot cards and All spots. Each card labels its own local forecast time; the calendar and chart selection do not change it. The five-minute batch cache reuses loaded values while refreshing. This supersedes the original always-now design brief. Describe predictions as forecasts, not observed conditions. Unavailable or older cached data must remain recognisable.
 
 The current screen requests a forecast for one selected spot. A comparison area needs a bounded, cached summary strategy before implementation: a limited nearby/visible set, pagination or lazy loading, request deduplication and provider/cost checks. Do not request a full forecast for every spot in the database on each page load. Basic spot comparison in this proposal is not dependent on a paid Surfer Plus plan; F7 remains a separate commercial opportunity.
 
@@ -71,4 +71,4 @@ The proposal is on a new review page in the existing Figma file. [Current review
 
 ## Accepted implementation refinements, 10 September
 
-The owner authorised staging implementation. Spot cards always show now, including in All spots. Day tiles show a labelled 12:00 snapshot. Chart cursors change only both charts and detailed conditions. Numerical scores are omitted from spot/day tiles; mobile retains the desktop tile parameters. The login copy is “Made for surfers by surfers” and login always follows the device theme with no selector. See the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md). Production remains on B2 until a separate approval.
+The owner authorised staging implementation. Spot cards show now during daylight or the next sunrise at night, including in All spots. The mobile carousel fits two readable cards on larger phones. Day tiles show a labelled 12:00 snapshot. Chart cursors change only both charts and detailed conditions. Numerical scores are omitted from spot/day tiles; mobile retains the desktop tile parameters. The login copy is “Made for surfers by surfers” and login always follows the device theme with no selector. See the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md). Production remains on B2 until a separate approval.
