@@ -210,8 +210,14 @@ export async function checkConditionsBrowser({ base, cookie }) {
     await page.screenshot({ path: "/private/tmp/f18-spot-cards-mobile.png" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "Open menu", exact: true }).click();
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "workspace-navigation", "opening menu focuses dialog rather than school picker");
+    await page.keyboard.press("Shift+Tab");
+    assert.ok(await page.evaluate(() => document.querySelector("#workspace-navigation").contains(document.activeElement)), "backwards navigation stays in menu");
+    await page.keyboard.press("Tab");
+    assert.ok(await page.evaluate(() => document.querySelector("#workspace-navigation").contains(document.activeElement)), "keyboard focus wraps inside menu");
     await page.getByLabel("Dark theme", { exact: true }).check();
     await page.keyboard.press("Escape");
+    assert.equal(await page.getByRole("button", { name: "Open menu", exact: true }).evaluate(el => el === document.activeElement), true, "closing menu restores hamburger focus");
     await page.waitForFunction(
       () => document.documentElement.dataset.theme === "dark",
     );

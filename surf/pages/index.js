@@ -122,10 +122,11 @@ export default function Workspace() {
     document.body.style.overflow = "hidden";
     const focusable = () => [
       ...sidebar.current.querySelectorAll(
-        "button:not(:disabled),a,select,input:not(:disabled)",
+        "button:not(:disabled),a[href],select:not(:disabled),input:not(:disabled)",
       ),
     ];
-    focusable()[0]?.focus();
+    // Focus the dialog, not a native select that can open an iOS picker.
+    sidebar.current?.focus({ preventScroll: true });
     const onKey = (event) => {
       if (event.key === "Escape") {
         setMenu(false);
@@ -135,11 +136,12 @@ export default function Workspace() {
         const items = focusable();
         const first = items[0];
         const last = items[items.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
+        const atDialog = document.activeElement === sidebar.current;
+        if (event.shiftKey && (document.activeElement === first || atDialog)) {
           event.preventDefault();
           last?.focus();
         }
-        if (!event.shiftKey && document.activeElement === last) {
+        if (!event.shiftKey && (document.activeElement === last || atDialog)) {
           event.preventDefault();
           first?.focus();
         }
@@ -258,6 +260,7 @@ export default function Workspace() {
       <aside
         ref={sidebar}
         id="workspace-navigation"
+        tabIndex={-1}
         className={`sidebar ${menu ? "open" : ""}`}
         {...(menu
           ? { role: "dialog", "aria-modal": true, "aria-label": "Navigation" }
