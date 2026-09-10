@@ -1,6 +1,6 @@
 # Conditions Figma review, 9 September 2026
 
-Status: **F17 approved; F18 is deployed and verified on staging, awaiting owner review.** The owner authorised staging implementation and refined tile/time behaviour on 10 September. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) takes precedence over illustrative Figma values and earlier proposals. Production approval is still required.
+Status: **F17/F18 complete; staging and production are verified.** The owner authorised staging implementation and refined tile/time behaviour on 10 September. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) takes precedence over illustrative Figma values and earlier proposals. The owner approved production on 10 September.
 
 ## Review links
 
@@ -60,8 +60,8 @@ The existing quality text/background pairs measured 5.45:1–6.05:1 in Light and
 
 This is **design verification**, not browser, accessibility or live-app testing. The catalogue/back links, mobile filters/menu and first desktop carousel advance have prototype connections. Search/filter evaluation, repeated carousel paging, all-hours expansion, live chart selection, series toggles, persistent appearance and lesson discovery are specified behaviours for implementation; the Figma file does not execute them against real data.
 
-## Next action
+## Implementation outcome
 
-Staging verification passed. Obtain the owner’s review before production. The owner confirmed the final time model: spot cards show now in daylight or the next sunrise at night; day tiles show 12:00; the chart cursor changes both charts and detailed parameters only. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records login and responsive changes. No forecast-model or calibration change is included.
+F18 verification passed on staging and production after owner approval on 10 September. [Production release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). The owner confirmed the final time model: spot cards show now in daylight or the next sunrise at night; day tiles show 12:00; the chart cursor changes both charts and detailed parameters only. The [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records login and responsive changes. No forecast-model or calibration change is included.
 
-Before implementation, settle summary freshness, caching, pagination and request deduplication under A5/A7. Never fetch every spot's full 16-day forecast on each page load. Preserve refresh behaviour, automatic nearest selection, manual/deep-linked spots and platform-admin-only spot settings. Test real desktop/mobile browsers, both themes, every calendar start weekday, month/DST/timezone boundaries, missing data, location permission states, keyboard/touch interactions and lesson no-results. Staging review and the owner's production approval still precede promotion for this design change.
+The implementation includes five-minute compact summaries, batched requests, pagination and request deduplication. A5/A7 remain the wider usage/capacity tasks. Never fetch every spot's full 16-day forecast on each page load. Preserve refresh behaviour, automatic nearest selection, manual/deep-linked spots and platform-admin-only spot settings. Test real desktop/mobile browsers, both themes, every calendar start weekday, month/DST/timezone boundaries, missing data, location permission states, keyboard/touch interactions and lesson no-results. Staging review and the owner’s production approval are complete for F18. Future design changes require their own review.

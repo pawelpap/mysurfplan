@@ -11,7 +11,7 @@ Maintained operating reference, organised 9 September 2026. Project/branch mappi
 
 Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
-Staging now runs the verified F18 application `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`, pending owner review. Production retains B2 application `bcb5ceaa640571915129b070ad4ad94b188ea80f` with later documentation. [F18 daylight/cache/mobile staging evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
+Both environments run the approved F18 application `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`, promoted with documentation commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b` on 10 September. Production passed the same API/browser checks as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). No database migration or copy was required. [F18 daylight/cache/mobile staging evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
 
 ## Local setup and database prerequisites
 
@@ -53,7 +53,7 @@ The owner authorised a one-off B2 cleanup on 9 September. Both environments now 
 
 ## Useful browser checks
 
-On F18 staging, login always follows the device and has no selector; saved signed-in preferences are preserved. Elsewhere, appearance defaults to the device setting. System, Light and Dark choices apply per browser/origin; staging and production preferences are separate. Check login, workspace/mobile menu, forms, public schedule and tide charts, including reload and live system changes. Quality tiles retain semantic colours and the selected-day outline.
+On both environments, login always follows the device and has no selector; saved signed-in preferences are preserved. Elsewhere, appearance defaults to the device setting. System, Light and Dark choices apply per browser/origin; staging and production preferences are separate. Check login, workspace/mobile menu, forms, public schedule and tide charts, including reload and live system changes. Quality tiles retain semantic colours and the selected-day outline.
 
 The first spot picker after login requests location once per page load. A fresh Conditions screen selects the nearest spot when location succeeds; explicit spot links, manual choices and requested dates take precedence. A–Z is the fallback when location is denied or unavailable. Switching order preserves selection; clicking Nearest to me retries location. Coordinates stay in memory and are not sent to app APIs; distances are straight-line estimates. Lesson forms require deliberate spot selection. Use synthetic coordinates for tests.
 

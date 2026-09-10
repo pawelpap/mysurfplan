@@ -1,6 +1,6 @@
 # Conditions UX implementation
 
-F18, 10 September 2026. F17 is approved and the owner authorised staging implementation. Staging verification passed; production remains on B2 until owner approval. [Handover](HANDOVER.md) owns deployment status.
+F18, 10 September 2026. F17/F18 are complete. The owner approved the staging implementation and its production promotion. Both environments passed verification; [production evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). [Handover](HANDOVER.md) owns deployment status.
 
 ## Final time behaviour
 
@@ -35,8 +35,8 @@ Find lessons uses the current authorised school workspace, filters real lessons 
 
 Use Node.js 22, unit tests, lint/build, dependency checks and browser/API verification. Check stable tile times, linked cursors, touch versus vertical scroll, 17 spots/16 days, location, permissions, full swell components, lesson no-results, both themes and login's device-only rule. Chrome viewport/touch emulation does not establish physical iPhone/Safari coverage.
 
-No database clone, migration or calibration promotion is part of F18. Only temporary verification sessions and normal forecast caches are written. Production requires owner approval. The preceding B2 application is a compatible rollback, without a database rollback.
+No database clone, migration or calibration promotion is part of F18. Only temporary verification sessions and normal forecast caches are written. Production approval was received and the release was verified on 10 September; future changes follow the normal staging/approval workflow. The preceding B2 application is a compatible rollback, without a database rollback.
 
 Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging also passed all eight API and nine browser groups, including vertical touch scrolling and restoration of the saved signed-in theme. [Release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md).
 
-The daylight/cache/mobile follow-up passed 104 unit tests and build; the main change passed 14 API groups and nine browser groups locally, and the complete final version passed all 14 API and nine browser groups on staging; it has a separate [release record](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). See the handover for live staging status.
+The daylight/cache/mobile follow-up passed 104 unit tests and build; the main change passed 14 API groups and nine browser groups locally, and the complete final version passed all 14 API and nine browser groups on staging; it has a separate [release record](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). The same final application passed all 14 API and nine browser groups on production. See the handover for live deployment status.

@@ -31,3 +31,5 @@ The same eight API and nine browser groups passed at https://staging.mywaveplan.
 No migration, database clone, spot/calibration change or provider switch occurred. Both databases retain the B2 schema and authority. Only temporary verification sessions and normal forecast caches are written. Production git `main` remains `91bc4fe2f9cd4c230f05f8ba7928e13610e2e9f3`, with B2 application code. Git integration may also build an unpromoted preview in the production project; this does not update mywaveplan.com.
 
 After owner approval, promote through `main` and run the same checks on production. The preceding B2 application is compatible for rollback; no database restore is required. Full cross-school discovery remains C2, and photos/storage remain B7. F18 stays open until approved production promotion and verification.
+
+Subsequent status, 10 September: the owner approved production and the final F18 application passed production verification. This file retains staging evidence; see [production release](RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md) for current promotion details.

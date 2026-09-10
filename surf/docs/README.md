@@ -18,7 +18,7 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Implementation remains in A6/B3/B9. |
 | [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted design. B1/B2 identity and membership runtime are implemented; self-registration/invitations remain pending. |
 | [Account and lifecycle UI follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) | Owner’s B2 review: clearer account/membership forms and removal/closure/deletion flows, tracked in B3/B4/B5/B8/C4. |
-| [Conditions UX review proposal](CONDITIONS_UX_REVIEW_PROPOSAL.md) | Approved F17 brief and owner feedback; F18 is deployed and verified on staging, awaiting owner review. |
+| [Conditions UX review proposal](CONDITIONS_UX_REVIEW_PROPOSAL.md) | Approved F17 brief and owner feedback; F18 is complete and verified on staging and production. |
 | [Conditions Figma review](CONDITIONS_UX_FIGMA_REVIEW.md) | Desktop/mobile and light/dark proposal, frame links, carousel/catalogue, charts, hourly lesson actions, navigation decisions and visual checks. Approved for implementation; see the final F18 contract. |
 | [Commercial and privacy architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) | Target architecture. Billing, entitlements, privacy and consent are planned; final provider and policy decisions remain open. |
 | [Infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) | Account observations dated 8 September and current upgrade/EU-region decisions. Recheck live quotas before changes. |
@@ -51,4 +51,4 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 - Keep provenance, verification and rollback evidence. Historical approvals and commands apply to their original release, not to new work.
 - Update this index and relative links when moving a document. Update status only from evidence; a documentation tidy-up does not constitute a deployment or live account check.
 
-Latest verified staging follow-up: [spot-card daylight, request reuse and mobile width](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production review remains pending.
+Latest verified staging follow-up: [spot-card daylight, request reuse and mobile width](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production was approved and verified on 10 September; [release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md).

@@ -62,7 +62,7 @@ Accessibility references: W3C explains why [colour needs an additional visual cu
 
 ## Implementation references for the future review
 
-- [Conditions screen](../components/conditions/index.js): daily noon summaries, independent current-time spot cards, linked chart selection and detailed metrics.
+- [Conditions screen](../components/conditions/index.js): daily noon summaries, independent now/next-sunrise spot cards, linked chart selection and detailed metrics.
 - [Shared condition labels](../components/conditions/shared.js): score, quality and the current “Not applicable” experience mapping. Check other consumers before changing a shared formatter.
 - [Spot selector](../components/spot-select.js): current nearest/A–Z and location-selection behaviour.
 - [Conditions architecture](CONDITIONS_ARCHITECTURE.md): data and calculation behaviour to preserve.
@@ -71,4 +71,4 @@ The proposal is on a new review page in the existing Figma file. [Current review
 
 ## Accepted implementation refinements, 10 September
 
-The owner authorised staging implementation. Spot cards show now during daylight or the next sunrise at night, including in All spots. The mobile carousel fits two readable cards on larger phones. Day tiles show a labelled 12:00 snapshot. Chart cursors change only both charts and detailed conditions. Numerical scores are omitted from spot/day tiles; mobile retains the desktop tile parameters. The login copy is “Made for surfers by surfers” and login always follows the device theme with no selector. See the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md). Production remains on B2 until a separate approval.
+The owner authorised staging implementation. Spot cards show now during daylight or the next sunrise at night, including in All spots. The mobile carousel fits two readable cards on larger phones. Day tiles show a labelled 12:00 snapshot. Chart cursors change only both charts and detailed conditions. Numerical scores are omitted from spot/day tiles; mobile retains the desktop tile parameters. The login copy is “Made for surfers by surfers” and login always follows the device theme with no selector. See the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md). The owner approved production on 10 September; both environments are verified. [Release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md).

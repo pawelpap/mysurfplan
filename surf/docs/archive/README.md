@@ -16,8 +16,9 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
-| 10 September | [Spot-card daylight, caching and mobile width](releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md), verified F18 staging follow-up; production approval pending. |
-| 10 September | [Conditions UX on staging](releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md), F18 verification and final tile/time decisions; production approval pending. |
+| 10 September | [Conditions UX production promotion](releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md), owner-approved F18 promotion and production verification. |
+| 10 September | [Spot-card daylight, caching and mobile width](releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md), verified F18 staging follow-up, subsequently promoted to production. |
+| 10 September | [Conditions UX on staging](releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md), F18 staging verification and tile/time decisions; subsequent refinements and production promotion are recorded above. |
 | 9 September | [Membership authorisation](releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), B2 runtime cutover, verification and owner-authorised test-data cleanup. |
 | 9 September | [Membership foundation](releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md), B1 migration, reconciliation, compatibility and staged rollout verification. |
 | 9 September | [Dependency baseline and Contentful cleanup](releases/RELEASE_2026-09-09_DEPENDENCY_BASELINE.md), A2 verification and rollback. |
