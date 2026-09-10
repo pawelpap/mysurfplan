@@ -12,4 +12,10 @@ The mobile menu now focuses its dialog container instead of the first control. T
 
 Rollback: preceding staging/production commit `172080d763a1e6dd04acea04beb71a67f192ee71`, without a database rollback.
 
-Documentation-only commits after this application commit do not change the tested application. Production was not promoted.
+## Compact rows and upper weather icons
+
+The owner requested a further layout adjustment on 10 September. Each tile now has one swell row and one wind row, ordered icon, direction arrow, numerical bearing, compass direction, then energy or speed. Separate Wind/Energy text rows were removed; accessible labels and partial-energy disclosure remain. Weather is in the upper-right corner beside the spot name or date. Day columns retain readable width, weekly alignment and horizontal navigation on narrower screens. The summary data, APIs and forecast model are unchanged.
+
+Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee` is deployed to staging as `dpl_747wNid62HvzCwwHFx61CHjhEum8`. Node.js 22 lint/build passed. The compact layout passed the existing 14 API and nine browser groups locally. Following the final desktop-spacing adjustment, all 14 API and nine browser groups passed on staging, with no browser errors. Checks cover degrees plus compass, single-row placement, tile overflow, two mobile carousel cards and existing navigation behaviour. Desktop and mobile screenshots were reviewed. No error/fatal deployment logs were found. Physical iPhone/Safari remains untested.
+
+Documentation-only commits after this final application commit do not change the tested application. Production remains on `172080d763a1e6dd04acea04beb71a67f192ee71` and was not promoted.

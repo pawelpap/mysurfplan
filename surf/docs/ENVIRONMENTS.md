@@ -1,6 +1,6 @@
 # Environments and release workflow
 
-**Staging-only follow-up, 10 September:** numerical wind/swell bearings, wind speed and swell energy are now on the forecast tiles. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `f700797c5f1a58da3b9bdc3c156d653b5a89de14`, deployment `dpl_DodyqiGT2kRMdzBPNg8LZiCjwpRk`, passed 14 API and nine browser groups. Production remains at `172080d763a1e6dd04acea04beb71a67f192ee71`; promotion of this amendment requires owner approval. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
+**Staging-only follow-up, 10 September:** each forecast tile has two compact rows: icon, arrow, degrees, compass direction, then swell energy or wind speed. Weather icons sit at the top right, beside spot names or dates. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee`, deployment `dpl_747wNid62HvzCwwHFx61CHjhEum8`, passed 14 API and nine browser groups. Production remains at `172080d763a1e6dd04acea04beb71a67f192ee71`; promotion of this amendment requires owner approval. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
 
 Maintained operating reference, organised 9 September 2026. Project/branch mapping and B2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
