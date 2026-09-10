@@ -1,6 +1,7 @@
 import Head from "next/head";
 import "../styles/themes.css";
 import "../styles/app.css";
+import "../styles/conditions.css";
 import { ThemeProvider } from "../components/theme";
 import { SpotLocationProvider } from "../components/spot-select";
 export default function MyWavePlan({ Component, pageProps }) {
@@ -12,7 +13,7 @@ export default function MyWavePlan({ Component, pageProps }) {
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </Head>
-      <ThemeProvider>
+      <ThemeProvider systemOnly={Component.systemTheme === true}>
         <SpotLocationProvider>
           <Component {...pageProps} />
         </SpotLocationProvider>

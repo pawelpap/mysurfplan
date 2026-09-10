@@ -3,6 +3,8 @@ import { LessonConditions } from "../conditions/shared";
 import SpotSelect from "../spot-select";
 import { zonedFields, zonedDateTimeToISO } from "../../lib/conditions/time.mjs";
 import { dateKey } from "../../lib/conditions/model.mjs";
+import { lessonMatchesConditions } from "../../lib/conditions/presentation.mjs";
+import { timeOnDay } from "../../lib/conditions/presentation.mjs";
 import {
   Button,
   Field,
@@ -56,10 +58,20 @@ export default function Lessons({
   const period = ["past", "mine"].includes(query.period)
     ? query.period
     : "upcoming";
-  const back = () => go({ period });
+  const forecastFilter = {
+    spot: query.spot,
+    date: query.date,
+    time: query.time,
+  };
+  const back = () => go({ period, ...forecastFilter });
   const open = (lesson, action) => {
     setNotice("");
-    go({ period, lesson: lesson.id, ...(action ? { action } : {}) });
+    go({
+      period,
+      ...forecastFilter,
+      lesson: lesson.id,
+      ...(action ? { action } : {}),
+    });
   };
   const saved = (lesson) => {
     source.reload();
@@ -164,17 +176,27 @@ export default function Lessons({
       return (
         (period === "past" ? past : !past) &&
         (period !== "mine" || bookedBy(l, session)) &&
+        lessonMatchesConditions(l, forecastFilter) &&
         (!level || l.difficulty === level) &&
         `${l.spotName || ""} ${l.place} ${instructors(l)}`
           .toLowerCase()
           .includes(search.toLowerCase())
       );
     })
-    .sort((a, b) =>
-      period === "past"
+    .sort((a, b) => {
+      const target =
+        query.date && query.time
+          ? timeOnDay(query.date, query.time, a.spotTimezone || "Europe/Lisbon")
+          : null;
+      if (target)
+        return (
+          Math.abs(new Date(a.startAt).getTime() - target) -
+          Math.abs(new Date(b.startAt).getTime() - target)
+        );
+      return period === "past"
         ? new Date(b.startAt) - new Date(a.startAt)
-        : new Date(a.startAt) - new Date(b.startAt),
-    );
+        : new Date(a.startAt) - new Date(b.startAt);
+    });
   return (
     <>
       <PageHeading
@@ -203,6 +225,23 @@ export default function Lessons({
           )
         }
       />
+      {(query.spot || query.date) && (
+        <div className="conditions-lesson-filter">
+          <span>
+            Lessons for the selected spot{query.date ? ` · ${query.date}` : ""}
+            {query.time ? ` · nearest to ${query.time}` : ""}
+          </span>
+          <div className="actions">
+            <Button
+              tone="quiet"
+              onClick={() => onForecast(query.spot, query.date)}
+            >
+              Back to conditions
+            </Button>
+            <Button onClick={() => go({ period })}>All school lessons</Button>
+          </div>
+        </div>
+      )}
       <div className="segment" aria-label="Lesson period">
         {[
           ["upcoming", "Upcoming"],

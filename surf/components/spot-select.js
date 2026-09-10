@@ -15,6 +15,7 @@ import {
 } from "../lib/spot-order.mjs";
 
 const SpotLocationContext = createContext(null);
+export const useSpotLocation = () => useContext(SpotLocationContext);
 
 export function SpotLocationProvider({ children }) {
   const [order, setOrder] = useState("nearest");

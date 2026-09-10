@@ -1,6 +1,6 @@
 # Conditions UX review proposal
 
-Recorded 9 September 2026. Source: design feedback from **Piotr**, relayed by the owner in this conversation. Status: **future design brief, not an approved design or implemented change**. The owner requested Figma design and review before implementation, with no work on the interface now.
+Recorded and reviewed 9 September 2026. Source: design feedback from **Piotr**, relayed by the owner, followed by the owner's live review comments. Status: **F17 approved; F18 implementation under verification for staging**. The owner subsequently started the Figma work. See the [Figma review, decisions and visual checks](CONDITIONS_UX_FIGMA_REVIEW.md) for the current proposal and frame links.
 
 The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: design and review** and **F18: implementation of the approved scope**. The [current handover](HANDOVER.md) identifies the next development task. The current design remains the production baseline until a replacement is reviewed. This proposal changes presentation, not forecasting calculations or spot calibrations.
 
@@ -10,10 +10,10 @@ The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: de
 | --- | --- |
 | Arrange daily forecasts in calendar weeks, with weekends in fixed positions and past days grey | Agree. Use Monday–Sunday headings initially, with Saturday and Sunday consistently placed. Show all 16 forecast dates across the necessary calendar rows. Leading past dates and trailing dates outside the forecast can be muted, disabled placeholders; do not invent historical forecasts. Distinguish today, selection and weekends without changing the meaning of quality colours. Test a compact seven-column calendar on mobile with readable selected-day details below. |
 | Hide “Not applicable” on day tiles | Agree. The current experience formatter maps the internal `Too small` state to “Not applicable”. Omit that experience line when it has no useful meaning, while keeping “Flat / too small” as the conditions explanation. Missing data is a different state and must remain distinguishable. Keep Beginner, Intermediate or Advanced whenever the forecast supports an assessment. |
-| Show spots as cards with current conditions, optionally with photos | Useful for comparing where to surf. Prototype a compact nearby-spot comparison area with search and a way to browse all spots. Avoid placing every spot's full forecast above the selected forecast, especially as the catalogue grows worldwide. Preserve nearest-first selection, A–Z sorting and explicit spot links. Photos are optional; first test whether they help identification enough to justify their space. |
+| Show spots as cards with current conditions, optionally with photos | The owner chose a carousel with all spots, desktop arrows and mobile swipe, plus an All spots catalogue with search and filters. Preserve nearest-first selection, A–Z sorting and explicit spot links. No photos are included in this proposal. |
 | Add wave, weather and wind icons | Agree, where they make scanning easier. Use one consistent icon family, familiar symbols and short labels/units. Retain the actual direction arrows and bearings. Decorative icons should not compete with the condition colours or replace information that is unclear without a label. |
-| Reduce information on day tiles | Agree with separating summary from detail. Prototype date, quality, estimated surf and meaningful experience level as the compact summary. Compare keeping the numerical score on the tile against moving it to the selected-day detail. This is a review decision, not permission to remove a KPI. All existing parameters must remain easy to access on desktop and mobile. |
-| Add a conditions graph before the tide graph | Promising. My preferred first prototype is an hourly estimated surf-height range for the selected day, answering “When should I surf?”. Piotr's “per day” suggestion could also mean a 16-day trend; compare that alternative in Figma and confirm the intended timescale before coding. Avoid adding both charts by default. |
+| Reduce information on day tiles | Use qualitative labels on spot/day tiles, with numerical scores only in details. Desktop and mobile tiles show surf range, numeric swell/wind bearings, weather and meaningful experience anchored at the bottom. Mobile weekday columns scroll horizontally. Empty dates have no icons. |
+| Add a conditions graph before the tide graph | The owner chose the hourly surf-height chart, added a dashed energy series and requested quality-coloured background bands. The tide chart stays neutral. There is no extra 16-day trend chart in the proposal. |
 
 ## Proposed screen flow to test in Figma
 
@@ -21,6 +21,7 @@ The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) tracks this as **F17: de
 2. **Choose a day:** calendar weeks with stable weekday headings, coloured quality tiles and a concise summary.
 3. **Choose a time:** selected-day conditions chart above the tide/daylight chart, if the hourly proposal is approved. Both use the same selected time.
 4. **Read the details:** the full parameter set at that time, using the existing balanced metric layout and accessible swell-component details.
+5. **Find a lesson:** selected-time and hourly actions carry spot/date/time into the C2 lesson-discovery journey. Availability must come from real lesson data.
 
 The design should support these decisions in sequence. It should not turn into a page of unrelated cards and graphs. Reuse the app's typography, spacing, controls, light/dark palettes and quality colours. Mobile needs its own composition, with the same data available; shrinking the desktop tiles is insufficient.
 
@@ -34,7 +35,7 @@ Keep a readable quality label alongside colour. A green tile can still require A
 
 ### Spot comparison and optional photos
 
-Compare summaries for the same valid instant, with each spot's local time available. Do not mix a noon forecast for one beach with “now” for another. Describe predictions as forecasts, not observed conditions. Unavailable or older cached data must remain recognisable.
+The owner chose **current-hour conditions** for spot cards and the All spots catalogue. They stay independent of the calendar and graph selection. Compare summaries for the same current instant, with each spot's local time available; do not mix a noon or selected-future forecast for one beach with now for another. Use the freshest available forecast and roll summaries forward when the hour changes. Describe predictions as forecasts, not observed conditions. Unavailable or older cached data must remain recognisable.
 
 The current screen requests a forecast for one selected spot. A comparison area needs a bounded, cached summary strategy before implementation: a limited nearby/visible set, pagination or lazy loading, request deduplication and provider/cost checks. Do not request a full forecast for every spot in the database on each page load. Basic spot comparison in this proposal is not dependent on a paid Surfer Plus plan; F7 remains a separate commercial opportunity.
 
@@ -42,7 +43,7 @@ Preserve automatic nearest selection, permission-denied fallback, manual selecti
 
 ### Conditions chart
 
-For the hourly proposal, start with estimated local surf height in metres, preferably showing its existing minimum–maximum range. That range is not a statistical confidence interval. A metric selector may later switch to quality or swell energy/power using the system's existing definitions and units; avoid multiple unrelated vertical axes or unexplained combinations. No new forecasting formula is proposed here.
+The reviewed direction shows estimated local surf height in metres with its existing minimum–maximum range, plus a dashed swell-energy series in kJ/m² on a clearly labelled second axis. The owner requested both series together; either should be toggleable. The range is not a statistical confidence interval. Soft hourly quality bands apply to this chart only. The tide chart uses neutral backgrounds and daylight markers. No new forecasting formula is proposed here.
 
 The conditions chart, tide chart and detail values must share one selected time and the spot's timezone. Preserve the current morning-to-evening journey and first light, sunrise, sunset and last light. Support tap/click as well as dragging and keyboard time selection. Missing forecast intervals remain gaps; do not draw invented values across unavailable data. If the 16-day trend is chosen instead, selecting a date must update the calendar and selected-day panel consistently.
 
@@ -61,9 +62,13 @@ Accessibility references: W3C explains why [colour needs an additional visual cu
 
 ## Implementation references for the future review
 
-- [Conditions screen](../components/conditions/index.js): daily noon summaries, selected date/time, tide interaction and detailed metrics.
+- [Conditions screen](../components/conditions/index.js): daily noon summaries, independent current-time spot cards, linked chart selection and detailed metrics.
 - [Shared condition labels](../components/conditions/shared.js): score, quality and the current “Not applicable” experience mapping. Check other consumers before changing a shared formatter.
 - [Spot selector](../components/spot-select.js): current nearest/A–Z and location-selection behaviour.
 - [Conditions architecture](CONDITIONS_ARCHITECTURE.md): data and calculation behaviour to preserve.
 
-No Figma file has been created for this proposal, and no application code, database or deployment has changed as part of recording it.
+The proposal is on a new review page in the existing Figma file. [Current review links, owner decisions, prototype limitations and visual verification](CONDITIONS_UX_FIGMA_REVIEW.md) are the implementation handoff. The icon appearance switch, bottom profile/logout group, filtered catalogue and retained all-hours list are included. No application code, database or deployment changed during F17.
+
+## Accepted implementation refinements, 10 September
+
+The owner authorised staging implementation. Spot cards always show now, including in All spots. Day tiles show a labelled 12:00 snapshot. Chart cursors change only both charts and detailed conditions. Numerical scores are omitted from spot/day tiles; mobile retains the desktop tile parameters. The login copy is “Made for surfers by surfers” and login always follows the device theme with no selector. See the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md). Production remains on B2 until a separate approval.

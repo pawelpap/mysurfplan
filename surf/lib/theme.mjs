@@ -20,5 +20,6 @@ export function applyDocumentTheme(preference, systemDark) {
 export const themeBootstrapScript = `(function(){
   var mode;
   try { mode = window.localStorage.getItem(${JSON.stringify(themeStorageKey)}); } catch (_) {}
+  if (['/login', '/login/'].includes(window.location?.pathname)) mode = 'system';
   (${applyDocumentTheme.toString()})(mode, window.matchMedia('(prefers-color-scheme: dark)').matches);
 })();`;

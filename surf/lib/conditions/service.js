@@ -11,11 +11,16 @@ import {
 } from "./refresh-policy.mjs";
 import { predictTides } from "./tides.mjs";
 import { sunlightForDay } from "./sunlight.mjs";
-import { dateKey, scoreConditions, tideAt } from "./model.mjs";
+import { dateKey, interpolateHour, scoreConditions, tideAt } from "./model.mjs";
+import { hoursAround } from "./presentation.mjs";
 const HOUR = 3600000;
-export async function getConditions(id, force = false) {
+export async function getConditions(
+  id,
+  force = false,
+  { summary = false, at = Date.now() } = {},
+) {
   const spot = await getSpot(id);
-  if (!spot) return null;
+  if (!spot || (summary && !spot.active)) return null;
   const [schemaRow] =
     await sql`SELECT schema FROM calibration_schema_versions WHERE version=${spot.calibrationSchemaVersion}`;
   validateCalibration(spot.calibration, schemaRow?.schema);
@@ -75,8 +80,10 @@ export async function getConditions(id, force = false) {
     );
   const today = dateKey(now, spot.timezone);
   // Extra padding supplies neighbouring tide extrema around both ends of the 16-day view.
-  const start = Date.parse(today + "T00:00:00Z") - 2 * 24 * HOUR,
-    end = start + 20 * 24 * HOUR;
+  const start = summary
+      ? Math.floor((at - 36 * HOUR) / 900000) * 900000
+      : Date.parse(today + "T00:00:00Z") - 2 * 24 * HOUR,
+    end = summary ? at + 36 * HOUR : start + 20 * 24 * HOUR;
   let tide = { tides: [], extremes: [] },
     reference = null;
   try {
@@ -106,13 +113,45 @@ export async function getConditions(id, force = false) {
     issues.push("Tide predictions are temporarily unavailable.");
     console.error("tide prediction failed", spot.slug, error.message);
   }
-  const hours = payload.hours.map((h) => {
+  const rawHours = summary ? hoursAround(payload.hours, at) : payload.hours;
+  const hours = rawHours.map((h) => {
     const withTide = {
       ...h,
       tide: tideAt(tide.tides, h.time, spot.calibration),
     };
     return { ...withTide, ...scoreConditions(withTide, spot.calibration) };
   });
+  if (summary) {
+    const raw = interpolateHour(rawHours, at);
+    const h = raw
+      ? { ...raw, tide: tideAt(tide.tides, at, spot.calibration) }
+      : null;
+    const scored = h ? { ...h, ...scoreConditions(h, spot.calibration) } : null;
+    // Public-facing summary only. Never return calibration or full forecast payloads.
+    const fields = [
+      "time",
+      "score",
+      "quality",
+      "tone",
+      "level",
+      "surfMin",
+      "surfMax",
+      "swellDirection",
+      "windDirection",
+      "weatherCode",
+      "provisional",
+    ];
+    return {
+      spotId: spot.id,
+      at,
+      fetchedAt: row?.fetched_at || null,
+      retryAt: row?.retry_after || null,
+      stale,
+      condition: scored
+        ? Object.fromEntries(fields.map((key) => [key, scored[key]]))
+        : null,
+    };
+  }
   const dates = Array.from({ length: 16 }, (_, i) =>
     new Date(Date.parse(today + "T12:00:00Z") + i * 24 * HOUR)
       .toISOString()

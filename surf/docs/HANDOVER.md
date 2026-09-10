@@ -1,8 +1,10 @@
 # MyWavePlan current handover
 
-Updated 9 September 2026. This is the single current handover. [Documentation index](README.md) · [Current task roadmap](IMPLEMENTATION_ROADMAP.md) · [Product plan](DEVELOPMENT_PLAN.md) · [Environment guide](ENVIRONMENTS.md).
+Updated 10 September 2026. This is the single current handover. [Documentation index](README.md) · [Current task roadmap](IMPLEMENTATION_ROADMAP.md) · [Product plan](DEVELOPMENT_PLAN.md) · [Environment guide](ENVIRONMENTS.md).
 
 ## Current position
+
+**F18 is under verification for staging review. Production remains on B2.** The owner authorised staging only. [Conditions UX implementation](CONDITIONS_UX_IMPLEMENTATION.md) is the current behaviour contract; numerical ratings are absent from spot/day tiles, spot cards show now and day tiles show 12:00. The chart cursor controls the detailed view only.
 
 **B2 is deployed and verified on staging and production.** Full release checks ran on `bcb5ceaa640571915129b070ad4ad94b188ea80f`. Memberships now govern school capabilities; global accounts work with no school, several schools and combined administrator/instructor roles. Conditions remains first. Personal My bookings/My teaching and the school workspace selector are available.
 
@@ -23,11 +25,11 @@ Next.js 16.3.4, React 19.2.8, Neon driver 1.1.0, Node.js 22 and explicit Webpack
 
 ## Next development step and planning decisions
 
-**Recommended next: F17, Piotr's Conditions proposal in Figma and owner review.** Effort M; Design/FE. Review desktop/mobile and light/dark states before F18 implementation. No Figma work has started in B2. The core onboarding sequence continues with B3, subject to its privacy, EU, email and localisation prerequisites.
+**F17 is approved; finish F18 staging verification and owner review next.** The [Figma handoff](CONDITIONS_UX_FIGMA_REVIEW.md) retains design evidence; the [implementation contract](CONDITIONS_UX_IMPLEMENTATION.md) records later owner decisions. Do not deploy to production before approval. After F18, core onboarding continues with B3 and its privacy, EU, email and localisation prerequisites.
 
 The owner reviewed the account interface during B2 and accepted a following UI release. The [account and lifecycle follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) documents the exact scope: B3/B4 replace the older single-initial-role/school account form with clearer global account creation and multi-membership management; B5/B8/C4 improve school closure, account deletion and lesson-removal journeys. Current detail screens already provide school/lesson removal, global account deactivation and membership removal. Deactivation is not permanent erasure. This remains scheduled work, not a missing database capability.
 
-The roadmap has **70 items: five complete and 65 open**. A3 is complete as a [decision](AUTH_EMAIL_AND_JOBS_DECISION.md): retain app-owned auth, use Mailjet Free initially, and implement a Neon outbox with a Vercel Pro minute worker when email flows ship. Mailjet, the receiving support mailbox, DNS and jobs are not activated. Intended From/Reply-To is `MyWavePlan <support@mywaveplan.com>`. Arrange provider/sender/quota and inbox verification before B3; AWS signup is not required. F17 needs no email account.
+The roadmap has **70 items: six complete and 64 open**. A3 is complete as a [decision](AUTH_EMAIL_AND_JOBS_DECISION.md): retain app-owned auth, use Mailjet Free initially, and implement a Neon outbox with a Vercel Pro minute worker when email flows ship. Mailjet, the receiving support mailbox, DNS and jobs are not activated. Intended From/Reply-To is `MyWavePlan <support@mywaveplan.com>`. Arrange provider/sender/quota and inbox verification before B3; AWS signup is not required. F17 needs no email account.
 
 A4/B6 privacy/policies, A5 permitted use, A6/A7 capacity/recovery and A8's EU move remain open. A9 localisation is plan-only until authorised. The [roadmap](IMPLEMENTATION_ROADMAP.md) owns the dependencies and launch gates.
 
@@ -54,3 +56,5 @@ Run relevant automated and build checks for runtime changes. Use targeted link/c
 The 9 September tidy-up kept the current roadmap, product plan, handover and supporting references at the docs root. Superseded plans, dated releases/audits and calibration evidence now live under [archive](archive/README.md). The former README-staging.md is now ENVIRONMENTS.md and covers both environments. Relative links and the application README were updated.
 
 The [full prior handover](archive/handovers/HANDOVER_2026-09-09_BEFORE_DOCS_CLEANUP.md) preserves older deployment IDs, rollout decisions and verification history. Historical rollback resources are evidence to recheck, not current instructions. No historical evidence was intentionally discarded.
+
+Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging deployment verification is next.

@@ -1,0 +1,522 @@
+{
+  "task": "F17 Conditions UX proposal",
+  "date": "2026-09-09",
+  "status": "Ready for owner review; final approval and F18 implementation pending",
+  "fileKey": "WVjUwzfOIGOuAID23GPIdZ",
+  "pageId": "382:2",
+  "frames": {
+    "desktopLight": "385:6",
+    "desktopDark": "422:3292",
+    "mobileLight": "385:9",
+    "mobileDark": "427:4613",
+    "catalogueDesktop": "414:2034",
+    "catalogueMobile": "417:2684",
+    "mobileFilters": "420:3263",
+    "mobileMenu": "421:3269",
+    "states": "428:5330",
+    "notes": "430:5335"
+  },
+  "components": {
+    "button": "386:8",
+    "day": "386:18",
+    "metric": "388:2",
+    "spot": "388:6",
+    "hour": "411:1966",
+    "directions": "405:768",
+    "appearance": "406:1920",
+    "brand": "426:4577"
+  },
+  "variables": {
+    "collection": "VariableCollectionId:382:3",
+    "light": "382:0",
+    "dark": "382:1"
+  },
+  "timeContexts": {
+    "spots": "Current-hour forecast, independent of selected future day/time",
+    "graphsAndMetrics": "Shared selected day/time",
+    "mockSelected": "2026-09-10T09:00:00 Europe/Lisbon",
+    "data": "Illustrative, not live"
+  },
+  "verification": {
+    "layout": [
+      {
+        "id": "385:6",
+        "name": "Desktop / Conditions / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [
+          "Metric / Surf quality",
+          "Metric / Experience",
+          "Metric / Surf height",
+          "Metric / Offshore swell",
+          "Metric / Wind",
+          "Metric / Weather",
+          "Metric / Swell energy",
+          "Metric / Water"
+        ],
+        "spots": 17
+      },
+      {
+        "id": "385:9",
+        "name": "Mobile / Conditions / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [
+          "Metric / Surf quality",
+          "Metric / Experience",
+          "Metric / Surf height",
+          "Metric / Offshore swell",
+          "Metric / Wind",
+          "Metric / Weather",
+          "Metric / Swell energy",
+          "Metric / Water"
+        ],
+        "spots": 17
+      },
+      {
+        "id": "414:2034",
+        "name": "Desktop / All spots / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [],
+        "spots": 17
+      },
+      {
+        "id": "417:2684",
+        "name": "Mobile / All spots / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [],
+        "spots": 17
+      },
+      {
+        "id": "420:3263",
+        "name": "Mobile / Spot filters / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [],
+        "spots": 0
+      },
+      {
+        "id": "421:3269",
+        "name": "Mobile / Menu / Light",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [],
+        "spots": 0
+      },
+      {
+        "id": "422:3292",
+        "name": "Desktop / Conditions / Dark",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [
+          "Metric / Surf quality",
+          "Metric / Experience",
+          "Metric / Surf height",
+          "Metric / Offshore swell",
+          "Metric / Wind",
+          "Metric / Weather",
+          "Metric / Swell energy",
+          "Metric / Water"
+        ],
+        "spots": 17
+      },
+      {
+        "id": "427:4613",
+        "name": "Mobile / Conditions / Dark",
+        "fonts": [
+          "Poppins"
+        ],
+        "issues": [],
+        "issueCount": 0,
+        "metrics": [
+          "Metric / Surf quality",
+          "Metric / Experience",
+          "Metric / Surf height",
+          "Metric / Offshore swell",
+          "Metric / Wind",
+          "Metric / Weather",
+          "Metric / Swell energy",
+          "Metric / Water"
+        ],
+        "spots": 17
+      }
+    ],
+    "qualityTextContrast": [
+      {
+        "mode": "Light",
+        "quality": "good",
+        "ratio": 6.05
+      },
+      {
+        "mode": "Light",
+        "quality": "fair",
+        "ratio": 5.94
+      },
+      {
+        "mode": "Light",
+        "quality": "poor",
+        "ratio": 5.45
+      },
+      {
+        "mode": "Light",
+        "quality": "bad",
+        "ratio": 5.58
+      },
+      {
+        "mode": "Dark",
+        "quality": "good",
+        "ratio": 7.38
+      },
+      {
+        "mode": "Dark",
+        "quality": "fair",
+        "ratio": 7.76
+      },
+      {
+        "mode": "Dark",
+        "quality": "poor",
+        "ratio": 6.86
+      },
+      {
+        "mode": "Dark",
+        "quality": "bad",
+        "ratio": 6.93
+      }
+    ],
+    "tileAlignment": [
+      {
+        "id": "392:38",
+        "height": 156,
+        "children": [
+          {
+            "name": "Date",
+            "y": 12,
+            "height": 20,
+            "text": "10"
+          },
+          {
+            "name": "Quality",
+            "y": 36,
+            "height": 23,
+            "text": "78 · Good"
+          },
+          {
+            "name": "Surf row",
+            "y": 63,
+            "height": 24
+          },
+          {
+            "name": "Direction and weather",
+            "y": 91,
+            "height": 17
+          },
+          {
+            "name": "Flexible space above experience",
+            "y": 112,
+            "height": 10
+          },
+          {
+            "name": "Experience row",
+            "y": 126,
+            "height": 18
+          }
+        ]
+      },
+      {
+        "id": "392:53",
+        "height": 156,
+        "children": [
+          {
+            "name": "Date",
+            "y": 12,
+            "height": 20,
+            "text": "13"
+          },
+          {
+            "name": "Quality",
+            "y": 36,
+            "height": 23,
+            "text": "24 · Flat"
+          },
+          {
+            "name": "Surf row",
+            "y": 63,
+            "height": 24
+          },
+          {
+            "name": "Direction and weather",
+            "y": 91,
+            "height": 17
+          },
+          {
+            "name": "Flexible space above experience",
+            "y": 112,
+            "height": 32
+          }
+        ]
+      },
+      {
+        "id": "392:23",
+        "height": 156,
+        "children": [
+          {
+            "name": "Date",
+            "y": 12,
+            "height": 20,
+            "text": "7"
+          },
+          {
+            "name": "Quality",
+            "y": 36,
+            "height": 23,
+            "text": ""
+          },
+          {
+            "name": "Flexible space above experience",
+            "y": 63,
+            "height": 81
+          }
+        ]
+      },
+      {
+        "id": "390:12",
+        "height": 180,
+        "children": [
+          {
+            "name": "Name",
+            "y": 16,
+            "height": 24,
+            "text": "São Pedro · Bico"
+          },
+          {
+            "name": "Location",
+            "y": 44,
+            "height": 18,
+            "text": "Cascais · 0.3 km"
+          },
+          {
+            "name": "Conditions row",
+            "y": 66,
+            "height": 24
+          },
+          {
+            "name": "Direction and weather",
+            "y": 94,
+            "height": 17
+          },
+          {
+            "name": "Flexible space above experience",
+            "y": 115,
+            "height": 25
+          },
+          {
+            "name": "Experience row",
+            "y": 144,
+            "height": 20
+          }
+        ]
+      },
+      {
+        "id": "396:136",
+        "height": 180,
+        "children": [
+          {
+            "name": "Name",
+            "y": 16,
+            "height": 24,
+            "text": "Tamariz"
+          },
+          {
+            "name": "Location",
+            "y": 44,
+            "height": 18,
+            "text": "Cascais · 3.0 km"
+          },
+          {
+            "name": "Conditions row",
+            "y": 66,
+            "height": 24
+          },
+          {
+            "name": "Direction and weather",
+            "y": 94,
+            "height": 17
+          },
+          {
+            "name": "Flexible space above experience",
+            "y": 115,
+            "height": 49
+          }
+        ]
+      }
+    ],
+    "prototypeDestinations": [
+      {
+        "id": "390:9",
+        "reactions": [
+          {
+            "action": {
+              "type": "NODE",
+              "destinationId": "414:2034",
+              "navigation": "NAVIGATE",
+              "transition": null,
+              "resetVideoPosition": false
+            },
+            "actions": [
+              {
+                "type": "NODE",
+                "destinationId": "414:2034",
+                "navigation": "NAVIGATE",
+                "transition": null,
+                "resetVideoPosition": false
+              }
+            ],
+            "trigger": {
+              "type": "ON_CLICK"
+            }
+          }
+        ]
+      },
+      {
+        "id": "403:858",
+        "reactions": [
+          {
+            "action": {
+              "type": "NODE",
+              "destinationId": "417:2684",
+              "navigation": "NAVIGATE",
+              "transition": null,
+              "resetVideoPosition": false
+            },
+            "actions": [
+              {
+                "type": "NODE",
+                "destinationId": "417:2684",
+                "navigation": "NAVIGATE",
+                "transition": null,
+                "resetVideoPosition": false
+              }
+            ],
+            "trigger": {
+              "type": "ON_CLICK"
+            }
+          }
+        ]
+      },
+      {
+        "id": "417:2695",
+        "reactions": [
+          {
+            "action": {
+              "type": "NODE",
+              "destinationId": "420:3263",
+              "navigation": "NAVIGATE",
+              "transition": null,
+              "resetVideoPosition": false
+            },
+            "actions": [
+              {
+                "type": "NODE",
+                "destinationId": "420:3263",
+                "navigation": "NAVIGATE",
+                "transition": null,
+                "resetVideoPosition": false
+              }
+            ],
+            "trigger": {
+              "type": "ON_CLICK"
+            }
+          }
+        ]
+      },
+      {
+        "id": "427:4612",
+        "reactions": [
+          {
+            "action": {
+              "type": "NODE",
+              "destinationId": "421:3269",
+              "navigation": "NAVIGATE",
+              "transition": null,
+              "resetVideoPosition": false
+            },
+            "actions": [
+              {
+                "type": "NODE",
+                "destinationId": "421:3269",
+                "navigation": "NAVIGATE",
+                "transition": null,
+                "resetVideoPosition": false
+              }
+            ],
+            "trigger": {
+              "type": "ON_CLICK"
+            }
+          }
+        ]
+      },
+      {
+        "id": "396:169",
+        "reactions": [
+          {
+            "action": {
+              "type": "NODE",
+              "destinationId": "390:22",
+              "navigation": "SCROLL_TO",
+              "transition": {
+                "type": "SCROLL_ANIMATE",
+                "easing": {
+                  "type": "EASE_OUT"
+                },
+                "duration": 0.25
+              },
+              "resetVideoPosition": false
+            },
+            "actions": [
+              {
+                "type": "NODE",
+                "destinationId": "390:22",
+                "navigation": "SCROLL_TO",
+                "transition": {
+                  "type": "SCROLL_ANIMATE",
+                  "easing": {
+                    "type": "EASE_OUT"
+                  },
+                  "duration": 0.25
+                },
+                "resetVideoPosition": false
+              }
+            ],
+            "trigger": {
+              "type": "ON_CLICK"
+            }
+          }
+        ]
+      }
+    ],
+    "limits": "Figma visual and geometry inspection only. No live browser, accessibility, forecast, booking, or deployment tests performed."
+  }
+}

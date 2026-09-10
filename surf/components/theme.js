@@ -8,19 +8,23 @@ import {
   useState,
 } from "react";
 import { applyDocumentTheme, themeStorageKey } from "../lib/theme.mjs";
+import Icon from "./icon";
 
 const ThemeContext = createContext(null);
 
-export function ThemeProvider({ children }) {
+export function ThemeProvider({ children, systemOnly = false }) {
   const [mode, setMode] = useState("system");
   const current = useRef("system");
-  const apply = useCallback((next) => {
-    current.current = applyDocumentTheme(
-      next,
-      window.matchMedia("(prefers-color-scheme: dark)").matches,
-    );
-    setMode(current.current);
-  }, []);
+  const apply = useCallback(
+    (next) => {
+      current.current = applyDocumentTheme(
+        systemOnly ? "system" : next,
+        window.matchMedia("(prefers-color-scheme: dark)").matches,
+      );
+      setMode(current.current);
+    },
+    [systemOnly],
+  );
 
   useEffect(() => {
     let saved = document.documentElement.dataset.themeMode;
@@ -65,17 +69,31 @@ export function ThemeSelector({ compact = false }) {
   const { mode, choose } = useContext(ThemeContext);
   const id = useId();
   return (
-    <div className={`theme-selector ${compact ? "compact" : ""}`}>
-      <label htmlFor={id}>Appearance</label>
-      <select
-        id={id}
-        value={mode}
-        onChange={(event) => choose(event.target.value)}
-      >
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </div>
+    <fieldset
+      className={`theme-selector theme-switch ${compact ? "compact" : ""}`}
+    >
+      <legend>Appearance</legend>
+      <div className="theme-options">
+        {[
+          ["system", "monitor", "Follow device settings"],
+          ["light", "sun", "Light theme"],
+          ["dark", "moon", "Dark theme"],
+        ].map(([value, icon, label]) => (
+          <label key={value} title={label}>
+            <input
+              type="radio"
+              name={id}
+              value={value}
+              checked={mode === value}
+              onChange={() => choose(value)}
+              aria-label={label}
+            />
+            <span>
+              <Icon name={icon} />
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

@@ -1,6 +1,7 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
+  Field,
   Message,
   Loading,
   PageHeading,
@@ -17,10 +18,16 @@ import {
   tideAt,
 } from "../../lib/conditions/model.mjs";
 import {
+  calendarDays,
+  meaningfulExperience,
+  previewHours,
+  timeOnDay,
+  weatherIcon,
+} from "../../lib/conditions/presentation.mjs";
+import {
   useForecast,
   Score,
   Experience,
-  experienceLabel,
   Direction,
   SwellDetails,
   SwellComponents,
@@ -32,7 +39,15 @@ import {
   value,
 } from "./shared";
 import SpotForm from "./spot-form";
-import SpotSelect from "../spot-select";
+import SpotBrowser, {
+  DirectionWeather,
+  TileExperience,
+  useConditionsClock,
+} from "./spot-browser";
+import SurfChart from "./surf-chart";
+import Icon from "../icon";
+import { useChartInteraction } from "./chart-interaction";
+
 const dayLabel = (day, weekday = "short") =>
   new Date(day + "T12:00:00Z").toLocaleDateString("en-GB", {
     timeZone: "UTC",
@@ -40,19 +55,56 @@ const dayLabel = (day, weekday = "short") =>
     day: "numeric",
     month: "short",
   });
-export default function Conditions({ session, query, go }) {
+const validClock = (clock) =>
+  typeof clock === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(clock);
+export default function Conditions({ session, query, go, onLessons }) {
   const spots = useData("/api/spots");
   const selected =
     spots.data.find((s) => s.id === query.spot || s.slug === query.spot) ||
     spots.data[0];
   const [notice, setNotice] = useState("");
+  const [chosenClock, setChosenClock] = useState(null);
+  const [revision, setRevision] = useState(0);
+  const now = useConditionsClock();
+  useEffect(
+    () => setChosenClock(validClock(query.time) ? query.time : null),
+    [query.time],
+  );
+  const clock =
+    chosenClock || (now && selected ? hourLabel(now, selected.timezone) : "");
+  const today = now && selected ? dateKey(now, selected.timezone) : null;
+  const catalogue = query.action === "all-spots";
+  const navigate = (values) =>
+    go({
+      spot: selected?.slug,
+      date: query.date,
+      time: chosenClock || undefined,
+      ...values,
+    });
+  const selectDay = (date) =>
+    navigate({
+      date,
+      time: "12:00",
+      action: catalogue ? "all-spots" : undefined,
+    });
+  const setClock = (time) => {
+    if (validClock(time)) setChosenClock(time);
+  };
+  const resetNow = () => {
+    setChosenClock(null);
+    go({
+      spot: selected?.slug,
+      date: today,
+      action: catalogue ? "all-spots" : undefined,
+    });
+  };
   const admin = session.role === "platform_admin";
   if (["new-spot", "edit-spot"].includes(query.action) && !admin)
     return (
       <>
         <PageHeading title="Spot settings" />
         <Message>Spot settings are available only to platform admins.</Message>
-        <Button onClick={() => go({ spot: selected?.slug })}>
+        <Button onClick={() => navigate({ action: undefined })}>
           Back to Conditions
         </Button>
       </>
@@ -60,11 +112,11 @@ export default function Conditions({ session, query, go }) {
   if (query.action === "new-spot" && admin)
     return (
       <SpotForm
-        onCancel={() => go({ spot: selected?.slug })}
+        onCancel={() => navigate({ action: undefined })}
         onSaved={(spot) => {
           spots.reload();
           setNotice("Surf spot added.");
-          go({ spot: spot.slug });
+          navigate({ spot: spot.slug, action: undefined });
         }}
       />
     );
@@ -81,70 +133,141 @@ export default function Conditions({ session, query, go }) {
       <SpotForm
         key={selected.id}
         spot={selected}
-        onCancel={() => go({ spot: selected.slug })}
+        onCancel={() => navigate({ action: undefined })}
         onSaved={(spot) => {
           spots.reload();
           setNotice("Surf spot saved.");
-          go({ spot: spot.slug });
+          navigate({ spot: spot.slug, action: undefined });
         }}
       />
     );
   return (
-    <>
+    <div className="conditions-v2">
       <PageHeading
         title="Conditions"
         action={
           admin && (
-            <Button onClick={() => go({ action: "new-spot" })}>
-              + Add spot
-            </Button>
+            <div className="actions">
+              <Button onClick={() => navigate({ action: "new-spot" })}>
+                + Add spot
+              </Button>
+              {selected && (
+                <Button onClick={() => navigate({ action: "edit-spot" })}>
+                  Spot settings
+                </Button>
+              )}
+            </div>
           )
         }
       />
       <Message success>{notice}</Message>
-      <div className="forecast-controls">
-        <SpotSelect
-          spots={spots.data}
-          valueKey="slug"
-          value={selected?.slug || ""}
-          onInitialNearest={
-            query.spot
-              ? undefined
-              : (spot) => go({ spot: spot.slug, date: query.date })
-          }
-          onChange={(e) => {
-            setNotice("");
-            go({ spot: e.target.value });
-          }}
-        />
-        {admin && selected && (
-          <Button
-            onClick={() => go({ spot: selected.slug, action: "edit-spot" })}
-          >
-            Spot settings
-          </Button>
-        )}
-      </div>
-      {selected ? (
-        <SpotForecast
-          key={selected.id + ":" + selected.version}
-          spot={selected}
-          date={query.date}
-          onDate={(date) => go({ spot: selected.slug, date })}
-        />
-      ) : (
-        <p>No spots yet. A platform admin can add the first one.</p>
-      )}
-    </>
+      <SpotBrowser
+        spots={spots.data}
+        selected={selected?.id}
+        autoSelect={!query.spot}
+        now={now}
+        refreshVersion={revision}
+        onChoose={(spot) =>
+          navigate({
+            spot: spot.slug,
+            time: chosenClock || undefined,
+            action: undefined,
+          })
+        }
+        catalogue={catalogue}
+        onCatalogue={() => {
+          navigate({ action: catalogue ? undefined : "all-spots" });
+        }}
+      />
+      {!catalogue &&
+        (selected ? (
+          <SpotForecast
+            key={`${selected.id}:${selected.version}`}
+            spot={selected}
+            date={query.date}
+            onDate={selectDay}
+            clock={clock}
+            onClock={setClock}
+            onNow={resetNow}
+            onRefresh={() => setRevision((v) => v + 1)}
+            now={now}
+            onLessons={
+              onLessons
+                ? (time, day) =>
+                    onLessons({
+                      spot: selected.id,
+                      date: day,
+                      time: hourLabel(time, selected.timezone),
+                    })
+                : null
+            }
+          />
+        ) : (
+          <p>No spots yet. A platform admin can add the first one.</p>
+        ))}
+    </div>
   );
 }
-function SpotForecast({ spot, date, onDate }) {
+function conditionAt(data, time) {
+  if (!finite(time)) return null;
+  const raw = interpolateHour(data.hours, time);
+  if (!raw) return null;
+  const h = { ...raw, tide: tideAt(data.tides, time, data.spot.calibration) };
+  return { ...h, ...scoreConditions(h, data.spot.calibration) };
+}
+function SpotForecast({
+  spot,
+  date,
+  onDate,
+  clock,
+  onClock,
+  onNow,
+  onRefresh,
+  now,
+  onLessons,
+}) {
   const source = useForecast(
     "/api/conditions?spot=" + encodeURIComponent(spot.slug),
   );
   const [allHours, setAllHours] = useState(false);
-  const [chosen, setChosen] = useState({ day: null, time: null });
+  const [nightHours, setNightHours] = useState(false);
+  const calendar = useRef(null);
+  const [calendarPosition, setCalendarPosition] = useState({
+    start: true,
+    end: false,
+  });
   const d = source.data;
+  const firstDay = d?.dates?.[0];
+  const hasClock = Boolean(clock);
+  useEffect(() => {
+    const el = calendar.current;
+    if (!el) return;
+    const revealSelected = () => {
+      const day = el.querySelector('[aria-pressed="true"]');
+      if (day)
+        el.scrollTo({
+          left: Math.max(0, day.offsetLeft - el.offsetLeft - 4),
+          behavior: "instant",
+        });
+    };
+    revealSelected();
+    const update = () =>
+      setCalendarPosition({
+        start: el.scrollLeft < 2,
+        end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 2,
+      });
+    const observer = new ResizeObserver(() => {
+      revealSelected();
+      update();
+    });
+    observer.observe(el);
+    el.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("scroll", update);
+    };
+  }, [date, firstDay, hasClock]);
   const dailyHours = useMemo(() => {
     const grouped = new Map();
     for (const h of d?.hours || []) {
@@ -154,7 +277,26 @@ function SpotForecast({ spot, date, onDate }) {
     }
     return grouped;
   }, [d, spot.timezone]);
-  if (source.loading) return <Loading label="Loading forecast…" />;
+  const dayConditions = useMemo(
+    () =>
+      d
+        ? Object.fromEntries(
+            d.dates.map((day) => [
+              day,
+              conditionAt(d, timeOnDay(day, "12:00", spot.timezone)),
+            ]),
+          )
+        : {},
+    [d, spot.timezone],
+  );
+  if (source.loading)
+    return (
+      <div className="forecast-skeleton" role="status">
+        <Loading label="Loading forecast…" />
+        <div />
+        <div />
+      </div>
+    );
   if (source.error && !d)
     return (
       <>
@@ -162,42 +304,40 @@ function SpotForecast({ spot, date, onDate }) {
         <Button onClick={source.reload}>Try again</Button>
       </>
     );
-  if (!d) return null;
+  if (!d || !clock) return null;
   const selected = d.dates.includes(date) ? date : d.dates[0];
   const hours = dailyHours.get(selected) || [];
-  const midday = (day) =>
-    (dailyHours.get(day) || []).find(
-      (h) => hourLabel(h.time, spot.timezone) === "12:00",
+  const selectedTime = timeOnDay(selected, clock, spot.timezone);
+  const snapshot = conditionAt(d, selectedTime);
+  const chooseTime = (time) =>
+    onClock(
+      hourLabel(
+        dateKey(time, spot.timezone) === selected ? time : time - 60000,
+        spot.timezone,
+      ),
     );
-  const selectedTime =
-    chosen.day === selected ? chosen.time : midday(selected)?.time;
-  const raw = finite(selectedTime)
-    ? interpolateHour(d.hours, selectedTime)
-    : null;
-  const atTime = raw
-    ? { ...raw, tide: tideAt(d.tides, selectedTime, d.spot.calibration) }
-    : null;
-  const snapshot = atTime
-    ? { ...atTime, ...scoreConditions(atTime, d.spot.calibration) }
-    : null;
-  const selectedLabel = finite(selectedTime)
-    ? hourLabel(selectedTime, spot.timezone)
-    : "12:00";
-  const chooseTime = (time) => setChosen({ day: selected, time });
   const sunlight = d.sunlight?.find((day) => day.day === selected);
   const visible = forecastViewingHours(
     hours,
     spot.timezone,
     sunlight,
-    allHours,
+    nightHours,
   );
+  const shown = allHours ? visible : previewHours(visible, selectedTime);
+  // Stable full-day axes: changing the cursor must never resize the time domain mid-drag.
+  const last = hours.at(-1);
+  const nextHour = last && d.hours.find((h) => h.time === last.time + 3600000);
+  const chartHours = nextHour ? [...hours, nextHour] : hours;
   return (
     <div className="forecast-screen">
       <div className="spot-context">
-        <p>
-          {spot.breakType} · {spot.region}, {spot.countryCode} · Times in{" "}
-          {spot.timezone}
-        </p>
+        <div>
+          <h2>{spot.name}</h2>
+          <p>
+            {spot.breakType} · {spot.region}, {spot.countryCode} ·{" "}
+            {spot.timezone}
+          </p>
+        </div>
         <a
           href={`https://www.openstreetmap.org/?mlat=${spot.latitude}&mlon=${spot.longitude}#map=16/${spot.latitude}/${spot.longitude}`}
           target="_blank"
@@ -212,7 +352,7 @@ function SpotForecast({ spot, date, onDate }) {
           {issue}
         </div>
       ))}
-      <section aria-label="16-day outlook">
+      <section aria-label="16-day forecast">
         <div className="section-heading outlook-heading">
           <div>
             <h2>16-day forecast</h2>
@@ -221,7 +361,10 @@ function SpotForecast({ spot, date, onDate }) {
           <div className="forecast-update">
             <ForecastFooter data={d} />
             <Button
-              onClick={source.reload}
+              onClick={() => {
+                source.reload();
+                onRefresh();
+              }}
               disabled={source.refreshing}
               aria-busy={source.refreshing}
             >
@@ -229,72 +372,182 @@ function SpotForecast({ spot, date, onDate }) {
             </Button>
           </div>
         </div>
-        <div className="outlook-grid">
-          {d.dates.map((day, i) => {
-            const h = midday(day);
-            return (
-              <button
+        <div
+          className="calendar-navigation"
+          role="group"
+          aria-label="Browse weekday columns"
+        >
+          <Button
+            aria-label="Earlier weekday columns"
+            disabled={calendarPosition.start}
+            onClick={() =>
+              calendar.current?.scrollBy({ left: -360, behavior: "smooth" })
+            }
+          >
+            <Icon name="chevron-right" className="icon-back" />
+          </Button>
+          <Button
+            aria-label="Later weekday columns"
+            disabled={calendarPosition.end}
+            onClick={() =>
+              calendar.current?.scrollBy({ left: 360, behavior: "smooth" })
+            }
+          >
+            <Icon name="chevron-right" />
+          </Button>
+        </div>
+        <div className="calendar-scroll" ref={calendar}>
+          <div className="forecast-calendar">
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+              <span
                 key={day}
-                className={`outlook-day ${h?.tone || "unknown"} ${selected === day ? "selected" : ""}`}
-                aria-pressed={selected === day}
-                onClick={() => onDate(day)}
-                aria-label={`${dayLabel(day)}, surf ${h?.quality || "unavailable"}, ${experienceLabel(h?.level)}`}
+                className={`calendar-weekday ${i > 4 ? "weekend" : ""}`}
               >
-                <strong>
-                  {i === 0
-                    ? "Today"
-                    : new Date(day + "T12:00:00Z").toLocaleDateString("en-GB", {
-                        timeZone: "UTC",
-                        weekday: "short",
-                      })}
-                </strong>
-                <small>
-                  {new Date(day + "T12:00Z").toLocaleDateString("en-GB", {
-                    timeZone: "UTC",
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </small>
-                <Score condition={h} compact />
-                <span className="outlook-waves">
-                  {finite(h?.surfMin)
-                    ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                    : "Surf estimate unavailable"}
-                </span>
-                <Experience level={h?.level} />
-              </button>
-            );
-          })}
+                {day}
+              </span>
+            ))}
+            {calendarDays(d.dates).map(({ day, available, weekend }) => {
+              const h = dayConditions[day];
+              const dayNumber = Number(day.slice(-2));
+              const today = now && dateKey(now, spot.timezone) === day;
+              const label = `${dayLabel(day, "long")} at 12:00, ${h?.score == null ? "forecast unavailable" : h.quality}${meaningfulExperience(h?.level) ? `, ${meaningfulExperience(h.level)}` : ""}`;
+              if (!available)
+                return (
+                  <div
+                    key={day}
+                    className="calendar-empty"
+                    aria-label={`${dayLabel(day)}, outside the forecast`}
+                  >
+                    <span>{dayNumber}</span>
+                    {dayNumber === 1 && (
+                      <small>
+                        {new Date(`${day}T12:00Z`).toLocaleDateString("en-GB", {
+                          month: "short",
+                          timeZone: "UTC",
+                        })}
+                      </small>
+                    )}
+                  </div>
+                );
+              return (
+                <button
+                  type="button"
+                  key={day}
+                  className={`calendar-day quality-tile ${h?.tone || "unknown"} ${selected === day ? "selected" : ""} ${weekend ? "weekend" : ""}`}
+                  aria-pressed={selected === day}
+                  aria-current={today ? "date" : undefined}
+                  aria-label={label}
+                  onClick={() => onDate(day)}
+                >
+                  <span className="calendar-date">
+                    {dayNumber}
+                    <span>
+                      {today
+                        ? "Today"
+                        : dayNumber === 1 || day === d.dates[0]
+                          ? new Date(`${day}T12:00Z`).toLocaleDateString(
+                              "en-GB",
+                              { month: "short", timeZone: "UTC" },
+                            )
+                          : ""}
+                    </span>
+                  </span>
+                  <span className="calendar-quality">
+                    <span className="calendar-quality-full">
+                      {h?.quality || "Unavailable"}
+                    </span>
+                    <span className="calendar-quality-short" aria-hidden="true">
+                      {h?.quality === "Flat / too small"
+                        ? "Flat"
+                        : h?.tone === "bad"
+                          ? "Unfav."
+                          : h?.quality || "Missing"}
+                    </span>
+                  </span>
+                  <span className="calendar-surf">
+                    <Icon name="waves" />
+                    {finite(h?.surfMin)
+                      ? `${value(h.surfMin)}–${value(h.surfMax)} m`
+                      : "Unavailable"}
+                  </span>
+                  <DirectionWeather condition={h} numeric />
+                  <TileExperience level={h?.level} />
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
       <section
         className="surface padded selected-forecast"
         aria-label="Selected day forecast"
       >
-        <div className="section-heading">
+        <div className="section-heading selected-day-heading">
           <div>
             <h2>{dayLabel(selected, "long")}</h2>
-            <p className="selected-conditions-time">
-              Conditions at {selectedLabel}
-            </p>
+            <p className="selected-conditions-time">Conditions at {clock}</p>
+          </div>
+          <div className="actions">
+            <Field
+              label="Time"
+              type="time"
+              step="60"
+              value={clock}
+              onChange={(e) => onClock(e.target.value)}
+            />
+            <Button onClick={onNow}>Now</Button>
+            {onLessons && (
+              <Button
+                onClick={() => onLessons(selectedTime, selected)}
+                disabled={!finite(selectedTime)}
+              >
+                Find lessons
+              </Button>
+            )}
           </div>
         </div>
+        {!finite(selectedTime) && (
+          <Message>
+            This local time is skipped or repeated when the clocks change.
+            Choose another time.
+          </Message>
+        )}
+        <SurfChart
+          hours={chartHours}
+          timezone={spot.timezone}
+          selectedTime={selectedTime}
+          onTimeChange={chooseTime}
+          condition={snapshot}
+        />
         <TideChart
           key={selected}
           data={d}
           day={selected}
+          domain={[chartHours[0]?.time, chartHours.at(-1)?.time]}
           selectedTime={selectedTime}
           onTimeChange={chooseTime}
         />
         <dl className="condition-metrics">
           <AssessmentMetrics condition={snapshot} />
-          <Metric label="Estimated surf">
+          <Metric
+            label={
+              <>
+                <Icon name="waves" />
+                Estimated surf
+              </>
+            }
+          >
             {finite(snapshot?.surfMin)
               ? `${value(snapshot.surfMin)}–${value(snapshot.surfMax)} m`
               : "Unavailable"}
           </Metric>
           <Metric
-            label="Primary swell"
+            label={
+              <>
+                <Icon name="waves" />
+                Primary swell
+              </>
+            }
             note={
               finite(snapshot?.swellPeriod)
                 ? `${value(snapshot.swellPeriod, " s")} period`
@@ -306,14 +559,30 @@ function SpotForecast({ spot, date, onDate }) {
               <Direction degrees={snapshot.swellDirection} />
             )}
           </Metric>
-          <Metric label="Wind" note={snapshot?.windType}>
+          <Metric
+            label={
+              <>
+                <Icon name="wind" />
+                Wind
+              </>
+            }
+            note={snapshot?.windType}
+          >
             {value(snapshot?.windSpeed, " km/h", 0)}
             <Direction degrees={snapshot?.windDirection} />
             {finite(snapshot?.windGusts) && (
               <small>Gusts {value(snapshot.windGusts, " km/h", 0)}</small>
             )}
           </Metric>
-          <Metric label="Weather" note={weatherLabel(snapshot?.weatherCode)}>
+          <Metric
+            label={
+              <>
+                <Icon name={weatherIcon(snapshot?.weatherCode) || "sun"} />
+                Weather
+              </>
+            }
+            note={weatherLabel(snapshot?.weatherCode)}
+          >
             {value(snapshot?.temperature, " °C")}
             {finite(snapshot?.precipitation) && (
               <small>{value(snapshot.precipitation, "%", 0)} rain chance</small>
@@ -321,7 +590,9 @@ function SpotForecast({ spot, date, onDate }) {
           </Metric>
           <OceanMetrics condition={snapshot} />
         </dl>
-        {snapshot && <p className="muted-note">{snapshot.reasons.join(" ")}</p>}
+        {snapshot?.reasons?.length > 0 && (
+          <p className="muted-note">{snapshot.reasons.join(" ")}</p>
+        )}
         <div className="forecast-extras">
           <SwellDetails condition={snapshot} />
           <OceanMetricsHelp />
@@ -333,194 +604,106 @@ function SpotForecast({ spot, date, onDate }) {
             <h2>Hourly conditions</h2>
             <p>
               {dayLabel(selected)} ·{" "}
-              {allHours ? "24 hours" : "06:00 to evening"}
+              {visible.length
+                ? `${hourLabel(visible[0].time, spot.timezone)}–${hourLabel(visible.at(-1).time, spot.timezone)}`
+                : "No hours available"}
             </p>
           </div>
-          <Button onClick={() => setAllHours((v) => !v)}>
-            {allHours ? "Daytime hours" : "All hours"}
-          </Button>
+          <div className="actions">
+            {allHours && (
+              <Button onClick={() => setNightHours((v) => !v)}>
+                {nightHours ? "Daytime hours" : "Include night hours"}
+              </Button>
+            )}
+            <Button
+              onClick={() => setAllHours((v) => !v)}
+              aria-expanded={allHours}
+              aria-controls="forecast-hours"
+            >
+              {allHours ? "Show fewer hours" : "Show all hours"}
+            </Button>
+          </div>
         </div>
         {visible.length ? (
-          <>
-            <MobileHours
-              hours={visible}
-              timezone={spot.timezone}
-              onSelect={chooseTime}
-            />
-            <DesktopHours
-              hours={visible}
-              timezone={spot.timezone}
-              onSelect={chooseTime}
-              selectedTime={selectedTime}
-            />
-          </>
+          <div className="forecast-hours" id="forecast-hours">
+            {shown.map((h) => (
+              <HourRow
+                key={h.time}
+                hour={h}
+                timezone={spot.timezone}
+                selected={Math.abs(h.time - selectedTime) < 1800000}
+                onSelect={() => chooseTime(h.time)}
+                onLessons={onLessons ? () => onLessons(h.time, selected) : null}
+              />
+            ))}
+          </div>
         ) : (
           <div className="forecast-notice">
-            Hourly wave and weather data is unavailable for this day. Tide
-            predictions are shown above where available.
+            Hourly wave and weather data is unavailable for this day.
           </div>
         )}
       </section>
     </div>
   );
 }
-function MobileHours({ hours, timezone, onSelect }) {
+function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
+  const [expanded, setExpanded] = useState(false);
+  const detailsId = `hour-${h.time}`;
   return (
-    <div className="mobile-hours">
-      {hours.map((h) => (
-        <details
-          className="hour-card"
-          key={h.time}
-          onToggle={(e) => {
-            if (e.target === e.currentTarget && e.currentTarget.open)
-              onSelect(h.time);
-          }}
+    <article className={`forecast-hour ${selected ? "selected" : ""}`}>
+      <div className="forecast-hour-summary">
+        <button
+          type="button"
+          className="hour-select"
+          onClick={onSelect}
+          aria-pressed={selected}
         >
-          <summary>
-            <div className="hour-card-top">
-              <time dateTime={new Date(h.time).toISOString()}>
-                {hourLabel(h.time, timezone)}
-              </time>
-              <div className="hour-card-surf">
-                <small>Estimated surf</small>
-                <strong>
-                  {finite(h.surfMin)
-                    ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                    : "Unavailable"}
-                </strong>
-              </div>
-              <div className="hour-card-quality">
-                <small>Surf quality</small>
-                <Score condition={h} compact />
-              </div>
-            </div>
-            <div className="hour-card-level">
-              <span>Experience</span>
-              <Experience level={h.level} />
-            </div>
-            <div className="hour-card-glance">
-              <span>Wind {value(h.windSpeed, " km/h", 0)}</span>
-              <span>
-                Tide{" "}
-                {h.tide
-                  ? `${h.tide.stage.toLowerCase()} · ${value(h.tide.height, " m")}`
-                  : "unavailable"}
-              </span>
-              <span className="hour-expand" aria-hidden="true">
-                ⌄
-              </span>
-            </div>
-          </summary>
-          <HourlyDetails condition={h} />
-        </details>
-      ))}
-    </div>
-  );
-}
-function DesktopHours({ hours, timezone, onSelect, selectedTime }) {
-  const [expanded, setExpanded] = useState(null);
-  return (
-    <div className="surface forecast-table-wrap">
-      <table className="forecast-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Quality / experience</th>
-            <th>Estimated surf</th>
-            <th>Primary swell</th>
-            <th>Wind</th>
-            <th>Tide · MSL</th>
-            <th>Weather</th>
-          </tr>
-        </thead>
-        <tbody>
-          {hours.map((h) => (
-            <Fragment key={h.time}>
-              <tr
-                className={
-                  selectedTime === h.time ? "selected-hour" : undefined
-                }
-              >
-                <th scope="row">
-                  <button
-                    className="forecast-hour-button"
-                    onClick={() => {
-                      setExpanded(expanded === h.time ? null : h.time);
-                      if (expanded !== h.time) onSelect(h.time);
-                    }}
-                    aria-expanded={expanded === h.time}
-                    aria-controls={`hour-details-${h.time}`}
-                    aria-label={`Details for ${hourLabel(h.time, timezone)}`}
-                  >
-                    {hourLabel(h.time, timezone)}
-                    <svg
-                      className="hour-chevron"
-                      viewBox="0 0 16 16"
-                      aria-hidden="true"
-                    >
-                      <path d="m4 6 4 4 4-4" />
-                    </svg>
-                  </button>
-                </th>
-                <td>
-                  <Score condition={h} compact />
-                  <Experience level={h.level} />
-                </td>
-                <td data-label="Estimated surf">
-                  {finite(h.surfMin)
-                    ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                    : "Unavailable"}
-                </td>
-                <td data-label="Primary swell">
-                  <strong>
-                    {value(h.swellHeight, " m")} · {value(h.swellPeriod, " s")}
-                  </strong>
-                  {h.swellHeight > 0 && (
-                    <Direction degrees={h.swellDirection} />
-                  )}
-                </td>
-                <td data-label="Wind">
-                  <strong>{value(h.windSpeed, " km/h", 0)}</strong>
-                  <Direction degrees={h.windDirection} />
-                  <small>
-                    {h.windType}
-                    {finite(h.windGusts)
-                      ? ` · gusts ${Math.round(h.windGusts)}`
-                      : ""}
-                  </small>
-                </td>
-                <td data-label="Tide">
-                  <strong>{value(h.tide?.height, " m", 2)}</strong>
-                  <small>
-                    {h.tide
-                      ? `${h.tide.stage} · ${h.tide.trend}`
-                      : "Unavailable"}
-                  </small>
-                </td>
-                <td data-label="Weather">
-                  <strong>{value(h.temperature, " °C")}</strong>
-                  <small>{weatherLabel(h.weatherCode)}</small>
-                  <small>
-                    {finite(h.precipitation)
-                      ? `${Math.round(h.precipitation)}% rain`
-                      : ""}
-                  </small>
-                </td>
-              </tr>
-              <tr
-                id={`hour-details-${h.time}`}
-                className="forecast-detail-row"
-                hidden={expanded !== h.time}
-              >
-                <td colSpan={7}>
-                  {expanded === h.time && <HourlyDetails condition={h} />}
-                </td>
-              </tr>
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          <time dateTime={new Date(h.time).toISOString()}>
+            {hourLabel(h.time, timezone)}
+          </time>
+        </button>
+        <span className="hour-surf">
+          <Icon name="waves" />
+          <strong>
+            {finite(h.surfMin)
+              ? `${value(h.surfMin)}–${value(h.surfMax)} m`
+              : "Unavailable"}
+          </strong>
+        </span>
+        <Score condition={h} compact />
+        <span className="hour-experience">
+          <TileExperience level={h.level} />
+        </span>
+        <span className="hour-wind">
+          <Icon name="wind" />
+          {value(h.windSpeed, " km/h", 0)}
+        </span>
+        <div className="actions">
+          <Button
+            onClick={() => {
+              setExpanded((v) => !v);
+              onSelect();
+            }}
+            aria-expanded={expanded}
+            aria-controls={detailsId}
+          >
+            {expanded ? "Less" : "Details"}
+            <Icon
+              name="chevron-right"
+              className={expanded ? "icon-up" : "icon-down"}
+            />
+          </Button>
+          {onLessons && (
+            <Button tone="quiet" onClick={onLessons}>
+              Find lessons
+            </Button>
+          )}
+        </div>
+      </div>
+      <div id={detailsId} hidden={!expanded}>
+        {expanded && <HourlyDetails condition={h} />}
+      </div>
+    </article>
   );
 }
 function HourlyDetails({ condition: h }) {
@@ -615,7 +798,7 @@ function SunlightSummary({ sunlight, timezone }) {
     </div>
   );
 }
-function TideChart({ data, day, selectedTime, onTimeChange }) {
+function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
   const chart = useRef(null);
   const [width, setWidth] = useState(740);
   useEffect(() => {
@@ -628,7 +811,19 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
   }, [day, data.tides.length]);
   const zone = data.spot.timezone;
   const sunlight = data.sunlight?.find((value) => value.day === day);
-  const points = data.tides.filter((p) => dateKey(p.time, zone) === day);
+  const points = data.tides.filter(
+    (p) =>
+      (dateKey(p.time, zone) === day || p.time === domain?.[1]) &&
+      (!finite(domain?.[0]) || p.time >= domain[0]) &&
+      (!finite(domain?.[1]) || p.time <= domain[1]),
+  );
+  const interaction = useChartInteraction({
+    start: points[0]?.time,
+    end: points.at(-1)?.time,
+    selectedTime,
+    width,
+    onTimeChange,
+  });
   const events = data.extremes.filter((p) => dateKey(p.time, zone) === day);
   const index = finite(selectedTime)
     ? points.reduce(
@@ -649,14 +844,22 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
         <SunlightSummary sunlight={sunlight} timezone={zone} />
       </div>
     );
-  const current = points[Math.min(index, points.length - 1)],
-    lo = Math.floor(Math.min(...points.map((p) => p.height)) * 2) / 2 - 0.2,
+  const selectedTide = finite(selectedTime)
+    ? tideAt(data.tides, selectedTime, data.spot.calibration)
+    : null;
+  const current =
+    selectedTide &&
+    selectedTime >= points[0].time &&
+    selectedTime <= points.at(-1).time
+      ? { time: selectedTime, height: selectedTide.height }
+      : points[Math.min(index, points.length - 1)];
+  const lo = Math.floor(Math.min(...points.map((p) => p.height)) * 2) / 2 - 0.2,
     hi = Math.ceil(Math.max(...points.map((p) => p.height)) * 2) / 2 + 0.2;
   const currentTide = tideAt(data.tides, current.time, data.spot.calibration);
   const x = (p) =>
       48 +
       ((p.time - points[0].time) / (points.at(-1).time - points[0].time)) *
-        (width - 64),
+        (width - 96),
     y = (p) => 205 - ((p.height - lo) / (hi - lo)) * 140;
   const lightEvents = [
     ["firstLight", "First light"],
@@ -683,7 +886,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
   }
   const band = (from, to, colour, key) => {
     const left = Math.max(48, x({ time: from })),
-      right = Math.min(width - 16, x({ time: to }));
+      right = Math.min(width - 48, x({ time: to }));
     return right > left ? (
       <rect
         key={key}
@@ -698,36 +901,6 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
   const line = points
     .map((p, i) => `${i ? "L" : "M"}${x(p)},${y(p)}`)
     .join(" ");
-  const selectTime = (event) => {
-    const svg = event.currentTarget;
-    const bounds = svg.getBoundingClientRect();
-    const position = ((event.clientX - bounds.left) / bounds.width) * width;
-    const fraction = Math.min(1, Math.max(0, (position - 48) / (width - 64)));
-    onTimeChange(points[Math.round(fraction * (points.length - 1))].time);
-  };
-  const selectWithKeyboard = (event) => {
-    const moves = {
-      ArrowLeft: -1,
-      ArrowDown: -1,
-      ArrowRight: 1,
-      ArrowUp: 1,
-      PageDown: -4,
-      PageUp: 4,
-    };
-    if (event.key === "Home" || event.key === "End" || event.key in moves) {
-      event.preventDefault();
-      const next =
-        event.key === "Home"
-          ? 0
-          : event.key === "End"
-            ? points.length - 1
-            : Math.min(
-                points.length - 1,
-                Math.max(0, index + moves[event.key]),
-              );
-      onTimeChange(points[next].time);
-    }
-  };
   return (
     <div className="tide-chart" ref={chart}>
       <div className="section-heading">
@@ -739,7 +912,6 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
           </p>
         </div>
       </div>
-      <p className="tide-interaction-hint">Drag to choose a time</p>
       <svg
         className="interactive-tide"
         viewBox={`0 0 ${width} 250`}
@@ -751,28 +923,13 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
         aria-valuemax={points.length - 1}
         aria-valuenow={Math.min(index, points.length - 1)}
         aria-valuetext={`${hourLabel(current.time, zone)}, ${current.height.toFixed(2)} metres relative to mean sea level`}
-        onKeyDown={selectWithKeyboard}
-        onPointerDown={(e) => {
-          e.currentTarget.setPointerCapture(e.pointerId);
-          selectTime(e);
-        }}
-        onPointerMove={(e) => {
-          if (
-            e.pointerType === "mouse" ||
-            e.currentTarget.hasPointerCapture(e.pointerId)
-          )
-            selectTime(e);
-        }}
-        onPointerUp={(e) => {
-          if (e.currentTarget.hasPointerCapture(e.pointerId))
-            e.currentTarget.releasePointerCapture(e.pointerId);
-        }}
+        {...interaction}
       >
         <title>Tide height, first light, sunrise, sunset and last light</title>
         <rect
           x="48"
           y="60"
-          width={width - 64}
+          width={width - 96}
           height="145"
           fill="var(--chart-night)"
         />
@@ -841,7 +998,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
           <g key={v}>
             <line
               x1="48"
-              x2={width - 16}
+              x2={width - 48}
               y1={y({ height: v })}
               y2={y({ height: v })}
               stroke="var(--line)"
@@ -857,7 +1014,7 @@ function TideChart({ data, day, selectedTime, onTimeChange }) {
           </g>
         ))}
         <path
-          d={`${line} L${width - 16},205 L48,205 Z`}
+          d={`${line} L${width - 48},205 L48,205 Z`}
           fill="var(--chart-water)"
           fillOpacity=".65"
         />

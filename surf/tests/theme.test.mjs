@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { runInNewContext } from "node:vm";
 import { themeBootstrapScript, themeStorageKey } from "../lib/theme.mjs";
 
-function bootstrap(saved, deviceDark, blocked = false) {
+function bootstrap(saved, deviceDark, blocked = false, pathname = "/") {
   const root = { dataset: {}, style: {} };
   let chrome;
   runInNewContext(themeBootstrapScript, {
@@ -20,6 +20,7 @@ function bootstrap(saved, deviceDark, blocked = false) {
       },
     },
     window: {
+      location: { pathname },
       localStorage: {
         getItem(key) {
           assert.equal(key, themeStorageKey);
@@ -52,6 +53,16 @@ test("first visit and System preference follow the device before page content re
         chrome: dark ? "#101c22" : "#f6f8f8",
       });
     }
+});
+
+test("login follows the device even when the signed-in theme preference differs", () => {
+  for (const pathname of ["/login", "/login/"])
+    for (const saved of ["light", "dark", "system"])
+      for (const dark of [false, true]) {
+        const actual = bootstrap(saved, dark, false, pathname);
+        assert.equal(actual.mode, "system");
+        assert.equal(actual.theme, dark ? "dark" : "light");
+      }
 });
 
 test("saved Light or Dark preference overrides the device, including native controls", () => {

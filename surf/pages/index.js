@@ -121,7 +121,9 @@ export default function Workspace() {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const focusable = () => [
-      ...sidebar.current.querySelectorAll("button:not(:disabled),a,select"),
+      ...sidebar.current.querySelectorAll(
+        "button:not(:disabled),a,select,input:not(:disabled)",
+      ),
     ];
     focusable()[0]?.focus();
     const onKey = (event) => {
@@ -358,7 +360,9 @@ export default function Workspace() {
             mode={view === "lessons" ? "school" : view}
             query={router.query}
             go={(values) => go(view, values)}
-            onForecast={(spot, date) => go("conditions", { spot, date })}
+            onForecast={(spot, date) =>
+              go("conditions", { spot, date, time: router.query.time })
+            }
           />
         )}
         {view === "conditions" && (
@@ -366,6 +370,7 @@ export default function Workspace() {
             session={session}
             query={router.query}
             go={(values) => go("conditions", values)}
+            onLessons={school ? (values) => go("lessons", values) : null}
           />
         )}
         {view === "people" && school && (

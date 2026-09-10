@@ -9,7 +9,6 @@ import {
   request,
 } from "../components/workspace/ui";
 import { safeNext } from "../lib/lesson-input.mjs";
-import { ThemeSelector } from "../components/theme";
 
 export default function Login() {
   const router = useRouter();
@@ -45,17 +44,18 @@ export default function Login() {
       </Head>
       <div className="login-brand">
         <Brand />
-        <ThemeSelector compact />
       </div>
-      <section className="login-story" aria-label="MyWavePlan for surf schools">
+      <section className="login-story" aria-label="MyWavePlan for surfers">
         <div className="login-story-copy">
-          <p className="eyebrow">Made for surfers and surf schools</p>
+          <p className="eyebrow">Made for surfers by surfers</p>
           <h2>
             Plan the lesson.
             <br />
             Catch the wave.
           </h2>
-          <p className="story-caption">Lessons, people and forecasts in one place.</p>
+          <p className="story-caption">
+            Lessons, people and forecasts in one place.
+          </p>
         </div>
         <div className="login-sun" aria-hidden="true" />
         <svg className="login-surf" viewBox="0 0 560 430" aria-hidden="true">
@@ -146,3 +146,5 @@ export default function Login() {
     </main>
   );
 }
+
+Login.systemTheme = true;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { request, Button, Loading, Message } from "../workspace/ui";
+import Icon from "../icon";
 import {
   compass,
   finite,
@@ -108,7 +109,7 @@ export function Direction({ degrees }) {
   );
 }
 export function SwellDetails({ condition, label = "Swell components" }) {
-  if (!condition?.swellComponents) return null;
+  if (!condition) return null;
   return (
     <details className="swell-details">
       <summary>{label}</summary>
@@ -128,6 +129,11 @@ export function SwellComponents({ condition }) {
           <Direction degrees={s.direction} />
         </div>
       ))}
+      <div>
+        <strong>Wind waves</strong>
+        <span>{value(condition?.windWaveHeight, " m")}</span>
+        <Direction degrees={condition?.windWaveDirection} />
+      </div>
       {!condition?.swellComponents?.length && (
         <p>
           {condition?.swellComponents
@@ -194,7 +200,24 @@ export function ForecastFooter({ data }) {
 export function Metric({ label, children, note }) {
   return (
     <div className="condition-metric">
-      <dt>{label}</dt>
+      <dt>
+        {typeof label === "string" && (
+          <Icon
+            name={
+              label.includes("experience")
+                ? "surfing"
+                : label.includes("temperature")
+                  ? "thermometer"
+                  : label.includes("Wind")
+                    ? "wind"
+                    : label.includes("Weather")
+                      ? "sun"
+                      : "waves"
+            }
+          />
+        )}
+        {label}
+      </dt>
       <dd>{children}</dd>
       {note && <small>{note}</small>}
     </div>
