@@ -50,3 +50,5 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 - Add a dated release record under archive/releases after verification and link it from the handover. Archive replaced handovers and plans with dates rather than leaving competing current versions here.
 - Keep provenance, verification and rollback evidence. Historical approvals and commands apply to their original release, not to new work.
 - Update this index and relative links when moving a document. Update status only from evidence; a documentation tidy-up does not constitute a deployment or live account check.
+
+Latest verified staging follow-up: [spot-card daylight, request reuse and mobile width](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production review remains pending.

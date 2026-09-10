@@ -39,4 +39,4 @@ No database clone, migration or calibration promotion is part of F18. Only tempo
 
 Local release verification, 10 September: 96 tests, Node.js 22 lint/build, complete dependency tree and zero npm audit findings passed. Eight API groups and nine native Chrome browser groups passed against the production-mode local build. Desktop/mobile visual checks covered the login, rich tiles, linked charts and no page overflow at 390 px and 320 px. One pre-existing avatar-image lint warning remains. Staging also passed all eight API and nine browser groups, including vertical touch scrolling and restoration of the saved signed-in theme. [Release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_STAGING.md).
 
-The daylight/cache/mobile follow-up has local verification and a separate [release record](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). See the handover for live staging status.
+The daylight/cache/mobile follow-up passed 102 unit tests, build, 14 API groups and nine browser groups locally and on staging; it has a separate [release record](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). See the handover for live staging status.

@@ -18,7 +18,9 @@ Mobile carousel cards fit two across on 390–440 px phones; narrower screens re
 - Browser checks cover nearest Bico, 17 spots/16 days, stable tile/chart contexts, cached return from catalogue, hourly swell components, lesson navigation, linked keyboard/mouse/touch charts, themes/login, two-card width at 430 px and no page overflow at 390/320 px. Temporary login sessions and test browsers are cleaned by the runner.
 - Physical iPhone/Safari has not been tested. Request cache/failure/timing edge cases use deterministic unit tests; deployed API/browser checks use real staging data.
 
-Staging deployment and post-deployment verification are pending. The [handover](../../HANDOVER.md) will record the verified live deployment.
+Staging is READY at [staging.mywaveplan.com](https://staging.mywaveplan.com), application commit `faed37656edc134696cb87a0047596041b769c72`, deployment `dpl_3qMjzy4ttvuQqftsfUk84e1ouKnY`. The custom domain serves this application. All 14 API and nine browser groups passed again on staging. Its error/fatal runtime log scan returned no matches. Populated mobile cards were visually checked with quality and wave range on separate lines. No browser page errors occurred. Test sessions and browsers were cleaned.
+
+Production custom-domain inspection still resolves to `dpl_9uSc1nTvVFCwNS3pfk8sC9JHLa8s`, main commit `91bc4fe2f9cd4c230f05f8ba7928e13610e2e9f3`. It was not promoted. Documentation-only follow-up commits may create newer staging deployments with identical app code. The [handover](../../HANDOVER.md) records current status.
 
 ## Scope and rollback
 
