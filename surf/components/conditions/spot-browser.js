@@ -50,64 +50,40 @@ export function TileExperience({ level }) {
     </span>
   );
 }
-export function DirectionWeather({ condition: h, numeric = false, showCompass = false }) {
-  const icon = weatherIcon(h?.weatherCode);
+export function TileWeather({ condition }) {
+  const icon = weatherIcon(condition?.weatherCode);
+  return icon ? <span className="tile-weather"><Icon name={icon} label={weatherLabel(condition?.weatherCode)} /></span> : null;
+}
+
+export function TileDirections({ condition: h }) {
+  const energy = h?.energy;
+  const partial = finite(energy?.energyKjM2) && !energy.complete;
   return (
     <span className="tile-directions">
       {[
-        ["waves", "Swell", h?.swellDirection],
-        ["wind", "Wind", h?.windDirection],
-      ].map(([name, label, degrees]) => (
-        <span
-          key={name}
-          className="tile-direction"
-          title={
-            finite(degrees)
-              ? `${label} from ${Math.round(degrees)}° ${compass(degrees)}`
-              : `${label} direction unavailable`
-          }
-        >
+        ["waves", "Swell", h?.swellDirection, value(energy?.energyKjM2, " kJ/m²"), "tile-swell-energy", partial ? "Offshore swell energy (partial)" : "Offshore swell energy"],
+        ["wind", "Wind", h?.windDirection, value(h?.windSpeed, " km/h", 0), "tile-wind-speed", "Wind speed"],
+      ].map(([name, label, degrees, measure, className, measureLabel]) => (
+        <span key={name} className="tile-direction">
           <Icon name={name} />
-          <span className="sr-only">{label}: </span>
-          {finite(degrees) ? (
-            <>
-              <span
-                className="tile-arrow"
-                aria-hidden="true"
-                style={{ transform: `rotate(${degrees + 180}deg)` }}
-              >
-                ↑
-              </span>
-              <span>
-                {numeric ? `${Math.round(degrees)}°` : compass(degrees)}
-                {numeric && showCompass ? ` ${compass(degrees)}` : ""}
-              </span>
-            </>
-          ) : (
-            <span>–</span>
-          )}
+          <span className="sr-only">{label} from </span>
+          <span
+            className="tile-arrow"
+            aria-hidden="true"
+            style={finite(degrees) ? { transform: `rotate(${degrees + 180}deg)` } : undefined}
+          >
+            {finite(degrees) ? "↑" : "–"}
+          </span>
+          <span className="tile-bearing">
+            {finite(degrees) ? `${Math.round(degrees)}° ${compass(degrees)}` : "–"}
+          </span>
+          <span className={`tile-inline-measure ${className}`} title={measureLabel}>
+            <span className="sr-only">{measureLabel}: </span>
+            {measure}{name === "waves" && partial ? "*" : ""}
+          </span>
         </span>
       ))}
-      {icon && <Icon name={icon} label={weatherLabel(h?.weatherCode)} />}
-    </span>
-  );
-}
-
-export function TileMeasures({ condition }) {
-  const energy = condition?.energy;
-  return (
-    <span className="tile-measurements">
-      <span className="tile-measurement tile-wind-speed" title="Wind speed">
-        <span>Wind</span>
-        <span>{value(condition?.windSpeed, " km/h", 0)}</span>
-      </span>
-      <span className="tile-measurement tile-swell-energy" title="Offshore swell energy">
-        <span>Energy</span>
-        <span>{value(energy?.energyKjM2, " kJ/m²")}</span>
-      </span>
-      {finite(energy?.energyKjM2) && !energy.complete && (
-        <span className="tile-data-note">Partial energy</span>
-      )}
+      {partial && <span className="tile-data-note">* Partial energy</span>}
     </span>
   );
 }
@@ -155,7 +131,10 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       onClick={() => onChoose(spot)}
       data-spot-id={spot.id}
     >
-      <strong className="spot-card-name">{spot.name}</strong>
+      <span className="spot-card-heading">
+        <strong className="spot-card-name">{spot.name}</strong>
+        <TileWeather condition={h} />
+      </span>
       <span className="spot-card-location">
         {spot.region}
         {distance != null
@@ -183,12 +162,7 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
           </span>
         )}
       </span>
-      {h && (
-        <>
-          <DirectionWeather condition={h} numeric showCompass />
-          <TileMeasures condition={h} />
-        </>
-      )}
+      {h && <TileDirections condition={h} />}
       {summary?.stale && (
         <small className="spot-stale">
           Previous forecast ·{" "}

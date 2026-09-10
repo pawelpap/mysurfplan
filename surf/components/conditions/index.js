@@ -39,9 +39,9 @@ import {
 } from "./shared";
 import SpotForm from "./spot-form";
 import SpotBrowser, {
-  DirectionWeather,
+  TileDirections,
   TileExperience,
-  TileMeasures,
+  TileWeather,
   useConditionsClock,
 } from "./spot-browser";
 import SurfChart from "./surf-chart";
@@ -452,6 +452,7 @@ function SpotForecast({
                           : ""}
                     </span>
                   </span>
+                  <TileWeather condition={h} />
                   <span className="calendar-quality">
                     <span className="calendar-quality-full">
                       {h?.quality || "Unavailable"}
@@ -470,8 +471,7 @@ function SpotForecast({
                       ? `${value(h.surfMin)}–${value(h.surfMax)} m`
                       : "Unavailable"}
                   </span>
-                  <DirectionWeather condition={h} numeric />
-                  <TileMeasures condition={h} />
+                  <TileDirections condition={h} />
                   <TileExperience level={h?.level} />
                 </button>
               );

@@ -64,7 +64,8 @@ export async function checkConditionsBrowser({ base, cookie }) {
     for (const tile of [page.locator(".spot-card.selected"), page.locator(".calendar-day").first()]) {
       assert.match(await tile.locator(".tile-wind-speed").innerText(), /\d+ km\/h/);
       assert.match(await tile.locator(".tile-swell-energy").innerText(), /\d.*kJ\/m²/);
-      for (const direction of await tile.locator(".tile-direction").allInnerTexts()) assert.match(direction, /\d+°/);
+      for (const direction of await tile.locator(".tile-direction").allInnerTexts()) assert.match(direction, /\d+° [NSEW]+/);
+      assert.ok(await tile.evaluate(el => el.scrollWidth <= el.clientWidth + 1), "desktop tile content fits");
     }
     assert.match(initialSpotTime, /(?:Now|Today|Tomorrow).*\d\d:\d\d/);
     const headingContext = await page.locator(".spot-comparison-time").innerText();
@@ -206,6 +207,13 @@ export async function checkConditionsBrowser({ base, cookie }) {
       assert.ok(await tile.locator(".tile-wind-speed").isVisible());
       assert.ok(await tile.locator(".tile-swell-energy").isVisible());
       assert.ok(await tile.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "tile content fits without horizontal overflow");
+      for (const row of await tile.locator(".tile-direction").all()) {
+        assert.ok(await row.evaluate(el => {
+          const bearing = el.querySelector(".tile-bearing").getBoundingClientRect();
+          const measure = el.querySelector(".tile-inline-measure").getBoundingClientRect();
+          return Math.abs(bearing.y - measure.y) < 1 && measure.x >= bearing.right && el.scrollWidth <= el.clientWidth + 1;
+        }), "direction and measurement fit on the same row");
+      }
     }
     await page.screenshot({ path: "/private/tmp/f18-spot-cards-mobile.png" });
     await page.setViewportSize({ width: 390, height: 844 });
