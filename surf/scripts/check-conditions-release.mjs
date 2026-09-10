@@ -63,9 +63,11 @@ try {
     "surfMin",
     "surfMax",
     "score",
+    "energy",
   ])
     assert.deepEqual(summary.condition[field], expected[field], field);
   assert.equal(summary.at, t);
+  assert.equal(summary.condition.windSpeed, raw.windSpeed);
   assert.ok(!summary.spot && !summary.hours && !summary.calibration);
   assert.ok(JSON.stringify(summary).length < 1800);
   assert.equal(

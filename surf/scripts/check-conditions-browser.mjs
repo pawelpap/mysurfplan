@@ -61,6 +61,11 @@ export async function checkConditionsBrowser({ base, cookie }) {
     console.log("Passed browser group", checks);
     await page.waitForFunction(() => document.querySelector(".spot-card.selected .spot-card-time")?.textContent.trim());
     const initialSpotTime = await page.locator(".spot-card.selected .spot-card-time").innerText();
+    for (const tile of [page.locator(".spot-card.selected"), page.locator(".calendar-day").first()]) {
+      assert.match(await tile.locator(".tile-wind-speed").innerText(), /\d+ km\/h/);
+      assert.match(await tile.locator(".tile-swell-energy").innerText(), /\d.*kJ\/m²/);
+      for (const direction of await tile.locator(".tile-direction").allInnerTexts()) assert.match(direction, /\d+°/);
+    }
     assert.match(initialSpotTime, /(?:Now|Today|Tomorrow).*\d\d:\d\d/);
     const headingContext = await page.locator(".spot-comparison-time").innerText();
     assert.ok(!headingContext.includes("or next sunrise"));
@@ -197,6 +202,11 @@ export async function checkConditionsBrowser({ base, cookie }) {
     assert.ok(cardWidth * 2 + 12 <= carousel.width + 1, "two mobile cards fit at iPhone Pro Max width");
     await page.waitForFunction(() => document.querySelector(".spot-card.selected .spot-card-time")?.textContent.trim());
     await page.locator(".spot-browser").scrollIntoViewIfNeeded();
+    for (const tile of [page.locator(".spot-card.selected"), page.locator(".calendar-day").first()]) {
+      assert.ok(await tile.locator(".tile-wind-speed").isVisible());
+      assert.ok(await tile.locator(".tile-swell-energy").isVisible());
+      assert.ok(await tile.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "tile content fits without horizontal overflow");
+    }
     await page.screenshot({ path: "/private/tmp/f18-spot-cards-mobile.png" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "Open menu", exact: true }).click();

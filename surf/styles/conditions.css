@@ -296,6 +296,25 @@
   display: inline-block;
   line-height: 16px;
 }
+.tile-measurements {
+  display: grid;
+  gap: 2px;
+  font-size: 10px;
+  line-height: 18px;
+  color: var(--muted);
+}
+.tile-measurement {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 5px;
+}
+.tile-measurement > span:last-child {
+  white-space: nowrap;
+}
+.tile-data-note {
+  font-size: 10px;
+}
 .quality-tile {
   --quality-text: var(--muted);
   --tile-bg: var(--surface-subtle);

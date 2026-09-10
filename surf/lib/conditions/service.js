@@ -140,6 +140,8 @@ export async function getConditions(
       "surfMax",
       "swellDirection",
       "windDirection",
+      "windSpeed",
+      "energy",
       "weatherCode",
       "provisional",
     ];

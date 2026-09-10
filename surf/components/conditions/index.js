@@ -41,6 +41,7 @@ import SpotForm from "./spot-form";
 import SpotBrowser, {
   DirectionWeather,
   TileExperience,
+  TileMeasures,
   useConditionsClock,
 } from "./spot-browser";
 import SurfChart from "./surf-chart";
@@ -470,6 +471,7 @@ function SpotForecast({
                       : "Unavailable"}
                   </span>
                   <DirectionWeather condition={h} numeric />
+                  <TileMeasures condition={h} />
                   <TileExperience level={h?.level} />
                 </button>
               );

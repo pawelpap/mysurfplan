@@ -50,7 +50,7 @@ export function TileExperience({ level }) {
     </span>
   );
 }
-export function DirectionWeather({ condition: h, numeric = false }) {
+export function DirectionWeather({ condition: h, numeric = false, showCompass = false }) {
   const icon = weatherIcon(h?.weatherCode);
   return (
     <span className="tile-directions">
@@ -80,6 +80,7 @@ export function DirectionWeather({ condition: h, numeric = false }) {
               </span>
               <span>
                 {numeric ? `${Math.round(degrees)}°` : compass(degrees)}
+                {numeric && showCompass ? ` ${compass(degrees)}` : ""}
               </span>
             </>
           ) : (
@@ -88,6 +89,25 @@ export function DirectionWeather({ condition: h, numeric = false }) {
         </span>
       ))}
       {icon && <Icon name={icon} label={weatherLabel(h?.weatherCode)} />}
+    </span>
+  );
+}
+
+export function TileMeasures({ condition }) {
+  const energy = condition?.energy;
+  return (
+    <span className="tile-measurements">
+      <span className="tile-measurement tile-wind-speed" title="Wind speed">
+        <span>Wind</span>
+        <span>{value(condition?.windSpeed, " km/h", 0)}</span>
+      </span>
+      <span className="tile-measurement tile-swell-energy" title="Offshore swell energy">
+        <span>Energy</span>
+        <span>{value(energy?.energyKjM2, " kJ/m²")}</span>
+      </span>
+      {finite(energy?.energyKjM2) && !energy.complete && (
+        <span className="tile-data-note">Partial energy</span>
+      )}
     </span>
   );
 }
@@ -163,7 +183,12 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
           </span>
         )}
       </span>
-      {h && <DirectionWeather condition={h} />}
+      {h && (
+        <>
+          <DirectionWeather condition={h} numeric showCompass />
+          <TileMeasures condition={h} />
+        </>
+      )}
       {summary?.stale && (
         <small className="spot-stale">
           Previous forecast ·{" "}
