@@ -1,6 +1,6 @@
 # MyWavePlan current handover
 
-**Staging-only follow-up, 10 September:** each forecast tile has two compact rows: icon, arrow, degrees, compass direction, then swell energy or wind speed. Weather icons sit at the top right, beside spot names or dates. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee`, deployment `dpl_747wNid62HvzCwwHFx61CHjhEum8`, passed 14 API and nine browser groups. Production remains at `172080d763a1e6dd04acea04beb71a67f192ee71`; promotion of this amendment requires owner approval. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
+**Tile/menu follow-up deployed to both environments, 10 September:** each forecast tile has two compact rows: icon, arrow, degrees, compass direction, then swell energy or wind speed. Weather icons sit at the top right. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee` was approved on staging and promoted through `a6da03131013deb168434f3e737e4ce8c6291d94`. Production deployment `dpl_9ULgt7wdSQS8kEdHep64jurAy4E8` passed the same 14 API and nine browser groups as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md).
 
 Updated 10 September 2026. This is the single current handover. [Documentation index](README.md) · [Current task roadmap](IMPLEMENTATION_ROADMAP.md) · [Product plan](DEVELOPMENT_PLAN.md) · [Environment guide](ENVIRONMENTS.md).
 
@@ -13,7 +13,7 @@ Updated 10 September 2026. This is the single current handover. [Documentation i
 | Environment | URL | Git branch | Vercel project | Fully checked deployment |
 | --- | --- | --- | --- | --- |
 | Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `dpl_747wNid62HvzCwwHFx61CHjhEum8` (tile/menu amendment) |
-| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_GyGUyg9Eoj3oGXupTzSCQePFoxMe` (F18) |
+| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `dpl_9ULgt7wdSQS8kEdHep64jurAy4E8` (tile/menu follow-up) |
 
 F18 application commit is `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`. The owner-approved daylight/cache/mobile follow-up passed local and staging checks; [release evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production was promoted through `main` at approved staging commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b`, deployment `dpl_GyGUyg9Eoj3oGXupTzSCQePFoxMe`. The production custom domain passed the same 14 API and nine browser groups. [Production release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). Documentation-only follow-ups can produce newer deployment IDs with identical application code. [B2 release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md), [runtime and migration contract](MEMBERSHIP_AUTHORISATION.md), [current permissions](ACCESS_CONTROL.md).
 

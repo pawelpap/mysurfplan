@@ -1,6 +1,6 @@
 # Tile parameters and mobile menu on staging
 
-10 September 2026. Owner-authorised staging-only follow-up to F18. Production remains on the approved F18 release until this amendment is approved.
+10 September 2026. This records the initial staging-only follow-up to F18. The owner subsequently approved promotion; [production release evidence](RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md) records the completed rollout.
 
 Spot cards now show numerical wind and swell bearings alongside their compass directions. Spot and day cards both show wind speed in km/h and existing offshore swell energy in kJ/m². The same rows are used in carousel, catalogue and calendar, with the same desktop/mobile parameters. Missing data remains a dash; partial energy is labelled. Existing quality colours and bottom-aligned experience remain.
 
@@ -18,4 +18,4 @@ The owner requested a further layout adjustment on 10 September. Each tile now h
 
 Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee` is deployed to staging as `dpl_747wNid62HvzCwwHFx61CHjhEum8`. Node.js 22 lint/build passed. The compact layout passed the existing 14 API and nine browser groups locally. Following the final desktop-spacing adjustment, all 14 API and nine browser groups passed on staging, with no browser errors. Checks cover degrees plus compass, single-row placement, tile overflow, two mobile carousel cards and existing navigation behaviour. Desktop and mobile screenshots were reviewed. No error/fatal deployment logs were found. Physical iPhone/Safari remains untested.
 
-Documentation-only commits after this final application commit do not change the tested application. Production remains on `172080d763a1e6dd04acea04beb71a67f192ee71` and was not promoted.
+Documentation-only commits after this final application commit do not change the tested application. At the end of staging verification, production remained on `172080d763a1e6dd04acea04beb71a67f192ee71`. The subsequent approved production promotion is recorded above.

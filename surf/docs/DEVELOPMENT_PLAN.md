@@ -222,4 +222,4 @@ F18 is complete on staging and production. Continue with B3 self-registration, v
 The next core feature is B3 account/email self-service, after A4/B6 policy decisions, A6/A7 email and job readiness, A8 EU migration and authorised A9 localisation foundations. A3 selected Mailjet Free and a generic outbox contract; neither the provider nor the support mailbox is activated. No AWS signup is needed. Localisation remains plan-only until authorised.
 
 
-10 September staging follow-up: completed tile metadata and mobile-menu focus improvements, verified on staging only. Production approval is pending for this amendment; F18 remains complete for its previously approved scope. [Release evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md).
+10 September follow-up: compact tile metadata rows, upper weather icons and mobile-menu focus improvements are complete on staging and production after owner approval. Both environments passed 14 API and nine browser groups. [Production evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md).
