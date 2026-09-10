@@ -17,6 +17,21 @@ export function summaryTimeLabel(summary, spot, now) {
   return `${day === today && now - summary.at < summaryTtl ? "Now" : date} · ${time}`;
 }
 
+export function summaryContextLabel(entries, summaries, now) {
+  const contexts = entries.map(({ spot }) => {
+    const summary = summaries[spot.id];
+    const label = summaryTimeLabel(summary, spot, now);
+    if (!label) return null;
+    const [day, time] = label.split(" · ");
+    if (summary.timing === "sunrise") return `${day} at sunrise`;
+    if (summary.timing === "night") return `${day} at night`;
+    return day === "Now" ? "Now" : `${day} at ${time}`;
+  }).filter(Boolean);
+  // Distant regions may genuinely have different contexts. Keep their local
+  // times on the cards rather than labelling every beach with one sunrise.
+  return contexts.length ? [...new Set(contexts)].join(" · ") : "Loading…";
+}
+
 // One in-flight batch per browser. Scrolling changes the pending set without
 // cancelling server work already started. Only unmount aborts a running fetch.
 export function createSummaryCache({ fetchBatch, onChange, clock = Date.now }) {
@@ -52,8 +67,11 @@ export function createSummaryCache({ fetchBatch, onChange, clock = Date.now }) {
       const data = result.error && old?.condition
         ? { ...old, stale: true, error: result.error } : result;
       const ttl = data.stale || data.error || !data.condition ? 60000 : summaryTtl;
-      // An old boundary must not create an immediate retry loop after a failure.
-      const boundary = !result.error && Number.isFinite(data.validUntil) ? data.validUntil : Infinity;
+      // A response can cross sunset in flight, or the device clock can be ahead.
+      // Bound retries even when the server boundary is already in the local past.
+      const boundary = !result.error && Number.isFinite(data.validUntil)
+        ? (data.validUntil > saved ? data.validUntil : saved + 60000)
+        : Infinity;
       cache.delete(id);
       cache.set(id, { data, saved, version: requestedVersion, expires: Math.min(saved + ttl, boundary) });
       if (requestedVersion === version) forced.delete(id);

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 import { spotSummaryTime, sunlightForDay } from "../lib/conditions/sunlight.mjs";
 import { dateKey } from "../lib/conditions/model.mjs";
-import { createSummaryCache, summaryTimeLabel, summaryTtl } from "../lib/conditions/spot-summaries.mjs";
+import { createSummaryCache, summaryContextLabel, summaryTimeLabel, summaryTtl } from "../lib/conditions/spot-summaries.mjs";
 
 const bico = { latitude: 38.69, longitude: -9.369, timezone: "Europe/Lisbon" };
 test("spot cards use today's sunrise before dawn, now in daylight and tomorrow's sunrise after sunset", () => {
@@ -110,4 +110,36 @@ test("sunrise/sunset expiry overrides five-minute caching", async (t) => {
   now += 30000;
   store.update(["a"], 0); t.mock.timers.tick(500); await setImmediate();
   assert.equal(calls, 2);
+});
+
+test("an ahead-of-server device clock cannot create an immediate sunlight-boundary retry loop", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let now = 1000000, calls = 0;
+  const store = createSummaryCache({ clock: () => now, onChange: () => {}, fetchBatch: async () => {
+    calls++;
+    return { a: { at: now - 3600000, condition: { quality: "Fair" }, validUntil: now - 1 } };
+  } });
+  t.after(() => store.dispose());
+  store.update(["a"], 0); t.mock.timers.tick(500); await setImmediate();
+  t.mock.timers.tick(10000); await setImmediate();
+  assert.equal(calls, 1);
+  now += 60000;
+  store.update(["a"], 0); t.mock.timers.tick(500); await setImmediate();
+  assert.equal(calls, 2);
+});
+
+test("the heading states the actual card context and preserves mixed-region timing", () => {
+  const sun = sunlightForDay("2026-09-10", bico);
+  const entries = [{ spot: { ...bico, id: "a" } }, { spot: { ...bico, id: "b" } }];
+  assert.equal(summaryContextLabel(entries, {}, sun.sunrise - 1), "Loading…");
+  for (const [now, expected] of [
+    [sun.sunrise - 3600000, "Today at sunrise"],
+    [sun.sunrise + 3600000, "Now"],
+    [sun.sunset + 3600000, "Tomorrow at sunrise"],
+  ]) {
+    const summary = spotSummaryTime(now, bico);
+    assert.equal(summaryContextLabel(entries, { a: summary, b: summary }, now), expected);
+  }
+  const now = sun.sunset + 3600000;
+  assert.equal(summaryContextLabel(entries, { a: spotSummaryTime(now, bico), b: { at: now, timing: "now" } }, now), "Tomorrow at sunrise · Now");
 });

@@ -14,7 +14,7 @@ import {
   meaningfulExperience,
   weatherIcon,
 } from "../../lib/conditions/presentation.mjs";
-import { createSummaryCache, summaryTimeLabel } from "../../lib/conditions/spot-summaries.mjs";
+import { createSummaryCache, summaryContextLabel, summaryTimeLabel } from "../../lib/conditions/spot-summaries.mjs";
 import Icon from "../icon";
 import { value } from "./shared";
 
@@ -328,7 +328,7 @@ export default function SpotBrowser({
         <div>
           <h2>{catalogue ? "All spots" : "Surf spots"}</h2>
           <p className="spot-comparison-time">
-            Now or next sunrise · Local times
+            {summaryContextLabel(displayed, summaries, now)} · Local times
           </p>
         </div>
         <div className="actions">

@@ -62,6 +62,10 @@ export async function checkConditionsBrowser({ base, cookie }) {
     await page.waitForFunction(() => document.querySelector(".spot-card.selected .spot-card-time")?.textContent.trim());
     const initialSpotTime = await page.locator(".spot-card.selected .spot-card-time").innerText();
     assert.match(initialSpotTime, /(?:Now|Today|Tomorrow).*\d\d:\d\d/);
+    const headingContext = await page.locator(".spot-comparison-time").innerText();
+    assert.ok(!headingContext.includes("or next sunrise"));
+    if (initialSpotTime.includes("Sunrise"))
+      assert.ok(headingContext.includes(initialSpotTime.split(" · ")[0] + " at sunrise"));
     assert.ok(summaryRequests.some((url) => new URL(url).searchParams.get("spots").split(",").length > 1));
     await page.screenshot({
       path: "/private/tmp/f18-desktop.png",

@@ -12,7 +12,7 @@ Mobile carousel cards fit two across on 390–440 px phones; narrower screens re
 
 ## Verification
 
-- 102 tests passed, including local sunrise/sunset boundaries, midnight, DST, different timezones, year changes, polar day/night, five-minute reuse, scroll-back/in-flight deduplication, explicit refresh scope, failed-update preservation and retry backoff.
+- 104 tests passed, including local sunrise/sunset boundaries, midnight, DST, different timezones, year changes, polar day/night, five-minute reuse, scroll-back/in-flight deduplication, explicit refresh scope, failed-update preservation retry backoff, the derived heading context and protection against an ahead-of-server device clock.
 - Node.js 22 lint/build passed. One pre-existing avatar-image warning remains.
 - The local production-mode application passed 14 API groups and nine native Chrome browser groups. Batch daylight assessments matched the exact-time single summary, with per-spot failure isolation and 401/400/405 boundaries. Student spot writes remain forbidden.
 - Browser checks cover nearest Bico, 17 spots/16 days, stable tile/chart contexts, cached return from catalogue, hourly swell components, lesson navigation, linked keyboard/mouse/touch charts, themes/login, two-card width at 430 px and no page overflow at 390/320 px. Temporary login sessions and test browsers are cleaned by the runner.
@@ -25,3 +25,5 @@ Production custom-domain inspection still resolves to `dpl_9uSc1nTvVFCwNS3pfk8sC
 ## Scope and rollback
 
 No schema, calibration, account or provider change. Normal forecast cache writes and temporary verification sessions only. Production remains on B2. Roll back this follow-up to `08462b72cbaf1112929c683ac7c75485a130e79e` for the preceding F18 staging application; no database rollback is needed.
+
+Final refinement: the heading derives “Now”, “Today at sunrise” or “Tomorrow at sunrise” from the loaded cards. Exact local times remain on each card. A passed server boundary has a one-minute retry floor to prevent request loops on a device with an ahead-of-server clock. These refinements passed the local unit/build checks; their final staging check is recorded below once deployed.
