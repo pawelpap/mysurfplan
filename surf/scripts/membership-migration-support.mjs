@@ -4,9 +4,9 @@ import pg from 'pg';
 
 export const migrationId = '20260909_global_memberships';
 export const environments = {
-  rehearsal: { branch: 'br-morning-glade-adu8v769', host: 'ep-withered-leaf-adu0s36v.c-2.us-east-1.aws.neon.tech' },
-  staging: { branch: 'br-small-salad-adx0nsj2', host: 'ep-royal-paper-adc8l1qq.c-2.us-east-1.aws.neon.tech' },
-  production: { branch: 'br-weathered-silence-adp30k9s', host: 'ep-floral-heart-ad5cfd5d.c-2.us-east-1.aws.neon.tech' },
+  rehearsal: { branch: 'br-falling-cell-b2i32j8w', host: 'ep-holy-breeze-b2bby6tz.c-6.eu-central-1.aws.neon.tech' },
+  staging: { branch: 'br-shy-grass-b2hqthrm', host: 'ep-shiny-violet-b2em1q82.c-6.eu-central-1.aws.neon.tech' },
+  production: { branch: 'br-sparkling-hat-b2ogsvs0', host: 'ep-soft-smoke-b2v7g8iu.c-6.eu-central-1.aws.neon.tech' },
 };
 
 export async function connect(environment) {
