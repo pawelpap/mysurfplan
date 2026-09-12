@@ -30,7 +30,7 @@ The following groups are all stored in the database and editable by platform adm
 | Wave transformation | Shore orientation, swell gain, period reference/exponent and multiplier limits, wind-sea gain, and displayed surf-range factors. |
 | Directional exposure | A stored swell-direction curve, or orientation/spread/floor/exponent fallback; a wind-direction curve and optional additional shelter sectors. |
 | Tide | Generic rules with offshore-swell thresholds and preferred tide-ratio ranges, suitability penalties, reference timing/height corrections, and stage/trend thresholds. |
-| Quality | Height/period suitability curves, wind suitability settings, component weights, small-swell penalty, flat threshold, continuous size ceiling and quality bands. |
+| Quality | Height/period suitability curves, wind suitability settings, component weights, small-swell penalty, flat threshold, continuous size ceiling What and quality bands. |
 | Experience | Ordered height/wind/period limits, the break's minimum experience, maximum lesson surf and severe weather thresholds. |
 | Explanations | Tide-fit, directional exposure and wind thresholds for condition explanations. |
 

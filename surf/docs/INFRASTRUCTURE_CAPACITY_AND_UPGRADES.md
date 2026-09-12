@@ -1,12 +1,16 @@
 # Infrastructure capacity and upgrade decisions
 
-Account state checked 8 September 2026; purchase timing revised 9 September at the owner's request. Read-only review for [implementation roadmap A5/A7/A8 and L1](IMPLEMENTATION_ROADMAP.md). No plan, payment method, account connection, region or branch was changed. Prices and allowances must be checked again in the current billing screen before purchase.
+**12 September current state:** Neon Launch, existing Vercel-managed account, Frankfurt project `mywaveplan-eu`. Staging and production application functions run in `fra1`; Vercel remains Hobby. Compute bounds 0.25–1 CU with 300-second idle suspension; seven-day history. Native and encrypted-dump restores were tested. The old US project and resource were deleted with owner approval. Four EU branches remain: live pair, reusable security rehearsal and staging ancestor. Owner-reported US$20 notification is not a hard cap. No further plan purchase was made.
+
+[A8 completed runbook](EU_DATA_MIGRATION_PLAN.md) records database/runtime placement, legacy cleanup, checks and US retirement. Metered migration overlap was temporary; actual invoice usage was not measured here. Mailbox readiness and minute-worker capacity remain A6/A7 before registration.
+
+The historical review below records 8 September account state and 9 September purchase timing. It is superseded by the current state above. Prices and allowances must be checked in the effective billing screen before any new purchase.
 
 Commercial-only purchases are scheduled immediately before the first use that requires them, with time to configure and test. Early work checks permitted use and technical limits without activating subscriptions unnecessarily. Capacity, security and recovery requirements remain reasons to upgrade earlier. This replaces the previous default recommendation to prepare immediate Vercel spending and target Neon Launch for every G1 pilot.
 
 The [9 September monthly estimate](LAUNCH_COST_ESTIMATE.md), revised after A3, budgets approximately €90–120/month for both minute workers, outbound email and one mailbox. The earlier €50 minimal forecast configuration assumes suitable free tiers and excludes those new flows. Database continuous active time is now explicit. This is a future scenario, not measured billing or approval to purchase.
 
-## Live account findings
+## Historical account findings, 8 September
 
 | Service | Verified state | Evidence and limits of this check |
 | --- | --- | --- |
@@ -33,7 +37,7 @@ No evidence currently justifies Enterprise. Revisit only for an explicit support
 
 ### Neon: upgrade when capacity or recovery requires it
 
-There is a current development constraint: all ten branch slots are occupied. Before B1, inventory which old branches are still needed for rollback. Prepare a named deletion/expiry list for approval or reuse a confirmed isolated rehearsal branch. Never remove production/staging or a required recovery point to create room. More branch slots are a reason to review paid capacity if the retained branches are all needed, not a reason to skip migration rehearsal.
+The former Free project had all ten branch slots occupied. That US project is now deleted; the current EU project has four branches. Review purpose and ancestry before future cleanup, reuse the isolated rehearsal branch where appropriate and check effective Launch allowances before adding branches.
 
 Before real customer bookings at G1, select and rehearse sufficient recovery under A6/A7. **Launch is a candidate if the effective Free plan cannot meet that requirement**, not an automatic purchase for commercial launch. Keep Free while its verified technical limits and accepted recovery policy suffice. Do not reduce the required recovery standard merely to avoid a paid plan.
 
@@ -69,11 +73,11 @@ The planned real-school G1 pilot must be assessed before invitations or demonstr
 
 ## Region and environment decision
 
-On 9 September the owner expressed an EU-first storage preference for the Portuguese launch. Record this policy now; A8 selects the exact EU database region and nearby application backend alongside A4's processing/contract review and A7's capacity review. Settle the destination before new provider provisioning and complete the agreed migration before opening real self-service registration or school onboarding. The last verified database location remains AWS us-east-1, checked 8 September; this documentation does not change it.
+The owner selected EU storage for the Portuguese launch. A8 completed Frankfurt database/function migration on 12 September. Primary records and Neon recovery history are in AWS eu-central-1; both Vercel deployments report fra1. Wider processor locations remain subject to A4 review.
 
 Apply the policy to a data-location matrix covering the primary database, replicas/recovery copies, image originals/derivatives, exports, application processing, logs and external email/auth/payment/analytics providers. Specify EU storage where supported and record actual processing, support access and subprocessors separately. Review any non-EU processing/transfer and its applicable safeguards; an EU database alone is not an assurance that every service stays in the EU. [European Commission guidance on transfers](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/rules-international-data-transfers_en)
 
-Rehearse the EU move as a separate migration: provision the agreed destination, copy only the intended data, reconcile schema/IDs/links, update environment secrets in a controlled order, verify authentication and forecasts, test restore and document rollback. Validate staging before a controlled production cutover with a write freeze or tested synchronisation to prevent lost writes. Inventory and retire the old database, branches, exports and recovery copies under a documented rollback/retention window; do not claim the move is complete while untracked old copies remain. Check actual app function regions before choosing the destination. The current project API did not establish those runtime regions. Neon documents migration into a new-region project through its import tooling. [Neon migration guidance](https://neon.com/blog/easiest-way-migrate-postgres-database-neon)
+A8 rehearsed consistent dump/restore, native snapshot recovery and later erasure/revocation replay, then fenced source writes and migrated each environment separately. Staging passed before production. The old US database/resource was deleted the same day after explicit owner approval, with no US rollback retention. The [runbook](EU_DATA_MIGRATION_PLAN.md) records remaining EU branches and operator procedures. Do not roll back by restoring an old URL or an unverified pre-migration deployment.
 
 Staging and production may retain separate branches during the prototype. Before launch, decide whether production needs its own project for independent quotas, isolation and recovery. Do not multiply free projects to evade limits. Separating environments or moving regions is additional work within A8, not an effect of purchasing a subscription.
 

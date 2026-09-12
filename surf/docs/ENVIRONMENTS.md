@@ -1,25 +1,35 @@
 # Environments and release workflow
 
+**A8 complete, 12 September:** staging and production now use Neon PostgreSQL 18.6 and Vercel application functions in Frankfurt. Each environment retained its own accounts, sessions and 17 spot calibrations. Unused legacy tables were removed. The owner waived US rollback retention; the old US project and its Vercel connections were deleted and absence verified. Login, permissions, forecasts, geolocation, mobile and recovery checks passed. No UI or forecasting-model change. [A8 release evidence](archive/releases/RELEASE_2026-09-12_EU_MIGRATION.md).
+
 **Tile/menu follow-up deployed to both environments, 10 September:** each forecast tile has two compact rows: icon, arrow, degrees, compass direction, then swell energy or wind speed. Weather icons sit at the top right. Mobile navigation focuses the dialog instead of the school dropdown. Application commit `0fc7be5c669b95860cd6f2e70879d39a189be9ee` was approved on staging and promoted through `a6da03131013deb168434f3e737e4ce8c6291d94`. Production deployment `dpl_9ULgt7wdSQS8kEdHep64jurAy4E8` passed the same 14 API and nine browser groups as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md).
 
 Maintained operating reference, organised 9 September 2026. Project/branch mapping and B2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
 
+A8 placement checked after cutover and US retirement on 12 September. [Current migration/recovery runbook](EU_DATA_MIGRATION_PLAN.md). Neon remains on the existing Vercel-managed Launch plan; the owner-reported US$20 notification is not a hard cap.
+
 | Environment | URL | Git branch | Vercel project | Neon branch |
 | --- | --- | --- | --- | --- |
-| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `br-small-salad-adx0nsj2` |
-| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `br-weathered-silence-adp30k9s` |
+| Staging | [staging.mywaveplan.com](https://staging.mywaveplan.com) | `staging` | `mysurfplan-staging` | `br-shy-grass-b2hqthrm` |
+| Production | [mywaveplan.com](https://mywaveplan.com) | `main` | `mywaveplan-prod` | `br-sparkling-hat-b2ogsvs0` |
 
-Both Vercel projects use application root `surf`. Neon project: `shy-paper-68550619`, in the existing Vercel-managed organisation. Its last recorded region is AWS us-east-1. Both A2 Vercel deployment records report `iad1`; A2 did not move runtime or storage to the EU. EU migration is planned under A8 and has not happened. Verify the actual destination before any migration or write operation. Current quota, recovery and region decisions are in [infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
+Both Vercel projects use application root `surf`, Node.js 22 and function region `fra1`. Neon project `crimson-butterfly-63506764` (`mywaveplan-eu`) is in `aws-eu-central-1`, PostgreSQL 18.6, under the existing Vercel-managed organisation. Production and staging have separate branch URLs/passwords; production preview/development fallback uses staging. Existing SESSION_SECRET values were preserved. The old US project `shy-paper-68550619` and Vercel resource `store_d6iQGmMzzlg5IKVW` were deleted with explicit owner approval. The global CDN and other provider processing are outside this primary-database/function placement claim. [Capacity and remaining operational decisions](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).
 
 Before the tile/menu follow-up above, both environments ran the approved F18 application `7b3046b841e5c32a5f39e0acc9a28b6929a5865a`, promoted with documentation commit `89652325fc80a7a76813ccdea3e93b7cdbd08f2b` on 10 September. Production passed the same API/browser checks as staging. [Production evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md). No database migration or copy was required. [F18 daylight/cache/mobile staging evidence](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Deployment IDs and next work are maintained in [HANDOVER.md](HANDOVER.md); [membership release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_AUTHORISATION.md) records the B2 rollout. The application dependency baseline remains A2.
+
+## Email and DNS plan
+
+**12 September mailbox setup:** the owner authorised separate `pawel@mywaveplan.com` and `support@mywaveplan.com` inboxes on home.pl, preserving Vercel DNS. The external domain was added to the home.pl panel, but its hosting attachment was rejected for lack of delegation to home.pl nameservers. Neither mailbox exists yet; no public DNS or existing mailbox was changed. The owner reports sending the Polish support requests from their registered Proton address; await the reply. home.pl or an explicitly selected replacement must work before registration, including privacy/support replies. [Evidence, mailbox isolation, prepared DNS and remaining work](MAILBOX_SETUP.md).
+
+Owner-confirmed on 10 September: GoDaddy holds domain registration; Vercel holds authoritative DNS and hosts both app environments. Keep this arrangement. Plan `support@mywaveplan.com` on the existing home.pl Hosting Business service and use Mailjet for automated email. The owner reports that the Mailjet account is created, `mywaveplan.com` is added as a sending domain, and the Mailjet–Vercel integration is activated for both `mysurfplan-staging` and `mywaveplan-prod`. The owner then authorised domain activation: `mywaveplan.com` now validates in Mailjet and SPF/DKIM both pass. Required DNS records were already present; the agent completed validation without editing DNS. Generated variable targets, credential/recipient isolation, account entitlements and delivery remain untested. No MX or DMARC record was returned by authoritative DNS. Application email code and the staging sender remain pending. Complete wider setup when A6/A7/B3 email-readiness work starts. Confirm that home.pl supports external DNS and DKIM before adding its records to Vercel; no nameserver move is authorised. [Email setup contract](AUTH_EMAIL_AND_JOBS_DECISION.md#confirmed-service-setup-10-september-2026).
 
 ## Local setup and database prerequisites
 
 Use Node.js 22 and run `npm ci` from `surf`. Keep `DATABASE_URL` and `SESSION_SECRET` in an ignored `.env.local`. Use a randomly generated signing secret of at least 32 bytes; production-mode builds reject missing, short or development values. Preserve existing valid environment secrets. Contentful is unused; its three legacy variables were removed from both Vercel projects in A2 and must not be recreated for normal setup. Never commit credentials, connection exports or browser sessions.
 
-Verify the database endpoint and branch before local writes. Prefer a confirmed isolated rehearsal branch for migration tests. The last account review found 10/10 occupied branches; do not delete a branch or assume another one can be created without reviewing its purpose and capacity.
+Verify the database endpoint and branch before local writes. Use the isolated EU `security-rehearsal` branch (`br-falling-cell-b2i32j8w`) for current migration checks; live branch IDs and direct hosts are pinned in the operator scripts. Four branches remain in the EU project, including the necessary staging ancestor. Inspect purpose, ancestry and current capacity before provisioning or deleting a branch. Never run historical scripts against an unverified endpoint.
 
 The deployed authentication runtime requires these additive migrations on an older database:
 

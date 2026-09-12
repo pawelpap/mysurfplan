@@ -1,8 +1,10 @@
 # Surf conditions algorithm and architecture
 
+Latest data-only follow-up, 10 September: the [neighbouring Sintra review](archive/calibration/2026-09-10-sintra-neighbours/README.md) applies Grande/Pequena's period-quality settings to Adraga, Maçãs, Magoito and São Julião while preserving their other local coefficients. All six spots are revision 4 on staging and production. The shared engine and physical transformation are unchanged; F19 remains planned.
+
 Implemented and promoted to production on 5 September 2026. Documentation reviewed against the source code on 6 September 2026. The conditions module is live in both staging and production.
 
-Document role: maintained algorithm reference. Dated rollout sections and numerical examples below describe their original revisions; live spot records and calibration history are authoritative. The [7 September local review](archive/calibration/2026-09-07-local-review/README.md) is the latest documented calibration rollout. Use the [handover](HANDOVER.md) for current release status.
+Document role: maintained algorithm reference. Dated rollout sections and numerical examples below describe their original revisions; live spot records and calibration history are authoritative. The [7 September local review](archive/calibration/2026-09-07-local-review/README.md) records the regional rollout. The [10 September Grande/Pequena review](archive/calibration/2026-09-10-grande-pequena/README.md) updates those two spots to revision 4 on staging and production, using stronger period sensitivity in the existing generic schema. Physical surf transformation is unchanged; weather-grid and residual quality differences are tracked in F19. Use the [handover](HANDOVER.md) for current release status.
 
 For the complete spot schema, coefficient definitions and dated Bico examples, see [Spot data model and local coefficients](SPOT_DATA_MODEL.md). The calculation is implemented in [`scoreConditions()`](../lib/conditions/model.mjs); provider selection is in [`provider.mjs`](../lib/conditions/provider.mjs), and tide calculation is in [`tides.mjs`](../lib/conditions/tides.mjs).
 

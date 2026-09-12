@@ -64,7 +64,7 @@ The expected backfill for these observations is one active instructor membership
 
 ## Migration and verification procedure
 
-Use Node.js 22 and a private direct connection export for the confirmed environment. The runner checks the selected environment against its verified endpoint and database; it never falls back to a local `.env`. The last review found 10/10 Neon branch slots occupied, so the existing production-derived `session-revocation-rehearsal-20260907` branch is reused. Its legacy lesson/booking history differs from live data and is preserved. No backup branch is removed or reset.
+Use Node.js 22 and a private direct connection export for the confirmed environment. The runner checks its pinned endpoint and database; it never falls back to a local `.env`. A8 migrated the current mappings to Frankfurt: use the isolated `security-rehearsal` branch for checks. The former US rehearsal branch/project was deleted. Historical B1 checks apply only before B2 authority activation; do not replay them on a current live database. [Environment and recovery map](EU_DATA_MIGRATION_PLAN.md).
 
 From `surf`, the supported commands are:
 

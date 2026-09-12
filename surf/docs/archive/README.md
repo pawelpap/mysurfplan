@@ -16,6 +16,7 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
+| 12 September | [EU migration and US retirement](releases/RELEASE_2026-09-12_EU_MIGRATION.md), verified staging/production database and function move to Frankfurt. |
 | 10 September | [Compact tiles and mobile menu production promotion](releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md), owner-approved rollout and production verification. |
 | 10 September | [Tile parameters and mobile menu](releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md), verified staging amendment, subsequently approved and promoted to production. |
 | 10 September | [Conditions UX production promotion](releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md), owner-approved F18 promotion and production verification. |
@@ -43,6 +44,8 @@ Additional home-screen, viewport and login-copy release details remain in the ar
 | --- | --- |
 | [September UX audit](audits/UX_AUDIT_2026-09.md) | Historical findings and design review. Remaining work is tracked in the current roadmap. |
 | [São Pedro calibration, 6 September](calibration/CALIBRATION_2026-09-06_SAO_PEDRO.md) | Earlier directional-response calibration and evidence; later revisions are in the 7 September review and database history. |
-| [Local spot review, 7 September](calibration/2026-09-07-local-review/README.md) | Latest documented regional calibration rollout, including sources, exact changes, validation and production promotion. The adjacent JSON files retain their original contents. |
+| [Local spot review, 7 September](calibration/2026-09-07-local-review/README.md) | Regional calibration rollout, including sources, exact changes, validation and production promotion. The adjacent JSON files retain their original contents. |
+| [Grande and Pequena review, 10 September](calibration/2026-09-10-grande-pequena/README.md) | Matched-time Surfline comparison, stronger period sensitivity, database revision 4 in both environments, verification and remaining weather/quality differences. |
+| [Neighbouring Sintra review, 10 September](calibration/2026-09-10-sintra-neighbours/README.md) | Regional period-quality consistency for Adraga, Maçãs, Magoito and São Julião; separate local coefficients preserved, staging and production verified. |
 
 Archive placement distinguishes dated evidence from maintained guidance. Do not rerun migration, fixture-cleanup or rollback commands merely because they appear here. Old branch and deployment references must be checked before use.
