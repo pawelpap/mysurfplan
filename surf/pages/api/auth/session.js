@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     res.setHeader('Allow', ['GET', 'DELETE']);
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   } catch (err) {
-    const status = err?.statusCode === 401 ? 401 : 503;
-    return res.status(status).json({ ok: false, error: status === 401 ? 'Authentication required' : 'Account access is temporarily unavailable. Please try again.' });
+    const status = [401, 403].includes(err?.statusCode) ? err.statusCode : 503;
+    return res.status(status).json({ ok: false, error: status === 401 ? 'Authentication required' : status === 403 ? 'Demo access can only log out this device.' : 'Account access is temporarily unavailable. Please try again.' });
   }
 }

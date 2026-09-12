@@ -30,8 +30,11 @@ export default async function handler(req, res) {
   try {
     const { email, password } = req.body || {};
     const normalizedIdentifier = normalizeEmail(email);
+    // Only an explicitly empty pair enters the dedicated public demo account.
+    // Missing fields, partial credentials and failed password logins never fall back.
+    const demo = typeof email === "string" && !email.trim() && password === "";
     const buckets = loginBuckets(
-      normalizedIdentifier,
+      demo ? "public-demo" : normalizedIdentifier,
       clientNetwork(req),
       process.env.SESSION_SECRET ||
         (process.env.NODE_ENV === "development"
@@ -40,7 +43,8 @@ export default async function handler(req, res) {
     );
     // Reject exhausted networks before creating counters for more guessed identifiers.
     let limit = await consumeLoginAttempt(sql, buckets.slice(0, 1));
-    if (limit.allowed) limit = await consumeLoginAttempt(sql, buckets.slice(1));
+    // Demo visitors share an account, but not one global identifier quota.
+    if (limit.allowed) limit = await consumeLoginAttempt(sql, buckets.slice(demo ? 2 : 1));
     if (!limit.allowed) {
       res.setHeader("Retry-After", String(limit.retrySeconds));
       return res
@@ -49,6 +53,14 @@ export default async function handler(req, res) {
           ok: false,
           error: "Too many login attempts. Please wait and try again.",
         });
+    }
+    if (demo) {
+      const [user] = await sql`
+        SELECT id, password_hash FROM users WHERE is_demo AND account_demo_eligible(id)
+      `;
+      if (!user) return res.status(503).json({ ok: false, error: "Demo access is temporarily unavailable. Please try again later." });
+      const session = await setUserAuthSession(res, user, { demo: true });
+      return res.status(200).json({ ok: true, data: { session } });
     }
     if (
       !normalizedIdentifier ||
@@ -74,7 +86,7 @@ export default async function handler(req, res) {
       FROM users u
       LEFT JOIN schools s ON s.id = u.school_id AND s.deleted_at IS NULL
       WHERE (lower(u.email) = ${normalizedIdentifier} OR lower(u.username) = ${normalizedIdentifier})
-        AND u.deleted_at IS NULL AND u.disabled_at IS NULL
+        AND u.deleted_at IS NULL AND u.disabled_at IS NULL AND NOT u.is_demo
       LIMIT 1
     `;
     const user = rows[0];

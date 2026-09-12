@@ -135,3 +135,21 @@ test("every API authentication call awaits the database check", async () => {
     }
   }
 });
+test("demo sessions have student rights, cannot write, and cannot log out other visitors", async () => {
+  user = { id: "demo", role: "student", school_id: "school-demo", is_demo: true };
+  const current = await auth.getAuthSession(req());
+  assert.equal(current.demo, true);
+  assert.equal(current.role, "student");
+  assert.equal((await auth.requireAuth({ ...req(), method: "GET" }, res())).demo, true);
+  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+    const request = req(); request.method = method; request.headers["x-mywaveplan-request"] = "1";
+    const denied = res();
+    assert.equal(await auth.requireAuth(request, denied), null);
+    assert.equal(denied.statusCode, 403);
+  }
+  const denied = res();
+  assert.equal(await auth.requireAuth(req(), denied, { roles: ["platform_admin"] }), null);
+  assert.equal(denied.statusCode, 403);
+  await assert.rejects(auth.clearAuthSession(req(), res(), { all: true }), e => e.statusCode === 403);
+  await auth.clearAuthSession(req(), res());
+});

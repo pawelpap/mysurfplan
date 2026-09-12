@@ -24,14 +24,23 @@ export default function Login() {
       : "";
   async function submit(event) {
     event.preventDefault();
+    const demo = !email.trim() && password === "";
+    if (!demo && (!email.trim() || !password)) {
+      setError("Enter both your username and password, or choose Try the demo.");
+      return;
+    }
+    await login(demo);
+  }
+  async function login(demo = false) {
+    if (busy) return;
     setError("");
     setBusy(true);
     try {
       await request("/api/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(demo ? { email: "", password: "" } : { email, password }),
       });
-      window.location.assign(safeNext(router.query.next));
+      window.location.assign(demo ? "/?view=conditions" : safeNext(router.query.next));
     } catch (e) {
       setError(e.message);
       setBusy(false);
@@ -104,19 +113,21 @@ export default function Login() {
             label="Email or username"
             type="text"
             autoCapitalize="none"
+            autoCorrect="off"
             spellCheck={false}
-            required
             autoComplete="username"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
           />
           <Field
             label="Password"
             type={visible ? "text" : "password"}
-            required
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setError(""); }}
           />
           <button
             className="inline-link password-toggle"
@@ -130,6 +141,10 @@ export default function Login() {
           <Button tone="primary" type="submit" disabled={busy}>
             {busy ? "Logging in…" : "Log in"}
           </Button>
+          <Button onClick={() => login(true)} disabled={busy}>
+            Try the demo
+          </Button>
+          <small>Explore forecasts as a student. No login details needed.</small>
         </form>
         <div className="auth-help">
           <strong>Need an account or help logging in?</strong>

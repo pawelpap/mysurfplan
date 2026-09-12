@@ -170,6 +170,11 @@ export async function clearAuthSession(req, res, { all = false } = {}) {
       err.statusCode = 401;
       throw err;
     }
+    if (session.demo) {
+      const err = new Error("Demo access can only log out this device.");
+      err.statusCode = 403;
+      throw err;
+    }
     await sessionStore.revokeAll(session.userId);
   } else {
     const cookie = sessionCodec.read(req.headers?.cookie);
@@ -179,8 +184,8 @@ export async function clearAuthSession(req, res, { all = false } = {}) {
   res.setHeader("Set-Cookie", sessionCodec.clear());
 }
 
-export async function setUserAuthSession(res, user) {
-  const token = await sessionStore.create(user.id, user.password_hash);
+export async function setUserAuthSession(res, user, { demo = false } = {}) {
+  const token = await sessionStore.create(user.id, user.password_hash, { demo });
   if (!token) {
     const err = new Error("Please log in again.");
     err.statusCode = 401;
@@ -226,6 +231,7 @@ async function userSessionPayload(user) {
     typeof user?.description === "string" ? user.description.trim() : "";
   const payload = {
     role,
+    demo: user.is_demo === true,
     authority: authority.authority,
     schools,
     userId: user.id,
@@ -260,6 +266,10 @@ export async function requireAuth(req, res, options = {}) {
   }
   if (!session) {
     res.status(401).json({ ok: false, error: "Authentication required" });
+    return null;
+  }
+  if (session.demo && !["GET", "HEAD", "OPTIONS"].includes(req.method || "GET")) {
+    res.status(403).json({ ok: false, error: "Demo access is read-only. Log in with your own account to make changes." });
     return null;
   }
 

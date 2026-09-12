@@ -9,14 +9,16 @@ export const validSessionToken = (token) =>
 // Inject the SQL executor so these exact queries can be tested on an isolated database.
 export function createSessionStore(sql) {
   return {
-    async create(userId, verifiedPasswordHash) {
+    async create(userId, verifiedPasswordHash, { demo = false } = {}) {
       const token = crypto.randomBytes(32).toString("base64url");
       const hash = sessionTokenHash(token);
       const rows = await sql`
         WITH eligible AS MATERIALIZED (
           SELECT u.id, u.auth_version
           FROM users u LEFT JOIN schools sc ON sc.id = u.school_id
-          WHERE u.id = ${userId} AND u.password_hash = ${verifiedPasswordHash}
+          WHERE u.id = ${userId}
+            AND ((${demo}::boolean AND account_demo_eligible(u.id))
+              OR (NOT ${demo}::boolean AND NOT u.is_demo AND u.password_hash = ${verifiedPasswordHash}))
             AND u.deleted_at IS NULL AND u.disabled_at IS NULL
           FOR SHARE OF u
         ), cleanup AS (
@@ -33,7 +35,7 @@ export function createSessionStore(sql) {
     async find(token) {
       if (!validSessionToken(token)) return null;
       const rows = await sql`
-        SELECT u.id, u.school_id, u.role, u.name, u.family_name, u.email, u.phone,
+        SELECT u.id, u.school_id, u.role, u.is_demo, u.name, u.family_name, u.email, u.phone,
                u.photo_url, u.description, sc.slug AS school_slug,
                account_is_platform(u.id) AS platform,
                (SELECT authority FROM identity_migration_state WHERE singleton) AS authority,
@@ -44,6 +46,7 @@ export function createSessionStore(sql) {
           AND a.revoked_at IS NULL AND a.expires_at > now()
           AND a.auth_version = u.auth_version
           AND u.deleted_at IS NULL AND u.disabled_at IS NULL
+          AND (NOT u.is_demo OR account_demo_eligible(u.id))
         LIMIT 1
       `;
       return rows[0] || null;

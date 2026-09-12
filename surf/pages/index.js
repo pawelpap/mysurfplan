@@ -56,7 +56,7 @@ export default function Workspace() {
   const scopedSession =
     school && session ? withSchool(session, school.id) : session;
   const schoolCapabilities = schoolAccess(session, school?.id);
-  const allowed = [
+  const allowed = session?.demo ? ["conditions"] : [
     "conditions",
     "bookings",
     ...(session?.schools?.some(
@@ -323,6 +323,7 @@ export default function Workspace() {
           <ThemeSelector />
           <button
             className="account-button"
+            disabled={session.demo}
             onClick={() => go("profile")}
             aria-current={view === "profile" ? "page" : undefined}
           >
@@ -330,7 +331,7 @@ export default function Workspace() {
             <span>
               <strong>{fullName(session)}</strong>
               <small>
-                {isPlatform(session.role)
+                {session.demo ? "Student demo" : isPlatform(session.role)
                   ? roleName(session.role)
                   : "Personal account"}
               </small>
@@ -373,7 +374,7 @@ export default function Workspace() {
             session={session}
             query={router.query}
             go={(values) => go("conditions", values)}
-            onLessons={school ? (values) => go("lessons", values) : null}
+            onLessons={school && !session.demo ? (values) => go("lessons", values) : null}
           />
         )}
         {view === "people" && school && (
