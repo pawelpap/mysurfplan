@@ -1,5 +1,7 @@
 # MyWavePlan development plan
 
+12 September maintenance follow-up: the forecast loading crash after browser-style translation has a confirmed reproduction and a rendering fix that preserves the current design. The generic error screen is replaced by a reload action for rendering failures. [Release evidence](archive/releases/RELEASE_2026-09-12_TRANSLATION_STABILITY.md). This does not complete A6 central error reporting or A9/B10 localisation.
+
 Document role: **current product and delivery strategy**. The [implementation roadmap](IMPLEMENTATION_ROADMAP.md) owns task status, estimates and dependencies; the [handover](HANDOVER.md) owns the latest recorded runtime and next action. [Docs index](README.md).
 
 Reviewed and rewritten: 7 September 2026. Implementation status updated: 10 September 2026. Expansion roadmap reviewed: 9 September 2026.

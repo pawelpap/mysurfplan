@@ -1,5 +1,7 @@
 # Implementation roadmap to launch
 
+12 September A6 follow-up: the translation-related forecast crash is reproduced and repaired through stable text rendering, with a reload fallback and regression coverage. Attribution to either reported phone is still unconfirmed. [Release evidence](archive/releases/RELEASE_2026-09-12_TRANSLATION_STABILITY.md). Central browser reporting, source maps, privacy redaction, alerts and physical-device verification remain A6 work; this maintenance repair does not mark A6 complete or move the next development task.
+
 Document role: **current and canonical implementation task list**. [Docs index](README.md) · [Current handover](HANDOVER.md). Older plans and dated evidence are in the [archive](archive/README.md).
 
 Updated 10 September 2026. The owner accepted the [registration and membership design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) and requested an implementation plan covering the remaining work. This file is the delivery backlog, effort estimate and release sequence. The [development plan](DEVELOPMENT_PLAN.md) retains the product/commercial rationale; the [commercial architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) describes payments, entitlements and privacy domains. The [expansion assessment](PRODUCT_EXPANSION_ASSESSMENT.md) evaluates student progress, reviews, forecast accuracy, other service providers, advertising and mobile apps.
