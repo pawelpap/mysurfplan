@@ -66,6 +66,8 @@ A2 cleanup is complete. Contentful has no application or planned architecture ro
 
 ## B. Global accounts, registration and privacy
 
+**Temporary demo retirement, added 12 September:** B3/C7 readiness includes reviewing and retiring the public Demo student access before real self-service onboarding. Remove its login entry points, revoke sessions and clean only its dedicated synthetic user/customer records using the [demo lifecycle guide](PUBLIC_STUDENT_DEMO.md). Preserve the owner and existing teststudent account unless separately scheduled for removal. This temporary testing access does not complete B3 or C1 and adds no separate roadmap item.
+
 | ID | Task | Effort | Touches | Depends on | Completion evidence |
 | --- | --- | --- | --- | --- | --- |
 | B1 | Add membership, role and platform-authority schema; reconcile/backfill existing records and ownership | L | BE, DB | A1, A3 | **Complete, 9 September, staging and production.** Checksum migration, transactional compatibility trigger and source-data fingerprints; 24 rehearsal scenarios including ownership races, 22 schema and 15 API scenarios per live environment. Seven legacy schools remain explicitly unowned pending verified claims; no inferred links or email verification. [Model and reconciliation](MEMBERSHIP_DATA_MODEL.md), [release evidence](archive/releases/RELEASE_2026-09-09_MEMBERSHIP_FOUNDATION.md). |

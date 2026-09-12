@@ -27,7 +27,7 @@ try {
   const spots = await call("/api/spots", { cookie: empty.cookie });assert.equal(spots.status, 200);assert.equal(spots.json.data.length, 17);
   const bico = spots.json.data.find(spot => spot.name.includes("Bico"));assert(bico);
   const conditions = await call(`/api/conditions?spot=${encodeURIComponent(bico.slug)}`, { cookie: empty.cookie });
-  assert.equal(conditions.status, 200);assert.equal(conditions.json.data.days.length, 16);
+  assert.equal(conditions.status, 200);assert.equal(conditions.json.data.dates.length, 16);
   mark("Demo can read 17 spots and the 16-day forecast");
   for (const path of ["/api/users", "/api/calibration", "/api/memberships"]) assert.equal((await call(path, { cookie: empty.cookie })).status, 403);
   for (const path of ["/api/spots", "/api/schools", "/api/lessons/00000000-0000-4000-8000-000000000000/book"]) assert.equal((await call(path, { method: "POST", cookie: empty.cookie, body: {} })).status, 403);

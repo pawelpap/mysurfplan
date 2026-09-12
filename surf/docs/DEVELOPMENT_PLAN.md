@@ -95,6 +95,8 @@ Done when: expired/revoked/deleted-user sessions are rejected; cross-school acce
 
 ### Phase 1: self-service accounts, onboarding and privacy controls
 
+- [ ] B3/C7: retire temporary public Demo student access before real self-service onboarding. Remove the entry points and dedicated test identity/sessions without affecting the owner, teststudent, school or forecasts. [Demo lifecycle and cleanup](PUBLIC_STUDENT_DEMO.md).
+
 Depends on Phase 0 session and tenant controls. This is the first substantial product release to build next.
 
 - [x] Owner accepted the registration model and permission matrix, 8 September: [accepted design](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md). B1/B2 identity and capabilities are deployed; B3–B5 implement self-registration, invitations and school flows.

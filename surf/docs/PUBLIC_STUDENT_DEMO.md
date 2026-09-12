@@ -18,6 +18,13 @@ Migration `20260912_public_demo` adds `users.is_demo`, a unique active-demo inde
 
 Apply the migration before deploying the application. The migration runner supports a full rollback rehearsal and checks real session queries, disabled-account handling and attempted staff/platform promotion. Release checks are in `scripts/check-public-demo-release.mjs`.
 
+| Environment | Demo user ID | Neon branch |
+| --- | --- | --- |
+| Staging | `03685b30-abe4-4b8c-9604-2ccacdae4af6` | `br-small-salad-adx0nsj2` |
+| Production | `28f3e70e-4ed9-471d-b04c-c1d767db918c` | `br-weathered-silence-adp30k9s` |
+
+Both belong to Neon project `shy-paper-68550619`, database `neondb`. Verify the identity and flag before cleanup; do not assume another environment has the same user ID.
+
 ## Disable and remove later
 
 Review this access before real self-service onboarding or the G1 pilot. Do not reuse the demo identity for a real person, add personal details to it or grant staff access. The demo is not a substitute for individual user accounts.

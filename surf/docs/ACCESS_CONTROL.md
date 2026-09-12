@@ -44,7 +44,11 @@ Public school/schedule payloads include published business contact details, inst
 
 Personal attendee access requires an explicit `students.user_id` link. Email-only legacy claims have been removed. Self-booking derives identity and account details server-side and reuses the customer record for that school even after an email change. An unclaimed conflicting record requires the future verified B4 claim flow. Separate locked capacity checks prevent simultaneous bookings exceeding a lesson's capacity; repeated personal booking is idempotent.
 
-The owner authorised a one-off test-data cleanup after B2. Both environments retain the owner’s platform account, `teststudent`, Demo Surf School and its explicitly linked customer record, with no disposable lessons or extra people. The shared account remains a personal/student account with no staff/platform authority. This cleanup is not a general account-erasure feature.
+The owner authorised a one-off test-data cleanup after B2. At that release, both environments retained the owner’s platform account, `teststudent`, Demo Surf School and its explicitly linked customer record, with no disposable lessons or extra people. The shared account remains a personal/student account with no staff/platform authority. This cleanup is not a general account-erasure feature.
+
+## Temporary public student demo
+
+Added 12 September: both environments also have the dedicated Demo student account, separate from teststudent. Empty-field login and Try the demo create individual revocable sessions with the student role and `demo: true`. The demo can read the full forecast; server-side checks deny mutations, private staff endpoints and global logout. Staff/platform grants make the demo ineligible instead of granting elevated public access. [Lifecycle, exact IDs and removal procedure](PUBLIC_STUDENT_DEMO.md).
 
 ## Verification and maintenance
 

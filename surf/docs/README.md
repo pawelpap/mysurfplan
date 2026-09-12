@@ -30,6 +30,7 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | Document | Purpose |
 | --- | --- |
 | [Dependency baseline](DEPENDENCY_BASELINE.md) | A2 versions, cleanup, lint/build configuration and maintenance checks. |
+| [Temporary public student demo](PUBLIC_STUDENT_DEMO.md) | Empty-field/demo-button entry, student permissions, environment IDs, disabling and eventual removal. |
 | [School access and privacy](ACCESS_CONTROL.md) | Current A1/B2 route permissions, public/private fields, demo isolation and verification. |
 | [Membership data model](MEMBERSHIP_DATA_MODEL.md) | Dated B1 foundation contract; its live compatibility bridge was retired by B2. |
 | [Membership authorisation](MEMBERSHIP_AUTHORISATION.md) | B2 deployed on both environments: global sessions, independent school roles, personal bookings/teaching, migration and recovery contract. |
