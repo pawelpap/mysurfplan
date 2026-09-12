@@ -66,7 +66,7 @@ export function TileDirections({ condition: h }) {
       ].map(([name, label, degrees, measure, className, measureLabel]) => (
         <span key={name} className="tile-direction">
           <Icon name={name} />
-          <span className="sr-only">{label} from </span>
+          <span className="sr-only">{`${label} from `}</span>
           <span
             className="tile-arrow"
             aria-hidden="true"
@@ -78,8 +78,8 @@ export function TileDirections({ condition: h }) {
             {finite(degrees) ? `${Math.round(degrees)}° ${compass(degrees)}` : "–"}
           </span>
           <span className={`tile-inline-measure ${className}`} title={measureLabel}>
-            <span className="sr-only">{measureLabel}: </span>
-            {measure}{name === "waves" && partial ? "*" : ""}
+            <span className="sr-only">{`${measureLabel}: `}</span>
+            <span>{`${measure}${name === "waves" && partial ? "*" : ""}`}</span>
           </span>
         </span>
       ))}
@@ -136,10 +136,7 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
         <TileWeather condition={h} />
       </span>
       <span className="spot-card-location">
-        {spot.region}
-        {distance != null
-          ? ` · ${distanceLabel(distance)}`
-          : ` · ${spot.countryCode}`}
+        {`${spot.region} · ${distance != null ? distanceLabel(distance) : spot.countryCode}`}
       </span>
       <span className="spot-card-time" title={spot.timezone}>
         {summaryTimeLabel(summary, spot, now)}
@@ -147,15 +144,17 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       <span className="spot-card-condition">
         <Icon name="waves" />
         {!summary ? (
-          "Loading…"
+          // A translator may replace text nodes. Keep the loading text inside
+          // a React-owned element so the async update never removes that text.
+          <span>Loading…</span>
         ) : (
           <span>
-            {quality}
+            <span>{quality}</span>
             {finite(h?.surfMin) && (
               <>
                 <span className="spot-card-separator"> · </span>
                 <span className="spot-card-surf">
-                  {value(h.surfMin)}–{value(h.surfMax)} m
+                  {`${value(h.surfMin)}–${value(h.surfMax)} m`}
                 </span>
               </>
             )}
@@ -165,16 +164,12 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       {h && <TileDirections condition={h} />}
       {summary?.stale && (
         <small className="spot-stale">
-          Previous forecast ·{" "}
-          {summary.fetchedAt
-            ? hourLabel(summary.fetchedAt, spot.timezone)
-            : "update unavailable"}
+          {`Previous forecast · ${summary.fetchedAt ? hourLabel(summary.fetchedAt, spot.timezone) : "update unavailable"}`}
         </small>
       )}
       {h && (
         <span className="sr-only">
-          Conditions for {dateKey(summary.at, spot.timezone)} at{" "}
-          {hourLabel(summary.at, spot.timezone)} in {spot.timezone}.
+          {`Conditions for ${dateKey(summary.at, spot.timezone)} at ${hourLabel(summary.at, spot.timezone)} in ${spot.timezone}.`}
         </span>
       )}
       <TileExperience level={h?.level} />
@@ -327,7 +322,7 @@ export default function SpotBrowser({
         <div>
           <h2>{catalogue ? "All spots" : "Surf spots"}</h2>
           <p className="spot-comparison-time">
-            {summaryContextLabel(displayed, summaries, now)} · Local times
+            {`${summaryContextLabel(displayed, summaries, now)} · Local times`}
           </p>
         </div>
         <div className="actions">
@@ -375,11 +370,10 @@ export default function SpotBrowser({
               aria-controls="spot-filters"
               onClick={() => setFiltersOpen((v) => !v)}
             >
-              Filters
-              {Object.entries(filters).filter(([k, v]) => k !== "search" && v)
+              {`Filters${Object.entries(filters).filter(([k, v]) => k !== "search" && v)
                 .length
                 ? ` (${Object.entries(filters).filter(([k, v]) => k !== "search" && v).length})`
-                : ""}
+                : ""}`}
             </Button>
           </div>
           <div
@@ -497,7 +491,7 @@ export default function SpotBrowser({
           )}
           {scope.length > limit && (
             <Button onClick={() => setLimit((v) => v + 24)}>
-              Check the next {Math.min(24, scope.length - limit)} spots
+                {`Check the next ${Math.min(24, scope.length - limit)} spots`}
             </Button>
           )}
         </>

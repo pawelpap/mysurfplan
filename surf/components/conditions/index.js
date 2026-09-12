@@ -334,8 +334,7 @@ function SpotForecast({
         <div>
           <h2>{spot.name}</h2>
           <p>
-            {spot.breakType} · {spot.region}, {spot.countryCode} ·{" "}
-            {spot.timezone}
+            {`${spot.breakType} · ${spot.region}, ${spot.countryCode} · ${spot.timezone}`}
           </p>
         </div>
         <a
@@ -467,9 +466,9 @@ function SpotForecast({
                   </span>
                   <span className="calendar-surf">
                     <Icon name="waves" />
-                    {finite(h?.surfMin)
+                    <span>{finite(h?.surfMin)
                       ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                      : "Unavailable"}
+                      : "Unavailable"}</span>
                   </span>
                   <TileDirections condition={h} />
                   <TileExperience level={h?.level} />
@@ -486,7 +485,7 @@ function SpotForecast({
         <div className="section-heading selected-day-heading">
           <div>
             <h2>{dayLabel(selected, "long")}</h2>
-            <p className="selected-conditions-time">Conditions at {clock}</p>
+            <p className="selected-conditions-time">{`Conditions at ${clock}`}</p>
           </div>
           <div className="actions">
             <Button onClick={onNow}>Now</Button>
@@ -565,7 +564,7 @@ function SpotForecast({
             {value(snapshot?.windSpeed, " km/h", 0)}
             <Direction degrees={snapshot?.windDirection} />
             {finite(snapshot?.windGusts) && (
-              <small>Gusts {value(snapshot.windGusts, " km/h", 0)}</small>
+              <small>{`Gusts ${value(snapshot.windGusts, " km/h", 0)}`}</small>
             )}
           </Metric>
           <Metric
@@ -579,7 +578,7 @@ function SpotForecast({
           >
             {value(snapshot?.temperature, " °C")}
             {finite(snapshot?.precipitation) && (
-              <small>{value(snapshot.precipitation, "%", 0)} rain chance</small>
+              <small>{`${value(snapshot.precipitation, "%", 0)} rain chance`}</small>
             )}
           </Metric>
           <OceanMetrics condition={snapshot} />
@@ -597,10 +596,9 @@ function SpotForecast({
           <div>
             <h2>Hourly conditions</h2>
             <p>
-              {dayLabel(selected)} ·{" "}
-              {visible.length
+              {`${dayLabel(selected)} · ${visible.length
                 ? `${hourLabel(visible[0].time, spot.timezone)}–${hourLabel(visible.at(-1).time, spot.timezone)}`
-                : "No hours available"}
+                : "No hours available"}`}
             </p>
           </div>
           <div className="actions">
@@ -670,7 +668,7 @@ function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
         </span>
         <span className="hour-wind">
           <Icon name="wind" />
-          {value(h.windSpeed, " km/h", 0)}
+          <span>{value(h.windSpeed, " km/h", 0)}</span>
         </span>
         <div className="actions">
           <Button
@@ -681,7 +679,7 @@ function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
             aria-expanded={expanded}
             aria-controls={detailsId}
           >
-            {expanded ? "Less" : "Details"}
+            <span>{expanded ? "Less" : "Details"}</span>
             <Icon
               name="chevron-right"
               className={expanded ? "icon-up" : "icon-down"}
@@ -719,7 +717,7 @@ function HourlyDetails({ condition: h }) {
           {value(h.windSpeed, " km/h", 0)}
           <Direction degrees={h.windDirection} />
           {finite(h.windGusts) && (
-            <small>Gusts {value(h.windGusts, " km/h", 0)}</small>
+            <small>{`Gusts ${value(h.windGusts, " km/h", 0)}`}</small>
           )}
         </Metric>
         <Metric
@@ -731,15 +729,14 @@ function HourlyDetails({ condition: h }) {
         <Metric label="Weather" note={weatherLabel(h.weatherCode)}>
           {value(h.temperature, " °C")}
           {finite(h.precipitation) && (
-            <small>{value(h.precipitation, "%", 0)} rain chance</small>
+            <small>{`${value(h.precipitation, "%", 0)} rain chance`}</small>
           )}
         </Metric>
         <OceanMetrics condition={h} />
       </dl>
       {(h.reasons?.length > 0 || h.provisional) && (
         <p className="hour-detail-reasons">
-          {h.reasons?.join(" ")}
-          {h.provisional ? " Partial assessment." : ""}
+          {`${h.reasons?.join(" ") || ""}${h.provisional ? " Partial assessment." : ""}`}
         </p>
       )}
       <div className="hour-swells">
@@ -901,8 +898,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
         <div>
           <h3>Tide and daylight</h3>
           <p>
-            {value(current.height, " m MSL", 2)}
-            {currentTide && ` · ${currentTide.stage} · ${currentTide.trend}`}
+            {`${value(current.height, " m MSL", 2)}${currentTide ? ` · ${currentTide.stage} · ${currentTide.trend}` : ""}`}
           </p>
         </div>
       </div>
@@ -1073,9 +1069,9 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
       <div className="tide-events">
         {events.map((e) => (
           <div key={e.time}>
-            <strong>{e.type} tide</strong>
+            <strong>{`${e.type} tide`}</strong>
             <span>
-              {hourLabel(e.time, zone)} · {value(e.height, " m", 2)}
+              {`${hourLabel(e.time, zone)} · ${value(e.height, " m", 2)}`}
             </span>
           </div>
         ))}

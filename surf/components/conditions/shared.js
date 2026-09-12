@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Children, useCallback, useEffect, useState } from "react";
 import { request, Button, Loading, Message } from "../workspace/ui";
 import Icon from "../icon";
 import {
@@ -103,7 +103,7 @@ export function Direction({ degrees }) {
         ↑
       </span>
       <span>
-        {Math.round(degrees)}° <small>{compass(degrees)}</small>
+        <span>{`${Math.round(degrees)}° `}</span><small>{compass(degrees)}</small>
       </span>
     </span>
   );
@@ -122,9 +122,9 @@ export function SwellComponents({ condition }) {
     <div className="swell-components">
       {condition?.swellComponents?.map((s) => (
         <div key={s.name}>
-          <strong>{s.name} swell</strong>
+          <strong>{`${s.name} swell`}</strong>
           <span>
-            {value(s.height, " m")} · {value(s.period, " s")}
+            {`${value(s.height, " m")} · ${value(s.period, " s")}`}
           </span>
           <Direction degrees={s.direction} />
         </div>
@@ -151,7 +151,7 @@ export function Score({ condition, compact = false }) {
       className={`surf-score ${c.tone || "unknown"} ${compact ? "compact" : ""}`}
     >
       <strong>
-        {c.score == null ? "—" : c.score}
+        <span>{c.score == null ? "—" : c.score}</span>
         <span>{c.score == null ? "" : "/100"}</span>
       </strong>
       <QualityLabel condition={c} />
@@ -163,8 +163,7 @@ export function QualityLabel({ condition }) {
     <span className={`quality-label ${condition?.tone || "unknown"}`}>
       <span className="quality-dot" aria-hidden="true" />
       <span>
-        {condition?.quality || "Unavailable"}
-        {condition?.provisional ? " · partial" : ""}
+        {`${condition?.quality || "Unavailable"}${condition?.provisional ? " · partial" : ""}`}
       </span>
     </span>
   );
@@ -188,12 +187,11 @@ export function Experience({ level }) {
 export function ForecastFooter({ data }) {
   return data?.fetchedAt ? (
     <p className="forecast-footer">
-      Updated{" "}
-      {new Date(data.fetchedAt).toLocaleString("en-GB", {
+      {`Updated ${new Date(data.fetchedAt).toLocaleString("en-GB", {
         timeZone: data.spot.timezone,
         dateStyle: "medium",
         timeStyle: "short",
-      })}
+      })}`}
     </p>
   ) : null;
 }
@@ -216,9 +214,15 @@ export function Metric({ label, children, note }) {
             }
           />
         )}
-        {label}
+        {typeof label === "string" ? <span>{label}</span> : label}
       </dt>
-      <dd>{children}</dd>
+      <dd>
+        {Children.map(children, (child) =>
+          typeof child === "string" || typeof child === "number"
+            ? <span>{child}</span>
+            : child,
+        )}
+      </dd>
       {note && <small>{note}</small>}
     </div>
   );
