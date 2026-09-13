@@ -16,6 +16,8 @@ Historical content is retained. Archive notices and document links are maintaine
 
 | Date | Record |
 | --- | --- |
+| 13 September | [Email typography and public preview](releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md), self-hosted Poppins with Arial fallbacks, verified on staging and production. |
+| 13 September | [Email jobs foundation](releases/RELEASE_2026-09-13_EMAIL_JOBS.md), additive queue, worker and branded templates; sending and scheduling disabled. |
 | 12 September | [EU migration and US retirement](releases/RELEASE_2026-09-12_EU_MIGRATION.md), verified staging/production database and function move to Frankfurt. |
 | 10 September | [Compact tiles and mobile menu production promotion](releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md), owner-approved rollout and production verification. |
 | 10 September | [Tile parameters and mobile menu](releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md), verified staging amendment, subsequently approved and promoted to production. |

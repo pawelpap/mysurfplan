@@ -2,6 +2,8 @@
 
 [Application email and job operations](EMAIL_JOBS_RUNBOOK.md) records the disabled-by-default foundation, branded Support emails and activation checklist before registration. [Release status](archive/releases/RELEASE_2026-09-13_EMAIL_JOBS.md).
 
+The Support template now uses Poppins with Arial fallbacks. [Live email preview](https://mywaveplan.com/email-preview/support.html) · [Typography release](archive/releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md).
+
 Organised 9 September 2026. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
 
 ## Start here
