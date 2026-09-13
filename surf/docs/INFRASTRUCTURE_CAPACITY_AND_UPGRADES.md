@@ -1,5 +1,7 @@
 # Infrastructure capacity and upgrade decisions
 
+13 September owner decision: build/test the A6/A7 worker now, but defer Vercel Pro and scheduled activation until the registration flow needs reliable email. The current forecast app does not require minute polling. Neither Vercel project has Mailjet app credentials configured. Keep sending/scheduling off until provider delivery, isolation, budgets and independent alerts pass. [Runbook](EMAIL_JOBS_RUNBOOK.md).
+
 **12 September current state:** Neon Launch, existing Vercel-managed account, Frankfurt project `mywaveplan-eu`. Staging and production application functions run in `fra1`; Vercel remains Hobby. Compute bounds 0.25–1 CU with 300-second idle suspension; seven-day history. Native and encrypted-dump restores were tested. The old US project and resource were deleted with owner approval. Four EU branches remain: live pair, reusable security rehearsal and staging ancestor. Owner-reported US$20 notification is not a hard cap. No further plan purchase was made.
 
 [A8 completed runbook](EU_DATA_MIGRATION_PLAN.md) records database/runtime placement, legacy cleanup, checks and US retirement. Metered migration overlap was temporary; actual invoice usage was not measured here. Mailbox readiness and minute-worker capacity remain A6/A7 before registration.

@@ -1,5 +1,7 @@
 # MyWavePlan documentation
 
+[Application email and job operations](EMAIL_JOBS_RUNBOOK.md) records the disabled-by-default foundation, branded Support emails and activation checklist before registration. [Release status](archive/releases/RELEASE_2026-09-13_EMAIL_JOBS.md).
+
 Organised 9 September 2026. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
 
 ## Start here
@@ -19,7 +21,8 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | [Privacy and contract drafts](PRIVACY_DOCUMENT_DRAFTS.md) | Status of local private drafts: privacy notice, pilot terms and school processing schedule. Full owner-specific text remains in ignored `docs/private/`; review and working contact required before B6 publication. |
 | [EU migration and recovery runbook](EU_DATA_MIGRATION_PLAN.md) | Completed Frankfurt database/function move, tested recovery, legacy cleanup, US retirement and current EU branch purposes. [Release evidence](archive/releases/RELEASE_2026-09-12_EU_MIGRATION.md). |
 | [Children and guardian bookings](CHILDREN_AND_GUARDIAN_BOOKINGS.md) | F11 proposal: separate purchaser/participant, guardian bookings, age eligibility, private child records and optional later 16–17 accounts. Initial pilot remains adult-only. |
-| [Business mailbox setup](MAILBOX_SETUP.md) | 12 September inspection and pending home.pl attachment. Separate inboxes, existing mailbox isolation, prepared Vercel DNS; owner reports Polish support requests sent. |
+| [Business mailbox setup](MAILBOX_SETUP.md) | Active Zoho Mail Lite mailbox and Support alias; Vercel DNS, authentication and delivery verification. |
+| [Mac and iPhone Mail setup](MAIL_CLIENT_SETUP.md) | Verified EU IMAP/SMTP settings, Mac account and signatures, iPhone instructions; Notes disabled. |
 | [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Implementation remains in A6/B3/B9. |
 | [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted design. B1/B2 identity and membership runtime are implemented; self-registration/invitations remain pending. |
 | [Account and lifecycle UI follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) | Owner’s B2 review: clearer account/membership forms and removal/closure/deletion flows, tracked in B3/B4/B5/B8/C4. |
