@@ -1,17 +1,19 @@
 # MyWavePlan documentation
 
+17 September: [small-surf and consistent daylight-window changes](archive/releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md) are on staging only. Production retains its previous release pending the owner’s review and renewed approval. The forecast snapshot/calibration migration is applied only to staging; do not infer environment parity from earlier release records.
+
 [Application email and job operations](EMAIL_JOBS_RUNBOOK.md) records the disabled-by-default foundation, branded Support emails and activation checklist before registration. [Release status](archive/releases/RELEASE_2026-09-13_EMAIL_JOBS.md).
 
 The Support template now uses Poppins with Arial fallbacks. [Live email preview](https://mywaveplan.com/email-preview/support.html) · [Typography release](archive/releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md).
 
-Organised 9 September 2026. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
+Organised 9 September 2026; status reconciled 16 September and amended for staging on 17 September. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
 
 ## Start here
 
 | Document | Role and current status |
 | --- | --- |
 | [HANDOVER.md](HANDOVER.md) | **Current handover.** Latest recorded release, pending work, decisions and next development step. |
-| [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) | **Current task list.** Canonical remaining tasks, S/M/L estimates, dependencies and launch gates. Updated 9 September, including EU location and launch languages. |
+| [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) | **Current task list.** Canonical remaining tasks, S/M/L estimates, dependencies and launch gates. Staging forecast review first; A4/B6 remains the next core task, then A9/B3 with email activation prerequisites. |
 | [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) | **Current product plan.** Direction, commercial proposals and delivery phases. The roadmap owns individual task status and ordering. |
 | [ENVIRONMENTS.md](ENVIRONMENTS.md) | **Current operating reference.** Local setup, staging/production mapping, migrations and release workflow. Replaces README-staging.md. |
 
@@ -25,14 +27,15 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 | [Children and guardian bookings](CHILDREN_AND_GUARDIAN_BOOKINGS.md) | F11 proposal: separate purchaser/participant, guardian bookings, age eligibility, private child records and optional later 16–17 accounts. Initial pilot remains adult-only. |
 | [Business mailbox setup](MAILBOX_SETUP.md) | Active Zoho Mail Lite mailbox and Support alias; Vercel DNS, authentication and delivery verification. |
 | [Mac and iPhone Mail setup](MAIL_CLIENT_SETUP.md) | Verified EU IMAP/SMTP settings, Mac account and signatures, iPhone instructions; Notes disabled. |
-| [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Implementation remains in A6/B3/B9. |
+| [Authentication, email and jobs decision](AUTH_EMAIL_AND_JOBS_DECISION.md) | A3 decision complete, 9 September. Retain auth; Mailjet Free for the initial pilot; durable outbox/worker; support mailbox, activation requirements and costs. Disabled A6 foundation is delivered; provider activation and B3/B9 account/security flows remain open. |
 | [Registration and membership](REGISTRATION_AND_MEMBERSHIP_PROPOSAL.md) | Accepted design. B1/B2 identity and membership runtime are implemented; self-registration/invitations remain pending. |
 | [Account and lifecycle UI follow-up](ACCOUNT_AND_LIFECYCLE_UX_FOLLOWUP.md) | Owner’s B2 review: clearer account/membership forms and removal/closure/deletion flows, tracked in B3/B4/B5/B8/C4. |
 | [Conditions UX review proposal](CONDITIONS_UX_REVIEW_PROPOSAL.md) | Approved F17 brief and owner feedback; F18 is complete and verified on staging and production. |
 | [Conditions Figma review](CONDITIONS_UX_FIGMA_REVIEW.md) | Desktop/mobile and light/dark proposal, frame links, carousel/catalogue, charts, hourly lesson actions, navigation decisions and visual checks. Approved for implementation; see the final F18 contract. |
 | [Commercial and privacy architecture](COMMERCIAL_AND_PRIVACY_ARCHITECTURE.md) | Target architecture. Billing, entitlements, privacy and consent are planned; final provider and policy decisions remain open. |
 | [Infrastructure capacity and upgrades](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) | Account observations dated 8 September and current upgrade/EU-region decisions. Recheck live quotas before changes. |
-| [Launch cost estimate](LAUNCH_COST_ESTIMATE.md) | Budget checked 9 September, with assumptions and sources. An estimate, not an invoice or spending approval. |
+| [Launch cost estimate](LAUNCH_COST_ESTIMATE.md) | Dated budget with active Zoho mailbox, selected Blob storage and explicit production-only versus conservative two-worker assumptions. An estimate, not an invoice or spending approval. |
+| [Target market estimate](TARGET_MARKET_ESTIMATE.md) | Separate market research and assumptions. Does not approve pricing, revenue claims or change the delivery sequence. |
 | [Product expansion assessment](PRODUCT_EXPANSION_ASSESSMENT.md) | Conditional later opportunities: reviews, progress, forecast evaluation, vendors, advertising and mobile apps. |
 
 ## Implemented feature references
@@ -62,4 +65,4 @@ Organised 9 September 2026. Start with the handover to resume work, then use the
 - Keep provenance, verification and rollback evidence. Historical approvals and commands apply to their original release, not to new work.
 - Update this index and relative links when moving a document. Update status only from evidence; a documentation tidy-up does not constitute a deployment or live account check.
 
-Latest verified staging follow-up: [spot-card daylight, request reuse and mobile width](archive/releases/RELEASE_2026-09-10_SPOT_CARDS_DAYLIGHT.md). Production was approved and verified on 10 September; [release evidence](archive/releases/RELEASE_2026-09-10_CONDITIONS_UX_PRODUCTION.md).
+Latest application release: [13 September email typography](archive/releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md). The [16 September reconciliation](archive/decisions/PROJECT_ALIGNMENT_2026-09-16.md) checked current deployment aliases, repository/code status and plans. The [Caparica comparison](archive/calibration/2026-09-15-four-spots/README.md) is closed.

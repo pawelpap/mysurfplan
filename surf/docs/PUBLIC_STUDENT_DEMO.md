@@ -20,10 +20,10 @@ Apply the migration before deploying the application. The migration runner suppo
 
 | Environment | Demo user ID | Neon branch |
 | --- | --- | --- |
-| Staging | `03685b30-abe4-4b8c-9604-2ccacdae4af6` | `br-small-salad-adx0nsj2` |
-| Production | `28f3e70e-4ed9-471d-b04c-c1d767db918c` | `br-weathered-silence-adp30k9s` |
+| Staging | `03685b30-abe4-4b8c-9604-2ccacdae4af6` | `br-shy-grass-b2hqthrm` |
+| Production | `28f3e70e-4ed9-471d-b04c-c1d767db918c` | `br-sparkling-hat-b2ogsvs0` |
 
-Both belong to Neon project `shy-paper-68550619`, database `neondb`. Verify the identity and flag before cleanup; do not assume another environment has the same user ID.
+Current mapping after A8: both belong to Frankfurt Neon project `crimson-butterfly-63506764` (`mywaveplan-eu`), database `neondb`. A8 preserved user IDs; the old US project is deleted. Verify the endpoint, identity and flag before cleanup; do not assume another environment has the same user ID. [Current environment mapping](ENVIRONMENTS.md), [migration evidence](archive/releases/RELEASE_2026-09-12_EU_MIGRATION.md).
 
 ## Disable and remove later
 

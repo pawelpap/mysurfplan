@@ -1,6 +1,8 @@
 # Surf conditions algorithm and architecture
 
-Latest data-only follow-up, 10 September: the [neighbouring Sintra review](archive/calibration/2026-09-10-sintra-neighbours/README.md) applies Grande/Pequena's period-quality settings to Adraga, Maçãs, Magoito and São Julião while preserving their other local coefficients. All six spots are revision 4 on staging and production. The shared engine and physical transformation are unchanged; F19 remains planned.
+17 September staging trial: all 17 spot size-ceiling curves permit favourable clean small surf; Cornélia and São João additionally trial directional spread 95° while retaining distinct normals/gains. General defaults are profile v2 on staging only. Spot and day tiles use the same best daylight-window selector. Fresh forecast inputs/configuration are sampled immutably per six-hour slot with 90-day opportunistic retention. The shared scoring formula is unchanged. Production retains prior revisions pending owner review. [Settings, evidence and limits](archive/releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md). F9/F14/F19 remain partial/open; this does not establish measured accuracy.
+
+Historical data-only follow-up, 10 September: the [neighbouring Sintra review](archive/calibration/2026-09-10-sintra-neighbours/README.md) applies Grande/Pequena's period-quality settings to Adraga, Maçãs, Magoito and São Julião while preserving their other local coefficients. At that release all six spots were revision 4 on staging and production. The shared engine and physical transformation are unchanged; F19 remains planned.
 
 Implemented and promoted to production on 5 September 2026. Documentation reviewed against the source code on 6 September 2026. The conditions module is live in both staging and production.
 
@@ -107,7 +109,7 @@ Provider cache version, wave-model identifier and sample coordinates must match 
 node scripts/migrate-conditions.mjs --staging
 ```
 
-The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Staging uses Neon branch `br-small-salad-adx0nsj2`. Production uses `br-weathered-silence-adp30k9s`, copied from staging after the approved merge of production-only records. Both include the conditions migrations. The previous production branch `br-gentle-dawn-ad5l1p9y` is retained for rollback. See [deployment and database release notes](ENVIRONMENTS.md).
+The migration is additive and seeds use `ON CONFLICT DO NOTHING` to preserve subsequent edits. Both live databases already include it. After A8, staging uses `br-shy-grass-b2hqthrm` and production uses `br-sparkling-hat-b2ogsvs0` in Frankfurt project `crimson-butterfly-63506764`. The former US staging, production and rollback branches were deleted with the old project; they are not recovery targets. Preserve each environment independently and use the tested EU recovery procedure. [Environment mapping](ENVIRONMENTS.md), [migration/recovery runbook](EU_DATA_MIGRATION_PLAN.md).
 
 Deploy GitHub `staging` through Vercel project `mysurfplan-staging`, root `surf`. A preview generated in the separate production project is not a production promotion. Do not move the production alias or push `main` without owner approval.
 

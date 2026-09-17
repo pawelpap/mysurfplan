@@ -24,7 +24,7 @@ Current removal controls are in detail screens:
 - **B5/B8, FE/BE/DB/Ops:** make school closure, ownership transfer, global deactivation and permanent account deletion separate named actions. Put relevant actions consistently in detail/settings views with mobile access. Explain effects and require confirmation. B8 adds self-service deletion/export, retention rules and erasure of media/caches; never describe current deactivation as completed GDPR erasure.
 - **C4, FE/BE/DB/Ops:** make lesson cancellation and removal easy to find, with booking impact, notifications and attendance/history handling. Payments later add refunds. Do not implement indiscriminate permanent lesson deletion as a substitute.
 
-Deliver this as small UI releases after B2 within the existing roadmap tasks. Keep the same visual language and test desktop, mobile, keyboard access and role boundaries. The owner explicitly accepts this work following B2. Piotr's Conditions redesign remains separate F17/F18 work and requires Figma review first.
+Deliver this as small UI releases after B2 within the existing roadmap tasks. Keep the same visual language and test desktop, mobile, keyboard access and role boundaries. The owner explicitly accepts this work following B2. Piotr's Conditions redesign was subsequently approved and delivered through F17/F18; preserve its implementation contract when building these account flows.
 
 ## One-off test-data cleanup
 

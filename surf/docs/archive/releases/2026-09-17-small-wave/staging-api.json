@@ -1,0 +1,852 @@
+{
+  "base": "https://staging.mywaveplan.com",
+  "checkedAt": "2026-09-17T10:51:36.437Z",
+  "spots": [
+    {
+      "slug": "cornelia-caparica",
+      "version": 6,
+      "fetchedAt": "2026-09-17T10:51:37.452Z",
+      "issues": [],
+      "hours": 408,
+      "windows": [
+        {
+          "day": "2026-09-17",
+          "time": "09:00–10:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.9
+          ]
+        },
+        {
+          "day": "2026-09-18",
+          "time": "18:00–19:00",
+          "score": 88,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-19",
+          "time": "11:00–12:00",
+          "score": 91,
+          "quality": "Good",
+          "surf": [
+            0.6,
+            1
+          ]
+        },
+        {
+          "day": "2026-09-20",
+          "time": "14:00–15:00",
+          "score": 99,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-21",
+          "time": "08:00–10:00",
+          "score": 95,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-22",
+          "time": "09:00–10:00",
+          "score": 98,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-23",
+          "time": "10:00–11:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "day": "2026-09-24",
+          "time": "10:00–12:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.2
+          ]
+        },
+        {
+          "day": "2026-09-25",
+          "time": "08:00–10:00",
+          "score": 92,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-26",
+          "time": "11:00–13:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.2
+          ]
+        },
+        {
+          "day": "2026-09-27",
+          "time": "12:00–13:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "day": "2026-09-28",
+          "time": "12:00–13:00",
+          "score": 96,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-29",
+          "time": "08:00–09:00",
+          "score": 87,
+          "quality": "Good",
+          "surf": [
+            0.6,
+            0.9
+          ]
+        },
+        {
+          "day": "2026-09-30",
+          "time": "13:00–15:00",
+          "score": 96,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-10-01",
+          "time": "08:00–10:00",
+          "score": 89,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-10-02",
+          "time": "08:00–09:00",
+          "score": 82,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 6,
+      "fetchedAt": "2026-09-17T10:51:37.977Z",
+      "issues": [],
+      "hours": 408,
+      "windows": [
+        {
+          "day": "2026-09-17",
+          "time": "09:00–10:00",
+          "score": 88,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.1
+          ]
+        },
+        {
+          "day": "2026-09-18",
+          "time": "16:00–18:00",
+          "score": 88,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-19",
+          "time": "11:00–12:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.1
+          ]
+        },
+        {
+          "day": "2026-09-20",
+          "time": "08:00–09:00",
+          "score": 97,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-21",
+          "time": "08:00–09:00",
+          "score": 97,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-22",
+          "time": "09:00–10:00",
+          "score": 98,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-23",
+          "time": "10:00–11:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "day": "2026-09-24",
+          "time": "10:00–12:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "day": "2026-09-25",
+          "time": "11:00–12:00",
+          "score": 97,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-26",
+          "time": "11:00–13:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.2
+          ]
+        },
+        {
+          "day": "2026-09-27",
+          "time": "12:00–14:00",
+          "score": 96,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "day": "2026-09-28",
+          "time": "12:00–13:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.9
+          ]
+        },
+        {
+          "day": "2026-09-29",
+          "time": "08:00–10:00",
+          "score": 84,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-30",
+          "time": "15:00–16:00",
+          "score": 94,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-10-01",
+          "time": "08:00–10:00",
+          "score": 93,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-10-02",
+          "time": "09:00–10:00",
+          "score": 86,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 7,
+      "fetchedAt": "2026-09-17T10:51:38.353Z",
+      "issues": [],
+      "hours": 408,
+      "windows": [
+        {
+          "day": "2026-09-17",
+          "time": "08:00–10:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-18",
+          "time": "11:00–13:00",
+          "score": 4,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-19",
+          "time": "08:00–10:00",
+          "score": 4,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-20",
+          "time": "12:00–14:00",
+          "score": 6,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-21",
+          "time": "15:00–16:00",
+          "score": 6,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-22",
+          "time": "11:00–12:00",
+          "score": 8,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-23",
+          "time": "09:00–10:00",
+          "score": 96,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-24",
+          "time": "08:00–09:00",
+          "score": 24,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "day": "2026-09-25",
+          "time": "14:00–15:00",
+          "score": 7,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "day": "2026-09-26",
+          "time": "10:00–11:00",
+          "score": 92,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-27",
+          "time": "12:00–13:00",
+          "score": 23,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        },
+        {
+          "day": "2026-09-28",
+          "time": "18:00–19:00",
+          "score": 13,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.2
+          ]
+        },
+        {
+          "day": "2026-09-29",
+          "time": "09:00–11:00",
+          "score": 83,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-30",
+          "time": "10:00–11:00",
+          "score": 94,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-10-01",
+          "time": "10:00–11:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-10-02",
+          "time": "09:00–11:00",
+          "score": 20,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "version": 5,
+      "fetchedAt": "2026-09-17T10:51:38.818Z",
+      "issues": [],
+      "hours": 408,
+      "windows": [
+        {
+          "day": "2026-09-17",
+          "time": "08:00–10:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            1.3,
+            2.2
+          ]
+        },
+        {
+          "day": "2026-09-18",
+          "time": "08:00–10:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-19",
+          "time": "18:00–19:00",
+          "score": 88,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "day": "2026-09-20",
+          "time": "13:00–15:00",
+          "score": 94,
+          "quality": "Good",
+          "surf": [
+            0.9,
+            1.5
+          ]
+        },
+        {
+          "day": "2026-09-21",
+          "time": "08:00–10:00",
+          "score": 86,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.2
+          ]
+        },
+        {
+          "day": "2026-09-22",
+          "time": "09:00–10:00",
+          "score": 91,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "day": "2026-09-23",
+          "time": "10:00–11:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            1.2,
+            2
+          ]
+        },
+        {
+          "day": "2026-09-24",
+          "time": "10:00–11:00",
+          "score": 98,
+          "quality": "Good",
+          "surf": [
+            1.2,
+            2
+          ]
+        },
+        {
+          "day": "2026-09-25",
+          "time": "11:00–12:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            0.7,
+            1.1
+          ]
+        },
+        {
+          "day": "2026-09-26",
+          "time": "11:00–12:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            1.1,
+            1.8
+          ]
+        },
+        {
+          "day": "2026-09-27",
+          "time": "08:00–10:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            1.4,
+            2.3
+          ]
+        },
+        {
+          "day": "2026-09-28",
+          "time": "08:00–09:00",
+          "score": 91,
+          "quality": "Good",
+          "surf": [
+            1,
+            1.6
+          ]
+        },
+        {
+          "day": "2026-09-29",
+          "time": "13:00–15:00",
+          "score": 82,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-30",
+          "time": "14:00–15:00",
+          "score": 91,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-10-01",
+          "time": "15:00–16:00",
+          "score": 77,
+          "quality": "Good",
+          "surf": [
+            0.6,
+            1
+          ]
+        },
+        {
+          "day": "2026-10-02",
+          "time": "10:00–11:00",
+          "score": 77,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "carcavelos",
+      "version": 4,
+      "fetchedAt": "2026-09-17T10:51:39.233Z",
+      "issues": [],
+      "hours": 408,
+      "windows": [
+        {
+          "day": "2026-09-17",
+          "time": "08:00–10:00",
+          "score": 23,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        },
+        {
+          "day": "2026-09-18",
+          "time": "18:00–19:00",
+          "score": 16,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.2
+          ]
+        },
+        {
+          "day": "2026-09-19",
+          "time": "08:00–09:00",
+          "score": 27,
+          "quality": "Unfavourable",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "day": "2026-09-20",
+          "time": "15:00–17:00",
+          "score": 19,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        },
+        {
+          "day": "2026-09-21",
+          "time": "16:00–17:00",
+          "score": 22,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        },
+        {
+          "day": "2026-09-22",
+          "time": "11:00–12:00",
+          "score": 41,
+          "quality": "Poor",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "day": "2026-09-23",
+          "time": "10:00–12:00",
+          "score": 100,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-24",
+          "time": "10:00–12:00",
+          "score": 95,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-25",
+          "time": "11:00–12:00",
+          "score": 57,
+          "quality": "Fair",
+          "surf": [
+            0.3,
+            0.4
+          ]
+        },
+        {
+          "day": "2026-09-26",
+          "time": "12:00–13:00",
+          "score": 96,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-09-27",
+          "time": "13:00–14:00",
+          "score": 91,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-09-28",
+          "time": "08:00–09:00",
+          "score": 86,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.6
+          ]
+        },
+        {
+          "day": "2026-09-29",
+          "time": "18:00–19:00",
+          "score": 84,
+          "quality": "Good",
+          "surf": [
+            0.3,
+            0.5
+          ]
+        },
+        {
+          "day": "2026-09-30",
+          "time": "08:00–09:00",
+          "score": 98,
+          "quality": "Good",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "day": "2026-10-01",
+          "time": "08:00–09:00",
+          "score": 89,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        },
+        {
+          "day": "2026-10-02",
+          "time": "11:00–12:00",
+          "score": 35,
+          "quality": "Poor",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        }
+      ]
+    }
+  ],
+  "permissionsVerified": true
+}

@@ -1,6 +1,8 @@
 # Environments and release workflow
 
-13 September email/job foundation: each database has an environment-bound outbox after its migration. Sending is disabled by default, no cron is configured, and Mailjet credentials are absent from the current production-target settings in both projects. Do not infer app readiness from the Mailjet domain validation or integration installation. Vercel Pro activation is deferred until registration. [Runbook](EMAIL_JOBS_RUNBOOK.md).
+17 September: [small-surf and consistent daylight-window changes](archive/releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md) are on staging only. Production retains its previous release pending the owner’s review and renewed approval. The forecast snapshot/calibration migration is applied only to staging; do not infer environment parity from earlier release records.
+
+13 September email/job foundation: each database has an environment-bound outbox after its migration. Sending is disabled by default, no cron is configured, and Mailjet credentials were absent from both projects’ production-target settings in the 13 September audit. Do not infer app readiness from the Mailjet domain validation or integration installation. Minute scheduling remains deferred until email readiness passes. Pro is also needed for qualifying commercial use; the [current recommendation](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) is to upgrade for continued deployed commercial work. [Runbook](EMAIL_JOBS_RUNBOOK.md).
 
 13 September mailbox update: **Zoho Mail Lite 5 GB is active for one user**, with `pawel@mywaveplan.com` and the `support@mywaveplan.com` alias. Separate Gmail send-and-reply tests passed for both addresses, including SPF, DKIM and DMARC. Support mail routes to its own folder and replies use the Support address. Apple Mail is configured as `pawel@mywaveplan.com`, with Mail enabled and Notes disabled. Personal and Support signatures are installed, with no phone number. Mac sending tests passed SPF/DKIM/DMARC; the logo renders in Gmail. Mailjet remains the application sender. Vercel retains DNS/app hosting and GoDaddy retains registration. [Mailbox verification](MAILBOX_SETUP.md) · [Mac and iPhone instructions](MAIL_CLIENT_SETUP.md). Earlier home.pl/Proton proposals are superseded; Proton has no operational role.
 
@@ -11,6 +13,8 @@
 Maintained operating reference, organised 9 September 2026. Project/branch mapping and B2 deployments were checked live on 9 September; capacity/region planning also uses the dated infrastructure review. [Docs index](README.md) · [Current handover](HANDOVER.md).
 
 ## Environment mapping
+
+Live deployment aliases were rechecked on 16 September at commit `04d9c9a`; [HANDOVER.md](HANDOVER.md#current-release) records the current deployment IDs. Database placement below is from A8 verification on 12 September.
 
 A8 placement checked after cutover and US retirement on 12 September. [Current migration/recovery runbook](EU_DATA_MIGRATION_PLAN.md). Neon remains on the existing Vercel-managed Launch plan; the owner-reported US$20 notification is not a hard cap.
 
@@ -63,9 +67,9 @@ The following procedure applies only to an older database before B2 activation.
 
 The app fetches Open-Meteo forecasts and calculates tides from harmonic constants. [Conditions architecture](CONDITIONS_ARCHITECTURE.md) documents providers, model, freshness, tide datum and calibration limits. The free hosted endpoint is restricted to non-commercial use. Complete the A5/L1 classification and configure server-side `OPEN_METEO_API_KEY` for licensed commercial access when required; the app selects customer endpoints automatically.
 
-Production was initialised from reviewed merged data on 5 September and subsequently received separate migrations and calibration updates. The databases remain independent. Bookings, sessions, operational timestamps and caches can diverge; a later code or presentation release does not copy or reset them. See the [dated database promotion](archive/releases/RELEASE_2026-09-05_DATABASE_PROMOTION.md) for historical merge and rollback resources, and the [7 September spot promotion](archive/releases/RELEASE_2026-09-07_FORECAST_CALIBRATION.md) for the latest documented calibration synchronisation.
+Production was initialised from reviewed merged data on 5 September and subsequently received separate migrations and calibration updates. The databases remain independent. Bookings, sessions, operational timestamps and caches can diverge; a later code or presentation release does not copy or reset them. See the [dated database promotion](archive/releases/RELEASE_2026-09-05_DATABASE_PROMOTION.md) for historical merge and rollback resources, and the [7 September spot promotion](archive/releases/RELEASE_2026-09-07_FORECAST_CALIBRATION.md) for that historical calibration baseline. Later Sintra changes and the closed Caparica comparison are indexed in the [archive](archive/README.md).
 
-The owner authorised a one-off B2 cleanup on 9 September. Both environments now retain the two named accounts, Demo Surf School, its test-student customer link and matching forecast configuration. All other disposable operational records were removed. Protected passwords/session records were not copied or changed; caches and security counters remain separate. This does not change the policy against routine database cloning. See the B2 release evidence.
+The owner authorised a one-off B2 cleanup on 9 September, retaining the owner, `teststudent`, Demo Surf School and one customer link. The 12 September public-demo migration added a separate Demo student account/customer link. The latest A8 inventory records three users, two customer links, one school and 17 spots per environment, with operational fixtures cleaned. These are dated counts; verify current contents before future cleanup. Protected passwords/session records were not copied or changed; caches and security counters remain separate. This does not change the policy against routine database cloning. See the B2 release evidence.
 
 ## Useful browser checks
 

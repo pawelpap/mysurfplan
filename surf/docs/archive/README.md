@@ -8,16 +8,24 @@ Organised 9 September 2026. These files preserve dated plans, findings, releases
 | --- | --- |
 | [June development plan](plans/DEVELOPMENT_PLAN_ARCHIVE_2026-06.md) | Superseded product plan and early change history. |
 | [Plan archived 7 September](plans/DEVELOPMENT_PLAN_ARCHIVE_2026-09-07.md) | Superseded plan last updated 6 September; replaced by the current product plan and task roadmap. |
+| [Handover before 16 September reconciliation](handovers/HANDOVER_2026-09-16_BEFORE_ALIGNMENT.md) | Preserved pre-reconciliation detail; superseded by the current handover. |
 | [Handover before the 9 September tidy-up](handovers/HANDOVER_2026-09-09_BEFORE_DOCS_CLEANUP.md) | Full previous handover, including older deployment IDs, decisions and verification. Its repeated current/next-action sections are historical. |
 
 Historical content is retained. Archive notices and document links are maintained so readers can distinguish it from current guidance.
+
+## Dated reconciliation decisions
+
+[16 September project alignment](decisions/PROJECT_ALIGNMENT_2026-09-16.md) records deployment/code checks, corrected status, the closed Caparica comparison and the remaining sequence. It is not an application release.
 
 ## Dated release evidence
 
 | Date | Record |
 | --- | --- |
+| 17 September | [Small surf and consistent daylight windows, staging review](releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md). Production held for owner approval. |
 | 13 September | [Email typography and public preview](releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md), self-hosted Poppins with Arial fallbacks, verified on staging and production. |
 | 13 September | [Email jobs foundation](releases/RELEASE_2026-09-13_EMAIL_JOBS.md), additive queue, worker and branded templates; sending and scheduling disabled. |
+| 12 September | [Public student demo](releases/RELEASE_2026-09-12_PUBLIC_STUDENT_DEMO.md), temporary read-only access; retirement remains B3/C7. |
+| 12 September | [Translation stability repair](releases/RELEASE_2026-09-12_TRANSLATION_STABILITY.md), reproduced rendering crash fixed; central reporting remains A6. |
 | 12 September | [EU migration and US retirement](releases/RELEASE_2026-09-12_EU_MIGRATION.md), verified staging/production database and function move to Frankfurt. |
 | 10 September | [Compact tiles and mobile menu production promotion](releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md), owner-approved rollout and production verification. |
 | 10 September | [Tile parameters and mobile menu](releases/RELEASE_2026-09-10_TILE_PARAMETERS_STAGING.md), verified staging amendment, subsequently approved and promoted to production. |
@@ -44,6 +52,7 @@ Additional home-screen, viewport and login-copy release details remain in the ar
 
 | Record | How to use it |
 | --- | --- |
+| [Caparica/São Pedro comparison for 16 September](calibration/2026-09-15-four-spots/README.md) | Closed investigation, with owner-confirmed resolution. No code/calibration changes; broader F19 research remains separate. |
 | [September UX audit](audits/UX_AUDIT_2026-09.md) | Historical findings and design review. Remaining work is tracked in the current roadmap. |
 | [São Pedro calibration, 6 September](calibration/CALIBRATION_2026-09-06_SAO_PEDRO.md) | Earlier directional-response calibration and evidence; later revisions are in the 7 September review and database history. |
 | [Local spot review, 7 September](calibration/2026-09-07-local-review/README.md) | Regional calibration rollout, including sources, exact changes, validation and production promotion. The adjacent JSON files retain their original contents. |

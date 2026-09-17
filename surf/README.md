@@ -1,5 +1,7 @@
 # MyWavePlan
 
+17 September: [forecast window and small-surf changes](docs/archive/releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md) are ready for staging review. Production remains unchanged pending owner approval.
+
 Surf school lesson and booking management built with Next.js Pages Router, React and Neon Postgres.
 
 Use Node.js 22 (`.nvmrc`). Install dependencies with `npm ci`. Configure `DATABASE_URL` and `SESSION_SECRET` in a local, ignored `.env.local`, using the staging database for development. Run `npm run dev`, `npm test` and `npm run build` from this directory. Builds include linting; see the [dependency baseline](docs/DEPENDENCY_BASELINE.md) for versions, audit and bundler decisions.
@@ -15,7 +17,7 @@ The approved conditions layout, device-based light/dark appearance, colour-coded
 - [Local setup, staging and production](docs/ENVIRONMENTS.md)
 - [Historical plans, releases, audits and calibration evidence](docs/archive/README.md)
 
-The roadmap is the canonical remaining task list; the product plan explains its direction. A1 access/privacy and A2 dependency/security cleanup are complete. A3, the authentication/email/background-job decision, is next before B1/B2 membership implementation. Global registration, EU migration and localisation remain planned work. Use the handover for current status rather than an older release record.
+The roadmap is the canonical remaining task list; the product plan explains its direction. A1/A2/A3/A8, B1/B2 and F17/F18 are complete. The email/job foundation is deployed with sending and scheduling disabled; the Zoho mailbox is verified. Next is A4/B6 reviewed legal pages and acceptance records, then A9 localisation foundations and B3 registration. Finish email activation before registration goes live. The Caparica comparison is closed; broader forecast validation remains F19. Use the handover for current deployments, outstanding work and provider purchase timing.
 
 The app can also be added to a phone home screen, including iPhone, with the MyWavePlan wave icon and a standalone launch into Conditions. Browser-tab icons are supplied in SVG and ICO formats.
 

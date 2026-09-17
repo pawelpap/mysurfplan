@@ -1,0 +1,958 @@
+{
+  "environment": "staging",
+  "checkedAt": "2026-09-17T10:48:24.024Z",
+  "spots": [
+    {
+      "slug": "abano",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-17T10:36:14.945Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 114,
+          "Good": 216,
+          "Fair": 36,
+          "Poor": 42
+        },
+        "after": {
+          "Unfavourable": 114,
+          "Good": 260,
+          "Fair": 34
+        },
+        "changed": 63,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 81,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 75,
+          "quality": "Good",
+          "surf": [
+            0.9,
+            1.5
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.3,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "adraga",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-17T10:36:14.992Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 131,
+          "Fair": 70,
+          "Good": 182,
+          "Poor": 25
+        },
+        "after": {
+          "Unfavourable": 131,
+          "Fair": 81,
+          "Good": 196
+        },
+        "changed": 27,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 25,
+        "quality": "Unfavourable"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 72,
+          "quality": "Fair",
+          "surf": [
+            1.3,
+            2.2
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            1.2,
+            2.1
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "carcavelos",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-15T19:37:25.072Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 72,
+          "Flat / too small": 213,
+          "Poor": 52,
+          "Good": 51,
+          "Fair": 20
+        },
+        "after": {
+          "Unfavourable": 59,
+          "Poor": 15,
+          "Flat / too small": 213,
+          "Fair": 26,
+          "Good": 95
+        },
+        "changed": 83,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 44,
+        "quality": "Poor"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 50,
+          "quality": "Fair",
+          "surf": [
+            0.3,
+            0.4
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 44,
+          "quality": "Poor",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 8,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cornelia-caparica",
+      "version": 6,
+      "forecastRetrievedAt": "2026-09-17T10:36:14.166Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 26,
+          "Poor": 149,
+          "Flat / too small": 44,
+          "Good": 154,
+          "Fair": 35
+        },
+        "after": {
+          "Fair": 17,
+          "Good": 338,
+          "Flat / too small": 38,
+          "Unfavourable": 12,
+          "Poor": 3
+        },
+        "changed": 204,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 90,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 89,
+          "quality": "Good",
+          "surf": [
+            0.6,
+            0.9
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            0.5,
+            0.9
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 18,
+          "quality": "Flat / too small",
+          "surf": [
+            0.2,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "cresmina",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-17T10:36:14.980Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 114,
+          "Good": 221,
+          "Fair": 31,
+          "Poor": 42
+        },
+        "after": {
+          "Unfavourable": 114,
+          "Good": 265,
+          "Fair": 28,
+          "Poor": 1
+        },
+        "changed": 57,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 81,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 75,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.2,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "guincho",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-15T19:36:42.575Z",
+      "counts": {
+        "before": {
+          "Good": 254,
+          "Fair": 13,
+          "Unfavourable": 130,
+          "Poor": 11
+        },
+        "after": {
+          "Good": 257,
+          "Fair": 21,
+          "Unfavourable": 130
+        },
+        "changed": 11,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 77,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 72,
+          "quality": "Fair",
+          "surf": [
+            1.3,
+            2.1
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 77,
+          "quality": "Good",
+          "surf": [
+            1.2,
+            2
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.3,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "magoito",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-13T16:19:26.925Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 32,
+          "Flat / too small": 4,
+          "Poor": 37,
+          "Fair": 110,
+          "Good": 225
+        },
+        "after": {
+          "Unfavourable": 27,
+          "Flat / too small": 4,
+          "Fair": 127,
+          "Good": 237,
+          "Poor": 13
+        },
+        "changed": 38,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 80,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 77,
+          "quality": "Good",
+          "surf": [
+            1.4,
+            2.3
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            1.3,
+            2.2
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 53,
+          "quality": "Fair",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "parede",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-15T19:37:24.364Z",
+      "counts": {
+        "before": {
+          "Flat / too small": 265,
+          "Unfavourable": 78,
+          "Fair": 2,
+          "Poor": 63
+        },
+        "after": {
+          "Flat / too small": 265,
+          "Unfavourable": 69,
+          "Fair": 34,
+          "Good": 28,
+          "Poor": 12
+        },
+        "changed": 70,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 14,
+        "quality": "Flat / too small"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 14,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.2
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 14,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.2
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 4,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "praia-da-torre",
+      "version": 2,
+      "forecastRetrievedAt": "2026-09-15T19:36:42.961Z",
+      "counts": {
+        "before": {
+          "Flat / too small": 358,
+          "Unfavourable": 50
+        },
+        "after": {
+          "Flat / too small": 358,
+          "Unfavourable": 50
+        },
+        "changed": 0,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 2,
+        "quality": "Flat / too small"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 2,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 1,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "praia-das-macas",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-13T16:19:26.971Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 32,
+          "Flat / too small": 4,
+          "Poor": 32,
+          "Fair": 91,
+          "Good": 249
+        },
+        "after": {
+          "Unfavourable": 27,
+          "Flat / too small": 4,
+          "Fair": 107,
+          "Good": 262,
+          "Poor": 8
+        },
+        "changed": 39,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–09:00",
+        "score": 81,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            1.4,
+            2.3
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 81,
+          "quality": "Good",
+          "surf": [
+            1.3,
+            2.2
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 56,
+          "quality": "Fair",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-17T10:36:15.097Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 131,
+          "Fair": 67,
+          "Good": 193,
+          "Poor": 17
+        },
+        "after": {
+          "Unfavourable": 131,
+          "Fair": 67,
+          "Good": 210
+        },
+        "changed": 25,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 25,
+        "quality": "Unfavourable"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 74,
+          "quality": "Fair",
+          "surf": [
+            1.4,
+            2.3
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            1.3,
+            2.2
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 25,
+          "quality": "Unfavourable",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "praia-pequena-sintra",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-13T16:19:25.655Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 90,
+          "Poor": 16,
+          "Fair": 61,
+          "Good": 238,
+          "Flat / too small": 3
+        },
+        "after": {
+          "Poor": 8,
+          "Fair": 70,
+          "Good": 244,
+          "Unfavourable": 83,
+          "Flat / too small": 3
+        },
+        "changed": 27,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 82,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 76,
+          "quality": "Good",
+          "surf": [
+            1.4,
+            2.4
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 82,
+          "quality": "Good",
+          "surf": [
+            1.4,
+            2.3
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 57,
+          "quality": "Fair",
+          "surf": [
+            0.5,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 6,
+      "forecastRetrievedAt": "2026-09-15T19:39:09.020Z",
+      "counts": {
+        "before": {
+          "Fair": 41,
+          "Poor": 139,
+          "Unfavourable": 51,
+          "Flat / too small": 36,
+          "Good": 141
+        },
+        "after": {
+          "Good": 315,
+          "Fair": 17,
+          "Unfavourable": 49,
+          "Poor": 7,
+          "Flat / too small": 20
+        },
+        "changed": 198,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 89,
+        "quality": "Good"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 86,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 90,
+          "quality": "Good",
+          "surf": [
+            0.8,
+            1.3
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 51,
+          "quality": "Fair",
+          "surf": [
+            0.3,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-juliao",
+      "version": 5,
+      "forecastRetrievedAt": "2026-09-12T19:40:18.999Z",
+      "counts": {
+        "before": {
+          "Unfavourable": 26,
+          "Poor": 71,
+          "Fair": 85,
+          "Flat / too small": 18,
+          "Good": 208
+        },
+        "after": {
+          "Poor": 25,
+          "Fair": 123,
+          "Flat / too small": 18,
+          "Good": 232,
+          "Unfavourable": 10
+        },
+        "changed": 86,
+        "hours": 408
+      },
+      "window": {
+        "time": "09:00–10:00",
+        "score": 62,
+        "quality": "Fair"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 57,
+          "quality": "Fair",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 62,
+          "quality": "Fair",
+          "surf": [
+            0.4,
+            0.7
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 58,
+          "quality": "Fair",
+          "surf": [
+            0.4,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 6,
+      "forecastRetrievedAt": "2026-09-15T19:37:23.572Z",
+      "counts": {
+        "before": {
+          "Flat / too small": 287,
+          "Unfavourable": 65,
+          "Poor": 18,
+          "Fair": 33,
+          "Good": 5
+        },
+        "after": {
+          "Flat / too small": 287,
+          "Unfavourable": 64,
+          "Fair": 35,
+          "Poor": 15,
+          "Good": 7
+        },
+        "changed": 7,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 3,
+        "quality": "Flat / too small"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 7,
+      "forecastRetrievedAt": "2026-09-15T19:37:22.408Z",
+      "counts": {
+        "before": {
+          "Flat / too small": 284,
+          "Unfavourable": 67,
+          "Fair": 34,
+          "Good": 19,
+          "Poor": 4
+        },
+        "after": {
+          "Flat / too small": 284,
+          "Unfavourable": 66,
+          "Fair": 26,
+          "Good": 30,
+          "Poor": 2
+        },
+        "changed": 15,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 3,
+        "quality": "Flat / too small"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0.1
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "tamariz",
+      "version": 4,
+      "forecastRetrievedAt": "2026-09-15T19:37:25.802Z",
+      "counts": {
+        "before": {
+          "Flat / too small": 342,
+          "Unfavourable": 65,
+          "Poor": 1
+        },
+        "after": {
+          "Flat / too small": 342,
+          "Unfavourable": 64,
+          "Poor": 2
+        },
+        "changed": 1,
+        "hours": 408
+      },
+      "window": {
+        "time": "08:00–10:00",
+        "score": 7,
+        "quality": "Flat / too small"
+      },
+      "morning": [
+        {
+          "time": "08:00",
+          "score": 7,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "time": "09:00",
+          "score": 7,
+          "quality": "Flat / too small",
+          "surf": [
+            0.1,
+            0.1
+          ]
+        },
+        {
+          "time": "12:00",
+          "score": 3,
+          "quality": "Flat / too small",
+          "surf": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "archiveChecks": [
+    "update denied",
+    "unexpired delete denied",
+    "deduplicated",
+    "expired retention allowed",
+    "fixtures rolled back"
+  ],
+  "archiveCount": 0
+}
