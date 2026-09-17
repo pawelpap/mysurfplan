@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-09-17T12:03:55.175Z",
+  "id": "dpl_BL3VeqBzsef2vabxafFRf2f9aQWG",
+  "url": "mywaveplan-prod-iyt4bkd0k-pawelpaps-projects.vercel.app",
+  "readyState": "READY",
+  "aliases": [
+    "mywaveplan.com",
+    "surf-wheat-five.vercel.app",
+    "mywaveplan-prod-pawelpaps-projects.vercel.app",
+    "mywaveplan-prod-git-main-pawelpaps-projects.vercel.app"
+  ],
+  "sha": "26e2a17ca9d524bb090fbe651662b6d365a2b164",
+  "target": "production",
+  "projectId": "prj_J100oKHrcYqghajndUkaEI8LDSvi",
+  "runtimeErrors": "Vercel returned no runtime errors in its selected default time range."
+}

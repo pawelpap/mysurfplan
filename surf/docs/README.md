@@ -1,19 +1,19 @@
 # MyWavePlan documentation
 
-17 September: [small-surf and consistent daylight-window changes](archive/releases/RELEASE_2026-09-17_SMALL_WAVE_STAGING.md) are on staging only. Production retains its previous release pending the owner’s review and renewed approval. The forecast snapshot/calibration migration is applied only to staging; do not infer environment parity from earlier release records.
+17 September: the owner reviewed and approved the small-surf/window and São Pedro calibration changes. Both environments now have matching application behaviour, all 17 calibration revisions, default profile v2 and the bounded forecast archive. [Production release and verification](archive/releases/RELEASE_2026-09-17_FORECAST_PRODUCTION.md). Earlier staging-only records are historical.
 
 [Application email and job operations](EMAIL_JOBS_RUNBOOK.md) records the disabled-by-default foundation, branded Support emails and activation checklist before registration. [Release status](archive/releases/RELEASE_2026-09-13_EMAIL_JOBS.md).
 
 The Support template now uses Poppins with Arial fallbacks. [Live email preview](https://mywaveplan.com/email-preview/support.html) · [Typography release](archive/releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md).
 
-Organised 9 September 2026; status reconciled 16 September and amended for staging on 17 September. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
+Organised 9 September 2026; status reconciled 16 September and updated after production promotion on 17 September. Start with the handover to resume work, then use the implementation roadmap to choose a task. Top-level files are maintained documents; their status below distinguishes implemented behaviour from future designs.
 
 ## Start here
 
 | Document | Role and current status |
 | --- | --- |
 | [HANDOVER.md](HANDOVER.md) | **Current handover.** Latest recorded release, pending work, decisions and next development step. |
-| [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) | **Current task list.** Canonical remaining tasks, S/M/L estimates, dependencies and launch gates. Staging forecast review first; A4/B6 remains the next core task, then A9/B3 with email activation prerequisites. |
+| [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) | **Current task list.** Canonical remaining tasks, S/M/L estimates, dependencies and launch gates. Forecast release complete; A4/B6 remains the next core task, then A9/B3 with email activation prerequisites. |
 | [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) | **Current product plan.** Direction, commercial proposals and delivery phases. The roadmap owns individual task status and ordering. |
 | [ENVIRONMENTS.md](ENVIRONMENTS.md) | **Current operating reference.** Local setup, staging/production mapping, migrations and release workflow. Replaces README-staging.md. |
 

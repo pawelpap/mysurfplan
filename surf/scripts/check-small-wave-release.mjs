@@ -19,7 +19,7 @@ const forecasts = [];
 try {
   const spots = await read("/api/spots");
   assert.equal(spots.length, 17);
-  for (const slug of ["cornelia-caparica", "sao-joao-caparica", "sao-pedro-bico", "praia-grande-sintra", "carcavelos"]) {
+  for (const slug of ["cornelia-caparica", "sao-joao-caparica", "sao-pedro-bico", "sao-pedro-bafureira", "praia-grande-sintra", "carcavelos"]) {
     const forecast = await read("/api/conditions?spot=" + slug);
     forecasts.push(forecast);
     assert.equal(forecast.dates.length, 16);
@@ -35,7 +35,7 @@ try {
     result.spots.push({ slug, version: forecast.spot.version, fetchedAt: forecast.fetchedAt, issues: forecast.issues, hours: forecast.hours.length, windows });
   }
   result.comparisonDays = [];
-  for (const day of [forecasts[0].dates[0], forecasts[0].dates[2]]) {
+  for (const day of [forecasts[0].dates[0], forecasts[0].dates[2], forecasts[0].dates[3]]) {
     const summaries = await read(`/api/conditions/summaries?spots=${forecasts.map((f) => f.spot.id).join(",")}&day=${day}`);
     for (const forecast of forecasts) {
       const summary = summaries[forecast.spot.id];

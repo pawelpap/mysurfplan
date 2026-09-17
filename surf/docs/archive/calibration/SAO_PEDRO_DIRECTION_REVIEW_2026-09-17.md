@@ -1,6 +1,6 @@
 # São Pedro provider-direction review
 
-17 September 2026. Investigation and subsequent owner-authorised staging trial. This is a new comparison for Saturday 19 September, separate from the closed 15 September investigation. The owner instructed: “We need to make some assumption and improve swell direction calibration rule.” A provisional database exposure curve is now applied to Bico and Bafureira on staging. Scoring code, provider selection and displayed raw bearings are unchanged. Production remains on hold.
+17 September 2026. Investigation and subsequent owner-authorised staging trial. This is a new comparison for Saturday 19 September, separate from the closed 15 September investigation. The owner instructed: “We need to make some assumption and improve swell direction calibration rule.” A provisional database exposure curve is now applied to Bico and Bafureira on staging. Scoring code, provider selection and displayed raw bearings are unchanged. The owner later approved production; [promotion and checks](../releases/RELEASE_2026-09-17_FORECAST_PRODUCTION.md) supersede the staging-only status below. Subsequent sections retain the investigation-time baseline.
 
 ## Finding
 
@@ -82,6 +82,6 @@ All **137 tests** passed, including new coverage for the saved mixed swell, smal
 
 The selected shoulder is an explicit assumption. Its coefficients are not fitted to representative beach observations, and it does not resolve provider height, period or partition differences. A single bearing-only curve cannot resolve all coastal transformations. F19 retains comparison of neighbouring model samples, alternative models and, if warranted by observations, period-dependent exposure. Validate small/flat, mixed, more northerly and powerful swells before claiming improved accuracy or applying this rule to other coasts.
 
-Rollback uses each target's saved `staging-before.json` configuration/notes/sources through a new versioned update, preserving both the previous and trial history. Do not delete history or reuse an old version. The migration script only connects to staging and refuses duplicate application. Production needs a separately reviewed migration after approval because its baseline does not yet include the preceding small-wave trial.
+Rollback uses each target's saved `staging-before.json` configuration/notes/sources through a new versioned update, preserving both the previous and trial history. Do not delete history or reuse an old version. The migration script only connects to staging and refuses duplicate application. Production subsequently received both migrations atomically through `promote-forecast-calibration-20260917.mjs`, after owner approval and a rollback rehearsal. The original staging-only script remains unchanged.
 
-The preceding small-wave/window application release is unchanged. F19 remains partial/open and the core onboarding sequence is unchanged. Production still requires the owner's review and renewed approval.
+The preceding small-wave/window application release is unchanged. F19 remains partial/open and the core onboarding sequence is unchanged. The owner subsequently completed that review and approved production; F19 remains open for representative observation-based validation.

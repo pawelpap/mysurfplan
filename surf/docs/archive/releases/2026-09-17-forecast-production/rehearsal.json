@@ -1,0 +1,119 @@
+{
+  "environment": "production",
+  "checkedAt": "2026-09-17T11:55:29.525Z",
+  "state": "transaction_rolled_back",
+  "checksums": {
+    "20260917_small_wave_trial": "a7363425aa0aa21a11435b60244fedcef1411181f35cf2eee205d75cb96385ed",
+    "20260917_sao_pedro_gfs_direction_trial": "fc2d24289beda7981e36e74b30f9760f918be3a0530a9a6596d867733e815f48"
+  },
+  "profile": {
+    "id": "general",
+    "version": 2
+  },
+  "spotParityWithStaging": true,
+  "preservedOtherSpotFields": true,
+  "revisions": [
+    {
+      "slug": "abano",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "bdc623470102d225788b4b93feea1a6a77f2985b210bff4fe57a343b56aa4619"
+    },
+    {
+      "slug": "adraga",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "3f6ec7fe9fb12b8037604b1c7f4eff688d66ccc71fb052b7fffd4b01f82aeb83"
+    },
+    {
+      "slug": "carcavelos",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "24d90c69855476a75d8eb0fa7f52f6cc16550092a89ef34ef1830f10e4e93786"
+    },
+    {
+      "slug": "cornelia-caparica",
+      "before": 5,
+      "after": 6,
+      "calibrationHash": "6c7fe92376b61568a3ac2562dcdb4b66ee48d192f90ba5e93cb3df4256f0c450"
+    },
+    {
+      "slug": "cresmina",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "3f04679989f195ea59e9d2a8ff9b07bcc183eb0bc7cae4960cc84df3be0ae3b1"
+    },
+    {
+      "slug": "guincho",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "4d8b807f71cbb2ef69703140ab4d6065232d206ccdaf40809e51a6b7935bc920"
+    },
+    {
+      "slug": "magoito",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "85f04df348479e33b652b87f8ac7808ce107191226d7b28c27ad5702dff3f75e"
+    },
+    {
+      "slug": "parede",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "8fb8abc24b89a9308e3052fa7dd67e2a803275ebed96fdc304a6734278335f6a"
+    },
+    {
+      "slug": "praia-da-torre",
+      "before": 1,
+      "after": 2,
+      "calibrationHash": "330079dd85957d177374df02b8f5bc1111f61c6078581c5df61dc020477d2a01"
+    },
+    {
+      "slug": "praia-das-macas",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "babae922cc59256916bef461508e90bc568a6cbcc6353f7be7cccefc012c0be2"
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "d8fa5ed1c1bbff7e33d31f059a9f694f81abccfcf157515fa18e2b0c06127138"
+    },
+    {
+      "slug": "praia-pequena-sintra",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "2a31b9b317e18cc9e61867a772d38574fdf8c54dfb7265521d592cf4f85f8209"
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "before": 5,
+      "after": 6,
+      "calibrationHash": "74720412cd744eaa360d664f504d198713d03dd791f7dc8a8021afe274d6b53e"
+    },
+    {
+      "slug": "sao-juliao",
+      "before": 4,
+      "after": 5,
+      "calibrationHash": "e5e700edcf574017a0b7d1bd04001cc07937ac296f849fb4bd98de5caa6e6c24"
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "before": 5,
+      "after": 7,
+      "calibrationHash": "1e701cf8f0ac7acd728fbecf2daee748264a0c535f51eebd0287587e35ac098a"
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "before": 6,
+      "after": 8,
+      "calibrationHash": "307a961e50e8f4fe2c85719de366293bc965f92eaf8fb620b26310e11cc4dd0a"
+    },
+    {
+      "slug": "tamariz",
+      "before": 3,
+      "after": 4,
+      "calibrationHash": "424dc1a50733fe39017d0f905d9c602379491950f84b0bb4a207ff2c33c7a86c"
+    }
+  ]
+}

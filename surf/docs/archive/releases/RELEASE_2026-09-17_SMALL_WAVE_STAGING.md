@@ -1,6 +1,6 @@
 # Small surf and daylight windows, staging review
 
-17 September 2026. **Staging is ready for owner review. Production is unchanged.** The owner's later instruction to review staging before promotion supersedes the earlier permission for automatic production promotion. Do not apply the production migration or push this release to `main` without renewed approval.
+17 September 2026 staging record. The owner initially held production for review, then confirmed staging looked correct and explicitly approved deployment. The [production release](RELEASE_2026-09-17_FORECAST_PRODUCTION.md) supersedes that hold. The release boundary and checks below preserve the staging-time state before promotion.
 
 ## Release boundary
 

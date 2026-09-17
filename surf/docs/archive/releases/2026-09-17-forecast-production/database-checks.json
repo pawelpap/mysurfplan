@@ -1,0 +1,82 @@
+{
+  "checkedAt": "2026-09-17T11:58:28.082Z",
+  "environment": "production",
+  "spotCount": 17,
+  "spotConfigAndVersionParity": true,
+  "defaultProfileParity": true,
+  "immutableUpdateRejected": true,
+  "archive": [
+    {
+      "slug": "carcavelos",
+      "version": 4,
+      "retrievedAt": "2026-09-17T11:57:21.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "cornelia-caparica",
+      "version": 6,
+      "retrievedAt": "2026-09-17T11:57:19.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "parede",
+      "version": 4,
+      "retrievedAt": "2026-09-17T11:57:25.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "version": 5,
+      "retrievedAt": "2026-09-17T11:57:21.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 6,
+      "retrievedAt": "2026-09-17T11:57:20.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 7,
+      "retrievedAt": "2026-09-17T11:57:21.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 8,
+      "retrievedAt": "2026-09-17T11:57:20.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    },
+    {
+      "slug": "tamariz",
+      "version": 4,
+      "retrievedAt": "2026-09-17T11:57:25.000Z",
+      "hours": 371,
+      "futureHoursOnly": true,
+      "retentionDays": 90,
+      "providerIssuedAt": null
+    }
+  ]
+}
