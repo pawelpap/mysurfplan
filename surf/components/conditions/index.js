@@ -46,6 +46,7 @@ import SpotBrowser, {
 } from "./spot-browser";
 import SurfChart from "./surf-chart";
 import Icon from "../icon";
+import { bestDayWindow } from "../../lib/conditions/day-window.mjs";
 import { useChartInteraction } from "./chart-interaction";
 
 const dayLabel = (day, weekday = "short") =>
@@ -81,10 +82,10 @@ export default function Conditions({ session, query, go, onLessons }) {
       time: chosenClock || undefined,
       ...values,
     });
-  const selectDay = (date) =>
+  const selectDay = (date, time = "12:00") =>
     navigate({
       date,
-      time: "12:00",
+      time,
       action: catalogue ? "all-spots" : undefined,
     });
   const setClock = (time) => {
@@ -283,7 +284,8 @@ function SpotForecast({
         ? Object.fromEntries(
             d.dates.map((day) => [
               day,
-              conditionAt(d, timeOnDay(day, "12:00", spot.timezone)),
+              bestDayWindow(d.hours, day, spot.timezone,
+                d.sunlight?.find((sun) => sun.day === day)),
             ]),
           )
         : {},
@@ -355,7 +357,7 @@ function SpotForecast({
         <div className="section-heading outlook-heading">
           <div>
             <h2>16-day forecast</h2>
-            <p>Daily snapshot at 12:00</p>
+            <p>Best daylight window · local times</p>
           </div>
           <div className="forecast-update">
             <ForecastFooter data={d} />
@@ -406,10 +408,11 @@ function SpotForecast({
               </span>
             ))}
             {calendarDays(d.dates).map(({ day, available, weekend }) => {
-              const h = dayConditions[day];
+              const window = dayConditions[day];
+              const h = window?.condition;
               const dayNumber = Number(day.slice(-2));
               const today = now && dateKey(now, spot.timezone) === day;
-              const label = `${dayLabel(day, "long")} at 12:00, ${h?.score == null ? "forecast unavailable" : h.quality}${meaningfulExperience(h?.level) ? `, ${meaningfulExperience(h.level)}` : ""}`;
+              const label = `${dayLabel(day, "long")}, ${window ? `best daylight window ${window.label}, ${h.quality}` : "no complete daylight window"}${meaningfulExperience(h?.level) ? `, ${meaningfulExperience(h.level)}` : ""}`;
               if (!available)
                 return (
                   <div
@@ -436,7 +439,8 @@ function SpotForecast({
                   aria-pressed={selected === day}
                   aria-current={today ? "date" : undefined}
                   aria-label={label}
-                  onClick={() => onDate(day)}
+                  title={window ? `Colour and values at the window’s weakest hour: ${hourLabel(h.time, spot.timezone)}` : "Not enough daylight forecast data"}
+                  onClick={() => onDate(day, window ? hourLabel(window.start, spot.timezone) : "12:00")}
                 >
                   <span className="calendar-date">
                     {dayNumber}
@@ -452,6 +456,7 @@ function SpotForecast({
                     </span>
                   </span>
                   <TileWeather condition={h} />
+                  <span className="calendar-window">{window?.label || "Window unavailable"}</span>
                   <span className="calendar-quality">
                     <span className="calendar-quality-full">
                       {h?.quality || "Unavailable"}

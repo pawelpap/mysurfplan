@@ -384,6 +384,11 @@
   position: relative;
   border-color: var(--tile-line);
 }
+.calendar-window {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .calendar-date {
   padding-right: 20px;
   display: flex;

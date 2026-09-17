@@ -311,8 +311,8 @@ export function scoreConditions(h, c) {
   if (usefulSwell < c.minimumSwell) score *= c.minimumSwellPenalty;
   // Favourable wind and tide cannot make an unsurfably small sea good.
   const tooSmall = surf < c.flatSurfBelow;
-  // Raise the size ceiling continuously so neighbouring estimates do not jump
-  // from poor to good at 0.5 m. Fully useful size removes the ceiling at 0.65 m.
+  // Versioned spot curves control how size limits quality. Clean small waves
+  // can be useful; do not impose an additional global minimum here.
   const sizeCeiling = curveValue(surf, c.sizeCeilingCurve);
   score = Math.min(score, sizeCeiling);
   if (tooSmall) {

@@ -13,6 +13,7 @@ import { predictTides } from "./tides.mjs";
 import { sunlightForDay, spotSummaryTime } from "./sunlight.mjs";
 import { dateKey, interpolateHour, scoreConditions, tideAt } from "./model.mjs";
 import { hoursAround } from "./presentation.mjs";
+import { archiveForecast } from "./archive";
 const HOUR = 3600000;
 export async function getConditions(
   id,
@@ -28,6 +29,7 @@ export async function getConditions(
   validateCalibration(spot.calibration, schemaRow?.schema);
   let [row] = await sql`SELECT * FROM spot_forecasts WHERE spot_id=${spot.id}`;
   const now = Date.now();
+  let refreshed = false;
   if (refreshDue(row, spot, force, now)) {
     // A concurrent refresh may already have completed since our initial read.
     await sql`UPDATE spot_forecasts SET expires_at=now() WHERE spot_id=${spot.id} AND date_trunc('milliseconds',fetched_at) IS NOT DISTINCT FROM ${row?.fetched_at || null}::timestamptz AND (refreshing_until IS NULL OR refreshing_until<now())`;
@@ -40,6 +42,7 @@ export async function getConditions(
         const update = forecastUpdate(row, payload, spot);
         [row] =
           await sql`UPDATE spot_forecasts SET payload=${JSON.stringify(update.payload)}::jsonb,fetched_at=${update.fetchedAt},expires_at=${update.expiresAt},refreshing_until=NULL,retry_after=${update.retryAt},last_error=${update.error} WHERE spot_id=${spot.id} RETURNING *`;
+        refreshed = !update.error;
       } catch (error) {
         console.error("conditions refresh failed", spot.slug, error.message);
         const retryAt = new Date(
@@ -87,10 +90,12 @@ export async function getConditions(
       : Date.parse(today + "T00:00:00Z") - 2 * 24 * HOUR,
     end = summary ? at + 36 * HOUR : start + 20 * 24 * HOUR;
   let tide = { tides: [], extremes: [] },
-    reference = null;
+    reference = null,
+    tideStation = null;
   try {
     const station = await loadTideStation(spot.tideStationId);
     if (station) {
+      tideStation = station;
       tide = predictTides(station, start, end, spot.calibration);
       reference = {
         id: spot.tideStationId,
@@ -114,6 +119,13 @@ export async function getConditions(
   } catch (error) {
     issues.push("Tide predictions are temporarily unavailable.");
     console.error("tide prediction failed", spot.slug, error.message);
+  }
+  if (refreshed) {
+    try {
+      await archiveForecast(spot, row, tideStation);
+    } catch (_) {
+      console.error("forecast snapshot failed", spot.slug);
+    }
   }
   const rawHours = summary ? hoursAround(payload.hours, at) : payload.hours;
   const hours = rawHours.map((h) => {

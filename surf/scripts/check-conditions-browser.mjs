@@ -100,7 +100,7 @@ export async function checkConditionsBrowser({ base, cookie }) {
     for (const text of await page
       .locator(".calendar-day")
       .evaluateAll((es) => es.map((e) => e.getAttribute("aria-label"))))
-      assert.ok(text.includes("12:00"));
+      assert.ok(/daylight window/.test(text));
     assert.ok(
       (
         await page.locator(".interactive-tide").getAttribute("aria-valuetext")
@@ -153,11 +153,12 @@ export async function checkConditionsBrowser({ base, cookie }) {
     await page.waitForTimeout(800);
     assert.equal(summaryRequests.length, beforeScrollBack, "returning to loaded cards reuses the cache");
     assert.equal(await page.locator(".spot-card.selected .spot-card-time").innerText(), initialSpotTime);
+    const windowStart = (await page.locator(".calendar-day").nth(1).locator(".calendar-window").innerText()).match(/^\d\d:\d\d/)?.[0] || "12:00";
     await page.locator(".calendar-day").nth(1).click();
-    await page.waitForFunction(() =>
+    await page.waitForFunction((expected) =>
       document
         .querySelector(".selected-conditions-time")
-        ?.textContent.includes("12:00"),
+        ?.textContent.includes(expected), windowStart,
     );
     assert.ok(
       (await page.locator(".spot-comparison-time").innerText()).includes("Local times"),
