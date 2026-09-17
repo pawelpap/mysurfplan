@@ -219,6 +219,8 @@ F17/F18 record Piotr's feedback and the owner's further design decisions on 9 Se
 
 ### F19 accepted scope, 10 September 2026
 
+17 September review follow-up: the owner authorised an assumption-based São Pedro calibration trial after clarifying that the 283° local guidance refers to Surfline. Staging Bico/Bafureira now use a broader GFS-specific exposure shoulder, with raw bearings and separate break rules preserved. [Exact curve, 816-hour replay, live checks and limits](archive/calibration/SAO_PEDRO_DIRECTION_REVIEW_2026-09-17.md). All 137 tests pass; this remains provisional and does not complete F19. Production is unchanged and remains on hold.
+
 16 September reconciliation: the bounded Caparica/São Pedro comparison is closed following the separate task and owner confirmation. It required no code or spot-data correction. [Completed comparison](archive/calibration/2026-09-15-four-spots/README.md). F19 below remains the broader planned validation programme, not a reopened defect from that comparison.
 
 Subsequent owner-authorised regional maintenance is complete: [Adraga, Maçãs, Magoito and São Julião](archive/calibration/2026-09-10-sintra-neighbours/README.md) now use Grande/Pequena's provisional period-quality sensitivity, with each spot's remaining settings preserved and both environments verified. This removes a bounded configuration inconsistency. It does not complete F19, change the shared calculation engine, validate forecast accuracy against observations or authorise copying those weights to every spot.

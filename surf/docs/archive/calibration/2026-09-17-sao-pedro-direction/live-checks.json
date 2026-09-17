@@ -1,0 +1,63 @@
+{
+  "base": "https://staging.mywaveplan.com",
+  "checkedAt": "2026-09-17T11:32:29.752Z",
+  "checks": [
+    {
+      "slug": "sao-pedro-bico",
+      "version": 8,
+      "day": "2026-09-19",
+      "window": "08:00–09:00",
+      "quality": "Fair",
+      "score": 69,
+      "surf": [
+        0.3,
+        0.5
+      ],
+      "summaryCalendarParity": true,
+      "hours": 408
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 7,
+      "day": "2026-09-19",
+      "window": "08:00–09:00",
+      "quality": "Fair",
+      "score": 61,
+      "surf": [
+        0.3,
+        0.5
+      ],
+      "summaryCalendarParity": true,
+      "hours": 408
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 8,
+      "day": "2026-09-20",
+      "window": "17:00–18:00",
+      "quality": "Flat / too small",
+      "score": 19,
+      "surf": [
+        0.2,
+        0.3
+      ],
+      "summaryCalendarParity": true,
+      "hours": 408
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 7,
+      "day": "2026-09-20",
+      "window": "17:00–18:00",
+      "quality": "Flat / too small",
+      "score": 18,
+      "surf": [
+        0.2,
+        0.3
+      ],
+      "summaryCalendarParity": true,
+      "hours": 408
+    }
+  ],
+  "permissionsVerified": true
+}

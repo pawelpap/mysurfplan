@@ -51,6 +51,8 @@ The new 17 September Cornélia observation is separate from the closed compariso
 
 F9/F14/F19 remain open/partial. One structured observation fixture and six-hourly request-driven immutable forecast samples with 90-day retention are now on staging. This is not complete observation entry, fixed-lead archive coverage or an accuracy dashboard. No historical forecasts were invented from later retrievals. No cron was added.
 
+Subsequent 17 September São Pedro trial: the owner authorised a provisional assumption after identifying Saturday's GFS/Surfline direction and component-height disagreement. Staging Bico is now revision **8**, Bafureira **7**. Their database exposure curves admit sheltered GFS 285–300° swell and taper strongly to 310°; displayed raw bearings and break-specific rules are unchanged. Saturday's live best windows are both 08:00–09:00, Fair, about 0.3–0.5 m; Sunday remains flat. All 137 tests and live API/browser checks passed. [Exact assumption, full replay, limitations and rollback](archive/calibration/SAO_PEDRO_DIRECTION_REVIEW_2026-09-17.md). This is separate from the closed 15 September comparison. Production remains unchanged and on hold; its later promotion must include this separate calibration after the small-wave migration.
+
 ## Infrastructure and commercial direction
 
 - The Vercel team was rechecked on 16 September and is still **Hobby**. Pro is recommended for continued deployed commercial work and technically required before minute scheduling. Earlier deferral until registration concerned worker timing, not a commercial-use exemption. No purchase has been authorised or made in this reconciliation. [Capacity and upgrade record](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md).

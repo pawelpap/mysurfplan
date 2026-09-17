@@ -1,0 +1,91 @@
+{
+  "checkedAt": "2026-09-17T11:28:02.248Z",
+  "catalogue": [
+    {
+      "slug": "abano",
+      "version": 3,
+      "sha256": "549b8770435e319bc7a994097728a020f5654fcac74618449abca1b6afcecb2f"
+    },
+    {
+      "slug": "adraga",
+      "version": 4,
+      "sha256": "de73ac4540d1dd047056eca3e261fb1c6fdc0c0a31d66301ea1aeb933510424f"
+    },
+    {
+      "slug": "carcavelos",
+      "version": 3,
+      "sha256": "d99719bb1cac3d9f6c5ab496a14cb1ab40bbb0965f4c76a187cd0aa0068ae289"
+    },
+    {
+      "slug": "cornelia-caparica",
+      "version": 5,
+      "sha256": "cadd06308b94e317fc984a0da6032db9b6482210d71d8905fe58dea22fe3c679"
+    },
+    {
+      "slug": "cresmina",
+      "version": 3,
+      "sha256": "4b833ab67ed0c1a25fa8891ee38a388afee880c2dc0741f135044bbd5ab16310"
+    },
+    {
+      "slug": "guincho",
+      "version": 3,
+      "sha256": "84ccbb62246dc9f97458e0ca3bf16d8c9a567f4986eff5c9b0d0adf21d44dd11"
+    },
+    {
+      "slug": "magoito",
+      "version": 4,
+      "sha256": "9f69d98c50ae34f2b8155204ad30e75effffb3a1dca027387e8bb16ae4f8a42c"
+    },
+    {
+      "slug": "parede",
+      "version": 3,
+      "sha256": "e10926172ca8f4f78f5071c95c953fd7b3a0392371234421bc84fb7d8815fe6d"
+    },
+    {
+      "slug": "praia-da-torre",
+      "version": 1,
+      "sha256": "17cad69189da06b3ccd69d7edfd337ee0e7860fac7136f55e753e19b47aa4b89"
+    },
+    {
+      "slug": "praia-das-macas",
+      "version": 4,
+      "sha256": "1b16ce3c9864da14c5d825b5dd0b41159974e50d060f0e1022d11663ad284ee9"
+    },
+    {
+      "slug": "praia-grande-sintra",
+      "version": 4,
+      "sha256": "43221e5b6f242529409947b707071a0970896a38c2fa1204579826f4585fc7e7"
+    },
+    {
+      "slug": "praia-pequena-sintra",
+      "version": 4,
+      "sha256": "4a694bfedd7a248ce6179471319ce2d42399c82fa8028d1b2277f54be5a90bbb"
+    },
+    {
+      "slug": "sao-joao-caparica",
+      "version": 5,
+      "sha256": "5aa11e6e061fefb0bdb8c3945ed9558fa307fc79ad2541dd51007ddda8f5bd09"
+    },
+    {
+      "slug": "sao-juliao",
+      "version": 4,
+      "sha256": "ece7c0aedcb6ca348eb493c469f4a5f065396f98e82ebb6286bc82a262ceb9a2"
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "version": 5,
+      "sha256": "c8e0608e7852e35cb49792d720e355a677460b85f11d8d922eebcf0e32c591fe"
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "version": 6,
+      "sha256": "3e5f62175440695d6b7d32d64db2d308a1861bfb46b7c5bc733a2e39e004f39d"
+    },
+    {
+      "slug": "tamariz",
+      "version": 3,
+      "sha256": "55c55cedd61939d37dc18ccc54dbaa3ee09ae783f340c844f5400c5717c94e96"
+    }
+  ],
+  "profileHash": "a2ad0977f414d112a11b62d4569c24ec736194056885cf28228f3c6df61551ad"
+}

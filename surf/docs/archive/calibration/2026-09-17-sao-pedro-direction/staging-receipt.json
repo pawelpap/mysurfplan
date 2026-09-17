@@ -1,0 +1,19 @@
+{
+  "environment": "staging",
+  "trialId": "20260917_sao_pedro_gfs_direction_trial",
+  "checksum": "fc2d24289beda7981e36e74b30f9760f918be3a0530a9a6596d867733e815f48",
+  "revisions": [
+    {
+      "slug": "sao-pedro-bafureira",
+      "before": 6,
+      "after": 7
+    },
+    {
+      "slug": "sao-pedro-bico",
+      "before": 7,
+      "after": 8
+    }
+  ],
+  "checkedAt": "2026-09-17T11:31:11.129Z",
+  "state": "applied"
+}

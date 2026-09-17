@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-09-17T11:33:05.943Z",
+  "environments": [
+    {
+      "environment": "staging",
+      "unchangedSpots": 15,
+      "defaultProfileUnchanged": true,
+      "trialApplied": true,
+      "targets": [
+        {
+          "slug": "sao-pedro-bafureira",
+          "version": 7,
+          "hash": "1e701cf8f0ac7acd728fbecf2daee748264a0c535f51eebd0287587e35ac098a"
+        },
+        {
+          "slug": "sao-pedro-bico",
+          "version": 8,
+          "hash": "307a961e50e8f4fe2c85719de366293bc965f92eaf8fb620b26310e11cc4dd0a"
+        }
+      ]
+    },
+    {
+      "environment": "production",
+      "unchangedSpots": 17,
+      "defaultProfileUnchanged": true,
+      "trialApplied": false,
+      "targets": [
+        {
+          "slug": "sao-pedro-bafureira",
+          "version": 5,
+          "hash": "0ca30dba7f30a1a4ae0d1fe2dfa9ee5fe74cd2a014c19c6737ead0155502728c"
+        },
+        {
+          "slug": "sao-pedro-bico",
+          "version": 6,
+          "hash": "ae75c7a7d8bb4997258604ee30299cde721f4a976156c8667ecd9ac3faa904d3"
+        }
+      ]
+    }
+  ]
+}

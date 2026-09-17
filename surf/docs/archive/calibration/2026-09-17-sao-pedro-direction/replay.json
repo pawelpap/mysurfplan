@@ -1,0 +1,1055 @@
+{
+  "type": "Identical-input replay, not measured accuracy",
+  "retrievedAt": "2026-09-17T11:17:34.149Z",
+  "spots": [
+    {
+      "slug": "sao-pedro-bico",
+      "hours": 408,
+      "days": [
+        {
+          "day": "2026-09-17",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 23,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.3
+            ]
+          }
+        },
+        {
+          "day": "2026-09-18",
+          "before": {
+            "window": "11:00–13:00",
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "18:00–19:00",
+            "score": 23,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.3
+            ]
+          }
+        },
+        {
+          "day": "2026-09-19",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "11:00–12:00",
+            "score": 65,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          }
+        },
+        {
+          "day": "2026-09-20",
+          "before": {
+            "window": "13:00–15:00",
+            "score": 6,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "12:00–14:00",
+            "score": 15,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.2
+            ]
+          }
+        },
+        {
+          "day": "2026-09-21",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 5,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "15:00–16:00",
+            "score": 35,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          }
+        },
+        {
+          "day": "2026-09-22",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 8,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "13:00–14:00",
+            "score": 43,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          }
+        },
+        {
+          "day": "2026-09-23",
+          "before": {
+            "window": "18:00–19:00",
+            "score": 96,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.5,
+              0.8
+            ]
+          },
+          "after": {
+            "window": "09:00–10:00",
+            "score": 96,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          }
+        },
+        {
+          "day": "2026-09-24",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 29,
+            "quality": "Unfavourable",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          },
+          "after": {
+            "window": "08:00–10:00",
+            "score": 100,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-25",
+          "before": {
+            "window": "18:00–19:00",
+            "score": 7,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 81,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          }
+        },
+        {
+          "day": "2026-09-26",
+          "before": {
+            "window": "09:00–11:00",
+            "score": 100,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          },
+          "after": {
+            "window": "09:00–11:00",
+            "score": 100,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-27",
+          "before": {
+            "window": "12:00–13:00",
+            "score": 17,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.3
+            ]
+          },
+          "after": {
+            "window": "08:00–10:00",
+            "score": 95,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-28",
+          "before": {
+            "window": "17:00–19:00",
+            "score": 45,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          },
+          "after": {
+            "window": "08:00–10:00",
+            "score": 100,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-29",
+          "before": {
+            "window": "11:00–12:00",
+            "score": 84,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.6
+            ]
+          },
+          "after": {
+            "window": "11:00–12:00",
+            "score": 85,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.6
+            ]
+          }
+        },
+        {
+          "day": "2026-09-30",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 70,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              0.9
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 70,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              0.9
+            ]
+          }
+        },
+        {
+          "day": "2026-10-01",
+          "before": {
+            "window": "10:00–11:00",
+            "score": 83,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              0.9
+            ]
+          },
+          "after": {
+            "window": "10:00–11:00",
+            "score": 83,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              0.9
+            ]
+          }
+        },
+        {
+          "day": "2026-10-02",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 63,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          },
+          "after": {
+            "window": "11:00–12:00",
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          }
+        }
+      ],
+      "saturday": [
+        {
+          "time": "06:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 71,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Outside this spot’s preferred tide range.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "08:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 66,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Outside this spot’s preferred tide range.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "09:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 65,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Outside this spot’s preferred tide range.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "12:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 68,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Outside this spot’s preferred tide range."
+          ]
+        },
+        {
+          "time": "15:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 61,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Cross-shore wind and a preferred tide stage."
+          ]
+        },
+        {
+          "time": "18:00",
+          "before": {
+            "score": 4,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 25,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          },
+          "reasons": [
+            "Flat or too small for a surf lesson."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sao-pedro-bafureira",
+      "hours": 408,
+      "days": [
+        {
+          "day": "2026-09-17",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0
+            ]
+          },
+          "after": {
+            "window": "08:00–10:00",
+            "score": 21,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.3
+            ]
+          }
+        },
+        {
+          "day": "2026-09-18",
+          "before": {
+            "window": "11:00–13:00",
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "18:00–19:00",
+            "score": 22,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.3
+            ]
+          }
+        },
+        {
+          "day": "2026-09-19",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 59,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          }
+        },
+        {
+          "day": "2026-09-20",
+          "before": {
+            "window": "12:00–14:00",
+            "score": 5,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "12:00–14:00",
+            "score": 14,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.2
+            ]
+          }
+        },
+        {
+          "day": "2026-09-21",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 5,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "15:00–17:00",
+            "score": 25,
+            "quality": "Flat / too small",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          }
+        },
+        {
+          "day": "2026-09-22",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 7,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "13:00–14:00",
+            "score": 32,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          }
+        },
+        {
+          "day": "2026-09-23",
+          "before": {
+            "window": "13:00–14:00",
+            "score": 65,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          },
+          "after": {
+            "window": "11:00–13:00",
+            "score": 65,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          }
+        },
+        {
+          "day": "2026-09-24",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 24,
+            "quality": "Flat / too small",
+            "level": "Intermediate",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          },
+          "after": {
+            "window": "11:00–13:00",
+            "score": 62,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-25",
+          "before": {
+            "window": "18:00–19:00",
+            "score": 7,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.1
+            ]
+          },
+          "after": {
+            "window": "11:00–12:00",
+            "score": 53,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          }
+        },
+        {
+          "day": "2026-09-26",
+          "before": {
+            "window": "16:00–17:00",
+            "score": 62,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          },
+          "after": {
+            "window": "12:00–13:00",
+            "score": 63,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-09-27",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 16,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.1,
+              0.2
+            ]
+          },
+          "after": {
+            "window": "13:00–14:00",
+            "score": 60,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.6
+            ]
+          }
+        },
+        {
+          "day": "2026-09-28",
+          "before": {
+            "window": "16:00–18:00",
+            "score": 47,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          },
+          "after": {
+            "window": "12:00–13:00",
+            "score": 84,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.5,
+              0.8
+            ]
+          }
+        },
+        {
+          "day": "2026-09-29",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 37,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 39,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.6
+            ]
+          }
+        },
+        {
+          "day": "2026-09-30",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 87,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.7
+            ]
+          }
+        },
+        {
+          "day": "2026-10-01",
+          "before": {
+            "window": "08:00–09:00",
+            "score": 89,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              1
+            ]
+          },
+          "after": {
+            "window": "08:00–09:00",
+            "score": 89,
+            "quality": "Good",
+            "level": "Intermediate",
+            "surf": [
+              0.6,
+              1
+            ]
+          }
+        },
+        {
+          "day": "2026-10-02",
+          "before": {
+            "window": "08:00–10:00",
+            "score": 57,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.6
+            ]
+          },
+          "after": {
+            "window": "08:00–10:00",
+            "score": 57,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.4,
+              0.6
+            ]
+          }
+        }
+      ],
+      "saturday": [
+        {
+          "time": "06:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 60,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Swell may be too small for this break.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "08:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 59,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.5
+            ]
+          },
+          "reasons": [
+            "Swell may be too small for this break.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "09:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 59,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          },
+          "reasons": [
+            "Swell may be too small for this break.",
+            "The coast is sheltered from this swell direction."
+          ]
+        },
+        {
+          "time": "12:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0
+            ]
+          },
+          "after": {
+            "score": 56,
+            "quality": "Fair",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          },
+          "reasons": [
+            "Swell may be too small for this break."
+          ]
+        },
+        {
+          "time": "15:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0.1
+            ]
+          },
+          "after": {
+            "score": 38,
+            "quality": "Poor",
+            "level": "Intermediate",
+            "surf": [
+              0.3,
+              0.4
+            ]
+          },
+          "reasons": [
+            "Swell may be too small for this break.",
+            "Outside this spot’s preferred tide range."
+          ]
+        },
+        {
+          "time": "18:00",
+          "before": {
+            "score": 3,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0,
+              0
+            ]
+          },
+          "after": {
+            "score": 24,
+            "quality": "Flat / too small",
+            "level": "Too small",
+            "surf": [
+              0.2,
+              0.4
+            ]
+          },
+          "reasons": [
+            "Flat or too small for a surf lesson.",
+            "Swell may be too small for this break.",
+            "Outside this spot’s preferred tide range."
+          ]
+        }
+      ]
+    }
+  ]
+}
