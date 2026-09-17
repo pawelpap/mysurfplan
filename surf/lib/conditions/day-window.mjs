@@ -2,6 +2,20 @@ import { dateKey, finite, hourLabel } from "./model.mjs";
 
 const HOUR = 3600000;
 
+export function validForecastDay(day) {
+  if (typeof day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
+  const time = Date.parse(`${day}T12:00:00Z`);
+  return finite(time) && new Date(time).toISOString().slice(0, 10) === day;
+}
+
+// Both the comparison cards and detail calendar use the same selected date.
+export function selectedForecastDay(day, today) {
+  if (!today) return null;
+  const last = new Date(Date.parse(`${today}T12:00:00Z`) + 15 * 24 * HOUR)
+    .toISOString().slice(0, 10);
+  return validForecastDay(day) && day >= today && day <= last ? day : today;
+}
+
 // Compare complete daylight sessions, not an isolated high-scoring hour.
 // The weakest sampled hour determines the colour; tied sessions prefer two
 // hours, then the higher mean score, then the earlier start. No extrapolation.

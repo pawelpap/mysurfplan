@@ -4,8 +4,57 @@ import { setImmediate } from "node:timers/promises";
 import { spotSummaryTime, sunlightForDay } from "../lib/conditions/sunlight.mjs";
 import { dateKey } from "../lib/conditions/model.mjs";
 import { createSummaryCache, summaryContextLabel, summaryTimeLabel, summaryTtl } from "../lib/conditions/spot-summaries.mjs";
+import { selectedForecastDay, validForecastDay } from "../lib/conditions/day-window.mjs";
 
 const bico = { latitude: 38.69, longitude: -9.369, timezone: "Europe/Lisbon" };
+
+test("window cards show the selected local date and unavailable windows explicitly", () => {
+  const now = Date.parse("2026-09-17T12:00Z");
+  const summary = { day: "2026-09-17", timing: "window", window: { label: "08:00–10:00" } };
+  assert.equal(summaryTimeLabel(summary, bico, now), "Today · 08:00–10:00");
+  assert.equal(summaryTimeLabel({ ...summary, day: "2026-09-19" }, bico, now), "19 Sept · 08:00–10:00");
+  assert.equal(summaryTimeLabel({ ...summary, window: null }, bico, now), "Today · Window unavailable");
+  assert.equal(summaryContextLabel([], {}, now, "2026-09-19"), "Best daylight windows · Sat 19 Sept");
+  for (const day of ["2026-02-30", "2026-9-17", "bad", ["2026-09-17"], null]) assert.equal(validForecastDay(day), false);
+  assert.equal(validForecastDay("2028-02-29"), true);
+  for (const day of ["2026-09-16", "2026-10-03", "bad", undefined])
+    assert.equal(selectedForecastDay(day, "2026-09-17"), "2026-09-17");
+  assert.equal(selectedForecastDay("2026-10-02", "2026-09-17"), "2026-10-02");
+  assert.equal(selectedForecastDay("2026-09-17", null), null);
+});
+
+test("date changes isolate in-flight summaries and reuse the right cached day without forced provider refreshes", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let finish, data, context;
+  const calls = [];
+  const store = createSummaryCache({ clock: () => 1000000,
+    onChange: (value, scope) => { data = value; context = scope; },
+    fetchBatch: (ids, refresh, signal, scope) => {
+      calls.push({ ids, refresh, scope });
+      return new Promise((resolve) => { finish = resolve; });
+    },
+  });
+  t.after(() => store.dispose());
+  store.update(["a"], 0, "2026-09-17"); t.mock.timers.tick(500);
+  store.update(["a"], 0, "2026-09-18");
+  finish({ a: { day: "2026-09-17", condition: { quality: "Good" } } });
+  await setImmediate();
+  assert.equal(context, "2026-09-18");
+  assert.deepEqual(data, {});
+  t.mock.timers.tick(500);
+  assert.deepEqual(calls[1], { ids: ["a"], refresh: [], scope: "2026-09-18" });
+  finish({ a: { day: "2026-09-18", condition: { quality: "Poor" } } });
+  await setImmediate();
+  assert.equal(data.a.condition.quality, "Poor");
+  store.update(["a"], 0, "2026-09-17"); t.mock.timers.tick(500);
+  assert.equal(data.a.day, "2026-09-17");
+  assert.equal(data.a.condition.quality, "Good");
+  assert.equal(calls.length, 2);
+  store.update(["a"], 1, "2026-09-17"); t.mock.timers.tick(500);
+  finish({ a: { error: "Unavailable" } }); await setImmediate();
+  assert.equal(data.a.day, "2026-09-17");
+  assert.equal(data.a.stale, true);
+});
 test("spot cards use today's sunrise before dawn, now in daylight and tomorrow's sunrise after sunset", () => {
   const sun = sunlightForDay("2026-09-10", bico);
   const tomorrow = sunlightForDay("2026-09-11", bico);

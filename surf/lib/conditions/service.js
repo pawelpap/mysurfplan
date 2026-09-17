@@ -14,16 +14,19 @@ import { sunlightForDay, spotSummaryTime } from "./sunlight.mjs";
 import { dateKey, interpolateHour, scoreConditions, tideAt } from "./model.mjs";
 import { hoursAround } from "./presentation.mjs";
 import { archiveForecast } from "./archive";
+import { bestDayWindow } from "./day-window.mjs";
 const HOUR = 3600000;
 export async function getConditions(
   id,
   force = false,
-  { summary = false, at = Date.now(), daylight = false } = {},
+  { summary = false, at = Date.now(), daylight = false, day = null } = {},
 ) {
   const spot = await getSpot(id);
   if (!spot || (summary && !spot.active)) return null;
-  const timing = summary && daylight ? spotSummaryTime(at, spot) : null;
+  const windowDay = summary && day;
+  const timing = summary && daylight && !windowDay ? spotSummaryTime(at, spot) : null;
   if (timing) at = timing.at;
+  if (windowDay) at = Date.parse(`${day}T12:00:00Z`);
   const [schemaRow] =
     await sql`SELECT schema FROM calibration_schema_versions WHERE version=${spot.calibrationSchemaVersion}`;
   validateCalibration(spot.calibration, schemaRow?.schema);
@@ -127,7 +130,9 @@ export async function getConditions(
       console.error("forecast snapshot failed", spot.slug);
     }
   }
-  const rawHours = summary ? hoursAround(payload.hours, at) : payload.hours;
+  const rawHours = windowDay
+    ? payload.hours.filter((h) => dateKey(h.time, spot.timezone) === day)
+    : summary ? hoursAround(payload.hours, at) : payload.hours;
   const hours = rawHours.map((h) => {
     const withTide = {
       ...h,
@@ -136,11 +141,14 @@ export async function getConditions(
     return { ...withTide, ...scoreConditions(withTide, spot.calibration) };
   });
   if (summary) {
+    const window = windowDay
+      ? bestDayWindow(hours, day, spot.timezone, sunlightForDay(day, spot))
+      : null;
     const raw = interpolateHour(rawHours, at);
     const h = raw
       ? { ...raw, tide: tideAt(tide.tides, at, spot.calibration) }
       : null;
-    const scored = h ? { ...h, ...scoreConditions(h, spot.calibration) } : null;
+    const scored = windowDay ? window?.condition : h ? { ...h, ...scoreConditions(h, spot.calibration) } : null;
     // Public-facing summary only. Never return calibration or full forecast payloads.
     const fields = [
       "time",
@@ -161,6 +169,12 @@ export async function getConditions(
       spotId: spot.id,
       at,
       ...(timing || {}),
+      ...(windowDay ? {
+        day,
+        timing: "window",
+        at: scored?.time ?? null,
+        window: window ? { start: window.start, end: window.end, label: window.label } : null,
+      } : {}),
       fetchedAt: row?.fetched_at || null,
       retryAt: row?.retry_after || null,
       stale,

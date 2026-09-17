@@ -67,11 +67,10 @@ export async function checkConditionsBrowser({ base, cookie }) {
       for (const direction of await tile.locator(".tile-direction").allInnerTexts()) assert.match(direction, /\d+° [NSEW]+/);
       assert.ok(await tile.evaluate(el => el.scrollWidth <= el.clientWidth + 1), "desktop tile content fits");
     }
-    assert.match(initialSpotTime, /(?:Now|Today|Tomorrow).*\d\d:\d\d/);
+    assert.match(initialSpotTime, /\d\d:\d\d–\d\d:\d\d/);
     const headingContext = await page.locator(".spot-comparison-time").innerText();
-    assert.ok(!headingContext.includes("or next sunrise"));
-    if (initialSpotTime.includes("Sunrise"))
-      assert.ok(headingContext.includes(initialSpotTime.split(" · ")[0] + " at sunrise"));
+    assert.ok(headingContext.startsWith("Best daylight windows"));
+    assert.ok(summaryRequests.every((url) => /^\d{4}-\d{2}-\d{2}$/.test(new URL(url).searchParams.get("day"))));
     assert.ok(summaryRequests.some((url) => new URL(url).searchParams.get("spots").split(",").length > 1));
     await page.screenshot({
       path: "/private/tmp/f18-desktop.png",

@@ -3,7 +3,6 @@ import { Button, Field, SelectField, request } from "../workspace/ui";
 import { useSpotLocation } from "../spot-select";
 import { distanceLabel, orderSpots } from "../../lib/spot-order.mjs";
 import {
-  dateKey,
   compass,
   finite,
   hourLabel,
@@ -89,14 +88,14 @@ export function TileDirections({ condition: h }) {
 }
 
 // Keep loaded cards visible while the shared cache revalidates in batches.
-function useSummaries(ids, now, refreshVersion) {
+function useSummaries(ids, now, refreshVersion, day) {
   const cache = useRef(null);
-  const [data, setData] = useState({});
+  const [data, setData] = useState({ day: null, values: {} });
   useEffect(() => {
     const store = createSummaryCache({
-      onChange: setData,
-      fetchBatch: (spots, refresh, signal) => {
-        const query = new URLSearchParams({ spots: spots.join(",") });
+      onChange: (values, scope) => setData({ day: scope, values }),
+      fetchBatch: (spots, refresh, signal, scope) => {
+        const query = new URLSearchParams({ spots: spots.join(","), day: scope });
         if (refresh.length) query.set("refresh", refresh.join(","));
         return request(`/api/conditions/summaries?${query}`, { signal });
       },
@@ -107,16 +106,17 @@ function useSummaries(ids, now, refreshVersion) {
   const key = ids.join(",");
   useEffect(() => {
     const update = () => {
-      if (now) cache.current?.update(
+      if (now && day) cache.current?.update(
         document.visibilityState === "visible" && key ? key.split(",") : [],
         refreshVersion,
+        day,
       );
     };
     update();
     document.addEventListener("visibilitychange", update);
     return () => document.removeEventListener("visibilitychange", update);
-  }, [key, now, refreshVersion]);
-  return data;
+  }, [key, now, refreshVersion, day]);
+  return data.day === day ? data.values : {};
 }
 
 function SpotCard({ entry, summary, selected, onChoose, now }) {
@@ -128,7 +128,7 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       type="button"
       className={`spot-card quality-tile ${summary?.stale ? "unknown" : h?.tone || "unknown"} ${selected ? "selected" : ""}`}
       aria-pressed={selected}
-      onClick={() => onChoose(spot)}
+      onClick={() => onChoose(spot, summary)}
       data-spot-id={spot.id}
     >
       <span className="spot-card-heading">
@@ -169,7 +169,7 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       )}
       {h && (
         <span className="sr-only">
-          {`Conditions for ${dateKey(summary.at, spot.timezone)} at ${hourLabel(summary.at, spot.timezone)} in ${spot.timezone}.`}
+          {`Best daylight window for ${summary.day}: ${summary.window?.label}. Colour and values at the window’s weakest hour: ${hourLabel(summary.at, spot.timezone)} in ${spot.timezone}.`}
         </span>
       )}
       <TileExperience level={h?.level} />
@@ -185,6 +185,7 @@ export default function SpotBrowser({
   catalogue,
   onCatalogue,
   now,
+  day,
   refreshVersion = 0,
 }) {
   const location = useSpotLocation();
@@ -217,9 +218,9 @@ export default function SpotBrowser({
       onChoose(entries[0].spot);
     }
   }, [autoSelect, location.order, location.pending, origin, entries, onChoose]);
-  const choose = (spot) => {
+  const choose = (spot, summary) => {
     initialDone.current = true;
-    onChoose(spot);
+    onChoose(spot, summary);
   };
   const distanceEntries = useMemo(
     () =>
@@ -243,6 +244,7 @@ export default function SpotBrowser({
     displayed.map(({ spot }) => spot.id),
     now,
     refreshVersion + revision,
+    day,
   );
   const matching = filterSpots(displayed, summaries, filters);
   const loading = displayed.some(({ spot }) => !summaries[spot.id]);
@@ -322,7 +324,7 @@ export default function SpotBrowser({
         <div>
           <h2>{catalogue ? "All spots" : "Surf spots"}</h2>
           <p className="spot-comparison-time">
-            {`${summaryContextLabel(displayed, summaries, now)} · Local times`}
+            {`${summaryContextLabel(displayed, summaries, now, day)} · Local times`}
           </p>
         </div>
         <div className="actions">

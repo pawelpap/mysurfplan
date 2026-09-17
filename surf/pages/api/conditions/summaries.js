@@ -1,6 +1,7 @@
 import { requireAuth } from "../../../lib/auth";
 import { getConditions } from "../../../lib/conditions/service";
 import { summaryBatchLimit } from "../../../lib/conditions/spot-summaries.mjs";
+import { validForecastDay } from "../../../lib/conditions/day-window.mjs";
 
 // Up to 24 spots, three calculations/refreshes at once. The longer ceiling
 // accommodates provider timeouts without increasing upstream concurrency.
@@ -12,7 +13,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
   if (!(await requireAuth(req, res))) return;
-  const { spots, refresh } = req.query;
+  const { spots, refresh, day } = req.query;
+  if (day !== undefined && !validForecastDay(day))
+    return res.status(400).json({ ok: false, error: "Choose a valid forecast date." });
   if (typeof spots !== "string" || spots.length > summaryBatchLimit * 181)
     return res.status(400).json({ ok: false, error: "Choose surf spots." });
   const ids = [...new Set(spots.split(","))];
@@ -28,7 +31,7 @@ export default async function handler(req, res) {
     while (queue.length) {
       const id = queue.shift();
       try {
-        data[id] = await getConditions(id, forced.has(id), { summary: true, daylight: true, at: now })
+        data[id] = await getConditions(id, forced.has(id), { summary: true, daylight: true, at: now, day })
           || { error: "Spot not found." };
       } catch (error) {
         console.error("conditions summaries API", error.message);

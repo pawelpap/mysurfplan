@@ -46,7 +46,7 @@ import SpotBrowser, {
 } from "./spot-browser";
 import SurfChart from "./surf-chart";
 import Icon from "../icon";
-import { bestDayWindow } from "../../lib/conditions/day-window.mjs";
+import { bestDayWindow, selectedForecastDay } from "../../lib/conditions/day-window.mjs";
 import { useChartInteraction } from "./chart-interaction";
 
 const dayLabel = (day, weekday = "short") =>
@@ -74,6 +74,7 @@ export default function Conditions({ session, query, go, onLessons }) {
   const clock =
     chosenClock || (now && selected ? hourLabel(now, selected.timezone) : "");
   const today = now && selected ? dateKey(now, selected.timezone) : null;
+  const day = selectedForecastDay(query.date, today);
   const catalogue = query.action === "all-spots";
   const navigate = (values) =>
     go({
@@ -167,11 +168,13 @@ export default function Conditions({ session, query, go, onLessons }) {
         selected={selected?.id}
         autoSelect={!query.spot}
         now={now}
+        day={day}
         refreshVersion={revision}
-        onChoose={(spot) =>
+        onChoose={(spot, summary) =>
           navigate({
             spot: spot.slug,
-            time: chosenClock || undefined,
+            date: day,
+            time: summary?.window ? hourLabel(summary.window.start, spot.timezone) : chosenClock || undefined,
             action: undefined,
           })
         }
@@ -185,7 +188,7 @@ export default function Conditions({ session, query, go, onLessons }) {
           <SpotForecast
             key={`${selected.id}:${selected.version}`}
             spot={selected}
-            date={query.date}
+            date={day}
             onDate={selectDay}
             clock={clock}
             onClock={setClock}
