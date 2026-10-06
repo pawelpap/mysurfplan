@@ -65,3 +65,13 @@ test('handler respects authentication, handles stale documents and redacts stora
   const failure=createLegalHandler({requireAuth:async()=>session,store:{records:async()=>{throw new Error('private database details');}}});
   const unavailable=response();await failure({method:'GET'},unavailable);assert.equal(unavailable.statusCode,503);assert(!JSON.stringify(unavailable.body).includes('private database'));
 });
+
+test('account overview exposes document metadata and only eligible schools without document bodies',async()=>{
+  const relation={id:schoolId,name:'Eligible school',status:'active',open:true,roles:['school_admin']};
+  const store={records:async id=>({subject:id,acceptances:[],notices:[]}),preview:async()=>true,document:async id=>({...document,document_id:id,content:'Private policy body'})};
+  const handler=createLegalHandler({requireAuth:async()=>({...session,schools:[relation,{...relation,id:userId,roles:['student']}]}),store});
+  const res=response();await handler({method:'GET'},res);
+  assert.equal(res.statusCode,200);assert.equal(res.body.data.subject,userId);
+  assert.equal(res.body.data.documents.length,2);assert(res.body.data.documents.every(d=>d.content===undefined));
+  assert.deepEqual(res.body.data.schools,[{id:schoolId,name:'Eligible school'}]);
+});

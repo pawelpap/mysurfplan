@@ -17,8 +17,9 @@ export function createLegalStore(sql) {
     },
     async records(userId) {
       const [acceptances, notices, preferences] = await Promise.all([
-        sql`SELECT a.document_id,a.version,a.language,a.content_hash,a.kind,a.school_id,a.accepted_at,d.status
+        sql`SELECT a.document_id,a.version,a.language,a.content_hash,a.kind,a.school_id,a.accepted_at,d.status,s.name AS school_name
           FROM legal_acceptances a JOIN legal_documents d USING(document_id,version,language,content_hash)
+          LEFT JOIN schools s ON s.id=a.school_id
           WHERE a.user_id=${userId} ORDER BY a.accepted_at DESC LIMIT 100`,
         sql`SELECT document_id,version,language,channel,delivered_at FROM privacy_notice_deliveries
           WHERE user_id=${userId} ORDER BY delivered_at DESC LIMIT 100`,

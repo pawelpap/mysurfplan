@@ -4,20 +4,36 @@ import { Brand } from './workspace/ui';
 import { ThemeSelector } from './theme';
 import { legalDocuments } from '../lib/legal/contracts.mjs';
 
-export function LegalLayout({ title, children, language = 'en-GB' }) {
+export function legalSections(content) {
+  return content.split(/\n\s*\n/).flatMap((block,i) => block.startsWith('## ') ? [{ id:'section-' + i, title:block.slice(3) }] : []);
+}
+export function LegalLayout({ title, children, language = 'en-GB', sections = [], signedIn = false, preview = false, metadata }) {
+  const links = <>
+    {legalDocuments.map(d => <Link key={d.id} href={'/legal/' + d.slug} aria-current={d.title === title ? 'page' : undefined}>{d.title}</Link>)}
+    <Link href="/legal/storage" aria-current={title === 'Cookies and browser storage' ? 'page' : undefined}>Cookies and browser storage</Link>
+    <Link href="/legal" aria-current={title === 'Data licences' ? 'page' : undefined}>Data licences</Link>
+  </>;
+  const contents = <nav aria-label="On this page">{sections.map(s => <a key={s.id} href={'#' + s.id}>{s.title}</a>)}</nav>;
   return <>
     <Head><title>{`${title} · MyWavePlan`}</title><meta name="robots" content="noindex, nofollow" /></Head>
     <a className="skip-link" href="#document">Skip to document</a>
     <div className="legal-page" lang={language}>
-      <header className="legal-header"><Brand /><ThemeSelector compact /></header>
-      <nav className="legal-navigation" aria-label="Legal documents">
-        {legalDocuments.map(d => <Link key={d.id} href={'/legal/' + d.slug}>{d.title}</Link>)}
-        <Link href="/legal/storage">Cookies and browser storage</Link>
-        <Link href="/legal">Data licences</Link>
-        <Link href="/legal/records">Your legal records</Link>
-      </nav>
-      <main id="document" tabIndex={-1} data-legal-document><h1>{title}</h1>{children}</main>
-      <footer className="legal-footer"><Link href="/">Back to MyWavePlan</Link><a href="mailto:support@mywaveplan.com">Contact support</a></footer>
+      <header className="legal-header"><Link href="/" className="legal-brand" aria-label="MyWavePlan home"><Brand /></Link><ThemeSelector compact /></header>
+      <div className="legal-tools">
+        <details className="legal-menu"><summary>Legal documents</summary><nav aria-label="Legal documents">{links}</nav></details>
+        <Link className="document-action" href={signedIn ? '/?view=privacy' : '/'}>{signedIn ? 'Back to workspace' : 'Log in'}</Link>
+      </div>
+      {preview && <p className="environment-note">Staging · Preview of the production document.</p>}
+      <div className={`legal-reading-layout ${sections.length ? 'with-contents' : ''}`}>
+        {sections.length > 0 && <aside className="legal-contents"><h2>On this page</h2>{contents}</aside>}
+        <main id="document" tabIndex={-1} data-legal-document>
+          <h1>{title}</h1>
+          {metadata}
+          {sections.length > 0 && <details className="legal-mobile-contents"><summary>On this page</summary>{contents}</details>}
+          {children}
+        </main>
+      </div>
+      <footer className="legal-footer"><Link href="/legal/records">Privacy and agreements</Link><a href="mailto:support@mywaveplan.com">Contact support</a></footer>
     </div>
   </>;
 }
@@ -28,7 +44,7 @@ function inlineText(text) {
     return link ? <a key={i} href={link[2]} rel="noreferrer">{link[1]}</a> : part;
   });
 }
-// A deliberately small renderer. Stored policy text never executes HTML.
+// Stored policy text cannot execute HTML.
 export function LegalText({ content }) {
   return <div className="legal-copy">{content.split(/\n\s*\n/).map((block,i) => {
     if (block.startsWith('## ')) return <h2 key={i} id={'section-' + i}>{block.slice(3)}</h2>;

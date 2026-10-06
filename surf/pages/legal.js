@@ -1,25 +1,7 @@
-import Head from "next/head";
-import Link from "next/link";
-import { Brand } from "../components/workspace/ui";
-import { ThemeSelector } from "../components/theme";
-import { legalDocuments } from "../lib/legal/contracts.mjs";
+import { LegalLayout } from "../components/legal";
 
 export default function Legal() {
-  return (
-    <main className="legal-page">
-      <Head>
-        <title>Legal · MyWavePlan</title>
-      </Head>
-      <div className="legal-header">
-        <Brand />
-        <ThemeSelector compact />
-      </div>
-      <nav className="legal-navigation" aria-label="Legal documents">
-        {legalDocuments.map(d => <Link key={d.id} href={'/legal/' + d.slug}>{d.title}</Link>)}
-        <Link href="/legal/storage">Cookies and browser storage</Link>
-        <Link href="/legal/records">Your legal records</Link>
-      </nav>
-      <h1>Data licences</h1>
+  return <LegalLayout title="Data licences"><div className="legal-copy">
       <p>
         Forecasts combine data from{" "}
         <a href="https://open-meteo.com/">Open-Meteo</a>, NOAA GFS Wave and the
@@ -48,9 +30,5 @@ export default function Legal() {
         Light times use <a href="https://github.com/mourner/suncalc">SunCalc</a>
         , under BSD-2-Clause. First and last light refer to civil twilight.
       </p>
-      <p>
-        <Link href="/">Back to MyWavePlan</Link>
-      </p>
-    </main>
-  );
+    </div></LegalLayout>;
 }

@@ -1,0 +1,11 @@
+# Legal document and agreement interface revision
+
+Prepared 6 October 2026. Staging only; production publication needs separate owner approval.
+
+Public documents retain their proper routes with a bounded desktop reading column, contents navigation and compact mobile menus. Account agreements now live inside the existing workspace at `/?view=privacy`; old `/legal/records` links redirect there. Accepted status, dates, school context and historic versions replace repeated acceptance forms. Only eligible school representatives see school acceptance controls. Reading a document opens a labelled new tab and preserves selections. Optional controls are absent while the purposes are unavailable.
+
+Metadata does not display the language. Exact language, version and hash remain in immutable records. Future localisation will follow the application's language selector. The private owner-specific documents were rewritten as version `2026-10-06.3`, without internal publication conditions or staging commentary in the body. A small staging indicator remains outside the text. Storage information is version `.2`. Existing document versions and acceptance records remain intact. The import preserved existing operational data and the applied schema checksum.
+
+Local verification: 146 tests passed, lint/build passed with the existing Avatar image warning. Browser checks cover desktop/light and mobile/dark, 320 and 768 pixel document menus/contents links, no horizontal overflow, loaded self-hosted fonts and appearance persistence. Account checks cover 320/390/768/1440 pixel layouts, actual desktop/mobile form acceptance, reading without losing selections, saved state after reload, subject isolation, CSRF, authority revocation and separate notice/preference evidence. Disposable fixtures were removed. Forecast regression retains 18 spots and 16 days. Receipts are in `2026-10-06-legal-ux/`; screenshots stay outside Git.
+
+Live staging checks and deployment receipt will be recorded after deployment. No tracking tags, mail sending, paid flows, production database or production branch were changed. Existing unrelated uncommitted work was preserved. A4/B6 contract, school identity/instruction, retention and publication gates remain in `LEGAL_IMPLEMENTATION.md`.

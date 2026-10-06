@@ -68,14 +68,53 @@ try {
   const {chromium}=await import(pathToFileURL(process.env.MWP_PLAYWRIGHT_MODULE || '/Users/pawel/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs'));
   const browser=await chromium.launch({channel:'chrome',headless:true});
   try {
-    const context=await browser.newContext({viewport:{width:390,height:844}});
+    for (const width of [320,390,768,1440]) {
+      const context=await browser.newContext({viewport:{width,height:width<768?844:1000},colorScheme:width===390?'dark':'light'});
+      await context.addCookies([{name:'msp_session',value:cookie.slice('msp_session='.length),url:base,httpOnly:true,secure:base.startsWith('https'),sameSite:'Lax'}]);
+      const p=await context.newPage();await p.goto(base+'/legal/records');
+      await p.getByRole('heading',{name:'Privacy and agreements',exact:true}).waitFor();
+      await p.getByRole('heading',{name:'School data-processing agreement',exact:true}).waitFor();
+      assert.equal(await p.getByRole('button',{name:'Accept terms of use',exact:true}).count(),0);
+      assert.equal(await p.getByRole('button',{name:'Accept school agreement',exact:true}).count(),0);
+      assert.equal(await p.getByRole('button',{name:'Keep optional purposes off',exact:true}).count(),0);
+      assert.equal(await p.locator('.agreement-status.accepted').count(),2);
+      assert.equal(await p.locator('.sidebar').count(),1);
+      assert(!await p.locator('.privacy-settings').innerText().then(text => /en-GB|English/.test(text)));
+      assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      await p.screenshot({path:output.replace(/\.json$/,`-records-${width}.png`),fullPage:true});
+      await context.close();
+    }
+    checks.push('320/390/768/1440px workspace records, accepted statuses and no redundant controls');
+    for (const formWidth of [390,1440]) {
+    // Reset only the disposable fixture to test the actual form flow.
+    await client.query('DELETE FROM legal_acceptances WHERE user_id=$1',[userId]);
+    const context=await browser.newContext({viewport:{width:formWidth,height:844},colorScheme:'dark'});
     await context.addCookies([{name:'msp_session',value:cookie.slice('msp_session='.length),url:base,httpOnly:true,secure:base.startsWith('https'),sameSite:'Lax'}]);
-    const p=await context.newPage();await p.goto(base+'/legal/records');
-    await p.getByRole('heading',{name:'Your legal records',exact:true}).waitFor();
-    await p.getByRole('button',{name:'Keep optional purposes off',exact:true}).click();
-    await p.getByRole('status').filter({hasText:'Optional purposes remain off.'}).waitFor();
-    assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-    await context.close();checks.push('mobile account records and withdrawal control');
+    const p=await context.newPage();await p.goto(base+'/?view=privacy');
+    const termsCard=p.locator('.legal-agreement').filter({hasText:'Terms of use'});
+    await termsCard.getByRole('checkbox').check();
+    const popupPromise=context.waitForEvent('page');
+    await termsCard.getByRole('link',{name:/Read agreement/}).click();
+    const popup=await popupPromise;
+    await popup.getByRole('heading',{name:'Terms of use',exact:true,level:1}).waitFor();
+    assert(!await popup.locator('[data-legal-document]').innerText().then(text=>/English|en-GB|Publication condition|Staging/.test(text)));
+    await popup.close();
+    assert(await termsCard.getByRole('checkbox').isChecked());
+    await termsCard.getByRole('button',{name:'Accept terms of use',exact:true}).click();
+    await termsCard.getByText('Accepted',{exact:true}).waitFor();
+    const schoolCard=p.locator('.legal-agreement').filter({hasText:'School data-processing agreement'});
+    await schoolCard.getByRole('checkbox',{name:/authorised/}).check();
+    await schoolCard.getByRole('checkbox',{name:/I accept/}).check();
+    await schoolCard.getByRole('button',{name:'Accept school agreement',exact:true}).click();
+    await schoolCard.getByText('Accepted',{exact:true}).waitFor();
+    await p.reload();
+    await p.locator('.agreement-status.accepted').last().waitFor();
+    assert.equal(await p.locator('.agreement-status.accepted').count(),2);
+    await p.screenshot({path:output.replace(/\.json$/,`-accepted-${formWidth}.png`),fullPage:true});
+    if(formWidth === 1440) await p.screenshot({path:output.replace(/\.json$/,'-desktop-preview.png')});
+    await context.close();
+    checks.push(`${formWidth}px form acceptance, document return preserves choices, saved status survives reload`);
+    }
   } finally {await browser.close();}
   await client.query('UPDATE membership_roles SET revoked_at=now() WHERE membership_id=$1',[membershipId]);
   await post({action:'accept_school',...body(school),schoolId,authorisedRepresentative:true},403);

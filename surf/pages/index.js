@@ -6,6 +6,7 @@ import Lessons from "../components/workspace/lessons";
 import Conditions from "../components/conditions";
 import { ThemeSelector } from "../components/theme";
 import Memberships from "../components/workspace/memberships";
+import PrivacyAgreements from "../components/workspace/privacy-agreements";
 import { withSchool, schoolAccess } from "../lib/school-access.mjs";
 import People from "../components/workspace/people";
 import Schools from "../components/workspace/schools";
@@ -56,7 +57,7 @@ export default function Workspace() {
   const scopedSession =
     school && session ? withSchool(session, school.id) : session;
   const schoolCapabilities = schoolAccess(session, school?.id);
-  const allowed = session?.demo ? ["conditions"] : [
+  const allowed = session?.demo ? ["conditions", "privacy"] : [
     "conditions",
     "bookings",
     ...(session?.schools?.some(
@@ -68,6 +69,7 @@ export default function Workspace() {
     ...(schoolCapabilities.manageSchool ? ["people"] : []),
     ...(isPlatform(session?.role) ? ["accounts", "schools"] : []),
     "profile",
+    "privacy",
   ];
   const view = allowed.includes(router.query.view)
     ? router.query.view
@@ -81,6 +83,7 @@ export default function Workspace() {
     people: "People",
     schools: "Schools",
     profile: "My profile",
+    privacy: "Privacy and agreements",
   };
 
   const reloadAuth = auth.reload;
@@ -307,7 +310,7 @@ export default function Workspace() {
         </div>
         <nav aria-label="Main navigation">
           {allowed
-            .filter((v) => v !== "profile")
+            .filter((v) => !["profile", "privacy"].includes(v))
             .map((v) => (
               <button
                 key={v}
@@ -343,7 +346,7 @@ export default function Workspace() {
           <Link className="legal-link" href="/legal">
             Legal
           </Link>
-          <Link className="legal-link" href="/legal/records">Privacy and legal records</Link>
+          <button className={`nav-link ${view === "privacy" ? "active" : ""}`} aria-current={view === "privacy" ? "page" : undefined} onClick={() => go("privacy")}>Privacy and agreements</button>
         </div>
       </aside>
       <main className="workspace-main" id="main" tabIndex={-1} ref={main}>
@@ -351,12 +354,13 @@ export default function Workspace() {
           <span>
             {view === "schools"
               ? "Platform workspace"
-              : ["bookings", "teaching", "profile"].includes(view)
+              : ["bookings", "teaching", "profile", "privacy"].includes(view)
                 ? "Personal workspace"
                 : school?.name || "Personal workspace"}
           </span>
         </div>
         <Message>{error}</Message>
+        {view === "privacy" && <PrivacyAgreements session={session} />}
         {["lessons", "bookings", "teaching"].includes(view) && (
           <Lessons
             key={`${view}:${school?.id || "none"}:${JSON.stringify(session.schools)}`}

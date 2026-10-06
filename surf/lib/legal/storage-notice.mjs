@@ -1,31 +1,35 @@
 export const storageNotice = {
-  document_id: 'mywaveplan.browser-storage', version: '2026-10-06.1', language: 'en-GB',
+  document_id: 'mywaveplan.browser-storage', version: '2026-10-06.2', language: 'en-GB',
   title: 'Cookies and browser storage', kind: 'storage_information',
-  content: `## Login session
+  content: `## Storage at a glance
 
-The msp_session cookie keeps you signed in. It contains a signed session identifier linked to a server-side session record. It is limited to this website, lasts up to seven days and uses Secure, HttpOnly and SameSite=Lax in the deployed service. Logging out revokes the server session and clears the cookie. This cookie is needed for account access.
+MyWavePlan uses a login cookie for account access and browser storage for your appearance choice. Optional analytics, advertising and session recording are off.
 
-## Appearance
+## Login cookie
 
-The mywaveplan:appearance entry in your browser's local storage remembers System, Light or Dark appearance for this website. It has no automatic expiry. It lasts until replaced or cleared through your browser settings. The login page follows your device's appearance. Staging and production keep separate preferences.
+The msp_session cookie keeps you signed in for up to seven days. It contains a signed session identifier linked to a server record. It is limited to this website and protected with Secure, HttpOnly and SameSite=Lax settings. This cookie is needed for account access.
 
-## Location
+Logging out revokes the session and clears the cookie. Removing the cookie through browser settings signs you out in that browser, but does not itself revoke the server session.
 
-Nearest to me uses the browser's location permission. Coordinates are used in memory to calculate nearby spots on your device. This feature does not store coordinates in our browser storage or send them to MyWavePlan APIs. You can use alphabetical spot selection without granting location permission. Your browser controls its own permission record.
+## Appearance choice
+
+The mywaveplan:appearance entry in local storage remembers whether you choose System, Light or Dark. It remains until you change or clear it. Removing it restores the device setting. The login page follows your device's appearance.
+
+## Location permission
+
+Nearest to me asks for your browser's location permission. Coordinates are used in memory to calculate nearby spots on your device. They are not saved in MyWavePlan browser storage or sent to MyWavePlan APIs. You can choose spots alphabetically without granting permission. Your browser manages its own permission record.
 
 ## Optional tracking
 
-GA4, Meta Pixel, LinkedIn Insight Tag, Google Ads and Microsoft Clarity are planned tools. They are currently inactive. MyWavePlan does not currently load these tools or set their identifiers. We will update this information and provide separate choices before enabling optional analytics, advertising or session recording. Refusing optional purposes will not prevent core account or forecast access.
+Optional tracking is off. If optional tools are introduced, their storage and purposes will be explained before activation and you will have separate choices. Declining optional tracking will not prevent account or forecast access.
 
-## Other resources
+## Other website resources
 
-Poppins fonts and application icons are served by MyWavePlan. Forecast and tide-data requests go from our server to their providers. OpenStreetMap is an external link, not an embedded map. If a profile has an external image, your browser may contact that image host to display it. Following an external link takes you to that provider's service and policies.
+Fonts and application icons are served directly by MyWavePlan. Forecast and tide requests go from our server to environmental-data providers. OpenStreetMap is an external link. If an external profile photograph is displayed, your browser contacts its image host. External services have their own policies.
 
-## Clearing storage
+## Managing storage and asking questions
 
-You can remove this website's cookies and local storage in your browser settings. Removing the session cookie signs you out in that browser. Use Log out to revoke the server-side session as well. Removing the appearance entry restores the device setting. Optional choices and agreement records for an account are separate from these browser settings.
+Your browser settings let you remove this website's cookies and local storage. This is separate from deleting account information or agreement records. Use Log out to end the server session as well.
 
-## Contact
-
-Questions about browser storage can be sent to support@mywaveplan.com. The privacy notice explains account and service processing.`,
+Contact support@mywaveplan.com for questions. Our privacy notice explains how account and service information is used.`,
 };

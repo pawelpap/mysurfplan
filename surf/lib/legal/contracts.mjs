@@ -2,8 +2,8 @@ import { isUuid } from '../school-access.mjs';
 
 export const legalDocuments = Object.freeze([
   { id: 'mywaveplan.privacy', slug: 'privacy', title: 'Privacy notice', kind: 'privacy_notice' },
-  { id: 'mywaveplan.adult-pilot-terms', slug: 'terms', title: 'Adult-pilot terms', kind: 'terms' },
-  { id: 'mywaveplan.school-processing', slug: 'school-processing', title: 'School-processing agreement', kind: 'school_processing' },
+  { id: 'mywaveplan.adult-pilot-terms', slug: 'terms', title: 'Terms of use', kind: 'terms' },
+  { id: 'mywaveplan.school-processing', slug: 'school-processing', title: 'School data-processing agreement', kind: 'school_processing' },
 ]);
 export const optionalPurposes = Object.freeze(['marketing', 'analytics', 'advertising', 'session_recording', 'public_ranking']);
 export const preferenceVersion = 'optional-preferences/1';

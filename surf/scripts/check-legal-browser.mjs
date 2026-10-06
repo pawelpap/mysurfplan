@@ -22,7 +22,7 @@ try {
       await page.goto(base + '/legal');
       await page.getByRole('heading', { name: 'Data licences', exact: true }).waitFor();
       if (phase === 'after') {
-        for (const [slug,title] of [['privacy','Privacy notice'],['terms','Adult-pilot terms'],['school-processing','School-processing agreement'],['storage','Cookies and browser storage']]) {
+        for (const [slug,title] of [['privacy','Privacy notice'],['terms','Terms of use'],['school-processing','School data-processing agreement'],['storage','Cookies and browser storage']]) {
           await page.goto(base + '/legal/' + slug);
           await page.getByRole('heading', { name: title, exact: true, level: 1 }).waitFor();
           assert.equal(await page.locator('[data-legal-document]').count(), 1);
@@ -64,8 +64,11 @@ try {
       if (phase === 'after') {
         assert.equal((await context.request.post(base + '/api/legal/records', { headers:{Origin:base},data:{action:'optional_preference',purpose:'analytics',selected:false,version:'optional-preferences/1'} })).status(),403);
         await page.goto(base + '/legal/records');
-        await page.getByRole('heading',{name:'Your legal records',exact:true}).waitFor();
-        assert.equal(await page.getByRole('button',{name:'Keep optional purposes off'}).isEnabled(),false);
+        await page.getByRole('heading',{name:'Privacy and agreements',exact:true}).waitFor();
+        assert.equal(await page.getByRole('button',{name:'Keep optional purposes off'}).count(),0);
+        assert.equal(await page.locator('.sidebar').count(),1);
+        assert.equal(await page.getByRole('heading',{name:'School data-processing agreement',exact:true}).count(),0);
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       }
       await context.request.delete(base + '/api/auth/session',{headers:{Origin:base,'X-MyWavePlan-Request':'1'}});
       assert.equal((await context.request.get(base + '/api/spots')).status(),401);
@@ -75,6 +78,29 @@ try {
     } finally {
       await context.request.delete(base + '/api/auth/session',{headers:{Origin:base,'X-MyWavePlan-Request':'1'}}).catch(()=>{});
       await context.close();
+    }
+  }
+  if (phase === 'after') {
+    for (const width of [320,768]) {
+      const context=await browser.newContext({viewport:{width,height:844},colorScheme:width===320?'dark':'light'});
+      const page=await context.newPage();
+      for (const slug of ['privacy','terms','school-processing','storage']) {
+        await page.goto(base+'/legal/'+slug);
+        const text=await page.locator('[data-legal-document]').innerText();
+        assert(!/English|en-GB|Publication condition|Staging|not installed|MFA/.test(text));
+        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        assert(await page.locator('.legal-menu summary').evaluate(el=>el.getBoundingClientRect().height>=44));
+        await page.locator('.legal-menu summary').click();
+        await page.getByRole('navigation',{name:'Legal documents',exact:true}).waitFor();
+        await page.locator('.legal-menu summary').click();
+        await page.locator('.legal-mobile-contents summary').click();
+        await page.locator('.legal-mobile-contents a').last().click();
+        assert((await page.url()).includes('#section-'));
+        await page.goto(base+'/legal/'+slug);
+        await page.screenshot({path:output.replace(/\.json$/,`-${slug}-${width}.png`)});
+      }
+      await context.close();
+      results.push({width,documentMenusAndAnchors:true,noHorizontalOverflow:true,noReleaseNotesOrLanguageLabels:true});
     }
   }
   const result = { base,phase,checkedAt:new Date().toISOString(),results,contextsClosed:true };

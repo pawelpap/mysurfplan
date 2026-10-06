@@ -11,7 +11,13 @@ export function createLegalHandler({ requireAuth, store }) {
     const session = await requireAuth(req, res);
     if (!session) return;
     try {
-      if (req.method === 'GET') return res.json({ ok: true, data: await store.records(session.userId) });
+      if (req.method === 'GET') {
+        const records = await store.records(session.userId);
+        const preview = await store.preview(req);
+        const documents = (await Promise.all(legalDocuments.filter(d => d.kind !== 'privacy_notice').map(d => store.document(d.id, { preview })))).filter(Boolean).map(({ content, ...d }) => d);
+        const schools = (session.schools || []).filter(s => s.open && s.status === 'active' && (s.owner || s.roles.includes('school_admin'))).map(({ id, name }) => ({ id, name }));
+        return res.json({ ok: true, data: { ...records, documents, schools, preview } });
+      }
       const preview = await store.preview(req);
       const body = req.body;
       if (body?.action === 'notice_delivery') return res.status(400).json({ok:false,error:'Notice delivery is recorded when the server provides the notice.'});
