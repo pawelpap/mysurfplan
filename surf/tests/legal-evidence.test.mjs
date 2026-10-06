@@ -75,3 +75,11 @@ test('account overview exposes document metadata and only eligible schools witho
   assert.equal(res.body.data.documents.length,2);assert(res.body.data.documents.every(d=>d.content===undefined));
   assert.deepEqual(res.body.data.schools,[{id:schoolId,name:'Eligible school'}]);
 });
+
+test('production overview has no staging indicator and students have no representative schools',async()=>{
+  const student={...session,schools:[{id:schoolId,name:'Student school',status:'active',open:true,roles:['student']}]};
+  const store={records:async()=>({acceptances:[],notices:[]}),preview:async()=>false,document:async()=>document};
+  const handler=createLegalHandler({requireAuth:async()=>student,store});
+  const res=response();await handler({method:'GET'},res);
+  assert.equal(res.statusCode,200);assert.equal(res.body.data.preview,false);assert.deepEqual(res.body.data.schools,[]);
+});

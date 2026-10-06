@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import DataLicences from '../data-licences';
 import { legalDocuments } from '../../lib/legal/contracts.mjs';
 import { Loading, Message, PageHeading, request, useData } from './ui';
 
@@ -60,6 +61,11 @@ export default function PrivacyAgreements({ session }) {
         <p>Optional analytics, advertising and session recording are off. No action is needed.</p>
         <p>If optional tools become available, you will be able to choose each purpose here. Your choices will not affect account access.</p>
         <Link className="document-action" href="/legal/storage">Cookies and browser storage</Link>
+      </section>
+      <section aria-labelledby="licences-heading" className="privacy-section">
+        <h2 id="licences-heading">Data licences</h2>
+        <p>Sources and licences for forecasts, tide predictions and light times.</p>
+        <details className="record-history data-licences"><summary>View data sources and licences</summary><DataLicences /></details>
       </section>
       <section aria-labelledby="help-heading" className="privacy-section">
         <h2 id="help-heading">Questions about your information?</h2>

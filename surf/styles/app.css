@@ -2070,10 +2070,23 @@ summary:focus-visible {
   outline-offset: 2px;
 }
 .legal-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   text-decoration: none;
+  cursor: pointer;
 }
+.legal-link:hover, .legal-link[aria-current="page"] { color: var(--sea); }
+.legal-link[aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+.legal-link:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.data-licences .legal-copy { padding: 16px 2px 0; }
 /* Documents and account privacy settings */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .legal-page { max-width: 1100px; padding: 28px 32px 40px; margin: 0 auto; line-height: 1.7; font-weight: 400; }

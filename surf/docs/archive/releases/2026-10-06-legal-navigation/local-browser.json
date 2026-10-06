@@ -1,0 +1,148 @@
+{
+  "base": "http://localhost:3000",
+  "phase": "after",
+  "checkedAt": "2026-10-06T22:52:17.549Z",
+  "results": [
+    {
+      "mobile": false,
+      "hosts": [
+        "localhost"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [
+            "mywaveplan:appearance"
+          ],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "localhost",
+            "httpOnly": true,
+            "secure": false,
+            "sameSite": "Lax",
+            "remainingSeconds": 604798
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [
+            "mywaveplan:appearance"
+          ],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "fontCheck": {
+        "family": "Poppins, system-ui, sans-serif",
+        "weights": [
+          {
+            "weight": 400,
+            "loaded": true
+          },
+          {
+            "weight": 500,
+            "loaded": true
+          },
+          {
+            "weight": 600,
+            "loaded": true
+          },
+          {
+            "weight": 700,
+            "loaded": true
+          }
+        ]
+      },
+      "appearancePersisted": true,
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    },
+    {
+      "mobile": true,
+      "hosts": [
+        "localhost"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [
+            "mywaveplan:appearance"
+          ],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "localhost",
+            "httpOnly": true,
+            "secure": false,
+            "sameSite": "Lax",
+            "remainingSeconds": 604798
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [
+            "mywaveplan:appearance"
+          ],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "fontCheck": {
+        "family": "Poppins, system-ui, sans-serif",
+        "weights": [
+          {
+            "weight": 400,
+            "loaded": true
+          },
+          {
+            "weight": 500,
+            "loaded": true
+          },
+          {
+            "weight": 600,
+            "loaded": true
+          },
+          {
+            "weight": 700,
+            "loaded": true
+          }
+        ]
+      },
+      "appearancePersisted": true,
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    },
+    {
+      "width": 320,
+      "documentMenusAndAnchors": true,
+      "noHorizontalOverflow": true,
+      "noReleaseNotesOrLanguageLabels": true
+    },
+    {
+      "width": 768,
+      "documentMenusAndAnchors": true,
+      "noHorizontalOverflow": true,
+      "noReleaseNotesOrLanguageLabels": true
+    }
+  ],
+  "contextsClosed": true
+}

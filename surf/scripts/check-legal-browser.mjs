@@ -65,8 +65,21 @@ try {
         assert.equal((await context.request.post(base + '/api/legal/records', { headers:{Origin:base},data:{action:'optional_preference',purpose:'analytics',selected:false,version:'optional-preferences/1'} })).status(),403);
         await page.goto(base + '/legal/records');
         await page.getByRole('heading',{name:'Privacy and agreements',exact:true}).waitFor();
+        await page.getByRole('heading',{name:'Your agreements',exact:true}).waitFor();
         assert.equal(await page.getByRole('button',{name:'Keep optional purposes off'}).count(),0);
         assert.equal(await page.locator('.sidebar').count(),1);
+        assert.equal(await page.getByRole('button',{name:'Privacy and agreements',exact:true}).count(),0);
+        assert.equal(await page.locator('.sidebar-footer .legal-link').count(),1);
+        if (mobile) await page.getByRole('button',{name:'Open menu',exact:true}).click();
+        const legalControl=page.locator('.sidebar-footer .legal-link');
+        assert.equal(await legalControl.innerText(),'Legal');
+        assert(await legalControl.evaluate(el=>{const r=el.getBoundingClientRect();return r.height>=44 && r.width<100;}));
+        await page.screenshot({path:output.replace(/\.json$/,`-navigation-${mobile?'mobile':'desktop'}.png`)});
+        await legalControl.click();
+        assert(new URL(page.url()).searchParams.get('view')==='privacy');
+        await page.locator('.data-licences summary').click();
+        await page.locator('.data-licences').getByRole('link',{name:'Open-Meteo',exact:true}).waitFor();
+        assert(await page.locator('.data-licences').getByText('Light times use',{exact:false}).isVisible());
         assert.equal(await page.getByRole('heading',{name:'School data-processing agreement',exact:true}).count(),0);
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       }
@@ -89,6 +102,7 @@ try {
         const text=await page.locator('[data-legal-document]').innerText();
         assert(!/English|en-GB|Publication condition|Staging|not installed|MFA/.test(text));
         assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        await page.waitForFunction(()=>document.querySelector('.legal-menu summary')?.getBoundingClientRect().height>=44);
         assert(await page.locator('.legal-menu summary').evaluate(el=>el.getBoundingClientRect().height>=44));
         await page.locator('.legal-menu summary').click();
         await page.getByRole('navigation',{name:'Legal documents',exact:true}).waitFor();

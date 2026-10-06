@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
@@ -343,10 +342,9 @@ export default function Workspace() {
           <Button tone="quiet" onClick={() => logout()} disabled={loggingOut}>
             Log out
           </Button>
-          <Link className="legal-link" href="/legal">
+          <button className="legal-link" type="button" aria-current={view === "privacy" ? "page" : undefined} onClick={() => go("privacy")}>
             Legal
-          </Link>
-          <button className={`nav-link ${view === "privacy" ? "active" : ""}`} aria-current={view === "privacy" ? "page" : undefined} onClick={() => go("privacy")}>Privacy and agreements</button>
+          </button>
         </div>
       </aside>
       <main className="workspace-main" id="main" tabIndex={-1} ref={main}>
