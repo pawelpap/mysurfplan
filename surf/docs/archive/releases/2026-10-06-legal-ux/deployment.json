@@ -1,0 +1,20 @@
+{
+  "environment": "staging",
+  "project": "mysurfplan-staging",
+  "commit": "b03ee21a66249356b1c43410fe12600f194fbd8f",
+  "deploymentId": "dpl_BvqYSzEhewFAgkYNa9ByWvbb9d8g",
+  "state": "READY",
+  "customDomain": "https://staging.mywaveplan.com",
+  "buildSeconds": 29.649,
+  "region": "fra1",
+  "documentVersion": "2026-10-06.3",
+  "storageVersion": "2026-10-06.2",
+  "testsPassed": 146,
+  "localBuild": "passed",
+  "liveBrowserChecks": "passed",
+  "liveAccountChecks": "passed",
+  "productionDeployment": "dpl_G4jPfFRPZZpw5FyCWSX69Vyr8FvJ",
+  "productionCommit": "5fc24f4b6296c1b2bec1f3c16a1600534a4191b8",
+  "productionAliasUnchanged": true,
+  "originalUncommittedWorkPreserved": true
+}

@@ -1,0 +1,16 @@
+{
+  "base": "https://staging.mywaveplan.com",
+  "checkedAt": "2026-10-06T22:35:39.851Z",
+  "checks": [
+    "notice delivery does not accept terms or enable optional purposes",
+    "refused and stale acceptance leaves core account access available",
+    "CSRF, subject isolation, school authority, exact version/language and idempotence",
+    "independent withdrawal preserves agreements, notice and service access",
+    "320/390/768/1440px workspace records, accepted statuses and no redundant controls",
+    "390px form acceptance, document return preserves choices, saved status survives reload",
+    "1440px form acceptance, document return preserves choices, saved status survives reload",
+    "revoked membership permission reflected in live API"
+  ],
+  "syntheticFixtureRemoved": true,
+  "productionUntouched": true
+}
