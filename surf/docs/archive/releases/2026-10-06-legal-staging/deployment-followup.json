@@ -1,0 +1,10 @@
+{
+  "deploymentId": "dpl_6JKgiXz9ircZoSLZ9geH5h2UMgyH",
+  "commit": "d4d5b57d12b2c2000088ebd03f392eb181ad7e1a",
+  "state": "READY",
+  "customDomain": "https://staging.mywaveplan.com",
+  "runtimeIdenticalTo": "dc9c4f587d6c2e6251b2daceb86fbd0a29dfd748",
+  "changeScope": "Documentation and verification scripts only",
+  "finalDocumentRoutes": "All four returned 200; policy routes contain PAWEL PAPLINSKI",
+  "productionUnchanged": true
+}
