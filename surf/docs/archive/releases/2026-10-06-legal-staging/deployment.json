@@ -1,0 +1,13 @@
+{
+  "deploymentId": "dpl_C32hhVHuYLunf1iP7FmqcM95q9HS",
+  "project": "mysurfplan-staging",
+  "commit": "dc9c4f587d6c2e6251b2daceb86fbd0a29dfd748",
+  "state": "READY",
+  "customDomain": "https://staging.mywaveplan.com",
+  "region": "fra1",
+  "buildSeconds": 33.563,
+  "productionDeployment": "dpl_G4jPfFRPZZpw5FyCWSX69Vyr8FvJ",
+  "productionCommit": "5fc24f4b6296c1b2bec1f3c16a1600534a4191b8",
+  "productionUnchanged": true,
+  "earlierUncommittedChangesPreserved": true
+}

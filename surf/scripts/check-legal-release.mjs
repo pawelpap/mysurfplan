@@ -1,31 +1,34 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import { randomBytes, randomUUID } from 'node:crypto';
-import nextEnv from '@next/env';
+import { randomBytes, randomUUID, scrypt } from 'node:crypto';
+import { promisify } from 'node:util';
 import { connect } from './membership-migration-support.mjs';
-import { createSessionCodec } from '../lib/auth-session.mjs';
-import { sessionTokenHash } from '../lib/auth-store.mjs';
 import { preferenceVersion,optionalPurposes } from '../lib/legal/contracts.mjs';
 import { pathToFileURL } from 'node:url';
 
 const [base,output='/private/tmp/mwp-legal-release.json'] = process.argv.slice(2);
 assert(['https://staging.mywaveplan.com','http://localhost:3000'].includes(base));
-nextEnv.loadEnvConfig(process.cwd());
-const codec=createSessionCodec({secret:process.env.SESSION_SECRET});
 const client=await connect('staging');
-const userId=randomUUID(),schoolId=randomUUID(),membershipId=randomUUID(),token=randomBytes(32).toString('base64url');
-const cookie=codec.issue({sid:token}).split(';')[0];
-const headers={'Content-Type':'application/json','X-MyWavePlan-Request':'1',Origin:base,Cookie:cookie};
+const userId=randomUUID(),schoolId=randomUUID(),membershipId=randomUUID(),password=randomBytes(32).toString('base64url');
+const salt=randomBytes(16),key=await promisify(scrypt)(password,salt,64,{N:16384,r:8,p:1,maxmem:64*1024*1024});
+const passwordHash=['msp-scrypt-v1',16384,8,1,salt.toString('base64url'),key.toString('base64url')].join('$');
+let cookie;
+const headers={'Content-Type':'application/json','X-MyWavePlan-Request':'1',Origin:base};
 const checks=[];
 try {
   assert.equal((await client.query('SELECT environment FROM job_environment')).rows[0].environment,'staging');
   await client.query('BEGIN');
-  await client.query(`INSERT INTO users(id,name,family_name,email,role) VALUES($1,'Synthetic','Legal fixture',$2,'student')`,[userId,`${userId}@example.invalid`]);
+  await client.query(`INSERT INTO users(id,name,family_name,email,role,password_hash) VALUES($1,'Synthetic','Legal fixture',$2,'student',$3)`,[userId,`${userId}@example.invalid`,passwordHash]);
   await client.query(`INSERT INTO schools(id,name,workspace_status) VALUES($1,$2,'active')`,[schoolId,'Synthetic legal '+schoolId]);
   await client.query(`INSERT INTO school_memberships(id,user_id,school_id,status) VALUES($1,$2,$3,'active')`,[membershipId,userId,schoolId]);
   await client.query(`INSERT INTO membership_roles(membership_id,role) VALUES($1,'school_admin')`,[membershipId]);
-  await client.query(`INSERT INTO auth_sessions(token_hash,user_id,auth_version,expires_at) SELECT $1,id,auth_version,now()+interval '10 minutes' FROM users WHERE id=$2`,[sessionTokenHash(token),userId]);
   await client.query('COMMIT');
+  // Exercise the deployed login; never assume the local signing secret matches
+  // staging or export a deployment secret to fabricate authentication.
+  const login=await fetch(base+'/api/auth/login',{method:'POST',headers,body:JSON.stringify({email:`${userId}@example.invalid`,password})});
+  assert.equal(login.status,200,'Synthetic fixture login');
+  cookie=login.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+  headers.Cookie=cookie;
   const read = async path=>{
     const response=await fetch(base+path,{headers});assert.equal(response.status,200,path);return (await response.json()).data;
   };

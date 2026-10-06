@@ -11,6 +11,7 @@ try {
     const context = await browser.newContext({ viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 1000 }, isMobile: mobile, hasTouch: mobile, colorScheme: mobile ? 'dark' : 'light' });
     const page = await context.newPage();
     const hosts = new Set(), errors = [];
+    let fontCheck = null, appearancePersisted = false;
     page.on('request', request => { hosts.add(new URL(request.url()).hostname); });
     page.on('pageerror', error => errors.push(error.message));
     const storage = async () => ({
@@ -35,6 +36,16 @@ try {
         assert.equal((await context.request.get(base + '/api/legal/records')).status(),401);
         assert.equal((await context.request.get(base + '/legal/privacy?language=fr')).status(),404);
         assert.equal((await context.request.get(base + '/legal/privacy?version=missing')).status(),404);
+        fontCheck = await page.evaluate(async()=>{
+          for(const weight of [400,500,600,700]) await document.fonts.load(`${weight} 14px Poppins`);
+          await document.fonts.ready;
+          return { family:getComputedStyle(document.body).fontFamily, weights:[400,500,600,700].map(weight=>({weight,loaded:document.fonts.check(`${weight} 14px Poppins`)})) };
+        });
+        assert(fontCheck.family.includes('Poppins') && fontCheck.weights.every(w=>w.loaded));
+        await page.getByRole('radio',{name:mobile?'Light theme':'Dark theme',exact:true}).check();
+        await page.reload();
+        appearancePersisted = await page.evaluate(mode=>localStorage.getItem('mywaveplan:appearance')===mode && document.documentElement.dataset.themeMode===mode,mobile?'light':'dark');
+        assert(appearancePersisted);
       }
       await page.goto(base + '/login');
       await page.getByRole('button', { name: 'Try the demo', exact: true }).waitFor();
@@ -60,7 +71,7 @@ try {
       assert.equal((await context.request.get(base + '/api/spots')).status(),401);
       if (phase === 'after') assert(![...hosts].some(h => /google|gstatic|facebook|linkedin|clarity|doubleclick/.test(h)), 'Unexpected external tracking/font request');
       assert.deepEqual(errors,[]);
-      results.push({ mobile, hosts:[...hosts].sort(), anonymous, authenticated, forecastDays:16, activeSpots:18, browserErrors:0 });
+      results.push({ mobile, hosts:[...hosts].sort(), anonymous, authenticated, fontCheck, appearancePersisted, forecastDays:16, activeSpots:18, browserErrors:0 });
     } finally {
       await context.request.delete(base + '/api/auth/session',{headers:{Origin:base,'X-MyWavePlan-Request':'1'}}).catch(()=>{});
       await context.close();
