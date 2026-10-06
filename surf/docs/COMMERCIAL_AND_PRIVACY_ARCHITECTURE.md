@@ -213,3 +213,9 @@ The [expansion assessment](PRODUCT_EXPANSION_ASSESSMENT.md) and roadmap F/V/R/M 
 - Mobile clients use the same server permissions, spot calculation and entitlement domains. A native release needs its own secure session lifecycle and store-specific payment classification. Physical service checkout, digital subscriptions/downloads and in-app advertiser purchases require separate review. Cache only deliberately permitted data; do not create offline private-data access merely by adding a service worker.
 
 Each extension must add its retention/deletion/export, moderation/support, consented event and operational monitoring requirements before release. Names in the assessment remain design concepts, not executable schema or approval for provider purchases.
+
+## A4/B6 and planned tracking implementation, 6 October 2026
+
+The staging implementation now supplies intended legal routes, exact document/version/language/hash evidence, separate notice delivery and disabled optional-purpose controls. The registered operator is **PAWEL PAPLINSKI**. Platform account/security/support controller purposes are separate from processing on a school's instructions. [Implementation contract](LEGAL_IMPLEMENTATION.md).
+
+The owner selected GA4, Meta Pixel, LinkedIn Insight Tag, Google Ads and Microsoft Clarity for later C6. They must not be treated uniformly as school subprocessors: published Google roles vary by service/settings, LinkedIn's agreement describes independent controllers and Microsoft identifies Clarity as controller. Exact Meta/effective Clarity terms and relevant agreements remain activation gates. All tracking remains off. C5/C6, A9/B3 and paid-flow/fiscal checkpoints retain their existing dependencies.

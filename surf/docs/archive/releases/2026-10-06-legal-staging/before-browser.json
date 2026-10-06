@@ -1,0 +1,88 @@
+{
+  "base": "https://staging.mywaveplan.com",
+  "phase": "before",
+  "checkedAt": "2026-10-06T21:44:41.330Z",
+  "results": [
+    {
+      "mobile": false,
+      "hosts": [
+        "fonts.googleapis.com",
+        "fonts.gstatic.com",
+        "staging.mywaveplan.com"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "staging.mywaveplan.com",
+            "httpOnly": true,
+            "secure": true,
+            "sameSite": "Lax",
+            "remainingSeconds": 604797
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    },
+    {
+      "mobile": true,
+      "hosts": [
+        "fonts.googleapis.com",
+        "fonts.gstatic.com",
+        "staging.mywaveplan.com"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "staging.mywaveplan.com",
+            "httpOnly": true,
+            "secure": true,
+            "sameSite": "Lax",
+            "remainingSeconds": 604799
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    }
+  ],
+  "contextsClosed": true
+}

@@ -1,0 +1,84 @@
+{
+  "base": "http://localhost:3000",
+  "phase": "after",
+  "checkedAt": "2026-10-06T21:54:25.823Z",
+  "results": [
+    {
+      "mobile": false,
+      "hosts": [
+        "localhost"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "localhost",
+            "httpOnly": true,
+            "secure": false,
+            "sameSite": "Lax",
+            "remainingSeconds": 604796
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    },
+    {
+      "mobile": true,
+      "hosts": [
+        "localhost"
+      ],
+      "anonymous": {
+        "cookies": [],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "authenticated": {
+        "cookies": [
+          {
+            "name": "msp_session",
+            "domain": "localhost",
+            "httpOnly": true,
+            "secure": false,
+            "sameSite": "Lax",
+            "remainingSeconds": 604799
+          }
+        ],
+        "browser": {
+          "localStorageKeys": [],
+          "sessionStorageKeys": [],
+          "serviceWorkers": 0,
+          "cacheNames": [],
+          "indexedDatabaseNames": []
+        }
+      },
+      "forecastDays": 16,
+      "activeSpots": 18,
+      "browserErrors": 0
+    }
+  ],
+  "contextsClosed": true
+}

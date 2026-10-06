@@ -343,6 +343,7 @@ export default function Workspace() {
           <Link className="legal-link" href="/legal">
             Legal
           </Link>
+          <Link className="legal-link" href="/legal/records">Privacy and legal records</Link>
         </div>
       </aside>
       <main className="workspace-main" id="main" tabIndex={-1} ref={main}>

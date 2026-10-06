@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import {
@@ -147,6 +148,7 @@ export default function Login() {
           <small>Explore forecasts as a student. No login details needed.</small>
         </form>
         <div className="auth-help">
+          <p><Link href="/legal/privacy">Privacy</Link> · <Link href="/legal/terms">Terms</Link> · <Link href="/legal/storage">Cookies and browser storage</Link></p>
           <strong>Need an account or help logging in?</strong>
           <p>
             Ask your school admin to create an account or reset your password.

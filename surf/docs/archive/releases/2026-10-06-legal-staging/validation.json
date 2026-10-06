@@ -1,0 +1,27 @@
+{
+  "tests": 145,
+  "failures": 0,
+  "build": "passed, final title fix included",
+  "dependencyTree": "valid",
+  "auditBefore": {
+    "critical": 1,
+    "high": 7
+  },
+  "auditAfter": {
+    "critical": 0,
+    "high": 4
+  },
+  "runtimeAudit": {
+    "critical": 0,
+    "high": 0
+  },
+  "remainingAudit": "Lint-only @next/eslint-plugin-next / fast-glob / micromatch / braces chain; npm suggests a major downgrade, not applied",
+  "baselinePreserved": [
+    "B2 authority",
+    "18 active spots",
+    "16-day forecasts",
+    "calibration/data",
+    "existing sessions"
+  ],
+  "productionApproved": false
+}

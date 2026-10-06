@@ -2083,6 +2083,20 @@ summary:focus-visible {
 .legal-page h1 {
   margin-top: 36px;
 }
+.legal-navigation, .legal-footer { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 28px 0; font-size: 13px; }
+.legal-copy h2 { margin-top: 32px; font-size: 20px; }
+.legal-copy p, .legal-copy li { overflow-wrap: anywhere; }
+.legal-metadata { color: var(--muted); font-size: 13px; }
+.legal-preview { padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 13px; }
+.legal-agreement { padding: 20px; margin: 20px 0; border: 1px solid var(--line); border-radius: 12px; }
+.legal-agreement label { display: flex; gap: 12px; align-items: start; margin: 16px 0; }
+.legal-agreement select { max-width: 100%; }
+.legal-page :focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
+.legal-page #document:focus { outline: none; }
+.legal-copy p { margin-top: 16px; }
+.legal-page .skip-link { position: absolute; }
+.skip-link { position: fixed; top: 8px; left: 8px; z-index: 1000; padding: 10px 16px; background: var(--surface); transform: translateY(-200%); }
+.skip-link:focus { transform: translateY(0); }
 .selected-conditions-time {
   color: var(--sea) !important;
   font-weight: 600;

@@ -86,3 +86,9 @@ Push the reviewed change to `staging`, wait for READY, then verify the staging c
 The student-only `teststudent` account and Demo Surf School are available in both recorded environments. A1 verified demo isolation against two disposable schools; [current permissions](ACCESS_CONTROL.md) document its scope. Use dedicated test fixtures and preserve unrelated records. Lessons must select a database spot. Keep credentials and private test state outside committed documentation.
 
 Do not synchronise entire databases as part of a UI release. For any migration, rehearse first, preserve writes during cutover and define a rollback that accounts for subsequent data. Inspect historical rollback branches before relying on them. Close temporary testing tabs and reset viewport overrides afterwards.
+
+## A4/B6 staging update, 6 October 2026
+
+The earlier 17 September staging-only introduction is historical; the forecast release was approved and deployed to both environments on 17 September. Vercel Pro setup is recorded separately. This new legal release is staging-only and does not inherit that production approval.
+
+Run the endpoint-pinned `migrate-legal-evidence.mjs` rehearsal before applying the additive staging schema and owner-authorised staging text. No acceptance backfill, session invalidation, calibration changes or database synchronisation occurs. Complete text is server-rendered from staging-only document records in the intended legal routes. Production needs its own approval, migration and reviewed content publication. Keep ignored owner text and connection files private. [Release and rollback contract](LEGAL_IMPLEMENTATION.md).

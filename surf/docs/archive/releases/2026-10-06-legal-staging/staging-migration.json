@@ -1,0 +1,17 @@
+{
+  "environment": "staging",
+  "id": "20261006_legal_evidence",
+  "checksum": "fcc97b905a969314a5005d9ec27bb5a2cb7e1ccbb2f4f2ed63f3741884cd1dcf",
+  "state": "applied",
+  "syntheticChecks": [
+    "terms exact version/language and idempotence",
+    "privacy_notice exact version/language and idempotence",
+    "school_processing exact version/language and idempotence",
+    "notice, agreement, optional preference and other-account separation",
+    "withdrawal cannot change agreement or notice evidence",
+    "revoked school authority checked at write",
+    "immutable document and disabled-purpose database constraints"
+  ],
+  "existingDataUnchanged": true,
+  "stagingDocuments": 3
+}

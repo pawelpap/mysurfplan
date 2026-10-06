@@ -2,6 +2,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { Brand } from "../components/workspace/ui";
 import { ThemeSelector } from "../components/theme";
+import { legalDocuments } from "../lib/legal/contracts.mjs";
 
 export default function Legal() {
   return (
@@ -13,6 +14,11 @@ export default function Legal() {
         <Brand />
         <ThemeSelector compact />
       </div>
+      <nav className="legal-navigation" aria-label="Legal documents">
+        {legalDocuments.map(d => <Link key={d.id} href={'/legal/' + d.slug}>{d.title}</Link>)}
+        <Link href="/legal/storage">Cookies and browser storage</Link>
+        <Link href="/legal/records">Your legal records</Link>
+      </nav>
       <h1>Data licences</h1>
       <p>
         Forecasts combine data from{" "}

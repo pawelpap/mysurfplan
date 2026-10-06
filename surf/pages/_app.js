@@ -1,4 +1,5 @@
 import Head from "next/head";
+import "../styles/fonts.css";
 import "../styles/themes.css";
 import "../styles/app.css";
 import "../styles/conditions.css";

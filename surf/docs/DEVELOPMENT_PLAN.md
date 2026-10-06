@@ -254,3 +254,9 @@ The remaining sequence is **A4/B6 reviewed policies and acceptance records → A
 
 
 10 September follow-up: compact tile metadata rows, upper weather icons and mobile-menu focus improvements are complete on staging and production after owner approval. Both environments passed 14 API and nine browser groups. [Production evidence](archive/releases/RELEASE_2026-09-10_TILE_PARAMETERS_PRODUCTION.md).
+
+## Legal implementation update, 6 October 2026
+
+A4/B6 now have complete staging text in the intended privacy/terms/school-processing routes, versioned agreement evidence, separate server-side privacy delivery and disabled optional purposes. Poppins fonts are self-hosted. Production publication and wider legal/retention/provider controls remain open, so these tasks remain partial. [Implementation contract and gates](LEGAL_IMPLEMENTATION.md).
+
+The owner-confirmed future tracking stack is Google Analytics 4 (GA4), Meta Pixel, LinkedIn Insight Tag, Google Ads and Microsoft Clarity. C5/C6 must use purpose-specific choices, provider role/transfer verification and actual withdrawal/masking tests. These are planned tools, not current recipients. No activation, paid subscription, registration or full localisation is included in this staging release.

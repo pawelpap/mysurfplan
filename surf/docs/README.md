@@ -66,3 +66,7 @@ Organised 9 September 2026; status reconciled 16 September and updated after pro
 - Update this index and relative links when moving a document. Update status only from evidence; a documentation tidy-up does not constitute a deployment or live account check.
 
 Latest application release: [13 September email typography](archive/releases/RELEASE_2026-09-13_EMAIL_TYPOGRAPHY.md). The [16 September reconciliation](archive/decisions/PROJECT_ALIGNMENT_2026-09-16.md) checked current deployment aliases, repository/code status and plans. The [Caparica comparison](archive/calibration/2026-09-15-four-spots/README.md) is closed.
+
+## Legal implementation, 6 October 2026
+
+[Legal routes, evidence contracts, current/provider roles and publication gates](LEGAL_IMPLEMENTATION.md) · [Staging release and validation](archive/releases/RELEASE_2026-10-06_LEGAL_STAGING.md). Full owner-specific text is in ignored `docs/private/` and the authorised staging database. A4/B6 remain partial; production approval is pending. The owner-selected GA4/Meta Pixel/LinkedIn Insight Tag/Google Ads/Microsoft Clarity stack remains inactive for C5/C6.
