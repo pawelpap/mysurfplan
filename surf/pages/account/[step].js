@@ -17,7 +17,7 @@ export async function getServerSideProps({ params, query, req, res }) {
   return { props: {
     step: params.step,
     available: Boolean(config),
-    privateEmailTest: config?.environment === 'production' && !config.publicAccounts,
+    privateEmailTest: Boolean(config && !config.publicAccounts),
     next: accountNext(query.next),
     linkLocale: isLocale(query.language) ? query.language : null,
   } };
