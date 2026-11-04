@@ -1017,14 +1017,14 @@ fieldset legend {
   min-height: 100vh;
   max-width: 1220px;
   margin: auto;
-  padding: 44px 36px 56px;
+  padding: clamp(28px, 5vh, 48px) 36px 36px;
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
-  grid-template-areas: "brand brand" "story panel";
-  column-gap: 80px;
-  row-gap: 34px;
-  align-content: center;
-  align-items: center;
+  grid-template-areas: "brand brand" "story panel" "footer footer";
+  column-gap: clamp(32px, 6vw, 80px);
+  row-gap: 24px;
+  align-content: start;
+  align-items: start;
 }
 .login-brand {
   grid-area: brand;
@@ -1040,7 +1040,7 @@ fieldset legend {
   grid-area: story;
   position: relative;
   align-self: stretch;
-  min-height: 580px;
+  min-height: 600px;
   border-radius: 24px;
   overflow: hidden;
   background: var(--story-bg);
@@ -1110,10 +1110,40 @@ fieldset legend {
 .login-panel .auth-form {
   gap: 18px;
 }
-@media (min-width: 761px) {
-  .login-story {
-    align-self: start;
-  }
+.login-shell .login-panel {
+  justify-self: center;
+  padding: 12px 0 0;
+}
+.login-shell .login-intro {
+  min-block-size: 2lh;
+  margin-bottom: 20px;
+}
+.login-shell .auth-form {
+  gap: 16px;
+}
+.login-footer {
+  grid-area: footer;
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.login-footer-links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.login-footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: max(44px, 3lh);
+  line-height: 1.35;
+}
+.login-footer > p {
+  margin-top: 8px;
 }
 @media (max-width: 1000px) and (min-width: 761px) {
   .login-shell {
@@ -1127,7 +1157,7 @@ fieldset legend {
     font-size: 30px;
   }
   .login-story {
-    min-height: 570px;
+    min-height: 580px;
   }
 }
 @media (max-width: 760px) {
@@ -1148,34 +1178,7 @@ fieldset legend {
     height: 36px;
   }
   .login-story {
-    min-height: 140px;
-    height: 140px;
-    border-radius: 14px;
-  }
-  .login-story-copy {
-    padding: 24px 20px;
-  }
-  .login-story .eyebrow,
-  .story-caption {
     display: none;
-  }
-  .login-story h2 {
-    font-size: clamp(18px, 5vw, 22px);
-    letter-spacing: -0.5px;
-    max-width: 78%;
-  }
-  .login-surf {
-    width: min(68%, 250px);
-    left: auto;
-    right: -24px;
-    bottom: -32px;
-    transform: rotate(-8deg);
-  }
-  .login-sun {
-    width: 32px;
-    height: 32px;
-    right: 12%;
-    top: 20px;
   }
   .login-panel {
     padding: 0;
@@ -1198,6 +1201,13 @@ fieldset legend {
   }
   .login-panel .auth-help p {
     line-height: 1.6;
+  }
+  .login-shell .login-panel {
+    padding: 0;
+  }
+  .login-footer-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
   }
 }
 
@@ -2591,18 +2601,25 @@ summary:focus-visible {
   align-items: flex-start;
 }
 .login-password-actions {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px 16px;
-  margin-top: -10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: -8px;
   font-size: 13px;
 }
 .login-password-actions > * {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  min-height: 40px;
+  min-block-size: 44px;
+  margin: 0;
   color: var(--sea);
+  font-size: inherit;
+  line-height: 1.35;
+  text-align: start;
+}
+.login-password-actions a {
+  justify-content: end;
+  text-align: end;
 }
 .login-account-actions {
   display: grid;
@@ -2622,11 +2639,9 @@ summary:focus-visible {
   color: var(--sea);
 }
 .login-demo {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0 10px;
-  margin-top: 12px;
+  display: grid;
+  justify-items: start;
+  margin-top: 10px;
   color: var(--muted);
 }
 .login-demo .button {
@@ -2635,8 +2650,6 @@ summary:focus-visible {
   white-space: normal;
 }
 .login-demo small {
-  font-size: 12px;
-}
-.login-support {
-  margin-top: 10px;
+  min-block-size: 2lh;
+  font-size: 13px;
 }

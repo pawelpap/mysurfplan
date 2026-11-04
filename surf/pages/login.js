@@ -69,7 +69,7 @@ export default function Login({ accountFlows }) {
       <section className="login-panel" aria-labelledby="login-title">
         <p className="login-welcome">{t("login.welcome")}</p>
         <h1 id="login-title">{t("login.title")}</h1>
-        <p>
+        <p className="login-intro">
           {t(school ? "login.booking" : "login.intro")}
         </p>
         {router.query.passwordChanged === "1" && <Message success>{t("account.passwordChanged")}</Message>}
@@ -125,22 +125,6 @@ export default function Login({ accountFlows }) {
           </Button>
           <small>{t("login.demoHint")}</small>
         </div>
-        <div className="auth-help">
-          <p><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link> · <Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link> · <Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></p>
-          {accountFlows ? (
-            <p className="login-support"><a href="mailto:support@mywaveplan.com">{t("account.support")}</a></p>
-          ) : (
-            <>
-              <strong>{t("login.help")}</strong>
-              <p>{t("login.helpBody")}</p>
-            </>
-          )}
-          {school && (
-            <p style={{ marginTop: 20 }}>
-              <a href={`/${school}`}>{t("login.back")}</a>
-            </p>
-          )}
-        </div>
       </section>
       <section className="login-story" aria-label={t("login.storyLabel")}>
         <div className="login-story-copy">
@@ -188,6 +172,20 @@ export default function Login({ accountFlows }) {
           <circle cx="334" cy="162" r="15" fill="var(--illustration-surfer)" />
         </svg>
       </section>
+      <footer className="login-footer">
+        <ul className="login-footer-links">
+          <li><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link></li>
+          <li><Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link></li>
+          <li><Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></li>
+          {accountFlows && (
+            <li><a href="mailto:support@mywaveplan.com">{t("account.support")}</a></li>
+          )}
+        </ul>
+        {!accountFlows && (
+          <p><strong>{t("login.help")}</strong> {t("login.helpBody")}</p>
+        )}
+        {school && <p><a href={`/${school}`}>{t("login.back")}</a></p>}
+      </footer>
     </main>
   );
 }
