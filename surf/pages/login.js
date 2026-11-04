@@ -126,8 +126,8 @@ export default function Login({ accountFlows }) {
           <small>{t("login.demoHint")}</small>
         </div>
       </section>
-      <section className="login-story" aria-label={t("login.storyLabel")}>
-        <div className="login-story-copy">
+      <div className="login-story">
+        <section className="login-story-copy" aria-label={t("login.storyLabel")}>
           <p className="eyebrow">{t("login.eyebrow")}</p>
           <h2>
             {t("login.storyFirst")}
@@ -137,7 +137,7 @@ export default function Login({ accountFlows }) {
           <p className="story-caption">
             {t("login.storyCaption")}
           </p>
-        </div>
+        </section>
         <div className="login-sun" aria-hidden="true" />
         <svg className="login-surf" viewBox="0 0 560 430" aria-hidden="true">
           <path
@@ -171,7 +171,7 @@ export default function Login({ accountFlows }) {
           />
           <circle cx="334" cy="162" r="15" fill="var(--illustration-surfer)" />
         </svg>
-      </section>
+      </div>
       <footer className="login-footer">
         <ul className="login-footer-links">
           <li><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link></li>
