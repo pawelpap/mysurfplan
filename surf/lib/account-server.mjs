@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
+import { accountActivityNotice } from './email/account-activity.mjs';
 import { accountNext, validAccountToken, validNewPassword } from './account-flow.mjs';
 import { sessionTokenHash } from './auth-store.mjs';
 import { emailConfig, recipientAllowed, validEmail } from './email/config.mjs';
@@ -135,10 +136,18 @@ export function accountHandler(getSql, env = process.env, scheduleDelivery) {
         return res.status(429).json({ ok: false, error: 'login.rateLimit' });
       }
       const passwordHash = await hashPassword(body.password);
-      const [row] = action === 'verify'
-        ? await sql`SELECT complete_account_registration(${tokenHash}, ${name}, ${passwordHash},
-            ${locale}, ${body.terms.version}, ${body.terms.contentHash}, ${preview}) AS result`
-        : await sql`SELECT complete_account_reset(${tokenHash}, ${passwordHash}) AS result`;
+      const notice = accountActivityNotice(config, action === 'verify' ? 'email.account_created_notice' : 'email.password_changed_notice');
+      const [row] = await sql`
+        WITH completed AS MATERIALIZED (
+          SELECT CASE WHEN ${action}='verify' THEN complete_account_registration(
+            ${tokenHash}, ${name}, ${passwordHash}, ${locale}, ${body.terms?.version ?? null},
+            ${body.terms?.contentHash ?? null}, ${preview})
+          ELSE complete_account_reset(${tokenHash}, ${passwordHash}) END AS result
+        )
+        SELECT result, CASE WHEN left(result,1)='/' THEN queue_account_activity_notice(
+          ${notice?.id ?? null}::uuid,${notice?.type ?? null},${notice?.hash ?? null},${notice?.payload ?? null}::jsonb)
+        END AS notice_id FROM completed
+      `;
       if (row?.result === 'terms_changed') return res.status(409).json({ ok: false, error: 'account.termsChanged' });
       if (!row?.result) return res.status(400).json({ ok: false, error: 'account.invalidLink' });
       return res.json({ ok: true, data: { next: accountNext(row.result) } });

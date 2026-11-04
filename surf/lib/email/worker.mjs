@@ -1,6 +1,6 @@
 import { decryptPayload, recipientHash } from './crypto.mjs';
 import { retryDelay } from './mailjet.mjs';
-import { recipientAllowed } from './config.mjs';
+import { ACCOUNT_ACTIVITY_SUBJECTS, recipientAllowed } from './config.mjs';
 import { validAccountToken } from '../account-flow.mjs';
 import { isLocale } from '../locale/preferences.mjs';
 
@@ -18,12 +18,13 @@ export async function runEmailWorker({ config, store, send, jobId = null, now = 
       processed++;
       let payload;
       try {
-        if (!['email.delivery_check','email.account_verify','email.account_reset'].includes(job.type) ||
+        const accountLink = job.type === 'email.account_verify' || job.type === 'email.account_reset';
+        if ((!accountLink && job.type !== 'email.delivery_check' && !Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)) ||
             job.schema_version !== 1) throw new Error();
         payload = decryptPayload(job.payload, job.id, config, job.type);
         if (!recipientAllowed(config, payload.recipient, job.type) ||
             recipientHash(payload.recipient, config) !== job.recipient_hash ||
-            (job.type !== 'email.delivery_check' &&
+            (accountLink &&
               (!config.accountFlows || !validAccountToken(payload.token) || !isLocale(payload.locale)))) throw new Error();
       } catch {
         await store.finish(job, { status: 'failed', code: 'payload_or_recipient_invalid' });

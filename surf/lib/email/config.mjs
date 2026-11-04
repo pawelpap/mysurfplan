@@ -6,6 +6,13 @@ export const PROJECTS = Object.freeze({
   production: 'prj_J100oKHrcYqghajndUkaEI8LDSvi',
 });
 
+export const ACCOUNT_ACTIVITY_RECIPIENT = 'support@mywaveplan.com';
+export const ACCOUNT_ACTIVITY_SUBJECTS = Object.freeze({
+  'email.account_created_notice': 'A personal account was created',
+  'email.password_changed_notice': 'An account password was changed or reset',
+  'email.account_closed_notice': 'A personal account was closed',
+});
+
 export function equalSecret(actual, expected) {
   if (typeof actual !== 'string' || typeof expected !== 'string' || !expected) return false;
   const a = Buffer.from(actual), b = Buffer.from(expected);
@@ -52,6 +59,8 @@ export function emailConfig(env = process.env) {
 }
 
 export function recipientAllowed(config, recipient, type) {
+  if (Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, type))
+    return config.environment === 'production' && recipient === ACCOUNT_ACTIVITY_RECIPIENT;
   return validEmail(recipient) && (config.allowlist.includes(recipient) ||
     (config.publicAccounts && ['email.account_verify','email.account_reset'].includes(type)));
 }

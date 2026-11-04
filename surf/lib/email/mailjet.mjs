@@ -1,3 +1,4 @@
+import { ACCOUNT_ACTIVITY_SUBJECTS } from './config.mjs';
 import { eventToken } from './crypto.mjs';
 import { supportEmail } from './template.mjs';
 import { accountEmailLink } from '../account-flow.mjs';
@@ -28,6 +29,18 @@ export function accountMessage(job, recipient, config, { token, locale }) {
   return mailjetMessage(job, recipient, config, `${title} · MyWavePlan`, content);
 }
 
+export function accountActivityMessage(job, recipient, config) {
+  const title = ACCOUNT_ACTIVITY_SUBJECTS[job.type];
+  const when = new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Lisbon',
+  }).format(new Date(job.created_at));
+  const content = supportEmail({ title, paragraphs: [
+    `${title} on MyWavePlan at ${when} (Lisbon time).`,
+    'This is an automatic notice for the MyWavePlan Support team.',
+  ] });
+  return mailjetMessage(job, recipient, config, `${title} · MyWavePlan`, content);
+}
+
 export function retryDelay(attempt, retryAfter, now = Date.now(), random = Math.random) {
   const seconds = Number(retryAfter);
   const headerMs = retryAfter && Number.isFinite(seconds) ? seconds * 1000 : Date.parse(retryAfter) - now;
@@ -40,7 +53,9 @@ export function createMailjetAdapter(config, fetchImpl = fetch) {
     try {
       const outbound = job.type === 'email.delivery_check'
         ? deliveryCheckMessage(job, recipient, config)
-        : accountMessage(job, recipient, config, payload);
+        : Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)
+          ? accountActivityMessage(job, recipient, config)
+          : accountMessage(job, recipient, config, payload);
       // No SDK/network retries: a timeout can happen after provider acceptance.
       const response = await fetchImpl('https://api.mailjet.com/v3.1/send', {
         method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),

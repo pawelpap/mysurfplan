@@ -1,4 +1,6 @@
 import { createHmac } from 'node:crypto';
+import { accountActivityNotice } from './email/account-activity.mjs';
+import { emailConfig } from './email/config.mjs';
 import { validNewPassword } from './account-flow.mjs';
 import { clientNetwork, consumeLoginAttempt } from './login-limits.mjs';
 import { hashPassword, verifyPassword } from './passwords.mjs';
@@ -14,7 +16,7 @@ export function accountLifecycleStore(sql) {
       return person || null;
     },
 
-    async changePassword(userId, current, nextHash) {
+    async changePassword(userId, current, nextHash, notice) {
       const [row] = await sql`
         WITH changed AS (
           UPDATE users SET password_hash=${nextHash}, auth_version=auth_version+1, updated_at=now()
@@ -25,16 +27,25 @@ export function accountLifecycleStore(sql) {
           UPDATE auth_sessions SET revoked_at=now()
           WHERE user_id IN (SELECT id FROM changed) AND revoked_at IS NULL
         )
-        SELECT EXISTS(SELECT 1 FROM changed) AS changed
+        SELECT EXISTS(SELECT 1 FROM changed) AS changed,
+          CASE WHEN EXISTS(SELECT 1 FROM changed) THEN queue_account_activity_notice(
+            ${notice?.id ?? null}::uuid,${notice?.type ?? null},${notice?.hash ?? null},${notice?.payload ?? null}::jsonb)
+          END AS notice_id
       `;
       return row?.changed === true;
     },
 
-    async requestClosure(userId, current) {
+    async requestClosure(userId, current, notice) {
       const [row] = await sql`
-        SELECT outcome,request_id AS id,requested_at AS "requestedAt",review_completed_at AS "reviewedAt"
-        FROM complete_account_closure(${userId},${current.password_hash},${current.auth_version})
+        WITH completed AS MATERIALIZED (
+          SELECT * FROM complete_account_closure(${userId},${current.password_hash},${current.auth_version})
+        )
+        SELECT outcome,request_id AS id,requested_at AS "requestedAt",review_completed_at AS "reviewedAt",
+          CASE WHEN outcome='closed' THEN queue_account_activity_notice(
+            ${notice?.id ?? null}::uuid,${notice?.type ?? null},${notice?.hash ?? null},${notice?.payload ?? null}::jsonb)
+          END AS notice_id FROM completed
       `;
+      if (row) delete row.notice_id;
       return row || null;
     },
 
@@ -78,6 +89,8 @@ export function accountLifecycleStore(sql) {
 
 export function accountLifecycleHandler({ sql, requireAuth, clearCookie, env = process.env }) {
   const store = accountLifecycleStore(sql);
+  let delivery;
+  try { delivery = emailConfig(env); } catch { /* Account security stays available during email configuration errors. */ }
   return async (req, res) => {
     res.setHeader('Cache-Control', 'private, no-store');
     if (!['GET', 'POST', 'PATCH'].includes(req.method)) {
@@ -136,13 +149,14 @@ export function accountLifecycleHandler({ sql, requireAuth, clearCookie, env = p
       if (!current || !await verifyPassword(body.currentPassword, current.password_hash))
         return fail(400, 'account.currentPasswordInvalid');
       if (body.action === 'closure') {
-        const request = await store.requestClosure(userId, current);
+        const request = await store.requestClosure(userId, current, accountActivityNotice(delivery, 'email.account_closed_notice'));
         if (!request) return fail(409, 'account.tryAgain');
         if (request.outcome === 'closed') clearCookie(res);
         return success(request);
       }
 
-      const changed = await store.changePassword(userId, current, await hashPassword(body.newPassword));
+      const changed = await store.changePassword(userId, current, await hashPassword(body.newPassword),
+        accountActivityNotice(delivery, 'email.password_changed_notice'));
       if (!changed) return fail(409, 'account.tryAgain');
       clearCookie(res);
       return success(null);

@@ -10,6 +10,12 @@ The first production release of the localised account flows is live on MyWavePla
 - Mailjet's production key sends from `support@mywaveplan.com` and uses the same Reply-To. Mailjet confirmed SPF and DKIM for the domain. The five grouped callbacks cover Sent, Bounce, Blocked, Spam and Unsubscribe. Open and click tracking are disabled. Vercel holds the Mailjet credentials, callback authentication and worker secrets in production-scoped Secret variables.
 - Healthchecks.io monitors the scheduled production worker, independently of Mailjet. The production check uses a ten-minute period with a five-minute grace window. Staging has a separate check and secret and stays idle while its cron is off. For a staging test window, deploy the same schedule to staging and resume its check. Pause the staging check and remove the schedule at the end of the window. The worker reports overdue work, imminent reset expiry, recently expired or uncertain deliveries, provider rejection and exhausted send quotas during the scheduled run. This avoids separate database polling. Healthchecks sends alerts to the Zoho Support mailbox. The owner manages the Support closure queue.
 
+## Support account activity emails
+
+Production queues a fixed message to Support after a successful signup, password change or reset, or completed self-closure. The notice and its account change commit together. Failed attempts and closure requests still waiting for review do not send an activity email. The notification includes the event and Lisbon time, without the person's name, email address, password or account ID. The normal ten-minute worker sends these notices under the same delivery limits and retry rules. Staging does not send account activity mail to Support.
+
+The `20261104_account_activity_notices` migration adds the three message types and a production-bound enqueue function. In a future analytics release, decide which routine account activity emails to replace with consent-appropriate metrics. Keep operational failure alerts separate from product analytics.
+
 ## Verification and activation
 
 Production signup and password reset emails reached the allowlisted test inbox. Both recorded a live Mailjet Sent callback after one attempt. The production test verified exact terms acceptance, no school access on signup, one-time verification and reset links, old-session revocation and immediate self-closure. The closed test account cannot log in. Its acceptance record remains available.

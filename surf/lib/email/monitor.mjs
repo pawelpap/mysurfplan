@@ -13,7 +13,7 @@ export async function reportEmailHealth(query, config, fetchImpl = fetch) {
           AND (due_at<now()-interval '10 minutes'
             OR (type='email.account_reset' AND expires_at<now()+interval '10 minutes'))) AS backlog,
         EXISTS(SELECT 1 FROM job_outbox WHERE environment=$1 AND updated_at>now()-interval '30 minutes'
-          AND (status='delivery_unknown' OR (status='expired' AND type IN ('email.account_verify','email.account_reset'))
+          AND (status='delivery_unknown' OR (status='expired' AND type<>'email.delivery_check')
             OR error_code IN ('provider_rejected_401','provider_rejected_403'))) AS delivery_issue,
         (SELECT count(*)>=3 FROM job_outbox WHERE environment=$1 AND updated_at>now()-interval '30 minutes'
           AND status='failed' AND error_code LIKE 'provider%rejected%') AS repeated_rejection,
