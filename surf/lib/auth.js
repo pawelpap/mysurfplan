@@ -83,6 +83,10 @@ export async function clearAuthSession(req, res, { all = false } = {}) {
     if (validSessionToken(cookie?.sid)) await sessionStore.revoke(cookie.sid);
   }
   requestSessions.delete(req);
+  clearAuthCookie(res);
+}
+
+export function clearAuthCookie(res) {
   res.setHeader("Set-Cookie", sessionCodec.clear());
 }
 

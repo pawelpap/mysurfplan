@@ -6,6 +6,7 @@ import Conditions from "../components/conditions";
 import { LanguageSelector, LocaleProvider, useLocale } from "../components/locale";
 import { ThemeSelector } from "../components/theme";
 import Memberships from "../components/workspace/memberships";
+import AccountSecurity from "../components/workspace/account-security";
 import PrivacyAgreements from "../components/workspace/privacy-agreements";
 import { withSchool, schoolAccess } from "../lib/school-access.mjs";
 import People from "../components/workspace/people";
@@ -543,6 +544,7 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut, onSaved }) {
           {loggingOut ? t("Logging out…") : t("Log out everywhere")}
         </Button>
       </section>
+      {!session.demo && <AccountSecurity canReview={isPlatform(session.role)} />}
       {onEdit ? (
         <Button onClick={onEdit}>{t("account.manage")}</Button>
       ) : (

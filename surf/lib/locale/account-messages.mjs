@@ -93,6 +93,70 @@ const messages = {
   ],
 };
 
+const lifecycleKeys = [
+  'securityTitle','changePassword','currentPassword','newPassword','passwordSessionEffect','passwordDifferent',
+  'currentPasswordInvalid','passwordChanged','tryAgain','closureTitle','closureBody','requestClosure','closureConfirm',
+  'closurePending','closureReviewed','closureQueue','closureQueueBody','closureQueueEmpty','markReviewed','markReviewedConfirm',
+  'supportCase','invalidSupportCase','reviewedRequests','closed',
+];
+const lifecycleMessages = {
+  'en-GB': [
+    'Password and security','Change password','Current password','New password',
+    'Changing your password signs you out on all devices. You can then log in with your new password.',
+    'Choose a password different from your current one.','Check your current password and try again.',
+    'Your password has changed. Log in with your new password.','Your account changed while you were making this request. Please try again.',
+    'Close account',
+    'If you have no outstanding bookings or school responsibilities, your account closes immediately and you are signed out on all devices. If your account needs review, we send your request to Support and your access stays active. Contact Support separately to request deletion of personal data.',
+    'Close my account','I understand that my account may close immediately.',
+    'Support received your request on {date}.','Support reviewed the request you submitted on {date}. Contact Support for the outcome.',
+    'Account closure requests','Check school ownership, upcoming bookings and retention requirements before acting. Mark a request as reviewed after following up with the account holder.',
+    'No requests are waiting for review.','Mark reviewed','Confirm that you reviewed this request and followed up with the account holder.',
+    'Support case reference','Use a support case reference with letters, numbers, dots, hyphens or underscores.','Reviewed requests','Your account is closed. You have been signed out on all devices.',
+  ],
+  'pt-PT': [
+    'Palavra-passe e segurança','Alterar palavra-passe','Palavra-passe atual','Nova palavra-passe',
+    'Alterar a palavra-passe termina a sessão em todos os dispositivos. Depois, pode iniciar sessão com a nova palavra-passe.',
+    'Escolha uma palavra-passe diferente da atual.','Verifique a palavra-passe atual e tente novamente.',
+    'A sua palavra-passe foi alterada. Inicie sessão com a nova palavra-passe.','A sua conta mudou durante o pedido. Tente novamente.',
+    'Encerrar conta',
+    'Se não tiver reservas pendentes nem responsabilidades numa escola, a sua conta é encerrada de imediato e a sessão termina em todos os dispositivos. Se for necessária uma análise, enviamos o pedido à equipa de apoio e o seu acesso mantém-se ativo. Para pedir a eliminação de dados pessoais, contacte a equipa de apoio.',
+    'Encerrar a minha conta','Compreendo que a minha conta pode ser encerrada de imediato.',
+    'O apoio recebeu o seu pedido em {date}.','O apoio analisou o pedido que apresentou em {date}. Contacte o apoio para saber o resultado.',
+    'Pedidos de encerramento de contas','Antes de agir, verifique a titularidade das escolas, as reservas futuras e as regras de conservação. Marque o pedido como analisado depois de contactar o titular da conta.',
+    'Não há pedidos por analisar.','Marcar como analisado','Confirme que analisou o pedido e contactou o titular da conta.',
+    'Referência do pedido de apoio','Use uma referência com letras, números, pontos, hífenes ou sublinhados.','Pedidos analisados','A sua conta foi encerrada. A sessão terminou em todos os dispositivos.',
+  ],
+  es: [
+    'Contraseña y seguridad','Cambiar contraseña','Contraseña actual','Contraseña nueva',
+    'Al cambiar la contraseña se cerrará la sesión en todos los dispositivos. Después podrás iniciar sesión con la contraseña nueva.',
+    'Elige una contraseña distinta de la actual.','Comprueba la contraseña actual y vuelve a intentarlo.',
+    'La contraseña se ha cambiado. Inicia sesión con la contraseña nueva.','Tu cuenta cambió durante la solicitud. Vuelve a intentarlo.',
+    'Cerrar la cuenta',
+    'Si no tienes reservas pendientes ni responsabilidades en una escuela, tu cuenta se cierra de inmediato y se cierra la sesión en todos tus dispositivos. Si tu caso requiere revisión, enviamos tu solicitud a Soporte y mantienes el acceso. Contacta con Soporte por separado para solicitar la supresión de datos personales.',
+    'Cerrar mi cuenta','Entiendo que mi cuenta puede cerrarse de inmediato.',
+    'Soporte recibió tu solicitud el {date}.','Soporte revisó la solicitud que enviaste el {date}. Contacta con Soporte para conocer el resultado.',
+    'Solicitudes de cierre de cuenta','Comprueba la titularidad de las escuelas, las próximas reservas y los requisitos de conservación antes de actuar. Marca la solicitud como revisada después de contactar con el titular.',
+    'No hay solicitudes pendientes de revisión.','Marcar como revisada','Confirma que revisaste la solicitud y contactaste con el titular de la cuenta.',
+    'Referencia del caso de Soporte','Usa una referencia con letras, números, puntos, guiones o guiones bajos.','Solicitudes revisadas','Tu cuenta se ha cerrado. Se ha cerrado la sesión en todos tus dispositivos.',
+  ],
+  fr: [
+    'Mot de passe et sécurité','Modifier le mot de passe','Mot de passe actuel','Nouveau mot de passe',
+    'La modification du mot de passe vous déconnecte sur tous les appareils. Vous pourrez ensuite vous reconnecter avec le nouveau mot de passe.',
+    'Choisissez un mot de passe différent de l’actuel.','Vérifiez votre mot de passe actuel et réessayez.',
+    'Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe.','Votre compte a changé pendant la demande. Réessayez.',
+    'Fermer le compte',
+    'Si vous n’avez aucune réservation en cours ou à venir et aucune responsabilité dans une école, votre compte est fermé immédiatement et vous êtes déconnecté de tous vos appareils. Si votre situation nécessite un examen, nous transmettons votre demande à l’assistance et vous gardez votre accès. Contactez l’assistance séparément pour demander la suppression de vos données personnelles.',
+    'Fermer mon compte','Je comprends que mon compte peut être fermé immédiatement.',
+    'L’assistance a reçu votre demande le {date}.','L’assistance a examiné votre demande du {date}. Contactez-la pour connaître le résultat.',
+    'Demandes de fermeture de compte','Vérifiez la responsabilité des écoles, les réservations à venir et les règles de conservation avant d’agir. Marquez la demande comme examinée après avoir contacté le titulaire.',
+    'Aucune demande en attente d’examen.','Marquer comme examinée','Confirmez que vous avez examiné la demande et contacté le titulaire du compte.',
+    'Référence du dossier d’assistance','Utilisez une référence avec des lettres, des chiffres, des points, des traits d’union ou des tirets bas.','Demandes examinées','Votre compte est fermé. Vous avez été déconnecté de tous vos appareils.',
+  ],
+};
+
 export const accountMessages = Object.fromEntries(Object.entries(messages).map(([locale, values]) => [
-  locale, Object.fromEntries(keys.map((key, index) => ['account.' + key, values[index]])),
+  locale, Object.fromEntries([
+    ...keys.map((key, index) => ['account.' + key, values[index]]),
+    ...lifecycleKeys.map((key, index) => ['account.' + key, lifecycleMessages[locale][index]]),
+  ]),
 ]));

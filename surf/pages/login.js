@@ -66,6 +66,82 @@ export default function Login({ accountFlows }) {
         <Brand />
         <LanguageSelector compact />
       </div>
+      <section className="login-panel" aria-labelledby="login-title">
+        <p className="login-welcome">{t("login.welcome")}</p>
+        <h1 id="login-title">{t("login.title")}</h1>
+        <p>
+          {t(school ? "login.booking" : "login.intro")}
+        </p>
+        {router.query.passwordChanged === "1" && <Message success>{t("account.passwordChanged")}</Message>}
+        {router.query.accountClosed === "1" && <Message success>{t("account.closed")}</Message>}
+        <form className="auth-form" onSubmit={submit}>
+          <Field
+            label={t("login.identifier")}
+            type="text"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="username"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+          />
+          <Field
+            label={t("login.password")}
+            type={visible ? "text" : "password"}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+          />
+          <div className="login-password-actions">
+            <button
+              className="inline-link password-toggle"
+              type="button"
+              aria-pressed={visible}
+              onClick={() => setVisible(!visible)}
+            >
+              {t(visible ? "login.hidePassword" : "login.showPassword")}
+            </button>
+            {accountFlows && <Link href={{ pathname: "/account/recover", query: { next: safeNext(router.query.next) } }}>
+              {t("account.forgot")}
+            </Link>}
+          </div>
+          <Message>{error && t(error)}</Message>
+          <div className="login-account-actions">
+            <Button tone="primary" type="submit" disabled={busy}>
+              {t(busy ? "login.busy" : "login.title")}
+            </Button>
+            {accountFlows && <Link className="button secondary"
+              href={{ pathname: "/account/register", query: { next: safeNext(router.query.next) } }}>
+              {t("account.registerTitle")}
+            </Link>}
+          </div>
+        </form>
+        <div className="login-demo">
+          <Button tone="quiet" onClick={() => login(true)} disabled={busy}>
+            {t("login.demo")}
+          </Button>
+          <small>{t("login.demoHint")}</small>
+        </div>
+        <div className="auth-help">
+          <p><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link> · <Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link> · <Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></p>
+          {accountFlows ? (
+            <p className="login-support"><a href="mailto:support@mywaveplan.com">{t("account.support")}</a></p>
+          ) : (
+            <>
+              <strong>{t("login.help")}</strong>
+              <p>{t("login.helpBody")}</p>
+            </>
+          )}
+          {school && (
+            <p style={{ marginTop: 20 }}>
+              <a href={`/${school}`}>{t("login.back")}</a>
+            </p>
+          )}
+        </div>
+      </section>
       <section className="login-story" aria-label={t("login.storyLabel")}>
         <div className="login-story-copy">
           <p className="eyebrow">{t("login.eyebrow")}</p>
@@ -111,67 +187,6 @@ export default function Login({ accountFlows }) {
           />
           <circle cx="334" cy="162" r="15" fill="var(--illustration-surfer)" />
         </svg>
-      </section>
-      <section className="login-panel" aria-labelledby="login-title">
-        <p className="login-welcome">{t("login.welcome")}</p>
-        <h1 id="login-title">{t("login.title")}</h1>
-        <p>
-          {t(school ? "login.booking" : "login.intro")}
-        </p>
-        <form className="auth-form" onSubmit={submit}>
-          <Field
-            label={t("login.identifier")}
-            type="text"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            autoComplete="username"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(""); }}
-          />
-          <Field
-            label={t("login.password")}
-            type={visible ? "text" : "password"}
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setError(""); }}
-          />
-          <button
-            className="inline-link password-toggle"
-            type="button"
-            aria-pressed={visible}
-            onClick={() => setVisible(!visible)}
-          >
-            {t(visible ? "login.hidePassword" : "login.showPassword")}
-          </button>
-          <Message>{error && t(error)}</Message>
-          <Button tone="primary" type="submit" disabled={busy}>
-            {t(busy ? "login.busy" : "login.title")}
-          </Button>
-          <Button onClick={() => login(true)} disabled={busy}>
-            {t("login.demo")}
-          </Button>
-          <small>{t("login.demoHint")}</small>
-        </form>
-        <div className="auth-help">
-          {accountFlows && <p className="account-entry-links">
-            <Link href={{ pathname: "/account/register", query: { next: safeNext(router.query.next) } }}>{t("account.registerTitle")}</Link>
-            <Link href={{ pathname: "/account/recover", query: { next: safeNext(router.query.next) } }}>{t("account.forgot")}</Link>
-          </p>}
-          <p><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link> · <Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link> · <Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></p>
-          <strong>{t("login.help")}</strong>
-          <p>
-            {t("login.helpBody")}
-          </p>
-          {school && (
-            <p style={{ marginTop: 20 }}>
-              <a href={`/${school}`}>{t("login.back")}</a>
-            </p>
-          )}
-        </div>
       </section>
     </main>
   );

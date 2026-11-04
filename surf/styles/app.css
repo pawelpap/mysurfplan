@@ -1019,14 +1019,15 @@ fieldset legend {
   margin: auto;
   padding: 44px 36px 56px;
   display: grid;
-  grid-template-columns: 1.12fr 1fr;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  grid-template-areas: "brand brand" "story panel";
   column-gap: 80px;
   row-gap: 34px;
   align-content: center;
   align-items: center;
 }
 .login-brand {
-  grid-column: 1/-1;
+  grid-area: brand;
 }
 .login-brand .brand {
   font-size: 21px;
@@ -1036,6 +1037,7 @@ fieldset legend {
   height: 42px;
 }
 .login-story {
+  grid-area: story;
   position: relative;
   align-self: stretch;
   min-height: 580px;
@@ -1083,8 +1085,9 @@ fieldset legend {
   background: var(--story-sun);
 }
 .login-panel {
+  grid-area: panel;
   width: 100%;
-  max-width: 410px;
+  max-width: 440px;
   padding: 24px 0;
 }
 .login-panel h1 {
@@ -1152,15 +1155,15 @@ fieldset legend {
     display: none;
   }
   .login-story h2 {
-    font-size: 22px;
+    font-size: clamp(18px, 5vw, 22px);
     letter-spacing: -0.5px;
-    max-width: 60%;
+    max-width: 78%;
   }
   .login-surf {
-    width: 250px;
+    width: min(68%, 250px);
     left: auto;
-    right: -28px;
-    bottom: -44px;
+    right: -24px;
+    bottom: -32px;
     transform: rotate(-8deg);
   }
   .login-sun {
@@ -2577,8 +2580,53 @@ summary:focus-visible {
 .account-shell .agreement-check {
   align-items: flex-start;
 }
-.account-entry-links {
+.login-password-actions {
   display: flex;
+  justify-content: space-between;
   flex-wrap: wrap;
-  gap: .5rem 1rem;
+  gap: 4px 16px;
+  margin-top: -10px;
+  font-size: 13px;
+}
+.login-password-actions > * {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--sea);
+}
+.login-account-actions {
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 10px;
+}
+.login-account-actions .button {
+  min-height: 52px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+}
+.login-account-actions .secondary {
+  border-color: var(--sea);
+  color: var(--sea);
+}
+.login-demo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  margin-top: 12px;
+  color: var(--muted);
+}
+.login-demo .button {
+  min-height: 44px;
+  padding-inline: 0;
+  white-space: normal;
+}
+.login-demo small {
+  font-size: 12px;
+}
+.login-support {
+  margin-top: 10px;
 }
