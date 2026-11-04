@@ -1,4 +1,10 @@
 import { storageTranslations } from "./storage-translations.mjs";
+import { storagePreviewContent, storagePreviewVersion } from "./storage-preview.mjs";
+import { legalStagingProjectId } from "./contracts.mjs";
+
+export function isStorageStagingPreview(host, projectId) {
+  return host === 'staging.mywaveplan.com' && projectId === legalStagingProjectId;
+}
 
 const previousStorageNotice = {
   document_id: 'mywaveplan.browser-storage', version: '2026-10-06.2', language: 'en-GB',
@@ -48,10 +54,13 @@ The mywaveplan:language entry in local storage remembers the language you choose
 ## Location permission`),
 };
 
-export function getStorageNotice(version, locale = 'en-GB') {
+export function getStorageNotice(version, locale = 'en-GB', { preview = false } = {}) {
   if (version === previousStorageNotice.version)
     return locale === previousStorageNotice.language ? previousStorageNotice : null;
-  if (version && version !== storageNotice.version) return null;
   const translation = storageTranslations[locale];
-  return translation ? { ...storageNotice, ...translation, language: locale } : storageNotice;
+  const current = translation ? { ...storageNotice, ...translation, language: locale } : storageNotice;
+  if (preview && (!version || version === storagePreviewVersion)) {
+    return { ...current, version: storagePreviewVersion, status: 'staging_preview', content: storagePreviewContent[current.language] };
+  }
+  return !version || version === storageNotice.version ? current : null;
 }

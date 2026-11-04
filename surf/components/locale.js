@@ -54,13 +54,13 @@ function saveDeviceLocale(locale) {
   window.dispatchEvent(new Event(changeEvent));
 }
 
-export function LocaleProvider({ children, accountLocale }) {
+export function LocaleProvider({ children, accountLocale, pageLocale }) {
   const device = useSyncExternalStore(subscribe, deviceChoice, () => null);
   const browser = useSyncExternalStore(subscribe, browserLocale, () => defaultLocale);
   const choice = isLocale(accountLocale) ? accountLocale : device;
-  const locale = resolveLocale({ account: accountLocale, device, languages: [browser] });
+  const locale = pageLocale ?? resolveLocale({ account: accountLocale, device, languages: [browser] });
   const display = useMemo(() => createLocale(locale), [locale]);
-  const conflict = isLocale(accountLocale) && device !== null && accountLocale !== device;
+  const conflict = !pageLocale && isLocale(accountLocale) && device !== null && accountLocale !== device;
   return (
     <LocaleContext.Provider value={{ ...display, choice, conflict }}>
       {children}

@@ -48,8 +48,10 @@ export function validateLegalAction(body, session, document, { stagingPreview = 
   return { ...result, schoolId: relation.id, membershipId: relation.membershipId };
 }
 
+export const legalStagingProjectId = 'prj_sWC9MbvG8rWtAO0YpuSNiOqZwYlO';
+
 export function isLegalStagingPreview({ host, environment, projectId, development = false }) {
   const allowedHost = host === 'staging.mywaveplan.com' || (development && /^localhost(:\d+)?$/.test(host || ''));
   return allowedHost && environment === 'staging' &&
-    (!projectId || projectId === 'prj_sWC9MbvG8rWtAO0YpuSNiOqZwYlO');
+    (!projectId || projectId === legalStagingProjectId);
 }

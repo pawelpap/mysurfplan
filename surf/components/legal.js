@@ -5,6 +5,7 @@ import { Brand, request } from "./workspace/ui";
 import { LanguageSelector, useLocale } from "./locale";
 import { ThemeSelector } from "./theme";
 import { legalDocuments } from "../lib/legal/contracts.mjs";
+import { legalLanguageSwitchHref } from "../lib/legal/navigation.mjs";
 import { legalHref } from "../lib/locale/preferences.mjs";
 
 export function legalSections(content) {
@@ -14,7 +15,7 @@ export function legalSections(content) {
 
 export function LegalLayout({
   title, children, slug, titleLanguage, sections = [], signedIn = false, preview = false,
-  metadata, selection, canSaveLocale = false,
+  metadata, selection, currentDocument, canSaveLocale = false,
 }) {
   const { locale, t } = useLocale();
   const router = useRouter();
@@ -39,7 +40,7 @@ export function LegalLayout({
         <div className="legal-header-actions">
           <ThemeSelector compact />
           <LanguageSelector compact selection={selection} saveAccountLocale={canSaveLocale ? saveLocale : undefined}
-            onLocaleChange={slug ? next => router.push(legalHref(slug, next)) : undefined} />
+            onLocaleChange={slug ? next => router.push(legalLanguageSwitchHref(slug, next, currentDocument)) : undefined} />
         </div>
       </header>
       <div className="legal-tools">

@@ -2,7 +2,8 @@ import { useLocale } from "../locale";
 import { useState } from 'react';
 import Link from 'next/link';
 import DataLicences from '../data-licences';
-import { legalHref } from '../../lib/locale/preferences.mjs';
+import { legalHref, localeNames } from '../../lib/locale/preferences.mjs';
+import { agreementAcceptance } from '../../lib/legal/agreement-status.mjs';
 import { legalDocuments } from '../../lib/legal/contracts.mjs';
 import { Loading, Message, PageHeading, request, useData } from './ui';
 
@@ -86,13 +87,22 @@ function Agreement({ document:d, schools, records, disabled, demo, onSave }) {
   const [representative, setRepresentative] = useState(false);
   const [schoolId, setSchoolId] = useState(schools.length === 1 ? schools[0].id : '');
   const school = d.kind === 'school_processing';
-  const prior = records.find(a => a.document_id === d.document_id && a.version === d.version && a.language === d.language && (school ? a.school_id === schoolId : !a.school_id));
-  const previous = records.some(a => a.document_id === d.document_id && (school ? a.school_id === schoolId : !a.school_id));
+  const { status, record } = agreementAcceptance(d, records, school ? schoolId : null);
+  const prior = status === 'exact' ? record : null;
+  const statusLabel = {
+    exact: "Accepted",
+    "other-language": "legal.acceptedInAnotherLanguage",
+    "other-version": "legal.acceptedDifferentVersion",
+    none: "Not accepted",
+  };
   return <article className="legal-agreement">
-    <div className="agreement-heading"><h3 lang={d.language}>{d.title}</h3><span className={`agreement-status ${prior ? 'accepted' : ''}`}>{prior ? t("Accepted") : demo ? t("View only") : previous ? t("New version available") : t("Not accepted")}</span></div>
-    <p className="legal-metadata">{t("Version")} {d.version}{prior ? t(" · Accepted {1}", { 1: date(prior.accepted_at, locale) }) : ''}</p>
+    <div className="agreement-heading"><h3 lang={d.language}>{d.title}</h3><span className={`agreement-status ${prior ? 'accepted' : ''}`}>{t(demo && !prior ? "View only" : statusLabel[status])}</span></div>
+    <p className="legal-metadata">{t("Version")} {d.version} · <span lang={d.language}>{localeNames[d.language]}</span>{prior ? t(" · Accepted {1}", { 1: date(prior.accepted_at, locale) }) : ''}</p>
     {school && (schools.length === 1 ? <p className="agreement-school-name"><span>{t("School")}</span><strong>{schools[0].name}</strong></p> : <label className="agreement-school">{t("School")}<select value={schoolId} onChange={event => { setSchoolId(event.target.value); setAccepted(false); setRepresentative(false); }} disabled={disabled} required><option value="">{t("Choose a school")}</option>{schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>)}
-    {!prior && previous && <p>{t("You accepted an earlier version. Review this version before accepting it.")}</p>}
+    {status === 'other-language' && <p>{t("legal.sameVersionEvidence", { language: localeNames[record.language] })}{" "}
+      <DocumentLink document={record}>{t("View accepted version")}</DocumentLink>
+    </p>}
+    {status === 'other-version' && <p>{t("legal.differentVersionEvidence")}</p>}
     <DocumentLink document={d}>{prior ? t("View accepted version") : t("Read agreement")}</DocumentLink>
     {!prior && !demo && <form onSubmit={event => { event.preventDefault(); onSave({ action: school ? 'accept_school' : 'accept_terms', documentId:d.document_id, version:d.version, language:d.language, contentHash:d.content_hash, accepted, ...(school ? { schoolId, authorisedRepresentative:representative } : {}) }); }}>
       {school && <label className="agreement-check"><input type="checkbox" checked={representative} onChange={event => setRepresentative(event.target.checked)} disabled={disabled} required/><span>{t("I am authorised to accept this agreement on behalf of this school.")}</span></label>}
