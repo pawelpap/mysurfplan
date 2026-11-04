@@ -4,7 +4,7 @@
 
 ## Current scope
 
-The additive outbox, worker, Mailjet adapter, authenticated callbacks and shared Support email design are implemented. Only an operator-triggered `email.delivery_check` template is allowed. No existing login, forecast, lesson or UI route enqueues email. Sending defaults to off, there is no cron entry, and the 13 September audit found no Mailjet API credentials in either live Vercel project. Domain verification and a Vercel integration installation did not populate those credentials. No application email has been sent or verified through Mailjet in this release.
+The outbox and worker support allowlisted delivery checks, account verification and password reset. The registration notes record verified staging delivery and the automatic-delivery activation procedure. [Registration staging and production handover](REGISTRATION_STAGING.md)
 
 The existing Vercel team was still Hobby on 16 September. Pro is recommended for continued deployed commercial work and technically required before minute scheduling. A plan purchase alone must not enable jobs: complete the delivery, isolation, alert and cost checks first. See [capacity and purchase timing](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md). Zoho business/support email works independently. Mailjet remains the agreed application sender.
 
@@ -58,12 +58,12 @@ Run `npm run preview:email` in `surf` after changing the template. This generate
 
 ## Activation before B3 registration
 
-1. Finish reviewed policy/provider/retention decisions and the separately authorised B3 implementation. Current account/forecast journeys continue without the worker; registration, password recovery, invitations and reminders are not delivered by this release.
-2. Configure separate Mailjet credentials, sender authentication and required `sent`, `bounce`, `blocked`, `spam`, `unsub` callbacks. Use Mailjet's authenticated HTTPS callback URL and version-2 grouped events. Confirm the live account's quotas and status. Do not enable open/click events.
-3. Configure staging server-only settings and one approved test recipient. Queue one check, invoke the worker manually, verify delivery, authenticated callback, suppression behaviour, mobile/desktop email design and a reply reaching Zoho Support. Inspect received MIME for disabled tracking. Repeat the applicable checks in production with separate secrets. Real inbox/callback tests are still outstanding.
-4. Verify Vercel Pro is active before minute-schedule tests and registration activation; commercial use may require that purchase earlier. Add `/api/cron/jobs` with a one-minute schedule, verify the authenticated deployed trigger, and test a deliberately missed attempt followed by recovery. Leave staging scheduling off outside active tests, using a documented environment-specific scheduling strategy. Do not add a shared cron entry that silently wakes both databases every minute.
-5. Connect an independent operator alert for pending work overdue by five minutes, stale heartbeat, unknown sends, repeated provider rejection and budget exhaustion. Measure Neon active time and review the US$20 notification. A single continuously active 0.25-CU endpoint is roughly 180 CU-hours per 30 days; this is a workload estimate, not spending approval.
-6. Open registration only after all B3 gates pass. Future verification/recovery links need their own expiry, supersession, scanner/replay/race and deletion tests. Add reminder/payment/deletion job types separately, with request-path enforcement of deadlines and permissions.
+1. Finish the policy, provider and retention decisions for public registration.
+2. Configure separate Mailjet credentials, sender authentication and the required `sent`, `bounce`, `blocked`, `spam` and `unsub` callbacks. Use authenticated HTTPS callbacks and version-2 grouped events. Confirm account quotas. Keep open and click tracking off.
+3. Test with an approved inbox. Verify the deployed worker, Mailjet delivery, authenticated callbacks, suppression, mobile and desktop email rendering, and a reply reaching Support. Repeat with separate production credentials before public activation.
+4. Follow the [registration activation procedure](REGISTRATION_STAGING.md#automatic-account-email-delivery) for immediate dispatch with a ten-minute recovery sweep. Keep the staging schedule off outside active tests.
+5. Connect an independent operator alert for a missed sweep (15 minutes without a successful heartbeat), pending jobs overdue by more than 10 minutes, unknown sends, repeated provider rejection and budget exhaustion. The sweep currently handles up to three jobs per run. Check both health and backlog so a healthy scheduler cannot conceal reset emails nearing expiry. Measure Neon active time and review the US$20 notification.
+6. Open registration after the launch gates pass. Add new reminder, payment and deletion job types separately with their own deadlines and permissions.
 
 ## Recovery and rollback
 
