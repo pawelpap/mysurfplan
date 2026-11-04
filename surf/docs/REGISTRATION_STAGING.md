@@ -35,3 +35,5 @@ An accepted registration or recovery request commits its email to the existing o
 Keep the staging schedule off outside tests. To turn it off, remove the cron entry and redeploy, then verify the staging project has no active schedule. Removing the entry also returns staging to manual testing. A Vercel instant rollback alone does not disable cron.
 
 For production, apply the reviewed registration and account lifecycle migrations if required, publish the approved policies, configure separate production Mailjet and Vercel credentials, and deploy the schedule to the production project. Verify its scheduled heartbeat, inbox delivery and failure alerts with an approved recipient before enabling public account email. Check actual Vercel and Neon usage after activation. A ten-minute sweep gives the database a chance to suspend after its five-minute idle timeout, roughly halving the compute time due to polling alone on an idle database.
+
+See the [4 November production account release](archive/releases/RELEASE_2026-11-04_ACCOUNT_PRODUCTION.md) for the production schema, policy version, monitoring and rollback record.
