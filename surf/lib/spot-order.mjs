@@ -43,11 +43,11 @@ export function orderSpots(spots, origin = null) {
     });
 }
 
-export function distanceLabel(km) {
+export function distanceLabel(km, locale = "en-GB") {
   if (!Number.isFinite(km) || km < 0) return "";
   if (km < 0.1) return "<100 m";
   if (km < 1) return `≈${Math.round(km * 10) * 100} m`;
-  return `≈${new Intl.NumberFormat("en-GB", {
+  return `≈${new Intl.NumberFormat(locale, {
     maximumFractionDigits: km < 10 ? 1 : 0,
   }).format(km)} km`;
 }

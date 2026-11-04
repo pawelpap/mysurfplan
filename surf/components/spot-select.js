@@ -109,7 +109,7 @@ export default function SpotSelect({
   placeholder,
   required = false,
 }) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const id = useId();
   const initialSelectionDone = useRef(false);
   const {
@@ -174,7 +174,7 @@ export default function SpotSelect({
         {sorted.map(({ spot, distance }) => (
           <option key={spot.id} value={spot[valueKey]}>
             {`${spot.name} · ${spot.region}, ${spot.countryCode}${
-              distance === null ? "" : ` · ${distanceLabel(distance)}`
+              distance === null ? "" : ` · ${distanceLabel(distance, locale)}`
             }`}
           </option>
         ))}

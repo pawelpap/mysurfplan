@@ -348,7 +348,7 @@ function SpotForecast({
       {source.error && <Message>{source.error}</Message>}
       {d.issues.map((issue) => (
         <div className="forecast-notice" key={issue}>
-          {issue}
+          {t(issue)}
         </div>
       ))}
       <section aria-label={t("16-day forecast")}>
@@ -1051,7 +1051,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
       <div className="tide-events">
         {events.map((e) => (
           <div key={e.time}>
-            <strong>{t("{1} tide", { 1: e.type })}</strong>
+            <strong>{t(e.type === "High" ? "High tide" : "Low tide")}</strong>
             <span>
               {`${hourLabel(e.time, zone)} · ${value(e.height, " m", 2)}`}
             </span>

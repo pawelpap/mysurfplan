@@ -1113,7 +1113,7 @@ export const appMessages = {
     "Has not logged in": "No se ha identificado",
     "Height": "Altura",
     "High": "Alta",
-    "High tide": "Maré alta",
+    "High tide": "Marea alta",
     "High tide ratio at least": "Relación de marea alta al menos",
     "High water": "Agua alta",
     "Highest preferred tide ratio": "Razón de marea preferida más alta",

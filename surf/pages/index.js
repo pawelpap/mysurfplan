@@ -343,7 +343,7 @@ function WorkspaceContent({ auth, session }) {
           >
             <Avatar person={session} />
             <span>
-              <strong>{fullName(session)}</strong>
+              <strong>{session.demo ? t("workspace.demoName") : fullName(session)}</strong>
               <small>
                 {session.demo ? t("workspace.demo") : isPlatform(session.role)
                   ? t("workspace.platformAdmin")

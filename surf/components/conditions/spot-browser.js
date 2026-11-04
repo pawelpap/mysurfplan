@@ -140,7 +140,7 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
         <TileWeather condition={h} />
       </span>
       <span className="spot-card-location">
-        {`${spot.region} · ${distance != null ? distanceLabel(distance) : spot.countryCode}`}
+        {`${spot.region} · ${distance != null ? distanceLabel(distance, locale) : spot.countryCode}`}
       </span>
       <span className="spot-card-time" title={spot.timezone}>
         {summaryTimeLabel(summary, spot, now, { locale, t })}
@@ -453,7 +453,7 @@ export default function SpotBrowser({
             <p role="status">
               {loading
                 ? t("Checking conditions…")
-                : t("{1} spots{2}", { 1: matching.length, 2: scope.length > limit ? ` in the first ${limit} checked` : "" })}
+                : t("{1} spots{2}", { 1: matching.length, 2: scope.length > limit ? t(" in the first {1} checked", { 1: limit }) : "" })}
             </p>
             <Button tone="quiet" onClick={() => setRevision((v) => v + 1)}>{t("Refresh spots")}</Button>
           </div>
