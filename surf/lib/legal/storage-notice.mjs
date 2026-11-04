@@ -1,4 +1,4 @@
-export const storageNotice = {
+const previousStorageNotice = {
   document_id: 'mywaveplan.browser-storage', version: '2026-10-06.2', language: 'en-GB',
   title: 'Cookies and browser storage', kind: 'storage_information',
   content: `## Storage at a glance
@@ -33,3 +33,21 @@ Your browser settings let you remove this website's cookies and local storage. T
 
 Contact support@mywaveplan.com for questions. Our privacy notice explains how account and service information is used.`,
 };
+
+const storageNotice = {
+  ...previousStorageNotice,
+  version: '2026-11-04.1',
+  content: previousStorageNotice.content
+    .replace('your appearance choice.', 'your appearance and language choices.')
+    .replace('## Location permission', `## Language choice
+
+The mywaveplan:language entry in local storage remembers the language you choose in this browser until you change or clear it. If you sign in and choose a language in the workspace, MyWavePlan also saves it to your account. Your account language applies when you sign in on another device. Choose the browser default to clear the saved choice for this browser and, if signed in, your account.
+
+## Location permission`),
+};
+
+export function getStorageNotice(version) {
+  if (version === previousStorageNotice.version) return previousStorageNotice;
+  if (version === undefined || version === storageNotice.version) return storageNotice;
+  return null;
+}

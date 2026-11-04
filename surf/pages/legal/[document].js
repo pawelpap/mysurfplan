@@ -22,9 +22,10 @@ export async function getServerSideProps({ req, res, params, query }) {
   if (typeof language !== 'string' || !['en-GB','pt-PT','es'].includes(language) ||
       (query.version !== undefined && (typeof query.version !== 'string' || query.version.length > 80))) return { notFound:true };
   if (params.document === 'storage') {
-    const { storageNotice } = await import('../../lib/legal/storage-notice.mjs');
-    if (language !== storageNotice.language || (query.version && query.version !== storageNotice.version)) return { notFound:true };
-    return { props:{ document:storageNotice, signedIn } };
+    const { getStorageNotice } = await import('../../lib/legal/storage-notice.mjs');
+    const document = getStorageNotice(query.version || undefined);
+    if (!document || language !== document.language) return { notFound:true };
+    return { props:{ document, signedIn } };
   }
   const descriptor = legalDocuments.find(d => d.slug === params.document);
   if (!descriptor) return { notFound:true };

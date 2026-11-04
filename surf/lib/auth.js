@@ -3,6 +3,7 @@ import { promisify } from "util";
 import { sql } from "./db";
 import { createSessionCodec } from "./auth-session.mjs";
 import { createSessionStore, validSessionToken } from "./auth-store.mjs";
+import { isLocale } from "./locale/preferences.mjs";
 import { requireMutation } from "./request-security.mjs";
 import { isPlatformAdmin, schoolAccess, withSchool } from "./school-access.mjs";
 
@@ -235,6 +236,7 @@ async function userSessionPayload(user) {
     authority: authority.authority,
     schools,
     userId: user.id,
+    preferredLocale: !user.is_demo && isLocale(user.preferred_locale) ? user.preferred_locale : null,
     schoolId: user.school_id || null,
     schoolSlug: user.school_slug || null,
     email: email || null,

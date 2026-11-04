@@ -66,9 +66,10 @@ try {
         await route.fulfill({ response });
       });
       await page.goto(base + "/login");
-      await page.getByRole("button", { name: "Try the demo", exact: true }).waitFor();
+      const demoButton = page.getByRole("button", { name: /^(Try the demo|Experimentar a demonstração)$/ });
+      await demoButton.waitFor();
       assert(await translate(page, language) > 0);
-      await page.getByRole("button", { name: "Try the demo", exact: true }).click();
+      await demoButton.click();
       await page.getByRole("heading", { name: "16-day forecast", exact: true }).waitFor({ timeout: 70000 });
       assert.equal(await page.locator(".calendar-day").count(), 16);
       assert(await translate(page, language) > 0);

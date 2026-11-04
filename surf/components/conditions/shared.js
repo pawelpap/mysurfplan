@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { Children, useCallback, useEffect, useState } from "react";
 import { request, Button, Loading, Message } from "../workspace/ui";
 import Icon from "../icon";
@@ -185,15 +186,14 @@ export function Experience({ level }) {
   );
 }
 export function ForecastFooter({ data }) {
-  return data?.fetchedAt ? (
-    <p className="forecast-footer">
-      {`Updated ${new Date(data.fetchedAt).toLocaleString("en-GB", {
-        timeZone: data.spot.timezone,
-        dateStyle: "medium",
-        timeStyle: "short",
-      })}`}
-    </p>
-  ) : null;
+  const { locale, t, formatDate } = useLocale();
+  if (!data?.fetchedAt) return null;
+  const date = formatDate(data.fetchedAt, {
+    timeZone: data.spot.timezone,
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+  return <p className="forecast-footer" lang={locale}>{t("forecast.updated", { date })}</p>;
 }
 export function Metric({ label, children, note }) {
   return (

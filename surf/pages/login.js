@@ -9,10 +9,12 @@ import {
   Message,
   request,
 } from "../components/workspace/ui";
+import { LanguageSelector, useLocale } from "../components/locale";
 import { safeNext } from "../lib/lesson-input.mjs";
 
 export default function Login() {
   const router = useRouter();
+  const { locale, t } = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -27,7 +29,7 @@ export default function Login() {
     event.preventDefault();
     const demo = !email.trim() && password === "";
     if (!demo && (!email.trim() || !password)) {
-      setError("Enter both your username and password, or choose Try the demo.");
+      setError("login.missing");
       return;
     }
     await login(demo);
@@ -43,28 +45,30 @@ export default function Login() {
       });
       window.location.assign(demo ? "/?view=conditions" : safeNext(router.query.next));
     } catch (e) {
-      setError(e.message);
+      const messages = { 401: "login.invalid", 429: "login.rateLimit" };
+      setError(messages[e.status] || (demo ? "login.demoUnavailable" : "login.unavailable"));
       setBusy(false);
     }
   }
   return (
-    <main className="login-shell">
+    <main className="login-shell" lang={locale}>
       <Head>
-        <title>Log in · MyWavePlan</title>
+        <title>{t("login.title")} · MyWavePlan</title>
       </Head>
       <div className="login-brand">
         <Brand />
+        <LanguageSelector />
       </div>
-      <section className="login-story" aria-label="MyWavePlan for surfers">
+      <section className="login-story" aria-label={t("login.storyLabel")}>
         <div className="login-story-copy">
-          <p className="eyebrow">Made for surfers by surfers</p>
+          <p className="eyebrow">{t("login.eyebrow")}</p>
           <h2>
-            Plan the lesson.
+            {t("login.storyFirst")}
             <br />
-            Catch the wave.
+            {t("login.storySecond")}
           </h2>
           <p className="story-caption">
-            Lessons, people and forecasts in one place.
+            {t("login.storyCaption")}
           </p>
         </div>
         <div className="login-sun" aria-hidden="true" />
@@ -102,16 +106,14 @@ export default function Login() {
         </svg>
       </section>
       <section className="login-panel" aria-labelledby="login-title">
-        <p className="login-welcome">Welcome back</p>
-        <h1 id="login-title">Log in</h1>
+        <p className="login-welcome">{t("login.welcome")}</p>
+        <h1 id="login-title">{t("login.title")}</h1>
         <p>
-          {school
-            ? "Log in to review your lesson and complete the booking."
-            : "Open your school workspace and lesson schedule."}
+          {t(school ? "login.booking" : "login.intro")}
         </p>
         <form className="auth-form" onSubmit={submit}>
           <Field
-            label="Email or username"
+            label={t("login.identifier")}
             type="text"
             autoCapitalize="none"
             autoCorrect="off"
@@ -121,7 +123,7 @@ export default function Login() {
             onChange={(e) => { setEmail(e.target.value); setError(""); }}
           />
           <Field
-            label="Password"
+            label={t("login.password")}
             type={visible ? "text" : "password"}
             autoCapitalize="none"
             autoCorrect="off"
@@ -136,26 +138,26 @@ export default function Login() {
             aria-pressed={visible}
             onClick={() => setVisible(!visible)}
           >
-            {visible ? "Hide password" : "Show password"}
+            {t(visible ? "login.hidePassword" : "login.showPassword")}
           </button>
-          <Message>{error}</Message>
+          <Message>{error && t(error)}</Message>
           <Button tone="primary" type="submit" disabled={busy}>
-            {busy ? "Logging in…" : "Log in"}
+            {t(busy ? "login.busy" : "login.title")}
           </Button>
           <Button onClick={() => login(true)} disabled={busy}>
-            Try the demo
+            {t("login.demo")}
           </Button>
-          <small>Explore forecasts as a student. No login details needed.</small>
+          <small>{t("login.demoHint")}</small>
         </form>
         <div className="auth-help">
-          <p><Link href="/legal/privacy">Privacy</Link> · <Link href="/legal/terms">Terms</Link> · <Link href="/legal/storage">Cookies and browser storage</Link></p>
-          <strong>Need an account or help logging in?</strong>
+          <p><Link href="/legal/privacy">{t("legal.privacy")}</Link> · <Link href="/legal/terms">{t("legal.terms")}</Link> · <Link href="/legal/storage">{t("legal.storage")}</Link></p>
+          <strong>{t("login.help")}</strong>
           <p>
-            Ask your school admin to create an account or reset your password.
+            {t("login.helpBody")}
           </p>
           {school && (
             <p style={{ marginTop: 20 }}>
-              <a href={`/${school}`}>← Back to the school schedule</a>
+              <a href={`/${school}`}>{t("login.back")}</a>
             </p>
           )}
         </div>

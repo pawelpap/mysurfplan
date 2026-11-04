@@ -14,9 +14,15 @@ let user = {
 };
 let calls = 0,
   fail = false;
-globalThis.__authTestSql = async () => {
+globalThis.__authTestSql = async (parts, ...values) => {
   calls++;
   if (fail) throw new Error("database unavailable");
+  if (parts.join("").includes("UPDATE users SET preferred_locale")) {
+    const [locale, id] = values;
+    assert.equal(id, user.id);
+    user.preferred_locale = locale;
+    return [{ preferred_locale: locale }];
+  }
   return user
     ? [
         {
@@ -45,7 +51,7 @@ const source = (
     /import \{ sql \} from ["']\.\/db["'];/,
     "const sql = globalThis.__authTestSql;",
   )
-  .replace(/["']\.\/([a-z-]+\.mjs)["']/g, (_, name) =>
+  .replace(/["']\.\/([a-z/-]+\.mjs)["']/g, (_, name) =>
     JSON.stringify(new URL("../lib/" + name, import.meta.url).href),
   );
 const auth = await import(
@@ -152,4 +158,47 @@ test("demo sessions have student rights, cannot write, and cannot log out other 
   assert.equal(denied.statusCode, 403);
   await assert.rejects(auth.clearAuthSession(req(), res(), { all: true }), e => e.statusCode === 403);
   await auth.clearAuthSession(req(), res());
+});
+
+test("language updates are private, limited to the current account and reversible", async () => {
+  const handlerSource = (
+    await fs.readFile(new URL("../pages/api/auth/locale.js", import.meta.url), "utf8")
+  )
+    .replace('import { requireAuth } from "../../../lib/auth";', "const { requireAuth } = globalThis.__authForLocaleTest;")
+    .replace('import { sql } from "../../../lib/db";', "const sql = globalThis.__authTestSql;")
+    .replace('"../../../lib/locale/preferences.mjs"', JSON.stringify(new URL("../lib/locale/preferences.mjs", import.meta.url).href));
+  globalThis.__authForLocaleTest = auth;
+  const { default: handler } = await import(
+    `data:text/javascript;base64,${Buffer.from(handlerSource).toString("base64")}`
+  );
+  user = { id: "personal-account", role: "student", school_id: "school-a" };
+
+  async function patch(body, headers = {}, signed = true) {
+    const response = res();
+    const request = signed ? req() : { headers: {} };
+    request.method = "PATCH";
+    request.body = body;
+    Object.assign(request.headers, { "x-mywaveplan-request": "1", ...headers });
+    await handler(request, response);
+    return response;
+  }
+
+  assert.equal((await patch({ locale: "pt-PT" }, {}, false)).statusCode, 401);
+  assert.equal((await patch({ locale: "pt-PT" }, { "sec-fetch-site": "cross-site" })).statusCode, 403);
+  assert.equal((await patch({ locale: "pt-BR" })).statusCode, 400);
+  assert.equal((await patch({})).statusCode, 400);
+  assert.equal((await auth.getAuthSession(req())).preferredLocale, null);
+
+  const saved = await patch({ locale: "pt-PT", userId: "another-account" });
+  assert.equal(saved.statusCode, 200);
+  assert.match(saved.headers["Cache-Control"], /no-store/);
+  assert.equal((await auth.getAuthSession(req())).preferredLocale, "pt-PT");
+
+  user.is_demo = true;
+  assert.equal((await patch({ locale: "es" })).statusCode, 403);
+  assert.equal((await auth.getAuthSession(req())).preferredLocale, null);
+  user.is_demo = false;
+  assert.equal((await auth.getAuthSession(req())).preferredLocale, "pt-PT");
+  assert.equal((await patch({ locale: null })).statusCode, 200);
+  assert.equal((await auth.getAuthSession(req())).preferredLocale, null);
 });

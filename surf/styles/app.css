@@ -2281,11 +2281,31 @@ summary:focus-visible {
   align-items: center;
   gap: 10px;
 }
-.sidebar-footer > .theme-selector {
+.sidebar-footer .theme-selector {
   margin-bottom: 12px;
 }
 .sidebar {
   overflow-y: auto;
+}
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.language-selector select {
+  min-height: 44px;
+  width: auto;
+  min-width: 0;
+  flex: 1;
+  font-size: 16px;
+}
+.sidebar-footer .language-preference {
+  margin-bottom: 12px;
+}
+.language-preference small {
+  display: block;
+  margin-top: 4px;
 }
 .login-brand,
 .legal-header {

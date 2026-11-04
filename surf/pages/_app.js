@@ -3,6 +3,7 @@ import "../styles/fonts.css";
 import "../styles/themes.css";
 import "../styles/app.css";
 import "../styles/conditions.css";
+import { LocaleProvider } from "../components/locale";
 import { ThemeProvider } from "../components/theme";
 import { SpotLocationProvider } from "../components/spot-select";
 import AppErrorBoundary from "../components/app-error-boundary";
@@ -18,7 +19,9 @@ export default function MyWavePlan({ Component, pageProps }) {
       <AppErrorBoundary>
         <ThemeProvider systemOnly={Component.systemTheme === true}>
           <SpotLocationProvider>
-            <Component {...pageProps} />
+            <LocaleProvider>
+              <Component {...pageProps} />
+            </LocaleProvider>
           </SpotLocationProvider>
         </ThemeProvider>
       </AppErrorBoundary>

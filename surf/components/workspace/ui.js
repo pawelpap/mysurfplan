@@ -50,8 +50,11 @@ export async function request(url, options = {}) {
     throw new Error("Please log in again.");
   }
   if (response.status === 403) window.dispatchEvent(new Event("account-access-changed"));
-  if (!response.ok || json.ok === false)
-    throw new Error(json.error || "Something went wrong. Please try again.");
+  if (!response.ok || json.ok === false) {
+    const error = new Error(json.error || "Something went wrong. Please try again.");
+    error.status = response.status;
+    throw error;
+  }
   return json.data;
 }
 

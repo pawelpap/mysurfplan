@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Lessons from "../components/workspace/lessons";
 import Conditions from "../components/conditions";
+import { LanguageSelector, LocaleProvider, useLocale } from "../components/locale";
 import { ThemeSelector } from "../components/theme";
 import Memberships from "../components/workspace/memberships";
 import PrivacyAgreements from "../components/workspace/privacy-agreements";
@@ -29,6 +30,16 @@ export default function Workspace() {
   const router = useRouter();
   const auth = useData(router.isReady ? "/api/auth/session" : null);
   const session = auth.data?.role ? auth.data : null;
+  return (
+    <LocaleProvider accountLocale={session?.preferredLocale}>
+      <WorkspaceContent auth={auth} session={session} />
+    </LocaleProvider>
+  );
+}
+
+function WorkspaceContent({ auth, session }) {
+  const router = useRouter();
+  const { locale, t } = useLocale();
   const schools = useData(session ? "/api/schools" : null);
   const [menu, setMenu] = useState(false);
   const [error, setError] = useState("");
@@ -73,17 +84,7 @@ export default function Workspace() {
   const view = allowed.includes(router.query.view)
     ? router.query.view
     : "conditions";
-  const labels = {
-    lessons: "School lessons",
-    bookings: "My bookings",
-    teaching: "My teaching",
-    accounts: "Accounts",
-    conditions: "Conditions",
-    people: "People",
-    schools: "Schools",
-    profile: "My profile",
-    privacy: "Privacy and agreements",
-  };
+
 
   const reloadAuth = auth.reload;
 
@@ -175,6 +176,14 @@ export default function Workspace() {
       { shallow: true },
     );
   }
+  async function saveAccountLocale(next) {
+    await request("/api/auth/locale", {
+      method: "PATCH",
+      body: JSON.stringify({ locale: next }),
+    });
+    reloadAuth();
+  }
+
   async function logout(all = false) {
     setLoggingOut(true);
     setError("");
@@ -219,18 +228,18 @@ export default function Workspace() {
   return (
     <div className="workspace">
       <Head>
-        <title>{labels[view]} · MyWavePlan</title>
+        <title>{t(`workspace.${view}`)} · MyWavePlan</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <a className="skip-link" href="#main">
-        Skip to content
+      <a className="skip-link" href="#main" lang={locale}>
+        {t("workspace.skip")}
       </a>
-      <div className="mobile-bar">
+      <div className="mobile-bar" lang={locale}>
         <Brand />
         <button
           ref={menuButton}
           className="menu-toggle"
-          aria-label={menu ? "Close menu" : "Open menu"}
+          aria-label={t(menu ? "workspace.closeMenu" : "workspace.openMenu")}
           aria-expanded={menu}
           aria-controls="workspace-navigation"
           onClick={() => setMenu(!menu)}
@@ -252,7 +261,8 @@ export default function Workspace() {
       {menu && (
         <button
           className="overlay"
-          aria-label="Close navigation"
+          lang={locale}
+          aria-label={t("workspace.closeNav")}
           onClick={() => {
             setMenu(false);
             menuButton.current?.focus();
@@ -261,17 +271,18 @@ export default function Workspace() {
       )}
       <aside
         ref={sidebar}
+        lang={locale}
         id="workspace-navigation"
         tabIndex={-1}
         className={`sidebar ${menu ? "open" : ""}`}
         {...(menu
-          ? { role: "dialog", "aria-modal": true, "aria-label": "Navigation" }
+          ? { role: "dialog", "aria-modal": true, "aria-label": t("workspace.navigation") }
           : {})}
       >
         <Brand />
         <div className="school-context">
           <label htmlFor="current-school">
-            <small>Current school</small>
+            <small>{t("workspace.currentSchool")}</small>
           </label>
           {availableSchools.length > 1 || isPlatform(session.role) ? (
             <select
@@ -286,7 +297,7 @@ export default function Workspace() {
                 })
               }
             >
-              {view === "accounts" && <option value="all">All schools</option>}
+              {view === "accounts" && <option value="all">{t("workspace.allSchools")}</option>}
               {availableSchools.map((s) => (
                 <option value={s.slug} key={s.id}>
                   {s.name}
@@ -294,7 +305,7 @@ export default function Workspace() {
               ))}
             </select>
           ) : (
-            <strong>{school?.name || "Personal account"}</strong>
+            <strong>{school?.name || t("workspace.personalAccount")}</strong>
           )}
           {school && (
             <a
@@ -303,11 +314,11 @@ export default function Workspace() {
               target="_blank"
               rel="noreferrer"
             >
-              Open public schedule ↗
+              {t("workspace.publicSchedule")}
             </a>
           )}
         </div>
-        <nav aria-label="Main navigation">
+        <nav aria-label={t("workspace.mainNav")}>
           {allowed
             .filter((v) => !["profile", "privacy"].includes(v))
             .map((v) => (
@@ -317,12 +328,13 @@ export default function Workspace() {
                 aria-current={view === v ? "page" : undefined}
                 onClick={() => go(v)}
               >
-                {labels[v]}
+                {t(`workspace.${v}`)}
               </button>
             ))}
         </nav>
         <div className="sidebar-footer">
-          <ThemeSelector />
+          <div lang="en-GB"><ThemeSelector /></div>
+          <LanguageSelector saveAccountLocale={session.demo ? undefined : saveAccountLocale} />
           <button
             className="account-button"
             disabled={session.demo}
@@ -333,17 +345,17 @@ export default function Workspace() {
             <span>
               <strong>{fullName(session)}</strong>
               <small>
-                {session.demo ? "Student demo" : isPlatform(session.role)
-                  ? roleName(session.role)
-                  : "Personal account"}
+                {session.demo ? t("workspace.demo") : isPlatform(session.role)
+                  ? t("workspace.platformAdmin")
+                  : t("workspace.personalAccount")}
               </small>
             </span>
           </button>
           <Button tone="quiet" onClick={() => logout()} disabled={loggingOut}>
-            Log out
+            {t("workspace.logout")}
           </Button>
           <button className="legal-link" type="button" aria-current={view === "privacy" ? "page" : undefined} onClick={() => go("privacy")}>
-            Legal
+            {t("workspace.legal")}
           </button>
         </div>
       </aside>
