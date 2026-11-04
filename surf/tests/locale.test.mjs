@@ -32,3 +32,15 @@ test("French renders product text and preserves values in forecast messages", ()
   assert.equal(fr.t("Conditions at {1}", { 1: "09:00" }), "Conditions à 09:00");
   assert.equal(fr.t("workspace.privacy"), "Confidentialité et accords");
 });
+
+test("forecast conditions use the selected language’s surf and weather vocabulary", () => {
+  for (const [locale, tide, showers] of [
+    ["pt-PT", "Maré baixa", "Aguaceiros"],
+    ["es", "Marea baja", "Chubascos"],
+    ["fr", "Marée basse", "Averses"],
+  ]) {
+    const { t } = createLocale(locale);
+    assert.equal(t("Low tide"), tide);
+    assert.equal(t("Showers"), showers);
+  }
+});
