@@ -16,7 +16,8 @@ import { safeNext } from "../lib/lesson-input.mjs";
 export async function getServerSideProps({ req, res }) {
   res.setHeader("Cache-Control", "private, no-store");
   const { accountConfig } = await import("../lib/account-server.mjs");
-  return { props: { accountFlows: Boolean(accountConfig(req)) } };
+  const config = accountConfig(req);
+  return { props: { accountFlows: Boolean(config && (config.environment === "staging" || config.publicAccounts)) } };
 }
 
 export default function Login({ accountFlows }) {

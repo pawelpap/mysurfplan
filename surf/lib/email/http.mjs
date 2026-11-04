@@ -3,6 +3,7 @@ import { createJobStore, enqueueDeliveryCheck } from './store.mjs';
 import { createMailjetAdapter } from './mailjet.mjs';
 import { runEmailWorker } from './worker.mjs';
 import { recordDeliveryEvents } from './events.mjs';
+import { reportEmailHealth } from './monitor.mjs';
 
 // Database loading is deliberately deferred until after method/auth checks.
 export function emailHandler(kind, getQuery, env = process.env) {
@@ -22,7 +23,11 @@ export function emailHandler(kind, getQuery, env = process.env) {
         return res.status(200).json({ ok: true });
       }
       const store = createJobStore(query, config.environment);
-      if (kind === 'worker') return res.status(200).json(await runEmailWorker({ config, store, send: createMailjetAdapter(config) }));
+      if (kind === 'worker') {
+        const result = await runEmailWorker({ config, store, send: createMailjetAdapter(config) });
+        if (req.headers['user-agent'] === 'vercel-cron/1.0') await reportEmailHealth(query, config);
+        return res.status(200).json(result);
+      }
       if (req.method === 'GET') return res.status(200).json({ enabled: true, environment: config.environment, ...(await store.status()) });
       // Operator-only fixed delivery check. There is no arbitrary recipient,
       // template, subject or message API, and no user-session access to this route.

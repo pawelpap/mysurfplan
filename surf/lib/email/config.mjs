@@ -1,4 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
+import { monitorPingUrl } from './monitor.mjs';
 
 export const PROJECTS = Object.freeze({
   staging: 'prj_sWC9MbvG8rWtAO0YpuSNiOqZwYlO',
@@ -38,10 +39,12 @@ export function emailConfig(env = process.env) {
   const maxima = environment === 'production' ? [150, 4500] : [20, 500];
   if (![dailyLimit, monthlyLimit].every(Number.isInteger) || dailyLimit < 1 || monthlyLimit < dailyLimit ||
       dailyLimit > maxima[0] || monthlyLimit > maxima[1]) throw new Error('email_budget_invalid');
-  return { enabled, environment, allowlist, from, dailyLimit, monthlyLimit,
+  const publicAccounts = environment === 'production' && env.ACCOUNT_REGISTRATION_ENABLED === 'true' &&
+    env.ACCOUNT_EMAIL_PUBLIC === 'true';
+  const monitorUrl = environment === 'production' ? monitorPingUrl(env.EMAIL_MONITOR_PING_URL) : null;
+  if (publicAccounts && !monitorUrl) throw new Error('email_monitor_required');
+  return { enabled, environment, allowlist, from, dailyLimit, monthlyLimit, monitorUrl, publicAccounts,
     accountFlows: env.ACCOUNT_REGISTRATION_ENABLED === 'true',
-    publicAccounts: environment === 'production' && env.ACCOUNT_REGISTRATION_ENABLED === 'true' &&
-      env.ACCOUNT_EMAIL_PUBLIC === 'true',
     apiKey: env.MAILJET_API_KEY, apiSecret: env.MAILJET_SECRET_KEY,
     payloadKey: env.EMAIL_PAYLOAD_KEY, keyId: env.EMAIL_PAYLOAD_KEY_ID,
     recipientKey: env.EMAIL_RECIPIENT_KEY, callbackSecret: env.EMAIL_CALLBACK_SECRET,
