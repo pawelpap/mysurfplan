@@ -1110,6 +1110,11 @@ fieldset legend {
 .login-panel .auth-form {
   gap: 18px;
 }
+@media (min-width: 761px) {
+  .login-story {
+    align-self: start;
+  }
+}
 @media (max-width: 1000px) and (min-width: 761px) {
   .login-shell {
     column-gap: 36px;

@@ -1,6 +1,6 @@
 # Production account release, 4 November 2026
 
-The first production release of the localised account flows is live on MyWavePlan. The production and staging login pages show the same signup and recovery actions. The account pages explain that email is restricted to invited testers while each environment is allowlisted. The server and Mailjet worker both enforce the recipient allowlist. Staging uses its own Mailjet key and Neon branch and has no recurring schedule.
+The first production release of the localised account flows is live on MyWavePlan. The production and staging login pages show the same signup and recovery actions. Production accepts signup requests from any valid email address, with email verification, rate limits and send budgets in place. Staging account pages explain that email is limited to invited testers, and both the server and worker enforce its allowlist. Staging uses its own Mailjet key and Neon branch and has no recurring schedule.
 
 ## Setup and ownership
 
@@ -22,8 +22,10 @@ Production signup and password reset emails reached the allowlisted test inbox. 
 
 A controlled Healthchecks failure reached the Support mailbox. The next scheduled production run restored the check and the recovery email also reached Support. The cron alone processes at most three jobs per sweep, so watch overdue work as well as successful heartbeats.
 
-The account pages have a terms retry control that keeps the verification link and entered fields in memory. The allowlist notice and larger mobile help-link targets are available in all four supported languages.
+The account activity test produced one signup, two password and one closure notice. All four reached Support, recorded a Mailjet Sent callback and had their queued payloads cleared. Both disposable production accounts were closed after their tests.
 
-Keep `ACCOUNT_EMAIL_PUBLIC=false` until the production rollout gates are recorded as passed. For a stop, turn off public account email or email sending as appropriate and redeploy. To stop the recurring worker, remove the production cron definition and redeploy, then check Vercel's registry. Instant Rollback alone leaves the cron schedule in place. Keep the additive schema, published policy versions, historical acceptances and closure records.
+The account pages have a terms retry control that keeps the verification link and entered fields in memory. The allowlist notice and larger mobile help-link targets are available in all four supported languages. The desktop login illustration keeps its height when the language or form content changes. The mobile illustration keeps its existing layout.
+
+Production enabled `ACCOUNT_EMAIL_PUBLIC=true` after the allowlisted tests verified signup, reset, closure, callback receipts and independent Support alerts. For a stop, turn off public account email or email sending as appropriate and redeploy. To stop the recurring worker, remove the production cron definition and redeploy, then check Vercel's registry. Instant Rollback alone leaves the cron schedule in place. Keep the additive schema, published policy versions, historical acceptances and closure records.
 
 The release used the GitHub connector for reviewed tree and ref updates, Neon SQL transactions for schema and policy verification, the Vercel connector and CLI for deployment and cron checks, Chrome and Apple Mail for provider setup and inbox confirmation, Healthchecks.io for independent alerts, and Astra for read-only database, security and browser review. Run `npm test` and `npm run build` in `surf` for the code checks.
