@@ -1186,7 +1186,7 @@ fieldset legend {
     display: none;
   }
   .login-surf {
-    width: min(62%, 192px);
+    width: min(62%, 176px);
     left: 50%;
     bottom: -4px;
     transform: translateX(-50%);
