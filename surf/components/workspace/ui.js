@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useCallback, useEffect, useId, useState } from "react";
 
 export const isAdmin = (role) =>
@@ -22,16 +23,16 @@ export const initials = (person) =>
     .map((s) => s[0])
     .join("")
     .toUpperCase();
-export const dateLabel = (value, timeZone) =>
-  new Date(value).toLocaleDateString("en-GB", {
+export const dateLabel = (value, timeZone, locale = "en-GB") =>
+  new Date(value).toLocaleDateString(locale, {
     ...(timeZone ? { timeZone } : {}),
     weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-export const timeLabel = (value, timeZone) =>
-  new Date(value).toLocaleTimeString("en-GB", {
+export const timeLabel = (value, timeZone, locale = "en-GB") =>
+  new Date(value).toLocaleTimeString(locale, {
     ...(timeZone ? { timeZone } : {}),
     hour: "2-digit",
     minute: "2-digit",
@@ -164,12 +165,13 @@ export function SelectField({ label, options, ...props }) {
   );
 }
 export function Message({ children, success = false }) {
+  const { t } = useLocale();
   return children ? (
     <div
       className={`message ${success ? "success" : "error"}`}
       role={success ? "status" : "alert"}
     >
-      {children}
+      {typeof children === "string" ? t(children) : children}
     </div>
   ) : null;
 }
@@ -183,18 +185,20 @@ export function Empty({ title, children, action }) {
   );
 }
 export function Loading({ label = "Loading…" }) {
+  const { t } = useLocale();
   return (
     <div className="loading" role="status">
-      {label}
+      {t(label)}
     </div>
   );
 }
 export function PageHeading({ title, description, back, action, children }) {
+  const { t } = useLocale();
   return (
     <header className="page-heading">
       {back && (
         <button className="back-link" onClick={back.onClick}>
-          ← {back.label}
+          ← {t(back.label)}
         </button>
       )}
       <div className="heading-row">
@@ -216,16 +220,15 @@ export function Avatar({ person }) {
   );
 }
 export function FormActions({ busy, label = "Save changes", onCancel, error }) {
+  const { t } = useLocale();
   return (
     <div className="form-footer">
       <Message>{error}</Message>
       <div className="actions">
         <Button type="submit" tone="primary" disabled={busy}>
-          {busy ? "Saving…" : label}
+          {busy ? t("Saving…") : t(label)}
         </Button>
-        <Button onClick={onCancel} disabled={busy}>
-          Cancel
-        </Button>
+        <Button onClick={onCancel} disabled={busy}>{t("Cancel")}</Button>
       </div>
     </div>
   );

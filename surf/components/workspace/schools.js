@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useState } from "react";
 import {
   Button,
@@ -10,6 +11,7 @@ import {
 } from "./ui";
 
 export default function Schools({ schools, query, go, reload, openLessons }) {
+  const { t } = useLocale();
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const selected = schools.find((s) => s.id === query.record);
@@ -29,11 +31,9 @@ export default function Schools({ schools, query, go, reload, openLessons }) {
   if (query.record && !selected)
     return (
       <Empty
-        title="School not found"
-        action={<Button onClick={() => go({})}>Back to schools</Button>}
-      >
-        This school may have been removed.
-      </Empty>
+        title={t("School not found")}
+        action={<Button onClick={() => go({})}>{t("Back to schools")}</Button>}
+      >{t("This school may have been removed.")}</Empty>
     );
   if (selected)
     return (
@@ -55,20 +55,18 @@ export default function Schools({ schools, query, go, reload, openLessons }) {
   return (
     <>
       <PageHeading
-        title="Schools"
-        description="Open a school to manage its details or lesson schedule."
+        title={t("Schools")}
+        description={t("Open a school to manage its details or lesson schedule.")}
         action={
-          <Button tone="primary" onClick={() => go({ action: "new" })}>
-            + Add school
-          </Button>
+          <Button tone="primary" onClick={() => go({ action: "new" })}>{t("+ Add school")}</Button>
         }
       />
       <Message success>{notice}</Message>
       <div className="toolbar">
         <Field
-          label="Search schools"
+          label={t("Search schools")}
           type="search"
-          placeholder="School name"
+          placeholder={t("School name")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -76,8 +74,8 @@ export default function Schools({ schools, query, go, reload, openLessons }) {
       {filtered.length ? (
         <div className="surface">
           <div className="list-header school-row" aria-hidden="true">
-            <span>School</span>
-            <span>Contact email</span>
+            <span>{t("School")}</span>
+            <span>{t("Contact email")}</span>
             <span />
           </div>
           {filtered.map((s) => (
@@ -93,22 +91,23 @@ export default function Schools({ schools, query, go, reload, openLessons }) {
                 <strong>{s.name}</strong>
                 <small>/{s.slug}</small>
               </span>
-              <span>{s.contact_email || "Not provided"}</span>
-              <span className="row-action">View →</span>
+              <span>{s.contact_email || t("Not provided")}</span>
+              <span className="row-action">{t("View →")}</span>
             </button>
           ))}
         </div>
       ) : (
-        <Empty title="No schools found">
+        <Empty title={t("No schools found")}>
           {search
-            ? "Try another school name."
-            : "Add your first school to begin."}
+            ? t("Try another school name.")
+            : t("Add your first school to begin.")}
         </Empty>
       )}
     </>
   );
 }
 function SchoolForm({ school, onCancel, onSaved }) {
+  const { t } = useLocale();
   const [name, setName] = useState(school?.name || "");
   const [email, setEmail] = useState(school?.contact_email || "");
   const [busy, setBusy] = useState(false);
@@ -132,50 +131,48 @@ function SchoolForm({ school, onCancel, onSaved }) {
   return (
     <div className="form-screen">
       <PageHeading
-        title={school ? "Edit school" : "Add school"}
+        title={school ? t("Edit school") : t("Add school")}
         back={{
-          label: school ? "School details" : "Schools",
+          label: school ? t("School details") : t("Schools"),
           onClick: onCancel,
         }}
       />
       <form className="surface padded" onSubmit={submit}>
         <div className="form-grid">
           <Field
-            label="School name"
+            label={t("School name")}
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Field
-            label="Contact email (optional)"
+            label={t("Contact email (optional)")}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         {school && (
-          <p className="muted-note">
-            Changing the name also changes the public schedule address. Update
-            any links you have shared.
-          </p>
+          <p className="muted-note">{t("Changing the name also changes the public schedule address. Update any links you have shared.")}</p>
         )}
         <FormActions
           busy={busy}
           error={error}
           onCancel={onCancel}
-          label={school ? "Save changes" : "Create school"}
+          label={school ? t("Save changes") : t("Create school")}
         />
       </form>
     </div>
   );
 }
 function SchoolDetail({ school, onBack, onEdit, onLessons, onRemoved }) {
+  const { t } = useLocale();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   async function remove() {
     if (
       !window.confirm(
-        `Remove ${school.name}? Its public schedule will no longer be available.`,
+        t("Remove {1}? Its public schedule will no longer be available.", { 1: school.name }),
       )
     )
       return;
@@ -192,22 +189,20 @@ function SchoolDetail({ school, onBack, onEdit, onLessons, onRemoved }) {
     <div className="form-screen">
       <PageHeading
         title={school.name}
-        back={{ label: "Schools", onClick: onBack }}
+        back={{ label: t("Schools"), onClick: onBack }}
         action={
-          <Button tone="primary" onClick={onEdit}>
-            Edit school
-          </Button>
+          <Button tone="primary" onClick={onEdit}>{t("Edit school")}</Button>
         }
       />
       <Message>{error}</Message>
       <section className="surface padded">
         <dl className="detail-grid">
           <div>
-            <dt>Contact email</dt>
-            <dd>{school.contact_email || "Not provided"}</dd>
+            <dt>{t("Contact email")}</dt>
+            <dd>{school.contact_email || t("Not provided")}</dd>
           </div>
           <div>
-            <dt>Public schedule</dt>
+            <dt>{t("Public schedule")}</dt>
             <dd>
               <a href={`/${school.slug}`} target="_blank" rel="noreferrer">
                 /{school.slug} ↗
@@ -216,15 +211,11 @@ function SchoolDetail({ school, onBack, onEdit, onLessons, onRemoved }) {
           </div>
         </dl>
         <div className="task-actions">
-          <Button tone="primary" onClick={onLessons}>
-            Manage lessons
-          </Button>
+          <Button tone="primary" onClick={onLessons}>{t("Manage lessons")}</Button>
         </div>
       </section>
       <div className="danger-zone">
-        <Button tone="danger" disabled={busy} onClick={remove}>
-          Remove school
-        </Button>
+        <Button tone="danger" disabled={busy} onClick={remove}>{t("Remove school")}</Button>
       </div>
     </div>
   );

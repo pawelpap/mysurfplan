@@ -3,43 +3,45 @@ import { dateKey, hourLabel } from "./model.mjs";
 export const summaryTtl = 5 * 60000;
 export const summaryBatchLimit = 24;
 
-export function summaryTimeLabel(summary, spot, now) {
+const english = { locale: "en-GB", t: (text, values) => text.replace(/\{(\d+)\}/g, (token, name) => values?.[name] ?? token) };
+
+export function summaryTimeLabel(summary, spot, now, { locale, t } = english) {
   if (summary?.timing === "window") {
     const today = dateKey(now, spot.timezone);
-    const date = summary.day === today ? "Today" : new Intl.DateTimeFormat("en-GB", {
+    const date = summary.day === today ? t("Today") : new Intl.DateTimeFormat(locale, {
       day: "numeric", month: "short", timeZone: "UTC",
     }).format(Date.parse(`${summary.day}T12:00:00Z`));
-    return `${date} · ${summary.window?.label || "Window unavailable"}`;
+    return `${date} · ${summary.window?.label || t("Window unavailable")}`;
   }
   if (!Number.isFinite(summary?.at)) return "";
   const day = dateKey(summary.at, spot.timezone);
   const today = dateKey(now, spot.timezone);
   const tomorrow = new Date(Date.parse(today + "T12:00Z") + 86400000)
     .toISOString().slice(0, 10);
-  const date = day === today ? "Today" : day === tomorrow ? "Tomorrow"
-    : new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: spot.timezone }).format(summary.at);
+  const date = day === today ? t("Today") : day === tomorrow ? t("Tomorrow")
+    : new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: spot.timezone }).format(summary.at);
   const time = hourLabel(summary.at, spot.timezone);
-  if (summary.timing === "sunrise") return `${date} · Sunrise · ${time}`;
-  if (summary.timing === "night") return `${date} · Night · ${time}`;
-  return `${day === today && now - summary.at < summaryTtl ? "Now" : date} · ${time}`;
+  if (summary.timing === "sunrise") return `${date} · ${t("Sunrise")} · ${time}`;
+  if (summary.timing === "night") return `${date} · ${t("Night")} · ${time}`;
+  return `${day === today && now - summary.at < summaryTtl ? t("Now") : date} · ${time}`;
 }
 
-export function summaryContextLabel(entries, summaries, now, day) {
-  if (day) return `Best daylight windows · ${new Intl.DateTimeFormat("en-GB", {
+export function summaryContextLabel(entries, summaries, now, day, { locale, t } = english) {
+  if (day) return t("Best daylight windows · {1}", { 1: new Intl.DateTimeFormat(locale, {
     weekday: "short", day: "numeric", month: "short", timeZone: "UTC",
-  }).format(Date.parse(`${day}T12:00:00Z`))}`;
+  }).format(Date.parse(`${day}T12:00:00Z`)) });
   const contexts = entries.map(({ spot }) => {
     const summary = summaries[spot.id];
-    const label = summaryTimeLabel(summary, spot, now);
+    const label = summaryTimeLabel(summary, spot, now, { locale, t });
     if (!label) return null;
     const [day, time] = label.split(" · ");
-    if (summary.timing === "sunrise") return `${day} at sunrise`;
-    if (summary.timing === "night") return `${day} at night`;
-    return day === "Now" ? "Now" : `${day} at ${time}`;
+    if (summary.timing === "sunrise") return t("{1} at sunrise", { 1: day });
+    if (summary.timing === "night") return t("{1} at night", { 1: day });
+    return day === t("Now") ? t("Now") : t("{1} at {2}", { 1: day, 2: time });
   }).filter(Boolean);
   // Distant regions may genuinely have different contexts. Keep their local
   // times on the cards rather than labelling every beach with one sunrise.
-  return contexts.length ? [...new Set(contexts)].join(" · ") : "Loading…";
+  return contexts.length ? [...new Set(contexts)].join(" · ") : t("Loading…");
 }
 
 // One in-flight batch per browser. Scrolling changes the pending set without

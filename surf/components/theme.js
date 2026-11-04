@@ -1,3 +1,4 @@
+import { useLocale } from "./locale";
 import {
   createContext,
   useCallback,
@@ -66,27 +67,28 @@ export function ThemeProvider({ children, systemOnly = false }) {
 }
 
 export function ThemeSelector({ compact = false }) {
+  const { t } = useLocale();
   const { mode, choose } = useContext(ThemeContext);
   const id = useId();
   return (
     <fieldset
       className={`theme-selector theme-switch ${compact ? "compact" : ""}`}
     >
-      <legend>Appearance</legend>
+      <legend>{t("Appearance")}</legend>
       <div className="theme-options">
         {[
           ["system", "monitor", "Follow device settings"],
           ["light", "sun", "Light theme"],
           ["dark", "moon", "Dark theme"],
         ].map(([value, icon, label]) => (
-          <label key={value} title={label}>
+          <label key={value} title={t(label)}>
             <input
               type="radio"
               name={id}
               value={value}
               checked={mode === value}
               onChange={() => choose(value)}
-              aria-label={label}
+              aria-label={t(label)}
             />
             <span>
               <Icon name={icon} />

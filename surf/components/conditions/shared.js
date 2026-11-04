@@ -85,16 +85,34 @@ export function useForecast(url) {
     reload,
   };
 }
-export const value = (n, unit = "", digits = 1) =>
-  finite(n)
-    ? `${(Math.abs(n) < 0.5 * 10 ** -digits ? 0 : n).toFixed(digits)}${unit}`
-    : "Unavailable";
+export function useForecastDisplay() {
+  const display = useLocale();
+  return {
+    ...display,
+    value(n, unit = "", digits = 1) {
+      if (!finite(n)) return display.t("Unavailable");
+      const number = Math.abs(n) < 0.5 * 10 ** -digits ? 0 : n;
+      return display.formatNumber(number, {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+        useGrouping: false,
+      }) + unit;
+    },
+  };
+}
+
+export function localCompass(degrees, locale) {
+  const direction = compass(degrees);
+  return locale === "en-GB" ? direction : direction.replaceAll("W", "O");
+}
+
 export function Direction({ degrees }) {
-  if (!finite(degrees)) return <span className="muted">Unavailable</span>;
+  const { locale, t } = useLocale();
+  if (!finite(degrees)) return <span className="muted">{t("Unavailable")}</span>;
   return (
     <span
       className="direction"
-      title={`From ${Math.round(degrees)}° ${compass(degrees)}; arrow shows travel direction`}
+      title={t("From {1}° {2}; arrow shows travel direction", { 1: Math.round(degrees), 2: localCompass(degrees, locale) })}
     >
       <span
         className="direction-arrow"
@@ -104,26 +122,28 @@ export function Direction({ degrees }) {
         ↑
       </span>
       <span>
-        <span>{`${Math.round(degrees)}° `}</span><small>{compass(degrees)}</small>
+        <span>{`${Math.round(degrees)}° `}</span><small>{localCompass(degrees, locale)}</small>
       </span>
     </span>
   );
 }
 export function SwellDetails({ condition, label = "Swell components" }) {
+  const { t } = useLocale();
   if (!condition) return null;
   return (
     <details className="swell-details">
-      <summary>{label}</summary>
+      <summary>{t(label)}</summary>
       <SwellComponents condition={condition} />
     </details>
   );
 }
 export function SwellComponents({ condition }) {
+  const { t, value } = useForecastDisplay();
   return (
     <div className="swell-components">
       {condition?.swellComponents?.map((s) => (
         <div key={s.name}>
-          <strong>{`${s.name} swell`}</strong>
+          <strong>{t(s.name + " swell")}</strong>
           <span>
             {`${value(s.height, " m")} · ${value(s.period, " s")}`}
           </span>
@@ -131,15 +151,15 @@ export function SwellComponents({ condition }) {
         </div>
       ))}
       <div>
-        <strong>Wind waves</strong>
+        <strong>{t("Wind waves")}</strong>
         <span>{value(condition?.windWaveHeight, " m")}</span>
         <Direction degrees={condition?.windWaveDirection} />
       </div>
       {!condition?.swellComponents?.length && (
         <p>
           {condition?.swellComponents
-            ? "No swell components predicted for this hour."
-            : "Swell components unavailable for this hour."}
+            ? t("No swell components predicted for this hour.")
+            : t("Swell components unavailable for this hour.")}
         </p>
       )}
     </div>
@@ -160,11 +180,12 @@ export function Score({ condition, compact = false }) {
   );
 }
 export function QualityLabel({ condition }) {
+  const { t } = useLocale();
   return (
     <span className={`quality-label ${condition?.tone || "unknown"}`}>
       <span className="quality-dot" aria-hidden="true" />
       <span>
-        {`${condition?.quality || "Unavailable"}${condition?.provisional ? " · partial" : ""}`}
+        {`${t(condition?.quality || "Unavailable")}${condition?.provisional ? t(" · partial") : ""}`}
       </span>
     </span>
   );
@@ -177,11 +198,12 @@ export function experienceLabel(level) {
       : level || "Not assessed";
 }
 export function Experience({ level }) {
+  const { t } = useLocale();
   return (
     <span
       className={`experience ${level === "Instructor review" ? "review" : ""}`}
     >
-      {experienceLabel(level)}
+      {t(experienceLabel(level))}
     </span>
   );
 }
@@ -196,6 +218,7 @@ export function ForecastFooter({ data }) {
   return <p className="forecast-footer" lang={locale}>{t("forecast.updated", { date })}</p>;
 }
 export function Metric({ label, children, note }) {
+  const { t } = useLocale();
   return (
     <div className="condition-metric">
       <dt>
@@ -214,7 +237,7 @@ export function Metric({ label, children, note }) {
             }
           />
         )}
-        {typeof label === "string" ? <span>{label}</span> : label}
+        {typeof label === "string" ? <span>{t(label)}</span> : label}
       </dt>
       <dd>
         {Children.map(children, (child) =>
@@ -223,7 +246,7 @@ export function Metric({ label, children, note }) {
             : child,
         )}
       </dd>
-      {note && <small>{note}</small>}
+      {note && <small>{typeof note === "string" ? t(note) : note}</small>}
     </div>
   );
 }
@@ -232,6 +255,7 @@ export function AssessmentMetrics({
   level = condition?.level,
   lesson = false,
 }) {
+  const { t } = useLocale();
   return (
     <>
       <Metric
@@ -241,48 +265,47 @@ export function AssessmentMetrics({
             <>
               <QualityLabel condition={condition} />
               {lesson && (
-                <span className="assessment-context">
-                  Lowest during the lesson
-                </span>
+                <span className="assessment-context">{t("Lowest during the lesson")}</span>
               )}
             </>
           )
         }
       >
         <span className={`quality-value ${condition?.tone || "unknown"}`}>
-          {condition?.score == null ? "Unavailable" : `${condition.score}/100`}
+          {condition?.score == null ? t("Unavailable") : `${condition.score}/100`}
         </span>
       </Metric>
       <Metric
         label="Required experience"
-        note={lesson ? "Across the lesson" : undefined}
+        note={lesson ? t("Across the lesson") : undefined}
       >
-        {experienceLabel(level)}
+        {t(experienceLabel(level))}
       </Metric>
     </>
   );
 }
 export function OceanMetrics({ condition, atStart = false }) {
+  const { t, value } = useForecastDisplay();
   const energy = condition?.energy;
   return (
     <>
       <Metric
-        label={`Offshore swell energy${atStart ? " at start" : ""}`}
+        label={atStart ? "Offshore swell energy at start" : "Offshore swell energy"}
         note={
           finite(energy?.powerKwM)
-            ? `≈ ${value(energy.powerKwM)} kW/m power${energy.complete ? "" : " · partial"}`
+            ? t("≈ {1} kW/m power{2}", { 1: value(energy.powerKwM), 2: energy.complete ? "" : t(" · partial") })
             : finite(energy?.energyKjM2)
-              ? `Power unavailable${energy.complete ? "" : " · partial"}`
-              : "No swell data for this time"
+              ? t("Power unavailable{1}", { 1: energy.complete ? "" : t(" · partial") })
+              : t("No swell data for this time")
         }
       >
         {value(energy?.energyKjM2, " kJ/m²")}
       </Metric>
       <Metric
-        label={`Water temperature${atStart ? " at start" : ""}`}
+        label={atStart ? "Water temperature at start" : "Water temperature"}
         note={
           !finite(condition?.waterTemperature)
-            ? "No forecast for this time"
+            ? t("No forecast for this time")
             : undefined
         }
       >
@@ -292,27 +315,18 @@ export function OceanMetrics({ condition, atStart = false }) {
   );
 }
 export function OceanMetricsHelp() {
+  const { t } = useLocale();
   return (
     <details className="ocean-metric-help">
-      <summary>Forecast guide</summary>
-      <p>
-        Quality and required experience are separate: good surf can still need
-        advanced skills. Arrows show travel direction; degrees show where wind
-        and swell come from. Tide heights are relative to mean sea level (MSL).
-      </p>
-      <p>
-        Swell energy is measured offshore, before local sheltering, in kJ/m².
-        Estimated power (kW/m) also accounts for period. Partial values use only
-        available swell components. Higher energy does not mean better surf.
-      </p>
-      <p>
-        Water temperature is a sea-surface estimate and may differ near the
-        beach. Its forecast covers fewer days than waves.
-      </p>
+      <summary>{t("Forecast guide")}</summary>
+      <p>{t("Quality and required experience are separate: good surf can still need advanced skills. Arrows show travel direction; degrees show where wind and swell come from. Tide heights are relative to mean sea level (MSL).")}</p>
+      <p>{t("Swell energy is measured offshore, before local sheltering, in kJ/m². Estimated power (kW/m) also accounts for period. Partial values use only available swell components. Higher energy does not mean better surf.")}</p>
+      <p>{t("Water temperature is a sea-surface estimate and may differ near the beach. Its forecast covers fewer days than waves.")}</p>
     </details>
   );
 }
 export function LessonConditions({ lesson, onForecast }) {
+  const { t, value } = useForecastDisplay();
   const source = useForecast(`/api/lessons/${lesson.id}/conditions`);
   const d = source.data,
     w = d?.window,
@@ -328,40 +342,36 @@ export function LessonConditions({ lesson, onForecast }) {
   return (
     <section
       className="surface padded lesson-conditions"
-      aria-label="Conditions during this lesson"
+      aria-label={t("Conditions during this lesson")}
     >
       <div className="section-heading">
         <div>
-          <h2>Conditions during this lesson</h2>
-          <p>{lesson.spotName || "Surf spot needed"}</p>
+          <h2>{t("Conditions during this lesson")}</h2>
+          <p>{lesson.spotName || t("Surf spot needed")}</p>
         </div>
         {onForecast && lesson.spotId && (
-          <Button onClick={onForecast}>16-day forecast →</Button>
+          <Button onClick={onForecast}>{t("16-day forecast →")}</Button>
         )}
       </div>
       {source.loading ? (
-        <Loading label="Loading lesson conditions…" />
+        <Loading label={t("Loading lesson conditions…")} />
       ) : source.error ? (
         <>
           <Message>{source.error}</Message>
-          <Button onClick={source.reload}>Try again</Button>
+          <Button onClick={source.reload}>{t("Try again")}</Button>
         </>
       ) : d?.unavailable ? (
-        <p className="muted">{d.unavailable}</p>
+        <p className="muted">{t(d.unavailable)}</p>
       ) : w ? (
         <>
           {mismatch && (
-            <div className="forecast-notice warning" role="status">
-              The forecast is more demanding than this{" "}
-              {lesson.difficulty.toLowerCase()} lesson. Review the spot, timing
-              and group before teaching.
-            </div>
+            <div className="forecast-notice warning" role="status">{t("The forecast is more demanding than this {1} lesson. Review the spot, timing and group before teaching.", { 1: t(lesson.difficulty).toLowerCase() })}</div>
           )}
           {!w.complete && (
             <div className="forecast-notice">
               {w.worst
-                ? "Part of this lesson is outside the available wave or wind forecast. The summary covers only the available hours."
-                : "Wave and wind conditions are not yet available for this lesson time. The forecast will appear automatically when it enters the 16-day window."}
+                ? t("Part of this lesson is outside the available wave or wind forecast. The summary covers only the available hours.")
+                : t("Wave and wind conditions are not yet available for this lesson time. The forecast will appear automatically when it enters the 16-day window.")}
             </div>
           )}
           <dl className="condition-metrics">
@@ -370,16 +380,16 @@ export function LessonConditions({ lesson, onForecast }) {
               level={w.requiredLevel}
               lesson
             />
-            <Metric label="Estimated surf range" note="Across the lesson">
+            <Metric label={"Estimated surf range"} note={t("Across the lesson")}>
               {finite(w.surfMin)
                 ? `${value(w.surfMin)}–${value(w.surfMax)} m`
-                : "Unavailable"}
+                : t("Unavailable")}
             </Metric>
             <Metric
-              label="Primary offshore swell at start"
+              label={"Primary offshore swell at start"}
               note={
                 finite(start?.swellPeriod)
-                  ? `${value(start.swellPeriod, " s")} period`
+                  ? t("{1} period", { 1: value(start.swellPeriod, " s") })
                   : undefined
               }
             >
@@ -388,51 +398,50 @@ export function LessonConditions({ lesson, onForecast }) {
                 <Direction degrees={start.swellDirection} />
               )}
             </Metric>
-            <Metric label="Wind at start" note={start?.windType}>
+            <Metric label={"Wind at start"} note={start?.windType}>
               {value(start?.windSpeed, " km/h", 0)}
               <Direction degrees={start?.windDirection} />
             </Metric>
             <Metric
-              label="Tide at start"
+              label={"Tide at start"}
               note={
                 start?.tide
-                  ? `${start.tide.stage} · ${start.tide.trend}`
+                  ? `${t(start.tide.stage)} · ${t(start.tide.trend)}`
                   : undefined
               }
             >
               {value(start?.tide?.height, " m MSL", 2)}
             </Metric>
             <Metric
-              label="Tide at end"
+              label={"Tide at end"}
               note={
                 w.end?.tide
-                  ? `${w.end.tide.stage} · ${w.end.tide.trend}`
+                  ? `${t(w.end.tide.stage)} · ${t(w.end.tide.trend)}`
                   : undefined
               }
             >
               {value(w.end?.tide?.height, " m MSL", 2)}
             </Metric>
             <Metric
-              label="Weather at start"
+              label={"Weather at start"}
               note={
                 finite(start?.precipitation)
-                  ? `${value(start.precipitation, "%", 0)} rain chance`
+                  ? t("{1} rain chance", { 1: value(start.precipitation, "%", 0) })
                   : undefined
               }
             >
               {value(start?.temperature, " °C")}
-              <small>{weatherLabel(start?.weatherCode)}</small>
+              <small>{t(weatherLabel(start?.weatherCode))}</small>
             </Metric>
             <OceanMetrics condition={start} atStart />
           </dl>
           <OceanMetricsHelp />
-          {w.worst && <p className="muted-note">{w.worst.reasons.join(" ")}</p>}
+          {w.worst && <p className="muted-note">{w.worst.reasons.map(reason => t(reason)).join(" ")}</p>}
           <SwellDetails
             condition={start}
-            label="Swell components at lesson start"
+            label={t("Swell components at lesson start")}
           />
-          <p className="muted-note">
-            Times at the spot: {hourLabel(lesson.startAt, d.spot.timezone)}–
+          <p className="muted-note">{t("Times at the spot:")} {hourLabel(lesson.startAt, d.spot.timezone)}–
             {hourLabel(
               Date.parse(lesson.startAt) + lesson.durationMin * 60000,
               d.spot.timezone,
@@ -440,8 +449,8 @@ export function LessonConditions({ lesson, onForecast }) {
             ({d.spot.timezone}).
           </p>
           {d.issues.map((issue) => (
-            <div className="forecast-notice" key={issue}>
-              {issue}
+            <div className="forecast-notice" key={t(issue)}>
+              {t(issue)}
             </div>
           ))}
           <ForecastFooter data={d} />

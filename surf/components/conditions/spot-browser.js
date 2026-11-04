@@ -1,9 +1,9 @@
+import { useLocale } from "../locale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Field, SelectField, request } from "../workspace/ui";
 import { useSpotLocation } from "../spot-select";
 import { distanceLabel, orderSpots } from "../../lib/spot-order.mjs";
 import {
-  compass,
   finite,
   hourLabel,
   weatherLabel,
@@ -15,7 +15,7 @@ import {
 } from "../../lib/conditions/presentation.mjs";
 import { createSummaryCache, summaryContextLabel, summaryTimeLabel } from "../../lib/conditions/spot-summaries.mjs";
 import Icon from "../icon";
-import { value } from "./shared";
+import { localCompass, useForecastDisplay } from "./shared";
 
 export function useConditionsClock() {
   const [now, setNow] = useState(null);
@@ -37,24 +37,27 @@ export function useConditionsClock() {
 }
 
 export function TileExperience({ level }) {
+  const { t } = useLocale();
   const text = meaningfulExperience(level);
   return (
     <span className="tile-experience">
       {text && (
         <>
           <Icon name="surfing" />
-          <span>{text}</span>
+          <span>{t(text)}</span>
         </>
       )}
     </span>
   );
 }
 export function TileWeather({ condition }) {
+  const { t } = useLocale();
   const icon = weatherIcon(condition?.weatherCode);
-  return icon ? <span className="tile-weather"><Icon name={icon} label={weatherLabel(condition?.weatherCode)} /></span> : null;
+  return icon ? <span className="tile-weather"><Icon name={icon} label={t(weatherLabel(condition?.weatherCode))} /></span> : null;
 }
 
 export function TileDirections({ condition: h }) {
+  const { locale, t, value } = useForecastDisplay();
   const energy = h?.energy;
   const partial = finite(energy?.energyKjM2) && !energy.complete;
   return (
@@ -65,7 +68,7 @@ export function TileDirections({ condition: h }) {
       ].map(([name, label, degrees, measure, className, measureLabel]) => (
         <span key={name} className="tile-direction">
           <Icon name={name} />
-          <span className="sr-only">{`${label} from `}</span>
+          <span className="sr-only">{t("{1} from ", { 1: t(label) })}</span>
           <span
             className="tile-arrow"
             aria-hidden="true"
@@ -74,15 +77,15 @@ export function TileDirections({ condition: h }) {
             {finite(degrees) ? "↑" : "–"}
           </span>
           <span className="tile-bearing">
-            {finite(degrees) ? `${Math.round(degrees)}° ${compass(degrees)}` : "–"}
+            {finite(degrees) ? `${Math.round(degrees)}° ${localCompass(degrees, locale)}` : "–"}
           </span>
-          <span className={`tile-inline-measure ${className}`} title={measureLabel}>
-            <span className="sr-only">{`${measureLabel}: `}</span>
+          <span className={`tile-inline-measure ${className}`} title={t(measureLabel)}>
+            <span className="sr-only">{`${t(measureLabel)}: `}</span>
             <span>{`${measure}${name === "waves" && partial ? "*" : ""}`}</span>
           </span>
         </span>
       ))}
-      {partial && <span className="tile-data-note">* Partial energy</span>}
+      {partial && <span className="tile-data-note">{t("* Partial energy")}</span>}
     </span>
   );
 }
@@ -120,6 +123,7 @@ function useSummaries(ids, now, refreshVersion, day) {
 }
 
 function SpotCard({ entry, summary, selected, onChoose, now }) {
+  const { locale, t, value } = useForecastDisplay();
   const { spot, distance } = entry;
   const h = summary?.condition;
   const quality = h?.quality || "Unavailable";
@@ -139,17 +143,17 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
         {`${spot.region} · ${distance != null ? distanceLabel(distance) : spot.countryCode}`}
       </span>
       <span className="spot-card-time" title={spot.timezone}>
-        {summaryTimeLabel(summary, spot, now)}
+        {summaryTimeLabel(summary, spot, now, { locale, t })}
       </span>
       <span className="spot-card-condition">
         <Icon name="waves" />
         {!summary ? (
           // A translator may replace text nodes. Keep the loading text inside
           // a React-owned element so the async update never removes that text.
-          <span>Loading…</span>
+          <span>{t("Loading…")}</span>
         ) : (
           <span>
-            <span>{quality}</span>
+            <span>{t(quality)}</span>
             {finite(h?.surfMin) && (
               <>
                 <span className="spot-card-separator"> · </span>
@@ -164,12 +168,12 @@ function SpotCard({ entry, summary, selected, onChoose, now }) {
       {h && <TileDirections condition={h} />}
       {summary?.stale && (
         <small className="spot-stale">
-          {`Previous forecast · ${summary.fetchedAt ? hourLabel(summary.fetchedAt, spot.timezone) : "update unavailable"}`}
+          {t("Previous forecast · {1}", { 1: summary.fetchedAt ? hourLabel(summary.fetchedAt, spot.timezone) : t("update unavailable") })}
         </small>
       )}
       {h && (
         <span className="sr-only">
-          {`Best daylight window for ${summary.day}: ${summary.window?.label}. Colour and values at the window’s weakest hour: ${hourLabel(summary.at, spot.timezone)} in ${spot.timezone}.`}
+          {t("Best daylight window for {1}: {2}. Colour and values at the window’s weakest hour: {3} in {4}.", { 1: summary.day, 2: summary.window?.label, 3: hourLabel(summary.at, spot.timezone), 4: spot.timezone })}
         </span>
       )}
       <TileExperience level={h?.level} />
@@ -188,6 +192,7 @@ export default function SpotBrowser({
   day,
   refreshVersion = 0,
 }) {
+  const { locale, t } = useLocale();
   const location = useSpotLocation();
   const strip = useRef(null);
   const initialDone = useRef(false);
@@ -297,15 +302,13 @@ export default function SpotBrowser({
         : "smooth",
     });
   const sorting = (
-    <div className="spot-sort" role="group" aria-label="Sort surf spots">
+    <div className="spot-sort" role="group" aria-label={t("Sort surf spots")}>
       <button
         type="button"
         aria-pressed={location.order === "nearest"}
         onClick={location.locate}
         disabled={location.pending}
-      >
-        Nearest to me
-      </button>
+      >{t("Nearest to me")}</button>
       <button
         type="button"
         aria-pressed={location.order === "alphabetical"}
@@ -318,27 +321,27 @@ export default function SpotBrowser({
   return (
     <section
       className={`spot-browser ${catalogue ? "spot-catalogue" : ""}`}
-      aria-label={catalogue ? "All surf spots" : "Compare surf spots"}
+      aria-label={catalogue ? t("All surf spots") : t("Compare surf spots")}
     >
       <div className="spot-browser-heading">
         <div>
-          <h2>{catalogue ? "All spots" : "Surf spots"}</h2>
+          <h2>{catalogue ? t("All spots") : t("Surf spots")}</h2>
           <p className="spot-comparison-time">
-            {`${summaryContextLabel(displayed, summaries, now, day)} · Local times`}
+            {t("{1} · Local times", { 1: summaryContextLabel(displayed, summaries, now, day, { locale, t }) })}
           </p>
         </div>
         <div className="actions">
           {!catalogue && (
             <div className="carousel-arrows">
               <Button
-                aria-label="Previous spots"
+                aria-label={t("Previous spots")}
                 disabled={range.start === 0}
                 onClick={() => advance(-1)}
               >
                 <Icon name="chevron-right" className="icon-back" />
               </Button>
               <Button
-                aria-label="Next spots"
+                aria-label={t("Next spots")}
                 disabled={range.end}
                 onClick={() => advance(1)}
               >
@@ -347,35 +350,35 @@ export default function SpotBrowser({
             </div>
           )}
           <Button onClick={onCatalogue}>
-            {catalogue ? "Back to forecast" : "All spots"}
+            {catalogue ? t("Back to forecast") : t("All spots")}
           </Button>
         </div>
       </div>
       <div className="spot-browser-controls">{sorting}</div>
       {(location.pending || location.error) && (
         <p className="spot-location-status" role="status">
-          {location.pending ? "Finding your location…" : location.error}
+          {location.pending ? t("Finding your location…") : t(location.error)}
         </p>
       )}
       {catalogue ? (
         <>
           <div className="catalogue-search">
             <Field
-              label="Search spots"
+              label={t("Search spots")}
               type="search"
               value={filters.search}
               onChange={(e) => setFilter("search", e.target.value)}
-              placeholder="Spot, region or country"
+              placeholder={t("Spot, region or country")}
             />
             <Button
               aria-expanded={filtersOpen}
               aria-controls="spot-filters"
               onClick={() => setFiltersOpen((v) => !v)}
             >
-              {`Filters${Object.entries(filters).filter(([k, v]) => k !== "search" && v)
+              {t("Filters{1}", { 1: Object.entries(filters).filter(([k, v]) => k !== "search" && v)
                 .length
                 ? ` (${Object.entries(filters).filter(([k, v]) => k !== "search" && v).length})`
-                : ""}`}
+                : "" })}
             </Button>
           </div>
           <div
@@ -383,16 +386,16 @@ export default function SpotBrowser({
             className={`catalogue-filters ${filtersOpen ? "open" : ""}`}
           >
             <SelectField
-              label="Region"
+              label={t("Region")}
               value={filters.region}
               onChange={(e) => setFilter("region", e.target.value)}
               options={[
-                { value: "", label: "All regions" },
+                { value: "", label: t("All regions") },
                 ...regions.map((r) => ({ value: r, label: r })),
               ]}
             />
             <SelectField
-              label="Distance"
+              label={t("Distance")}
               value={filters.distance}
               disabled={!location.position}
               onChange={(e) => setFilter("distance", e.target.value)}
@@ -400,33 +403,33 @@ export default function SpotBrowser({
                 {
                   value: "",
                   label: location.position
-                    ? "Any distance"
-                    : "Enable location first",
+                    ? t("Any distance")
+                    : t("Enable location first"),
                 },
                 ...[5, 10, 25, 50, 100].map((n) => ({
                   value: String(n),
-                  label: `Within ${n} km`,
+                  label: t("Within {1} km", { 1: n }),
                 })),
               ]}
             />
             <SelectField
-              label="Surf quality"
+              label={t("Surf quality")}
               value={filters.quality}
               onChange={(e) => setFilter("quality", e.target.value)}
               options={[
-                { value: "", label: "Any quality" },
-                { value: "good", label: "Good" },
-                { value: "fair", label: "Fair" },
-                { value: "poor", label: "Poor" },
-                { value: "bad", label: "Unfavourable / too small" },
+                { value: "", label: t("Any quality") },
+                { value: "good", label: t("Good") },
+                { value: "fair", label: t("Fair") },
+                { value: "poor", label: t("Poor") },
+                { value: "bad", label: t("Unfavourable / too small") },
               ]}
             />
             <SelectField
-              label="Required experience"
+              label={t("Required experience")}
               value={filters.level}
               onChange={(e) => setFilter("level", e.target.value)}
               options={[
-                { value: "", label: "Any experience" },
+                { value: "", label: t("Any experience") },
                 ...["Beginner", "Intermediate", "Advanced"].map((l) => ({
                   value: l,
                   label: l,
@@ -444,19 +447,15 @@ export default function SpotBrowser({
                   level: "",
                 })
               }
-            >
-              Clear filters
-            </Button>
+            >{t("Clear filters")}</Button>
           </div>
           <div className="catalogue-status">
             <p role="status">
               {loading
-                ? "Checking conditions…"
-                : `${matching.length} spots${scope.length > limit ? ` in the first ${limit} checked` : ""}`}
+                ? t("Checking conditions…")
+                : t("{1} spots{2}", { 1: matching.length, 2: scope.length > limit ? ` in the first ${limit} checked` : "" })}
             </p>
-            <Button tone="quiet" onClick={() => setRevision((v) => v + 1)}>
-              Refresh spots
-            </Button>
+            <Button tone="quiet" onClick={() => setRevision((v) => v + 1)}>{t("Refresh spots")}</Button>
           </div>
           <div className="spot-catalogue-grid">
             {matching.map((entry) => (
@@ -474,8 +473,8 @@ export default function SpotBrowser({
           </div>
           {!matching.length && !loading && (
             <div className="surface padded">
-              <h3>No spots match these filters</h3>
-              <p>Try a wider area or fewer filters.</p>
+              <h3>{t("No spots match these filters")}</h3>
+              <p>{t("Try a wider area or fewer filters.")}</p>
               <Button
                 onClick={() =>
                   setFilters({
@@ -486,14 +485,12 @@ export default function SpotBrowser({
                     level: "",
                   })
                 }
-              >
-                Clear filters
-              </Button>
+              >{t("Clear filters")}</Button>
             </div>
           )}
           {scope.length > limit && (
             <Button onClick={() => setLimit((v) => v + 24)}>
-                {`Check the next ${Math.min(24, scope.length - limit)} spots`}
+                {t("Check the next {1} spots", { 1: Math.min(24, scope.length - limit) })}
             </Button>
           )}
         </>

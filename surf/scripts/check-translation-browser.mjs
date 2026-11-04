@@ -37,6 +37,8 @@ try {
     const page = await context.newPage();
     page.setDefaultTimeout(15000);
     const errors = [];
+    const forecastHeading = /^(16-day forecast|Previsão de 16 dias|Prévisions à 16 jours)$/;
+    const allSpots = /^(All spots|Todos os locais|Tous les spots)$/;
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
     let release, brokenSpots = false;
@@ -66,11 +68,11 @@ try {
         await route.fulfill({ response });
       });
       await page.goto(base + "/login");
-      const demoButton = page.getByRole("button", { name: /^(Try the demo|Experimentar a demonstração)$/ });
+      const demoButton = page.getByRole("button", { name: /^(Try the demo|Experimentar a demonstração|Essayer la démo)$/ });
       await demoButton.waitFor();
       assert(await translate(page, language) > 0);
       await demoButton.click();
-      await page.getByRole("heading", { name: "16-day forecast", exact: true }).waitFor({ timeout: 70000 });
+      await page.getByRole("heading", { name: forecastHeading }).waitFor({ timeout: 70000 });
       assert.equal(await page.locator(".calendar-day").count(), 16);
       assert(await translate(page, language) > 0);
       release();
@@ -81,11 +83,11 @@ try {
         continue;
       }
       await page.locator(".spot-card .tile-directions").first().waitFor({ timeout: 70000 });
-      assert.equal(await page.getByRole("heading", { name: "16-day forecast", exact: true }).count(), 1);
+      assert.equal(await page.getByRole("heading", { name: forecastHeading }).count(), 1);
       await translate(page, language);
       await page.evaluate(() => window.finishTestLocation());
       await page.waitForURL((url) => Boolean(url.searchParams.get("spot")));
-      await page.getByRole("heading", { name: "16-day forecast", exact: true }).waitFor({ timeout: 70000 });
+      await page.getByRole("heading", { name: forecastHeading }).waitFor({ timeout: 70000 });
       await translate(page, language);
       const beforeTime = await page.locator(".selected-conditions-time").innerText();
       await page.getByRole("slider").first().focus();
@@ -95,29 +97,29 @@ try {
       await page.locator(".calendar-day").nth(3).click();
       await page.waitForFunction((before) => document.querySelector(".selected-day-heading h2")?.textContent !== before, beforeDay);
       await translate(page, language);
-      await page.getByRole("button", { name: "Show all hours", exact: true }).click();
-      await page.getByRole("button", { name: "Include night hours", exact: true }).click();
+      await page.getByRole("button", { name: /^(Show all hours|Mostrar todas as horas|Afficher toutes les heures)$/ }).click();
+      await page.getByRole("button", { name: /^(Include night hours|Incluir horas da noite|Inclure les heures de nuit)$/ }).click();
       assert.equal(await page.getByRole("slider").count(), 2);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `/private/tmp/mwp-translation-${new URL(base).hostname}-${language}.png`, fullPage: false });
-      await page.getByRole("button", { name: "All spots", exact: true }).click();
-      await page.getByRole("heading", { name: "All spots", exact: true }).waitFor();
+      await page.getByRole("button", { name: allSpots }).click();
+      await page.getByRole("heading", { name: allSpots }).waitFor();
       await translate(page, language);
-      if (mobile) await page.getByRole("button", { name: "Filters", exact: true }).click();
-      await page.getByLabel("Region", { exact: true }).selectOption({ label: "Sintra" });
-      await page.getByRole("button", { name: "Clear filters", exact: true }).click();
-      await page.getByRole("button", { name: "Back to forecast", exact: true }).click();
-      await page.getByRole("heading", { name: "16-day forecast", exact: true }).waitFor({ timeout: 70000 });
+      if (mobile) await page.getByRole("button", { name: /^(Filters|Filtros|Filtres)$/ }).click();
+      await page.getByLabel(/^(Region|Região|Région)$/).selectOption({ label: "Sintra" });
+      await page.getByRole("button", { name: /^(Clear filters|Limpar filtros|Effacer les filtres)$/ }).click();
+      await page.getByRole("button", { name: /^(Back to forecast|Voltar à previsão|Retour aux prévisions)$/ }).click();
+      await page.getByRole("heading", { name: forecastHeading }).waitFor({ timeout: 70000 });
       assert.deepEqual(errors, []);
 
       // This deliberate malformed response is confined to this browser. It
       // verifies the recovery UI, never changing an API, account or database.
       brokenSpots = true;
       await page.reload();
-      await page.getByRole("heading", { name: "This page couldn’t finish loading", exact: true }).waitFor();
+      await page.getByRole("heading", { name: /^(This page couldn’t finish loading|Esta página.*|Impossible de charger cette page.*|Cette page.*)$/ }).waitFor();
       brokenSpots = false;
-      await page.getByRole("button", { name: "Reload page", exact: true }).click();
-      await page.getByRole("heading", { name: "16-day forecast", exact: true }).waitFor({ timeout: 70000 });
+      await page.getByRole("button", { name: /^(Reload page|Recarregar página|Recharger la page)$/ }).click();
+      await page.getByRole("heading", { name: forecastHeading }).waitFor({ timeout: 70000 });
       const identity = (await (await context.request.get(upstream + "/api/auth/session")).json()).data;
       assert.equal(identity.role, "student");assert.equal(identity.demo, true);
       checks.push({ language, mobile, translationUpdates: "passed", recovery: "passed", studentSessionPreserved: true });

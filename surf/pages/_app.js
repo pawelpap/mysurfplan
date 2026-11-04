@@ -16,15 +16,15 @@ export default function MyWavePlan({ Component, pageProps }) {
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </Head>
-      <AppErrorBoundary>
-        <ThemeProvider systemOnly={Component.systemTheme === true}>
-          <SpotLocationProvider>
-            <LocaleProvider>
+      <LocaleProvider>
+        <AppErrorBoundary>
+          <ThemeProvider systemOnly={Component.systemTheme === true}>
+            <SpotLocationProvider>
               <Component {...pageProps} />
-            </LocaleProvider>
-          </SpotLocationProvider>
-        </ThemeProvider>
-      </AppErrorBoundary>
+            </SpotLocationProvider>
+          </ThemeProvider>
+        </AppErrorBoundary>
+      </LocaleProvider>
     </>
   );
 }

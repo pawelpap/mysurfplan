@@ -1,3 +1,4 @@
+import { useLocale } from "./locale";
 import {
   createContext,
   useCallback,
@@ -108,6 +109,7 @@ export default function SpotSelect({
   placeholder,
   required = false,
 }) {
+  const { t } = useLocale();
   const id = useId();
   const initialSelectionDone = useRef(false);
   const {
@@ -140,17 +142,15 @@ export default function SpotSelect({
   return (
     <div className="spot-picker">
       <div className="spot-picker-heading">
-        <label htmlFor={id}>Surf spot</label>
-        <div className="spot-sort" role="group" aria-label="Sort surf spots">
+        <label htmlFor={id}>{t("Surf spot")}</label>
+        <div className="spot-sort" role="group" aria-label={t("Sort surf spots")}>
           <button
             type="button"
             aria-pressed={order === "nearest"}
             onClick={locate}
             disabled={pending}
-            title={origin ? "Update your location" : undefined}
-          >
-            Nearest to me
-          </button>
+            title={origin ? t("Update your location") : undefined}
+          >{t("Nearest to me")}</button>
           <button
             type="button"
             aria-pressed={order === "alphabetical"}
@@ -181,7 +181,7 @@ export default function SpotSelect({
       </select>
       {(pending || error) && (
         <p className="spot-location-status" role="status" id={`${id}-status`}>
-          {pending ? "Finding your location…" : error}
+          {pending ? t("Finding your location…") : t(error)}
         </p>
       )}
     </div>

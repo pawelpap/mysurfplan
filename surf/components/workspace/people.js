@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useState } from "react";
 import {
   Avatar,
@@ -18,6 +19,7 @@ import {
 } from "./ui";
 
 export default function People({ school, schools, session, query, go }) {
+  const { t } = useLocale();
   const source = useData("/api/users");
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
@@ -45,22 +47,20 @@ export default function People({ school, schools, session, query, go }) {
         onSaved={saved}
       />
     );
-  if (source.loading) return <Loading label="Loading people…" />;
+  if (source.loading) return <Loading label={t("Loading people…")} />;
   if (source.error)
     return (
       <>
         <Message>{source.error}</Message>
-        <Button onClick={source.reload}>Try again</Button>
+        <Button onClick={source.reload}>{t("Try again")}</Button>
       </>
     );
   if (query.person && !selected)
     return (
       <Empty
-        title="Person not found"
-        action={<Button onClick={back}>Back to people</Button>}
-      >
-        This account is not available in the selected school.
-      </Empty>
+        title={t("Person not found")}
+        action={<Button onClick={back}>{t("Back to people")}</Button>}
+      >{t("This account is not available in the selected school.")}</Empty>
     );
   if (selected && query.action === "edit")
     return (
@@ -96,8 +96,8 @@ export default function People({ school, schools, session, query, go }) {
   return (
     <>
       <PageHeading
-        title="Accounts"
-        description={"Manage personal accounts across the platform."}
+        title={t("Accounts")}
+        description={t("Manage personal accounts across the platform.")}
         action={
           <Button
             tone="primary"
@@ -105,36 +105,34 @@ export default function People({ school, schools, session, query, go }) {
               setNotice("");
               go({ action: "new" });
             }}
-          >
-            + Add person
-          </Button>
+          >{t("+ Add person")}</Button>
         }
       />
       <Message success>{notice}</Message>
       <div className="toolbar">
         <Field
-          label="Search people"
+          label={t("Search people")}
           type="search"
-          placeholder="Name or email"
+          placeholder={t("Name or email")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <SelectField
-          label="Role"
+          label={t("Role")}
           value={role}
           onChange={(e) => setRole(e.target.value)}
           options={[
-            { value: "", label: "All roles" },
-            ...roles.map((value) => ({ value, label: roleName(value) })),
+            { value: "", label: t("All roles") },
+            ...roles.map((value) => ({ value, label: t(roleName(value)) })),
           ]}
         />
       </div>
       {people.length ? (
         <div className="surface">
           <div className="list-header people-row" aria-hidden="true">
-            <span>Name</span>
-            <span>Email</span>
-            <span>Role</span>
+            <span>{t("Name")}</span>
+            <span>{t("Email")}</span>
+            <span>{t("Role")}</span>
             <span />
           </div>
           {people.map((person) => (
@@ -145,28 +143,28 @@ export default function People({ school, schools, session, query, go }) {
                 setNotice("");
                 go({ person: person.id });
               }}
-              aria-label={`View ${fullName(person)}`}
+              aria-label={t("View {1}", { 1: fullName(person) })}
             >
               <span className="person-cell">
                 <Avatar person={person} />
                 <span>
                   <strong>{fullName(person)}</strong>
-                  <small>{person.schoolName || "All schools"}</small>
+                  <small>{person.schoolName || t("All schools")}</small>
                 </span>
               </span>
               <span>{person.email}</span>
               <span>
-                <span className="pill">{roleName(person.role)}</span>
-                {person.disabledAt && <span className="pill">Disabled</span>}
+                <span className="pill">{t(roleName(person.role))}</span>
+                {person.disabledAt && <span className="pill">{t("Disabled")}</span>}
               </span>
-              <span className="row-action">View →</span>
+              <span className="row-action">{t("View →")}</span>
             </button>
           ))}
         </div>
       ) : (
         <Empty
           title={
-            search || role ? "No matching people" : "No people in this school"
+            search || role ? t("No matching people") : t("No people in this school")
           }
           action={
             search || role ? (
@@ -175,19 +173,15 @@ export default function People({ school, schools, session, query, go }) {
                   setSearch("");
                   setRole("");
                 }}
-              >
-                Clear filters
-              </Button>
+              >{t("Clear filters")}</Button>
             ) : (
-              <Button tone="primary" onClick={() => go({ action: "new" })}>
-                Add a person
-              </Button>
+              <Button tone="primary" onClick={() => go({ action: "new" })}>{t("Add a person")}</Button>
             )
           }
         >
           {search || role
-            ? "Try another name, email or role."
-            : "Add an account for a student, instructor or school admin."}
+            ? t("Try another name, email or role.")
+            : t("Add an account for a student, instructor or school admin.")}
         </Empty>
       )}
       <div className="list-caption">
@@ -200,12 +194,13 @@ export default function People({ school, schools, session, query, go }) {
 }
 
 function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
+  const { locale, t } = useLocale();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   async function remove() {
     if (
       !window.confirm(
-        `Deactivate ${fullName(person)}? They will no longer be able to log in with this account.`,
+        t("Deactivate {1}? They will no longer be able to log in with this account.", { 1: fullName(person) }),
       )
     )
       return;
@@ -222,12 +217,10 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
   return (
     <div className="form-screen">
       <PageHeading
-        title="Person details"
-        back={{ label: "People", onClick: onBack }}
+        title={t("Person details")}
+        back={{ label: t("People"), onClick: onBack }}
         action={
-          <Button tone="primary" onClick={onEdit}>
-            Edit person
-          </Button>
+          <Button tone="primary" onClick={onEdit}>{t("Edit person")}</Button>
         }
       />
       <Message>{error}</Message>
@@ -236,37 +229,37 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
           <Avatar person={person} />
           <div>
             <h2>{fullName(person)}</h2>
-            <p className="muted">{roleName(person.role)}</p>
+            <p className="muted">{t(roleName(person.role))}</p>
           </div>
         </div>
         <dl className="detail-grid">
           <div>
-            <dt>Email</dt>
+            <dt>{t("Email")}</dt>
             <dd>{person.email}</dd>
           </div>
           <div>
-            <dt>Telephone</dt>
-            <dd>{person.phone || "Not provided"}</dd>
+            <dt>{t("Telephone")}</dt>
+            <dd>{person.phone || t("Not provided")}</dd>
           </div>
           <div>
-            <dt>School</dt>
-            <dd>{person.schoolName || "All schools"}</dd>
+            <dt>{t("School")}</dt>
+            <dd>{person.schoolName || t("All schools")}</dd>
           </div>
           <div>
-            <dt>Account status</dt>
-            <dd>{person.disabledAt ? "Disabled" : "Active"}</dd>
+            <dt>{t("Account status")}</dt>
+            <dd>{person.disabledAt ? t("Disabled") : t("Active")}</dd>
           </div>
           <div>
-            <dt>Last login</dt>
+            <dt>{t("Last login")}</dt>
             <dd>
               {person.lastLoginAt
-                ? dateLabel(person.lastLoginAt)
-                : "Has not logged in"}
+                ? dateLabel(person.lastLoginAt, undefined, locale)
+                : t("Has not logged in")}
             </dd>
           </div>
           {person.description && (
             <div className="wide">
-              <dt>About</dt>
+              <dt>{t("About")}</dt>
               <dd>{person.description}</dd>
             </div>
           )}
@@ -274,9 +267,7 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
       </section>
       {person.id !== session.userId && (
         <div className="danger-zone">
-          <Button tone="danger" onClick={remove} disabled={busy}>
-            Deactivate person
-          </Button>
+          <Button tone="danger" onClick={remove} disabled={busy}>{t("Deactivate person")}</Button>
         </div>
       )}
     </div>
@@ -284,6 +275,7 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
 }
 
 function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
+  const { t } = useLocale();
   const [form, setForm] = useState({
     name: person?.name || "",
     familyName: person?.familyName || "",
@@ -321,61 +313,61 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
   return (
     <div className="form-screen">
       <PageHeading
-        title={person ? "Edit person" : "Add person"}
+        title={person ? t("Edit person") : t("Add person")}
         description={
           person
             ? fullName(person)
-            : "Create an account so this person can log in."
+            : t("Create an account so this person can log in.")
         }
         back={{
-          label: person ? "Person details" : "People",
+          label: person ? t("Person details") : t("People"),
           onClick: onCancel,
         }}
       />
       <form className="surface padded" autoComplete="off" onSubmit={submit}>
         <div className="form-grid">
           <Field
-            label="First name"
+            label={t("First name")}
             required
             autoComplete="off"
             {...bind("name")}
           />
           <Field
-            label="Family name"
+            label={t("Family name")}
             required
             autoComplete="off"
             {...bind("familyName")}
           />
           <Field
-            label="Email"
+            label={t("Email")}
             type="email"
             required
             autoComplete="off"
             {...bind("email")}
           />
           <Field
-            label="Telephone (optional)"
+            label={t("Telephone (optional)")}
             type="tel"
             autoComplete="off"
             {...bind("phone")}
           />
           <SelectField
-            label="Role"
+            label={t("Role")}
             options={(person ? ["student", "platform_admin"] : roles).map(
               (value) => ({
                 value,
                 label:
-                  value === "student" ? "Personal account" : roleName(value),
+                  value === "student" ? t("Personal account") : t(roleName(value)),
               }),
             )}
             {...bind("role")}
           />
           {!person && form.role !== "platform_admin" && (
             <SelectField
-              label="School"
+              label={t("School")}
               required={form.role !== "student"}
               options={[
-                { value: "", label: "No school" },
+                { value: "", label: t("No school") },
                 ...schools.map((s) => ({ value: s.id, label: s.name })),
               ]}
               {...bind("school")}
@@ -383,14 +375,14 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
           )}
         </div>
         <div className="form-section">
-          <h2>Account access</h2>
+          <h2>{t("Account access")}</h2>
           {person && (
             <SelectField
-              label="Account status"
+              label={t("Account status")}
               value={form.disabled ? "disabled" : "active"}
               options={[
-                { value: "active", label: "Active" },
-                { value: "disabled", label: "Disabled" },
+                { value: "active", label: t("Active") },
+                { value: "disabled", label: t("Disabled") },
               ]}
               onChange={(e) =>
                 setForm((old) => ({
@@ -401,7 +393,7 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
             />
           )}
           <Field
-            label={person ? "New password (optional)" : "Initial password"}
+            label={person ? t("New password (optional)") : t("Initial password")}
             type="password"
             autoComplete="new-password"
             minLength={8}
@@ -409,20 +401,20 @@ function PersonForm({ person, school, schools, roles, onCancel, onSaved }) {
             required={!person}
             hint={
               person
-                ? "Leave blank to keep the current password."
-                : "At least 8 characters. Share the login details with the person securely."
+                ? t("Leave blank to keep the current password.")
+                : t("At least 8 characters. Share the login details with the person securely.")
             }
             {...bind("password")}
           />
         </div>
-        <Field label="About (optional)">
+        <Field label={t("About (optional)")}>
           {(id) => <textarea id={id} {...bind("description")} />}
         </Field>
         <FormActions
           busy={busy}
           error={error}
           onCancel={onCancel}
-          label={person ? "Save changes" : "Create account"}
+          label={person ? t("Save changes") : t("Create account")}
         />
       </form>
     </div>

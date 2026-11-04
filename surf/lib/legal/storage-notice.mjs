@@ -1,3 +1,5 @@
+import { storageTranslations } from "./storage-translations.mjs";
+
 const previousStorageNotice = {
   document_id: 'mywaveplan.browser-storage', version: '2026-10-06.2', language: 'en-GB',
   title: 'Cookies and browser storage', kind: 'storage_information',
@@ -46,8 +48,10 @@ The mywaveplan:language entry in local storage remembers the language you choose
 ## Location permission`),
 };
 
-export function getStorageNotice(version) {
-  if (version === previousStorageNotice.version) return previousStorageNotice;
-  if (version === undefined || version === storageNotice.version) return storageNotice;
-  return null;
+export function getStorageNotice(version, locale = 'en-GB') {
+  if (version === previousStorageNotice.version)
+    return locale === previousStorageNotice.language ? previousStorageNotice : null;
+  if (version && version !== storageNotice.version) return null;
+  const translation = storageTranslations[locale];
+  return translation ? { ...storageNotice, ...translation, language: locale } : storageNotice;
 }

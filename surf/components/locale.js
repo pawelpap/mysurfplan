@@ -1,6 +1,8 @@
-import { createContext, useContext, useId, useState, useSyncExternalStore } from "react";
+import { createContext, useContext, useId, useMemo, useState, useSyncExternalStore } from "react";
 import { createLocale } from "../lib/locale/index.mjs";
 import { defaultLocale, isLocale, localeNames, localeStorageKey, resolveLocale } from "../lib/locale/preferences.mjs";
+
+const localeCodes = { "en-GB": "EN", "pt-PT": "PT", es: "ES", fr: "FR" };
 
 const LocaleContext = createContext({ ...createLocale(defaultLocale), choice: null, conflict: false });
 const changeEvent = "mywaveplan-language-changed";
@@ -57,9 +59,10 @@ export function LocaleProvider({ children, accountLocale }) {
   const browser = useSyncExternalStore(subscribe, browserLocale, () => defaultLocale);
   const choice = isLocale(accountLocale) ? accountLocale : device;
   const locale = resolveLocale({ account: accountLocale, device, languages: [browser] });
+  const display = useMemo(() => createLocale(locale), [locale]);
   const conflict = isLocale(accountLocale) && device !== null && accountLocale !== device;
   return (
-    <LocaleContext.Provider value={{ ...createLocale(locale), choice, conflict }}>
+    <LocaleContext.Provider value={{ ...display, choice, conflict }}>
       {children}
     </LocaleContext.Provider>
   );
@@ -69,8 +72,9 @@ export function useLocale() {
   return useContext(LocaleContext);
 }
 
-export function LanguageSelector({ saveAccountLocale }) {
+export function LanguageSelector({ saveAccountLocale, compact = false, onLocaleChange, selection }) {
   const { locale, t, choice, conflict } = useLocale();
+  const selected = selection === undefined ? choice : selection;
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const hintId = useId();
@@ -81,12 +85,14 @@ export function LanguageSelector({ saveAccountLocale }) {
     setFailed(false);
     if (!saveAccountLocale) {
       saveDeviceLocale(next);
+      onLocaleChange?.(next);
       return;
     }
     setPending(true);
     try {
       await saveAccountLocale(next);
       saveDeviceLocale(next);
+      onLocaleChange?.(next);
     } catch {
       setFailed(true);
     } finally {
@@ -95,16 +101,27 @@ export function LanguageSelector({ saveAccountLocale }) {
   }
 
   return (
-    <div className="language-preference" lang={locale}>
+    <div className={`language-preference ${compact ? "is-compact" : ""}`} lang={locale}>
       <label className="language-selector">
-        <span>{t("language.label")}</span>
-        <select value={choice ?? ""} onChange={change} aria-disabled={pending}
-          aria-describedby={conflict ? hintId : undefined}>
-          <option value="">{t("language.automatic")}</option>
-          {Object.entries(localeNames).map(([value, name]) => (
-            <option key={value} value={value} lang={value} translate="no">{name}</option>
-          ))}
-        </select>
+        <span className="language-label">{t("language.label")}</span>
+        <span className="language-control">
+          <svg className="language-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <ellipse cx="12" cy="12" rx="4" ry="9" />
+            <path d="M3 12h18" />
+          </svg>
+          <span className="language-code" aria-hidden="true" translate="no">{selected ? localeCodes[selected] : t("language.autoShort")}</span>
+          <svg className="language-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+            <path d="m4 6 4 4 4-4" />
+          </svg>
+          <select value={selected ?? ""} onChange={change} aria-disabled={pending}
+            aria-describedby={conflict ? hintId : undefined}>
+            <option value="">{t("language.automatic")}</option>
+            {Object.entries(localeNames).map(([value, name]) => (
+              <option key={value} value={value} lang={value} translate="no">{name}</option>
+            ))}
+          </select>
+        </span>
       </label>
       {conflict && <small id={hintId}>{t("language.accountChoice")}</small>}
       {failed && <small role="alert">{t("language.saveError")}</small>}

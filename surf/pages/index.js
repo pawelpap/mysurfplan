@@ -207,14 +207,14 @@ function WorkspaceContent({ auth, session }) {
       <div className="auth-page">
         <Brand />
         <Message>{auth.error}</Message>
-        <Button onClick={auth.reload}>Try again</Button>
+        <Button onClick={auth.reload}>{t("Try again")}</Button>
       </div>
     );
   if (!session || (schools.loading && !schools.data.length))
     return (
       <div className="auth-page">
         <Brand />
-        <Loading label="Opening your workspace…" />
+        <Loading label={t("Opening your workspace…")} />
       </div>
     );
   if (schools.error)
@@ -222,13 +222,13 @@ function WorkspaceContent({ auth, session }) {
       <div className="auth-page">
         <Brand />
         <Message>{schools.error}</Message>
-        <Button onClick={schools.reload}>Try again</Button>
+        <Button onClick={schools.reload}>{t("Try again")}</Button>
       </div>
     );
   return (
-    <div className="workspace">
+    <div className="workspace" lang={locale}>
       <Head>
-        <title>{t(`workspace.${view}`)} · MyWavePlan</title>
+        <title>{(t(`workspace.${view}`)) + " · MyWavePlan"}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <a className="skip-link" href="#main" lang={locale}>
@@ -333,7 +333,7 @@ function WorkspaceContent({ auth, session }) {
             ))}
         </nav>
         <div className="sidebar-footer">
-          <div lang="en-GB"><ThemeSelector /></div>
+          <ThemeSelector />
           <LanguageSelector saveAccountLocale={session.demo ? undefined : saveAccountLocale} />
           <button
             className="account-button"
@@ -363,10 +363,10 @@ function WorkspaceContent({ auth, session }) {
         <div className="context-line">
           <span>
             {view === "schools"
-              ? "Platform workspace"
+              ? t("Platform workspace")
               : ["bookings", "teaching", "profile", "privacy"].includes(view)
-                ? "Personal workspace"
-                : school?.name || "Personal workspace"}
+                ? t("Personal workspace")
+                : school?.name || t("Personal workspace")}
           </span>
         </div>
         <Message>{error}</Message>
@@ -440,16 +440,15 @@ function WorkspaceContent({ auth, session }) {
   );
 }
 function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
+  const { t } = useLocale();
   return (
     <div className="form-screen">
       <PageHeading
-        title="My profile"
-        description="Your account and school access."
+        title={t("My profile")}
+        description={t("Your account and school access.")}
         action={
           onEdit && (
-            <Button tone="primary" onClick={onEdit}>
-              Edit profile
-            </Button>
+            <Button tone="primary" onClick={onEdit}>{t("Edit profile")}</Button>
           )
         }
       />
@@ -460,23 +459,23 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
             <h2>{fullName(session)}</h2>
             <p className="muted">
               {isPlatform(session.role)
-                ? roleName(session.role)
-                : "Personal account"}
+                ? t(roleName(session.role))
+                : t("Personal account")}
             </p>
           </div>
         </div>
         <dl className="detail-grid">
           <div>
-            <dt>Email</dt>
+            <dt>{t("Email")}</dt>
             <dd>{session.email}</dd>
           </div>
           <div>
-            <dt>Telephone</dt>
-            <dd>{session.phone || "Not provided"}</dd>
+            <dt>{t("Telephone")}</dt>
+            <dd>{session.phone || t("Not provided")}</dd>
           </div>
           {session.description && (
             <div className="wide">
-              <dt>About</dt>
+              <dt>{t("About")}</dt>
               <dd>{session.description}</dd>
             </div>
           )}
@@ -484,21 +483,21 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
       </section>
       {session.schools?.length > 0 && (
         <section className="surface padded profile-access">
-          <h2>School access</h2>
+          <h2>{t("School access")}</h2>
           <dl className="detail-grid">
             {session.schools.map((s) => (
               <div key={s.id}>
                 <dt>{s.name}</dt>
                 <dd>
                   {!s.open
-                    ? "School closed"
+                    ? t("School closed")
                     : s.status === "suspended"
-                      ? "Staff access suspended"
+                      ? t("Staff access suspended")
                       : s.status === "left"
-                        ? "Staff access removed"
-                        : [s.owner ? "Owner" : "", ...s.roles.map(roleName)]
+                        ? t("Staff access removed")
+                        : [s.owner ? t("Owner") : "", ...s.roles.map(role => t(roleName(role)))]
                             .filter(Boolean)
-                            .join(" · ") || "Surfer"}
+                            .join(" · ") || t("Surfer")}
                 </dd>
               </div>
             ))}
@@ -506,18 +505,14 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
         </section>
       )}
       <section className="surface padded profile-access">
-        <h2>Account access</h2>
-        <p className="muted">
-          Log out on all browsers and devices, including this one.
-        </p>
+        <h2>{t("Account access")}</h2>
+        <p className="muted">{t("Log out on all browsers and devices, including this one.")}</p>
         <Button onClick={onLogoutAll} disabled={loggingOut}>
-          {loggingOut ? "Logging out…" : "Log out everywhere"}
+          {loggingOut ? t("Logging out…") : t("Log out everywhere")}
         </Button>
       </section>
       {!onEdit && (
-        <p className="muted-note">
-          Contact support to update your account details.
-        </p>
+        <p className="muted-note">{t("Contact support to update your account details.")}</p>
       )}
     </div>
   );

@@ -2287,21 +2287,76 @@ summary:focus-visible {
 .sidebar {
   overflow-y: auto;
 }
+/* The compact face stays short. The native menu retains full language names. */
 .language-selector {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
   font-size: 13px;
+  font-weight: 500;
 }
-.language-selector select {
+.language-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   min-height: 44px;
-  width: auto;
-  min-width: 0;
-  flex: 1;
+  min-width: 90px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+}
+.language-control:hover {
+  border-color: var(--sea);
+}
+.language-control:focus-within {
+  outline: 2px solid var(--sea);
+  outline-offset: 2px;
+}
+.language-control select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  opacity: 0;
+  cursor: pointer;
   font-size: 16px;
 }
+.language-control:has(select[aria-disabled="true"]) {
+  opacity: .65;
+}
+.language-globe {
+  width: 17px;
+  height: 17px;
+  color: var(--sea);
+}
+.language-code {
+  min-width: 23px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.language-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+.language-preference.is-compact .language-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .sidebar-footer .language-preference {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .language-preference small {
   display: block;
@@ -2482,4 +2537,22 @@ summary:focus-visible {
 }
 .outlook-day.selected {
   border-color: var(--sea);
+}
+
+.legal-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .login-brand {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+
+  .login-brand .brand {
+    font-size: 18px;
+  }
 }

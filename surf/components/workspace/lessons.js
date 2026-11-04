@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useState } from "react";
 import { LessonConditions } from "../conditions/shared";
 import SpotSelect from "../spot-select";
@@ -26,14 +27,14 @@ import {
   validateLesson,
 } from "../../lib/lesson-input.mjs";
 
-const levelOptions = levels.map((value) => ({ value, label: value }));
+const levelOptions = (t) => levels.map((value) => ({ value, label: t(value) }));
 const bookedBy = (lesson) => lesson.isMine === true;
 const instructors = (lesson) =>
   lesson.coaches?.map((c) => c.name).join(", ") || "Not assigned";
-const spaces = (lesson) =>
+const spaces = (lesson, t) =>
   lesson.capacity == null
-    ? `${lesson.bookedCount} booked · No limit`
-    : `${lesson.bookedCount} / ${lesson.capacity} booked`;
+    ? t("{1} booked · No limit", { 1: lesson.bookedCount })
+    : t("{1} / {2} booked", { 1: lesson.bookedCount, 2: lesson.capacity });
 
 export default function Lessons({
   school,
@@ -43,6 +44,7 @@ export default function Lessons({
   onForecast,
   mode = "school",
 }) {
+  const { locale, t } = useLocale();
   const source = useData(
     mode !== "school"
       ? `/api/lessons?scope=${mode}`
@@ -75,7 +77,7 @@ export default function Lessons({
   };
   const saved = (lesson) => {
     source.reload();
-    setNotice("Lesson saved.");
+    setNotice(t("Lesson saved."));
     go({
       period: lessonStatus(lesson) === "Past" ? "past" : "upcoming",
       lesson: lesson.id,
@@ -84,16 +86,16 @@ export default function Lessons({
 
   if (!school && mode === "school")
     return (
-      <Empty title="Choose a school">Select a school to see its lessons.</Empty>
+      <Empty title={t("Choose a school")}>{t("Select a school to see its lessons.")}</Empty>
     );
   if (query.action === "new" && admin)
     return <LessonForm school={school} onCancel={back} onSaved={saved} />;
-  if (source.loading) return <Loading label="Loading lessons…" />;
+  if (source.loading) return <Loading label={t("Loading lessons…")} />;
   if (source.error)
     return (
       <>
         <Message>{source.error}</Message>
-        <Button onClick={source.reload}>Try again</Button>
+        <Button onClick={source.reload}>{t("Try again")}</Button>
       </>
     );
 
@@ -102,11 +104,9 @@ export default function Lessons({
     if (!lesson)
       return (
         <Empty
-          title="Lesson not found"
-          action={<Button onClick={back}>Back to lessons</Button>}
-        >
-          This lesson may have been removed or is not available to your account.
-        </Empty>
+          title={t("Lesson not found")}
+          action={<Button onClick={back}>{t("Back to lessons")}</Button>}
+        >{t("This lesson may have been removed or is not available to your account.")}</Empty>
       );
     if (query.action === "edit" && admin)
       return (
@@ -127,7 +127,7 @@ export default function Lessons({
           onSaved={() => {
             source.reload();
             open(lesson);
-            setNotice("Instructors saved.");
+            setNotice(t("Instructors saved."));
           }}
         />
       );
@@ -202,47 +202,42 @@ export default function Lessons({
       <PageHeading
         title={
           mode === "bookings"
-            ? "My bookings"
+            ? t("My bookings")
             : mode === "teaching"
-              ? "My teaching"
-              : "School lessons"
+              ? t("My teaching")
+              : t("School lessons")
         }
         description={
           mode === "bookings"
-            ? "Your booked lessons across schools."
+            ? t("Your booked lessons across schools.")
             : mode === "teaching"
-              ? "Lessons you are assigned to teach."
-              : "Find a lesson and open it to see the details."
+              ? t("Lessons you are assigned to teach.")
+              : t("Find a lesson and open it to see the details.")
         }
         action={
           admin && (
             <Button
               tone="primary"
               onClick={() => go({ period, action: "new" })}
-            >
-              + Add lesson
-            </Button>
+            >{t("+ Add lesson")}</Button>
           )
         }
       />
       {(query.spot || query.date) && (
         <div className="conditions-lesson-filter">
-          <span>
-            Lessons for the selected spot{query.date ? ` · ${query.date}` : ""}
-            {query.time ? ` · nearest to ${query.time}` : ""}
+          <span>{t("Lessons for the selected spot")}{query.date ? ` · ${query.date}` : ""}
+            {query.time ? t(" · nearest to {1}", { 1: query.time }) : ""}
           </span>
           <div className="actions">
             <Button
               tone="quiet"
               onClick={() => onForecast(query.spot, query.date)}
-            >
-              Back to conditions
-            </Button>
-            <Button onClick={() => go({ period })}>All school lessons</Button>
+            >{t("Back to conditions")}</Button>
+            <Button onClick={() => go({ period })}>{t("All school lessons")}</Button>
           </div>
         </div>
       )}
-      <div className="segment" aria-label="Lesson period">
+      <div className="segment" aria-label={t("Lesson period")}>
         {[
           ["upcoming", "Upcoming"],
           ...(mode === "school" ? [["mine", "My bookings"]] : []),
@@ -254,32 +249,32 @@ export default function Lessons({
             className={period === value ? "active" : ""}
             onClick={() => go({ period: value })}
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
       <div className="toolbar">
         <Field
-          label="Search lessons"
+          label={t("Search lessons")}
           type="search"
-          placeholder="Surf spot, meeting point or instructor"
+          placeholder={t("Surf spot, meeting point or instructor")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <SelectField
-          label="Level"
+          label={t("Level")}
           value={level}
           onChange={(e) => setLevel(e.target.value)}
-          options={[{ value: "", label: "All levels" }, ...levelOptions]}
+          options={[{ value: "", label: t("All levels") }, ...levelOptions(t)]}
         />
       </div>
       {filtered.length ? (
         <div className="surface">
           <div className="list-header" aria-hidden="true">
-            <span>Date and time</span>
-            <span>Surf spot / meeting point</span>
-            <span>Instructors</span>
-            <span>Bookings</span>
+            <span>{t("Date and time")}</span>
+            <span>{t("Surf spot / meeting point")}</span>
+            <span>{t("Instructors")}</span>
+            <span>{t("Bookings")}</span>
             <span />
           </div>
           {filtered.map((lesson) => (
@@ -287,24 +282,23 @@ export default function Lessons({
               className="list-row"
               key={lesson.id}
               onClick={() => open(lesson)}
-              aria-label={`View ${lesson.difficulty} lesson at ${lesson.place}, ${dateLabel(lesson.startAt, lesson.spotTimezone)}, ${timeLabel(lesson.startAt, lesson.spotTimezone)}`}
+              aria-label={t("View {1} lesson at {2}, {3}, {4}", { 1: t(lesson.difficulty), 2: lesson.place, 3: dateLabel(lesson.startAt, lesson.spotTimezone, locale), 4: timeLabel(lesson.startAt, lesson.spotTimezone, locale) })}
             >
               <span>
                 <strong>
-                  {dateLabel(lesson.startAt, lesson.spotTimezone)}
+                  {dateLabel(lesson.startAt, lesson.spotTimezone, locale)}
                 </strong>
                 <small>
-                  {timeLabel(lesson.startAt, lesson.spotTimezone)} ·{" "}
-                  {lesson.durationMin} min
-                </small>
+                  {timeLabel(lesson.startAt, lesson.spotTimezone, locale)} ·{" "}
+                  {lesson.durationMin} {t("min")}</small>
               </span>
               <span>
                 <strong>{lesson.spotName || lesson.place}</strong>
                 {mode !== "school" && <small>{lesson.schoolName}</small>}
                 {lesson.spotName && <small>{lesson.place}</small>}
-                <small>{lesson.difficulty}</small>
+                <small>{t(lesson.difficulty)}</small>
               </span>
-              <span>{instructors(lesson)}</span>
+              <span>{t(instructors(lesson))}</span>
               <span>
                 <strong>
                   {lesson.capacity == null
@@ -313,13 +307,13 @@ export default function Lessons({
                 </strong>
                 <small>
                   {bookedBy(lesson, session)
-                    ? "You’re booked"
+                    ? t("You’re booked")
                     : lessonStatus(lesson) === "Full"
-                      ? "Full"
-                      : "booked"}
+                      ? t("Full")
+                      : t("booked")}
                 </small>
               </span>
-              <span className="row-action">View →</span>
+              <span className="row-action">{t("View →")}</span>
             </button>
           ))}
         </div>
@@ -327,12 +321,12 @@ export default function Lessons({
         <Empty
           title={
             search || level
-              ? "No matching lessons"
+              ? t("No matching lessons")
               : period === "past"
-                ? "No past lessons"
+                ? t("No past lessons")
                 : period === "mine"
-                  ? "No upcoming bookings"
-                  : "No upcoming lessons"
+                  ? t("No upcoming bookings")
+                  : t("No upcoming lessons")
           }
           action={
             search || level ? (
@@ -341,40 +335,34 @@ export default function Lessons({
                   setSearch("");
                   setLevel("");
                 }}
-              >
-                Clear filters
-              </Button>
+              >{t("Clear filters")}</Button>
             ) : admin && period === "upcoming" ? (
-              <Button tone="primary" onClick={() => go({ action: "new" })}>
-                Add a lesson
-              </Button>
+              <Button tone="primary" onClick={() => go({ action: "new" })}>{t("Add a lesson")}</Button>
             ) : period === "upcoming" && source.data.length ? (
-              <Button onClick={() => go({ period: "past" })}>
-                View past lessons
-              </Button>
+              <Button onClick={() => go({ period: "past" })}>{t("View past lessons")}</Button>
             ) : null
           }
         >
           {search || level
-            ? "Try another meeting point, instructor or level."
+            ? t("Try another meeting point, instructor or level.")
             : period === "upcoming"
               ? admin
-                ? "Create the next lesson to start filling your schedule."
+                ? t("Create the next lesson to start filling your schedule.")
                 : mode === "bookings"
-                  ? "You have no upcoming bookings."
+                  ? t("You have no upcoming bookings.")
                   : mode === "teaching"
-                    ? "You have no upcoming teaching assignments."
-                    : "This school has no upcoming lessons."
+                    ? t("You have no upcoming teaching assignments.")
+                    : t("This school has no upcoming lessons.")
               : period === "mine"
-                ? "Choose a lesson from Upcoming to make a booking."
-                : "Completed lessons will appear here."}
+                ? t("Choose a lesson from Upcoming to make a booking.")
+                : t("Completed lessons will appear here.")}
         </Empty>
       )}
       <div className="list-caption">
         <span>
           {filtered.length} {filtered.length === 1 ? "lesson" : "lessons"}
         </span>
-        <span>Times shown in each spot’s local time</span>
+        <span>{t("Times shown in each spot’s local time")}</span>
       </div>
     </>
   );
@@ -387,6 +375,7 @@ function localDateTime(value) {
     .slice(0, 16);
 }
 function LessonForm({ school, lesson, onCancel, onSaved }) {
+  const { t } = useLocale();
   const spots = useData("/api/spots");
   const [form, setForm] = useState({
     date: lesson
@@ -442,36 +431,36 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
   return (
     <div className="form-screen">
       <PageHeading
-        title={lesson ? "Edit lesson" : "Add lesson"}
+        title={lesson ? t("Edit lesson") : t("Add lesson")}
         description={
           lesson
-            ? "Update the lesson details."
-            : "Set the details first. You can assign instructors after saving."
+            ? t("Update the lesson details.")
+            : t("Set the details first. You can assign instructors after saving.")
         }
         back={{
-          label: lesson ? "Lesson details" : "Lessons",
+          label: lesson ? t("Lesson details") : t("Lessons"),
           onClick: onCancel,
         }}
       />
       <form className="surface padded" onSubmit={submit}>
         <div className="form-grid">
           <Field
-            label="Date"
+            label={t("Date")}
             type="date"
             required
             name="date"
             defaultValue={form.date}
-            hint={`Time at the spot: ${spotTimezone}`}
+            hint={t("Time at the spot: {1}", { 1: spotTimezone })}
           />
           <Field
-            label="Start time"
+            label={t("Start time")}
             type="time"
             required
             name="time"
             defaultValue={form.time}
           />
           <Field
-            label="Duration (minutes)"
+            label={t("Duration (minutes)")}
             type="number"
             min="15"
             max="720"
@@ -482,29 +471,29 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             spots={spots.data}
             required
             placeholder={
-              spots.loading ? "Loading spots…" : "Choose a surf spot"
+              spots.loading ? t("Loading spots…") : t("Choose a surf spot")
             }
             {...bind("spotId")}
           />
           <Field
-            label="Meeting point"
-            placeholder="e.g. West entrance, next to the school flag"
+            label={t("Meeting point")}
+            placeholder={t("e.g. West entrance, next to the school flag")}
             required
             maxLength={200}
             {...bind("place")}
           />
           <SelectField
-            label="Level"
-            options={levelOptions}
+            label={t("Level")}
+            options={levelOptions(t)}
             {...bind("difficulty")}
           />
           <Field
-            label="Capacity"
+            label={t("Capacity")}
             type="number"
             min="1"
             max="1000"
-            placeholder="No limit"
-            hint="Leave blank for no booking limit."
+            placeholder={t("No limit")}
+            hint={t("Leave blank for no booking limit.")}
             {...bind("capacity")}
           />
         </div>
@@ -515,7 +504,7 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
           }
           error={error}
           onCancel={onCancel}
-          label={lesson ? "Save changes" : "Create lesson"}
+          label={lesson ? t("Save changes") : t("Create lesson")}
         />
       </form>
     </div>
@@ -523,6 +512,7 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
 }
 
 function InstructorForm({ school, lesson, onCancel, onSaved }) {
+  const { locale, t } = useLocale();
   const source = useData(
     `/api/coaches?school=${encodeURIComponent(school.slug)}`,
   );
@@ -548,9 +538,9 @@ function InstructorForm({ school, lesson, onCancel, onSaved }) {
   return (
     <div className="form-screen">
       <PageHeading
-        title="Assign instructors"
-        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
-        back={{ label: "Lesson details", onClick: onCancel }}
+        title={t("Assign instructors")}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${timeLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${lesson.place}`}
+        back={{ label: t("Lesson details"), onClick: onCancel }}
       />
       <form className="surface padded" onSubmit={submit}>
         {source.loading ? (
@@ -559,7 +549,7 @@ function InstructorForm({ school, lesson, onCancel, onSaved }) {
           <Message>{source.error}</Message>
         ) : source.data.length ? (
           <fieldset>
-            <legend>Select instructors for this lesson</legend>
+            <legend>{t("Select instructors for this lesson")}</legend>
             <div className="check-list">
               {source.data.map((coach) => (
                 <label key={coach.id}>
@@ -580,7 +570,7 @@ function InstructorForm({ school, lesson, onCancel, onSaved }) {
             </div>
           </fieldset>
         ) : (
-          <p>No instructors are available for this school.</p>
+          <p>{t("No instructors are available for this school.")}</p>
         )}
         <FormActions
           busy={busy || source.loading || Boolean(source.error)}
@@ -604,6 +594,7 @@ function LessonDetail({
   onDeleted,
   reload,
 }) {
+  const { locale, t } = useLocale();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -611,7 +602,7 @@ function LessonDetail({
   const booked = bookedBy(lesson, session);
   const status = lessonStatus(lesson);
   async function book() {
-    if (booked && !window.confirm("Cancel your booking for this lesson?"))
+    if (booked && !window.confirm(t("Cancel your booking for this lesson?")))
       return;
     setBusy(true);
     setError("");
@@ -640,7 +631,7 @@ function LessonDetail({
   async function remove() {
     if (
       !window.confirm(
-        `Remove this lesson at ${lesson.place} on ${dateLabel(lesson.startAt, lesson.spotTimezone)}? It will disappear from the schedule and public booking page.`,
+        t("Remove this lesson at {1} on {2}? It will disappear from the schedule and public booking page.", { 1: lesson.place, 2: dateLabel(lesson.startAt, lesson.spotTimezone, locale) }),
       )
     )
       return;
@@ -657,48 +648,46 @@ function LessonDetail({
   return (
     <div className="form-screen">
       <PageHeading
-        title={`${lesson.difficulty} lesson`}
-        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)}`}
-        back={{ label: "Lessons", onClick: onBack }}
+        title={t("{1} lesson", { 1: lesson.difficulty })}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${timeLabel(lesson.startAt, lesson.spotTimezone, locale)}`}
+        back={{ label: t("Lessons"), onClick: onBack }}
         action={
           admin && (
-            <Button tone="primary" onClick={onEdit}>
-              Edit lesson
-            </Button>
+            <Button tone="primary" onClick={onEdit}>{t("Edit lesson")}</Button>
           )
         }
       />
       <Message success>{success || notice}</Message>
       <Message>{error}</Message>
-      <section className="surface padded" aria-label="Lesson details">
+      <section className="surface padded" aria-label={t("Lesson details")}>
         <dl className="detail-grid">
           <div>
-            <dt>Surf spot</dt>
-            <dd>{lesson.spotName || "Not assigned"}</dd>
+            <dt>{t("Surf spot")}</dt>
+            <dd>{lesson.spotName || t("Not assigned")}</dd>
           </div>
           <div>
-            <dt>School</dt>
+            <dt>{t("School")}</dt>
             <dd>{lesson.schoolName}</dd>
           </div>
           <div>
-            <dt>Meeting point</dt>
+            <dt>{t("Meeting point")}</dt>
             <dd>{lesson.place}</dd>
           </div>
           <div>
-            <dt>Duration</dt>
-            <dd>{lesson.durationMin} minutes</dd>
+            <dt>{t("Duration")}</dt>
+            <dd>{lesson.durationMin} {t("minutes")}</dd>
           </div>
           <div>
-            <dt>Level</dt>
-            <dd>{lesson.difficulty}</dd>
+            <dt>{t("Level")}</dt>
+            <dd>{t(lesson.difficulty)}</dd>
           </div>
           <div>
-            <dt>Bookings</dt>
-            <dd>{spaces(lesson)}</dd>
+            <dt>{t("Bookings")}</dt>
+            <dd>{spaces(lesson, t)}</dd>
           </div>
           <div className="wide">
-            <dt>Instructors</dt>
-            <dd>{instructors(lesson)}</dd>
+            <dt>{t("Instructors")}</dt>
+            <dd>{t(instructors(lesson))}</dd>
           </div>
         </dl>
         <div className="task-actions">
@@ -717,43 +706,39 @@ function LessonDetail({
                 }
               >
                 {busy
-                  ? "Updating…"
+                  ? t("Updating…")
                   : booked
-                    ? "Cancel my booking"
+                    ? t("Cancel my booking")
                     : !lesson.spotActive
-                      ? "Spot confirmation needed"
+                      ? t("Spot confirmation needed")
                       : status === "Full"
-                        ? "Lesson full"
+                        ? t("Lesson full")
                         : status === "Past"
-                          ? "Lesson has finished"
-                          : "Book this lesson"}
+                          ? t("Lesson has finished")
+                          : t("Book this lesson")}
               </Button>
-              {booked && <span className="pill booked">You’re booked</span>}
+              {booked && <span className="pill booked">{t("You’re booked")}</span>}
             </>
           ) : (
             <>
-              <Button tone="primary" onClick={onBookings}>
-                View bookings ({lesson.bookedCount})
+              <Button tone="primary" onClick={onBookings}>{t("View bookings (")}{lesson.bookedCount})
               </Button>
               {admin && (
-                <Button onClick={onInstructors}>Assign instructors</Button>
+                <Button onClick={onInstructors}>{t("Assign instructors")}</Button>
               )}
             </>
           )}
         </div>
       </section>
       <LessonConditions lesson={lesson} onForecast={onForecast} />
-      <p className="muted-note">
-        Times shown in{" "}
+      <p className="muted-note">{t("Times shown in")}{" "}
         {lesson.spotTimezone ||
           Intl.DateTimeFormat().resolvedOptions().timeZone}
         .
       </p>
       {admin && (
         <div className="danger-zone">
-          <Button tone="danger" disabled={busy} onClick={remove}>
-            Remove lesson
-          </Button>
+          <Button tone="danger" disabled={busy} onClick={remove}>{t("Remove lesson")}</Button>
         </div>
       )}
     </div>
@@ -761,6 +746,7 @@ function LessonDetail({
 }
 
 function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
+  const { locale, t } = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -786,7 +772,7 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
   }
   async function cancel(person) {
     if (
-      !window.confirm(`Cancel the booking for ${person.name || person.email}?`)
+      !window.confirm(t("Cancel the booking for {1}?", { 1: person.name || person.email }))
     )
       return;
     setBusy(true);
@@ -807,21 +793,21 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
     return (
       <div className="form-screen">
         <PageHeading
-          title="Add booking"
-          description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
-          back={{ label: "Bookings", onClick: onList }}
+          title={t("Add booking")}
+          description={`${dateLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${timeLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${lesson.place}`}
+          back={{ label: t("Bookings"), onClick: onList }}
         />
         <form className="surface padded" autoComplete="off" onSubmit={submit}>
           <div className="form-grid">
             <Field
-              label="Student name"
+              label={t("Student name")}
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="off"
             />
             <Field
-              label="Student email"
+              label={t("Student email")}
               type="email"
               required
               value={email}
@@ -829,15 +815,12 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
               autoComplete="off"
             />
           </div>
-          <p className="muted-note">
-            This reserves a place. It does not create a login account or send a
-            confirmation email.
-          </p>
+          <p className="muted-note">{t("This reserves a place. It does not create a login account or send a confirmation email.")}</p>
           <FormActions
             busy={busy}
             error={error}
             onCancel={onList}
-            label="Add booking"
+            label={t("Add booking")}
           />
         </form>
       </div>
@@ -845,16 +828,14 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
   return (
     <>
       <PageHeading
-        title="Lesson bookings"
-        description={`${dateLabel(lesson.startAt, lesson.spotTimezone)} · ${timeLabel(lesson.startAt, lesson.spotTimezone)} · ${lesson.place}`}
-        back={{ label: "Lesson details", onClick: onBack }}
+        title={t("Lesson bookings")}
+        description={`${dateLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${timeLabel(lesson.startAt, lesson.spotTimezone, locale)} · ${lesson.place}`}
+        back={{ label: t("Lesson details"), onClick: onBack }}
         action={
           admin &&
           status === "Available" &&
           lesson.spotActive && (
-            <Button tone="primary" onClick={onAdd}>
-              + Add booking
-            </Button>
+            <Button tone="primary" onClick={onAdd}>{t("+ Add booking")}</Button>
           )
         }
       />
@@ -864,7 +845,7 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
           {lesson.attendees.map((person) => (
             <div className="booking-row" key={person.id}>
               <div>
-                <strong>{person.name || "Student"}</strong>
+                <strong>{person.name || t("Student")}</strong>
                 <small>{person.email}</small>
               </div>
               {admin && (
@@ -872,25 +853,21 @@ function Bookings({ lesson, session, adding, onBack, onAdd, onList, reload }) {
                   tone="quiet"
                   disabled={busy}
                   onClick={() => cancel(person)}
-                >
-                  Cancel booking
-                </Button>
+                >{t("Cancel booking")}</Button>
               )}
             </div>
           ))}
         </div>
       ) : (
-        <Empty title="No bookings yet">
-          Students booked on this lesson will appear here.
-        </Empty>
+        <Empty title={t("No bookings yet")}>{t("Students booked on this lesson will appear here.")}</Empty>
       )}
       <div className="list-caption">
-        <span>{spaces(lesson)}</span>
+        <span>{spaces(lesson, t)}</span>
         <span>
           {status === "Past"
-            ? "Past lesson"
+            ? t("Past lesson")
             : status === "Full"
-              ? "Lesson full"
+              ? t("Lesson full")
               : ""}
         </span>
       </div>

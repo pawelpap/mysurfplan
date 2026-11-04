@@ -1,6 +1,8 @@
+import { useLocale } from "../components/locale";
 import { LegalLayout } from "../components/legal";
 import DataLicences from "../components/data-licences";
 
 export default function Legal() {
-  return <LegalLayout title="Data licences"><DataLicences /></LegalLayout>;
+  const { t } = useLocale();
+  return <LegalLayout title={t("Data licences")}><DataLicences /></LegalLayout>;
 }

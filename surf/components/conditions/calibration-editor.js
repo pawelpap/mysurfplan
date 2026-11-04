@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { Field, Button } from "../workspace/ui";
 function emptyValue(schema) {
   if (schema.const !== undefined) return schema.const;
@@ -15,8 +16,9 @@ function emptyValue(schema) {
   return "";
 }
 export default function CalibrationEditor({ schema, value, onChange, label }) {
+  const { t } = useLocale();
   if (schema.const !== undefined) return null;
-  const title = label || schema.title;
+  const title = t(label || schema.title);
   if (schema.type === "object")
     return (
       <div className="calibration-fields">
@@ -38,7 +40,7 @@ export default function CalibrationEditor({ schema, value, onChange, label }) {
           {schema.items.map((child, i) => (
             <CalibrationEditor
               key={i}
-              label={child.title || `Value ${i + 1}`}
+              label={child.title || t("Value {1}", { 1: i + 1 })}
               schema={child}
               value={value[i]}
               onChange={(v) => onChange(value.map((x, n) => (n === i ? v : x)))}
@@ -51,7 +53,7 @@ export default function CalibrationEditor({ schema, value, onChange, label }) {
         <summary>
           {title}
           <span>
-            {value.length} {value.length === 1 ? "entry" : "entries"}
+            {value.length} {t(value.length === 1 ? "entry" : "entries")}
           </span>
         </summary>
         <div className="calibration-rows">
@@ -69,8 +71,7 @@ export default function CalibrationEditor({ schema, value, onChange, label }) {
                 type="button"
                 disabled={value.length <= schema.minItems}
                 onClick={() => onChange(value.filter((_, n) => n !== i))}
-              >
-                Remove entry {i + 1}
+              >{t("Remove entry")} {i + 1}
               </Button>
             </div>
           ))}
@@ -78,9 +79,7 @@ export default function CalibrationEditor({ schema, value, onChange, label }) {
             type="button"
             disabled={value.length >= schema.maxItems}
             onClick={() => onChange([...value, emptyValue(schema.items)])}
-          >
-            Add entry
-          </Button>
+          >{t("Add entry")}</Button>
         </div>
       </details>
     );
@@ -96,7 +95,7 @@ export default function CalibrationEditor({ schema, value, onChange, label }) {
           >
             {schema.enum.map((v) => (
               <option key={v} value={v}>
-                {v}
+                {t(v)}
               </option>
             ))}
           </select>

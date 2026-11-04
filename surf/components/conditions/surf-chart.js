@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { finite, hourLabel } from "../../lib/conditions/model.mjs";
-import { QualityLabel, value } from "./shared";
+import { QualityLabel, useForecastDisplay } from "./shared";
 import { useChartInteraction } from "./chart-interaction";
 import Icon from "../icon";
 
@@ -28,6 +28,7 @@ export default function SurfChart({
   onTimeChange,
   condition,
 }) {
+  const { t, value } = useForecastDisplay();
   const container = useRef(null);
   const [width, setWidth] = useState(740);
   const [surf, setSurf] = useState(true);
@@ -70,10 +71,8 @@ export default function SurfChart({
     <div className="surf-chart" ref={container}>
       <div className="surf-chart-heading">
         <h3>
-          <Icon name="waves" />
-          Surf and energy
-        </h3>
-        <div className="chart-series" role="group" aria-label="Chart series">
+          <Icon name="waves" />{t("Surf and energy")}</h3>
+        <div className="chart-series" role="group" aria-label={t("Chart series")}>
           <label>
             <input
               type="checkbox"
@@ -81,7 +80,7 @@ export default function SurfChart({
               onChange={(e) => setSurf(e.target.checked)}
             />
             <span className="line-key" />
-            Surf · m
+            {t("Surf")} · m
           </label>
           <label>
             <input
@@ -90,14 +89,12 @@ export default function SurfChart({
               onChange={(e) => setEnergy(e.target.checked)}
             />
             <span className="line-key energy" />
-            Energy · kJ/m²
+            {t("Energy")} · kJ/m²
           </label>
         </div>
       </div>
       {hours.length < 2 ? (
-        <p className="forecast-notice">
-          Hourly surf and energy are unavailable for this day.
-        </p>
+        <p className="forecast-notice">{t("Hourly surf and energy are unavailable for this day.")}</p>
       ) : (
         <>
           <svg
@@ -106,7 +103,7 @@ export default function SurfChart({
             height="232"
             role="slider"
             tabIndex={0}
-            aria-label="Forecast time. Drag or use arrow keys to change both charts and the detailed conditions."
+            aria-label={t("Forecast time. Drag or use arrow keys to change both charts and the detailed conditions.")}
             aria-valuemin={start}
             aria-valuemax={end}
             aria-valuenow={
@@ -114,13 +111,10 @@ export default function SurfChart({
                 ? Math.max(start, Math.min(end, selectedTime))
                 : start
             }
-            aria-valuetext={`${hourLabel(selectedTime || start, timezone)}, ${condition?.quality || "unavailable"}`}
+            aria-valuetext={`${hourLabel(selectedTime || start, timezone)}, ${t(condition?.quality || "Unavailable")}`}
             {...interaction}
           >
-            <title>
-              Local surf range and offshore swell energy, with hourly surf
-              quality
-            </title>
+            <title>{t("Local surf range and offshore swell energy, with hourly surf quality")}</title>
             {hours.map((h, i) => {
               const a = i === 0 ? start : (hours[i - 1].time + h.time) / 2;
               const b =
@@ -253,12 +247,12 @@ export default function SurfChart({
               )}
           </svg>
           <div className="chart-caption">
-            <span>Local surf range · offshore swell energy</span>
+            <span>{t("Local surf range · offshore swell energy")}</span>
             <QualityLabel condition={condition} />
           </div>
           <div
             className="chart-quality-legend"
-            aria-label="Background shows surf quality"
+            aria-label={t("Background shows surf quality")}
           >
             {[
               ["good", "Good"],
@@ -273,7 +267,7 @@ export default function SurfChart({
                     borderColor: `var(--quality-${tone}-line)`,
                   }}
                 />
-                {label}
+                {t(label)}
               </span>
             ))}
           </div>

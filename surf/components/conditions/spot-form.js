@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useState } from "react";
 import {
   Field,
@@ -12,6 +13,7 @@ import {
 } from "../workspace/ui";
 import CalibrationEditor from "./calibration-editor";
 export default function SpotForm(props) {
+  const { t } = useLocale();
   const data = useData(
     "/api/calibration" + (props.spot ? "?spotId=" + props.spot.id : ""),
   );
@@ -19,15 +21,16 @@ export default function SpotForm(props) {
     return (
       <>
         <Message>{data.error}</Message>
-        <Button onClick={data.reload}>Try again</Button>
-        <Button onClick={props.onCancel}>Back to Conditions</Button>
+        <Button onClick={data.reload}>{t("Try again")}</Button>
+        <Button onClick={props.onCancel}>{t("Back to Conditions")}</Button>
       </>
     );
   if (data.loading || !data.data?.schema)
-    return <Loading label="Loading calibration settings…" />;
+    return <Loading label={t("Loading calibration settings…")} />;
   return <SpotEditor {...props} settings={data.data} />;
 }
 function SpotEditor({ spot, onCancel, onSaved, settings }) {
+  const { t } = useLocale();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState("");
@@ -110,9 +113,9 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
   return (
     <div className="form-screen spot-form-screen">
       <PageHeading
-        title={spot ? "Edit surf spot" : "Add surf spot"}
-        description="Location, local conditions and calibration."
-        back={{ label: "Conditions", onClick: onCancel }}
+        title={spot ? t("Edit surf spot") : t("Add surf spot")}
+        description={t("Location, local conditions and calibration.")}
+        back={{ label: t("Conditions"), onClick: onCancel }}
       />
       <form className="surface padded" onSubmit={submit}>
         <div className="form-grid">
@@ -122,7 +125,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
               name={k}
               label={
                 {
-                  name: "Spot name",
+                  name: t("Spot name"),
                   region: "Region",
                   countryCode: "Country code",
                   timezone: "Time zone",
@@ -142,7 +145,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
             <Field
               key={k}
               name={k}
-              label={k === "latitude" ? "Latitude" : "Longitude"}
+              label={k === "latitude" ? t("Latitude") : t("Longitude")}
               defaultValue={spot?.[k]}
               type="number"
               step="any"
@@ -153,7 +156,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           ))}
           <SelectField
             name="breakType"
-            label="Break type"
+            label={t("Break type")}
             defaultValue={spot?.breakType || "Beach"}
             options={["Beach", "Mixed", "Reef", "Point / reef"].map((v) => ({
               value: v,
@@ -162,11 +165,11 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           />
           <SelectField
             name="tideStationId"
-            label="Tide reference"
+            label={t("Tide reference")}
             defaultValue={spot ? spot.tideStationId || "" : "auto"}
             options={[
-              { value: "auto", label: "Choose nearest reference" },
-              { value: "", label: "No tide reference" },
+              { value: "auto", label: t("Choose nearest reference") },
+              { value: "", label: t("No tide reference") },
               ...settings.stations.map((s) => ({ value: s.id, label: s.name })),
             ]}
           />
@@ -175,15 +178,11 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
               type="checkbox"
               name="active"
               defaultChecked={spot?.active ?? true}
-            />{" "}
-            Available for lessons
-          </label>
+            />{" "}{t("Available for lessons")}</label>
         </div>
         <details className="calibration-group">
-          <summary>Ocean sample location</summary>
-          <p className="muted-note">
-            Leave blank on a new spot to use its location.
-          </p>
+          <summary>{t("Ocean sample location")}</summary>
+          <p className="muted-note">{t("Leave blank on a new spot to use its location.")}</p>
           <div className="form-grid">
             {["marineLatitude", "marineLongitude"].map((k) => (
               <Field
@@ -191,8 +190,8 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                 name={k}
                 label={
                   k === "marineLatitude"
-                    ? "Ocean sample latitude"
-                    : "Ocean sample longitude"
+                    ? t("Ocean sample latitude")
+                    : t("Ocean sample longitude")
                 }
                 type="number"
                 step="any"
@@ -202,14 +201,11 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           </div>
         </details>
         <section className="spot-calibration">
-          <h2>Local calibration</h2>
-          <p className="muted-note">
-            Settings are saved for this spot. Record the observations behind
-            each change.
-          </p>
+          <h2>{t("Local calibration")}</h2>
+          <p className="muted-note">{t("Settings are saved for this spot. Record the observations behind each change.")}</p>
           <div className="form-grid">
             <SelectField
-              label="Start from a saved profile"
+              label={t("Start from a saved profile")}
               value=""
               onChange={(e) => {
                 const p = settings.profiles.find(
@@ -224,16 +220,16 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                 }
               }}
               options={[
-                { value: "", label: "Choose a profile…" },
+                { value: "", label: t("Choose a profile…") },
                 ...settings.profiles.map((p) => ({
                   value: p.id,
-                  label: `${p.name} · version ${p.version}`,
+                  label: t("{1} · version {2}", { 1: p.name, 2: p.version }),
                 })),
               ]}
             />
             {spot && (
               <SelectField
-                label="Previous calibration"
+                label={t("Previous calibration")}
                 value={historyVersion}
                 onChange={(e) => {
                   setHistoryVersion(e.target.value);
@@ -245,7 +241,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                     setSources(h.sources);
                     setNotes(h.notes);
                     setChangeNote(
-                      `Restore calibration from version ${h.version}`,
+                      t("Restore calibration from version {1}", { 1: h.version }),
                     );
                     setNotice(
                       "Previous calibration loaded. Save to create a new version.",
@@ -253,19 +249,19 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                   }
                 }}
                 options={[
-                  { value: "", label: "Choose a version to restore…" },
+                  { value: "", label: t("Choose a version to restore…") },
                   ...settings.history
                     .filter((h) => h.schema_version === 3)
                     .map((h) => ({
                       value: String(h.version),
-                      label: `Version ${h.version} · ${h.change_note || "Calibration update"}`,
+                      label: t("Version {1} · {2}", { 1: h.version, 2: h.change_note || "Calibration update" }),
                     })),
                 ]}
               />
             )}
           </div>
           <details className="calibration-group">
-            <summary>Wave, wind and tide parameters</summary>
+            <summary>{t("Wave, wind and tide parameters")}</summary>
             <CalibrationEditor
               schema={{ type: "object", properties: numericFields }}
               value={c}
@@ -292,7 +288,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
             ),
           )}
         </section>
-        <Field label="Local notes and observations">
+        <Field label={t("Local notes and observations")}>
           {(id) => (
             <textarea
               id={id}
@@ -304,8 +300,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           )}
         </Field>
         <details className="calibration-group">
-          <summary>
-            Supporting sources <span>{sources.length}</span>
+          <summary>{t("Supporting sources")} <span>{sources.length}</span>
           </summary>
           {sources.map((s, i) => (
             <div className="calibration-row" key={i}>
@@ -314,9 +309,9 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                   key={k}
                   label={
                     {
-                      title: "Source title",
+                      title: t("Source title"),
                       url: "Web link",
-                      note: "Observation",
+                      note: t("Observation"),
                     }[k]
                   }
                   value={s[k] || ""}
@@ -334,9 +329,7 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
                 type="button"
                 tone="quiet"
                 onClick={() => setSources(sources.filter((_, n) => n !== i))}
-              >
-                Remove source
-              </Button>
+              >{t("Remove source")}</Button>
             </div>
           ))}
           <Button
@@ -344,12 +337,10 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
             onClick={() =>
               setSources([...sources, { title: "", url: "", note: "" }])
             }
-          >
-            Add source
-          </Button>
+          >{t("Add source")}</Button>
         </details>
         <Field
-          label="Reason for this change"
+          label={t("Reason for this change")}
           value={changeNote}
           onChange={(e) => setChangeNote(e.target.value)}
           required
@@ -361,24 +352,19 @@ function SpotEditor({ spot, onCancel, onSaved, settings }) {
           </p>
         )}
         <details className="calibration-group">
-          <summary>Default profile for future spots</summary>
-          <p className="muted-note">
-            Save these settings as the default for newly created spots. Existing
-            spots keep their saved settings.
-          </p>
+          <summary>{t("Default profile for future spots")}</summary>
+          <p className="muted-note">{t("Save these settings as the default for newly created spots. Existing spots keep their saved settings.")}</p>
           <Button
             type="button"
             disabled={busy || !changeNote}
             onClick={saveDefault}
-          >
-            Save as new default version
-          </Button>
+          >{t("Save as new default version")}</Button>
         </details>
         <FormActions
           busy={busy}
           error={error}
           onCancel={onCancel}
-          label={spot ? "Save spot" : "Add spot"}
+          label={spot ? t("Save spot") : t("Add spot")}
         />
       </form>
     </div>

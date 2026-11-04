@@ -1,3 +1,4 @@
+import { useLocale } from "../locale";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
@@ -35,7 +36,7 @@ import {
   OceanMetricsHelp,
   ForecastFooter,
   Metric,
-  value,
+  useForecastDisplay,
 } from "./shared";
 import SpotForm from "./spot-form";
 import SpotBrowser, {
@@ -49,8 +50,8 @@ import Icon from "../icon";
 import { bestDayWindow, selectedForecastDay } from "../../lib/conditions/day-window.mjs";
 import { useChartInteraction } from "./chart-interaction";
 
-const dayLabel = (day, weekday = "short") =>
-  new Date(day + "T12:00:00Z").toLocaleDateString("en-GB", {
+const dayLabel = (day, locale, weekday = "short") =>
+  new Date(day + "T12:00:00Z").toLocaleDateString(locale, {
     timeZone: "UTC",
     weekday,
     day: "numeric",
@@ -59,6 +60,7 @@ const dayLabel = (day, weekday = "short") =>
 const validClock = (clock) =>
   typeof clock === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(clock);
 export default function Conditions({ session, query, go, onLessons }) {
+  const { t } = useLocale();
   const spots = useData("/api/spots");
   const selected =
     spots.data.find((s) => s.id === query.spot || s.slug === query.spot) ||
@@ -104,11 +106,9 @@ export default function Conditions({ session, query, go, onLessons }) {
   if (["new-spot", "edit-spot"].includes(query.action) && !admin)
     return (
       <>
-        <PageHeading title="Spot settings" />
-        <Message>Spot settings are available only to platform admins.</Message>
-        <Button onClick={() => navigate({ action: undefined })}>
-          Back to Conditions
-        </Button>
+        <PageHeading title={t("Spot settings")} />
+        <Message>{t("Spot settings are available only to platform admins.")}</Message>
+        <Button onClick={() => navigate({ action: undefined })}>{t("Back to Conditions")}</Button>
       </>
     );
   if (query.action === "new-spot" && admin)
@@ -122,12 +122,12 @@ export default function Conditions({ session, query, go, onLessons }) {
         }}
       />
     );
-  if (spots.loading) return <Loading label="Loading surf spots…" />;
+  if (spots.loading) return <Loading label={t("Loading surf spots…")} />;
   if (spots.error)
     return (
       <>
         <Message>{spots.error}</Message>
-        <Button onClick={spots.reload}>Try again</Button>
+        <Button onClick={spots.reload}>{t("Try again")}</Button>
       </>
     );
   if (query.action === "edit-spot" && selected && admin)
@@ -146,17 +146,13 @@ export default function Conditions({ session, query, go, onLessons }) {
   return (
     <div className="conditions-v2">
       <PageHeading
-        title="Conditions"
+        title={t("Conditions")}
         action={
           admin && (
             <div className="actions">
-              <Button onClick={() => navigate({ action: "new-spot" })}>
-                + Add spot
-              </Button>
+              <Button onClick={() => navigate({ action: "new-spot" })}>{t("+ Add spot")}</Button>
               {selected && (
-                <Button onClick={() => navigate({ action: "edit-spot" })}>
-                  Spot settings
-                </Button>
+                <Button onClick={() => navigate({ action: "edit-spot" })}>{t("Spot settings")}</Button>
               )}
             </div>
           )
@@ -207,7 +203,7 @@ export default function Conditions({ session, query, go, onLessons }) {
             }
           />
         ) : (
-          <p>No spots yet. A platform admin can add the first one.</p>
+          <p>{t("No spots yet. A platform admin can add the first one.")}</p>
         ))}
     </div>
   );
@@ -230,6 +226,7 @@ function SpotForecast({
   now,
   onLessons,
 }) {
+  const { locale, t, value } = useForecastDisplay();
   const source = useForecast(
     "/api/conditions?spot=" + encodeURIComponent(spot.slug),
   );
@@ -297,7 +294,7 @@ function SpotForecast({
   if (source.loading)
     return (
       <div className="forecast-skeleton" role="status">
-        <Loading label="Loading forecast…" />
+        <Loading label={t("Loading forecast…")} />
         <div />
         <div />
       </div>
@@ -306,7 +303,7 @@ function SpotForecast({
     return (
       <>
         <Message>{source.error}</Message>
-        <Button onClick={source.reload}>Try again</Button>
+        <Button onClick={source.reload}>{t("Try again")}</Button>
       </>
     );
   if (!d || !clock) return null;
@@ -346,9 +343,7 @@ function SpotForecast({
           href={`https://www.openstreetmap.org/?mlat=${spot.latitude}&mlon=${spot.longitude}#map=16/${spot.latitude}/${spot.longitude}`}
           target="_blank"
           rel="noreferrer"
-        >
-          View map ↗
-        </a>
+        >{t("View map ↗")}</a>
       </div>
       {source.error && <Message>{source.error}</Message>}
       {d.issues.map((issue) => (
@@ -356,11 +351,11 @@ function SpotForecast({
           {issue}
         </div>
       ))}
-      <section aria-label="16-day forecast">
+      <section aria-label={t("16-day forecast")}>
         <div className="section-heading outlook-heading">
           <div>
-            <h2>16-day forecast</h2>
-            <p>Best daylight window · local times</p>
+            <h2>{t("16-day forecast")}</h2>
+            <p>{t("Best daylight window · local times")}</p>
           </div>
           <div className="forecast-update">
             <ForecastFooter data={d} />
@@ -372,17 +367,17 @@ function SpotForecast({
               disabled={source.refreshing}
               aria-busy={source.refreshing}
             >
-              {source.refreshing ? "Refreshing…" : "Refresh"}
+              {source.refreshing ? t("Refreshing…") : t("Refresh")}
             </Button>
           </div>
         </div>
         <div
           className="calendar-navigation"
           role="group"
-          aria-label="Browse weekday columns"
+          aria-label={t("Browse weekday columns")}
         >
           <Button
-            aria-label="Earlier weekday columns"
+            aria-label={t("Earlier weekday columns")}
             disabled={calendarPosition.start}
             onClick={() =>
               calendar.current?.scrollBy({ left: -360, behavior: "smooth" })
@@ -391,7 +386,7 @@ function SpotForecast({
             <Icon name="chevron-right" className="icon-back" />
           </Button>
           <Button
-            aria-label="Later weekday columns"
+            aria-label={t("Later weekday columns")}
             disabled={calendarPosition.end}
             onClick={() =>
               calendar.current?.scrollBy({ left: 360, behavior: "smooth" })
@@ -402,12 +397,12 @@ function SpotForecast({
         </div>
         <div className="calendar-scroll" ref={calendar}>
           <div className="forecast-calendar">
-            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+            {Array.from({ length: 7 }, (_, i) => (
               <span
-                key={day}
+                key={i}
                 className={`calendar-weekday ${i > 4 ? "weekend" : ""}`}
               >
-                {day}
+                {new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 0, 5 + i)))}
               </span>
             ))}
             {calendarDays(d.dates).map(({ day, available, weekend }) => {
@@ -415,18 +410,18 @@ function SpotForecast({
               const h = window?.condition;
               const dayNumber = Number(day.slice(-2));
               const today = now && dateKey(now, spot.timezone) === day;
-              const label = `${dayLabel(day, "long")}, ${window ? `best daylight window ${window.label}, ${h.quality}` : "no complete daylight window"}${meaningfulExperience(h?.level) ? `, ${meaningfulExperience(h.level)}` : ""}`;
+              const label = `${dayLabel(day, locale, "long")}, ${window ? t("best daylight window {1}, {2}", { 1: window.label, 2: t(h.quality) }) : t("no complete daylight window")}${meaningfulExperience(h?.level) ? `, ${t(meaningfulExperience(h.level))}` : ""}`;
               if (!available)
                 return (
                   <div
                     key={day}
                     className="calendar-empty"
-                    aria-label={`${dayLabel(day)}, outside the forecast`}
+                    aria-label={t("{1}, outside the forecast", { 1: dayLabel(day, locale) })}
                   >
                     <span>{dayNumber}</span>
                     {dayNumber === 1 && (
                       <small>
-                        {new Date(`${day}T12:00Z`).toLocaleDateString("en-GB", {
+                        {new Date(`${day}T12:00Z`).toLocaleDateString(locale, {
                           month: "short",
                           timeZone: "UTC",
                         })}
@@ -442,41 +437,41 @@ function SpotForecast({
                   aria-pressed={selected === day}
                   aria-current={today ? "date" : undefined}
                   aria-label={label}
-                  title={window ? `Colour and values at the window’s weakest hour: ${hourLabel(h.time, spot.timezone)}` : "Not enough daylight forecast data"}
+                  title={window ? t("Colour and values at the window’s weakest hour: {1}", { 1: hourLabel(h.time, spot.timezone) }) : t("Not enough daylight forecast data")}
                   onClick={() => onDate(day, window ? hourLabel(window.start, spot.timezone) : "12:00")}
                 >
                   <span className="calendar-date">
                     {dayNumber}
                     <span>
                       {today
-                        ? "Today"
+                        ? t("Today")
                         : dayNumber === 1 || day === d.dates[0]
                           ? new Date(`${day}T12:00Z`).toLocaleDateString(
-                              "en-GB",
+                              locale,
                               { month: "short", timeZone: "UTC" },
                             )
                           : ""}
                     </span>
                   </span>
                   <TileWeather condition={h} />
-                  <span className="calendar-window">{window?.label || "Window unavailable"}</span>
+                  <span className="calendar-window">{window?.label || t("Window unavailable")}</span>
                   <span className="calendar-quality">
                     <span className="calendar-quality-full">
-                      {h?.quality || "Unavailable"}
+                      {t(h?.quality || "Unavailable")}
                     </span>
                     <span className="calendar-quality-short" aria-hidden="true">
                       {h?.quality === "Flat / too small"
-                        ? "Flat"
+                        ? t("Flat")
                         : h?.tone === "bad"
-                          ? "Unfav."
-                          : h?.quality || "Missing"}
+                          ? t("Unfav.")
+                          : t(h?.quality || "Missing")}
                     </span>
                   </span>
                   <span className="calendar-surf">
                     <Icon name="waves" />
                     <span>{finite(h?.surfMin)
                       ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-                      : "Unavailable"}</span>
+                      : t("Unavailable")}</span>
                   </span>
                   <TileDirections condition={h} />
                   <TileExperience level={h?.level} />
@@ -488,30 +483,25 @@ function SpotForecast({
       </section>
       <section
         className="surface padded selected-forecast"
-        aria-label="Selected day forecast"
+        aria-label={t("Selected day forecast")}
       >
         <div className="section-heading selected-day-heading">
           <div>
-            <h2>{dayLabel(selected, "long")}</h2>
-            <p className="selected-conditions-time">{`Conditions at ${clock}`}</p>
+            <h2>{dayLabel(selected, locale, "long")}</h2>
+            <p className="selected-conditions-time">{t("Conditions at {1}", { 1: clock })}</p>
           </div>
           <div className="actions">
-            <Button onClick={onNow}>Now</Button>
+            <Button onClick={onNow}>{t("Now")}</Button>
             {onLessons && (
               <Button
                 onClick={() => onLessons(selectedTime, selected)}
                 disabled={!finite(selectedTime)}
-              >
-                Find lessons
-              </Button>
+              >{t("Find lessons")}</Button>
             )}
           </div>
         </div>
         {!finite(selectedTime) && (
-          <Message>
-            This local time is skipped or repeated when the clocks change.
-            Choose another time.
-          </Message>
+          <Message>{t("This local time is skipped or repeated when the clocks change. Choose another time.")}</Message>
         )}
         <SurfChart
           hours={chartHours}
@@ -533,25 +523,21 @@ function SpotForecast({
           <Metric
             label={
               <>
-                <Icon name="waves" />
-                Estimated surf
-              </>
+                <Icon name="waves" />{t("Estimated surf")}</>
             }
           >
             {finite(snapshot?.surfMin)
               ? `${value(snapshot.surfMin)}–${value(snapshot.surfMax)} m`
-              : "Unavailable"}
+              : t("Unavailable")}
           </Metric>
           <Metric
             label={
               <>
-                <Icon name="waves" />
-                Primary swell
-              </>
+                <Icon name="waves" />{t("Primary swell")}</>
             }
             note={
               finite(snapshot?.swellPeriod)
-                ? `${value(snapshot.swellPeriod, " s")} period`
+                ? t("{1} period", { 1: value(snapshot.swellPeriod, " s") })
                 : undefined
             }
           >
@@ -563,56 +549,52 @@ function SpotForecast({
           <Metric
             label={
               <>
-                <Icon name="wind" />
-                Wind
-              </>
+                <Icon name="wind" />{t("Wind")}</>
             }
             note={snapshot?.windType}
           >
             {value(snapshot?.windSpeed, " km/h", 0)}
             <Direction degrees={snapshot?.windDirection} />
             {finite(snapshot?.windGusts) && (
-              <small>{`Gusts ${value(snapshot.windGusts, " km/h", 0)}`}</small>
+              <small>{t("Gusts {1}", { 1: value(snapshot.windGusts, " km/h", 0) })}</small>
             )}
           </Metric>
           <Metric
             label={
               <>
-                <Icon name={weatherIcon(snapshot?.weatherCode) || "sun"} />
-                Weather
-              </>
+                <Icon name={weatherIcon(snapshot?.weatherCode) || "sun"} />{t("Weather")}</>
             }
             note={weatherLabel(snapshot?.weatherCode)}
           >
             {value(snapshot?.temperature, " °C")}
             {finite(snapshot?.precipitation) && (
-              <small>{`${value(snapshot.precipitation, "%", 0)} rain chance`}</small>
+              <small>{t("{1} rain chance", { 1: value(snapshot.precipitation, "%", 0) })}</small>
             )}
           </Metric>
           <OceanMetrics condition={snapshot} />
         </dl>
         {snapshot?.reasons?.length > 0 && (
-          <p className="muted-note">{snapshot.reasons.join(" ")}</p>
+          <p className="muted-note">{snapshot.reasons.map(reason => t(reason)).join(" ")}</p>
         )}
         <div className="forecast-extras">
           <SwellDetails condition={snapshot} />
           <OceanMetricsHelp />
         </div>
       </section>
-      <section aria-label="Hourly conditions">
+      <section aria-label={t("Hourly conditions")}>
         <div className="section-heading">
           <div>
-            <h2>Hourly conditions</h2>
+            <h2>{t("Hourly conditions")}</h2>
             <p>
-              {`${dayLabel(selected)} · ${visible.length
+              {`${dayLabel(selected, locale)} · ${visible.length
                 ? `${hourLabel(visible[0].time, spot.timezone)}–${hourLabel(visible.at(-1).time, spot.timezone)}`
-                : "No hours available"}`}
+                : t("No hours available")}`}
             </p>
           </div>
           <div className="actions">
             {allHours && (
               <Button onClick={() => setNightHours((v) => !v)}>
-                {nightHours ? "Daytime hours" : "Include night hours"}
+                {nightHours ? t("Daytime hours") : t("Include night hours")}
               </Button>
             )}
             <Button
@@ -620,7 +602,7 @@ function SpotForecast({
               aria-expanded={allHours}
               aria-controls="forecast-hours"
             >
-              {allHours ? "Show fewer hours" : "Show all hours"}
+              {allHours ? t("Show fewer hours") : t("Show all hours")}
             </Button>
           </div>
         </div>
@@ -638,15 +620,14 @@ function SpotForecast({
             ))}
           </div>
         ) : (
-          <div className="forecast-notice">
-            Hourly wave and weather data is unavailable for this day.
-          </div>
+          <div className="forecast-notice">{t("Hourly wave and weather data is unavailable for this day.")}</div>
         )}
       </section>
     </div>
   );
 }
 function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
+  const { t, value } = useForecastDisplay();
   const [expanded, setExpanded] = useState(false);
   const detailsId = `hour-${h.time}`;
   return (
@@ -667,7 +648,7 @@ function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
           <strong>
             {finite(h.surfMin)
               ? `${value(h.surfMin)}–${value(h.surfMax)} m`
-              : "Unavailable"}
+              : t("Unavailable")}
           </strong>
         </span>
         <Score condition={h} compact />
@@ -687,16 +668,14 @@ function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
             aria-expanded={expanded}
             aria-controls={detailsId}
           >
-            <span>{expanded ? "Less" : "Details"}</span>
+            <span>{expanded ? t("Less") : t("Details")}</span>
             <Icon
               name="chevron-right"
               className={expanded ? "icon-up" : "icon-down"}
             />
           </Button>
           {onLessons && (
-            <Button tone="quiet" onClick={onLessons}>
-              Find lessons
-            </Button>
+            <Button tone="quiet" onClick={onLessons}>{t("Find lessons")}</Button>
           )}
         </div>
       </div>
@@ -707,6 +686,7 @@ function HourRow({ hour: h, timezone, selected, onSelect, onLessons }) {
   );
 }
 function HourlyDetails({ condition: h }) {
+  const { t, value } = useForecastDisplay();
   return (
     <div className="hour-details">
       <dl className="hour-detail-metrics">
@@ -714,7 +694,7 @@ function HourlyDetails({ condition: h }) {
           label="Primary swell"
           note={
             finite(h.swellPeriod) && h.swellHeight > 0
-              ? `${value(h.swellPeriod, " s")} period`
+              ? t("{1} period", { 1: value(h.swellPeriod, " s") })
               : undefined
           }
         >
@@ -725,39 +705,40 @@ function HourlyDetails({ condition: h }) {
           {value(h.windSpeed, " km/h", 0)}
           <Direction degrees={h.windDirection} />
           {finite(h.windGusts) && (
-            <small>{`Gusts ${value(h.windGusts, " km/h", 0)}`}</small>
+            <small>{t("Gusts {1}", { 1: value(h.windGusts, " km/h", 0) })}</small>
           )}
         </Metric>
         <Metric
           label="Tide · mean sea level"
-          note={h.tide ? `${h.tide.stage} · ${h.tide.trend}` : undefined}
+          note={h.tide ? `${t(h.tide.stage)} · ${t(h.tide.trend)}` : undefined}
         >
           {value(h.tide?.height, " m", 2)}
         </Metric>
         <Metric label="Weather" note={weatherLabel(h.weatherCode)}>
           {value(h.temperature, " °C")}
           {finite(h.precipitation) && (
-            <small>{`${value(h.precipitation, "%", 0)} rain chance`}</small>
+            <small>{t("{1} rain chance", { 1: value(h.precipitation, "%", 0) })}</small>
           )}
         </Metric>
         <OceanMetrics condition={h} />
       </dl>
       {(h.reasons?.length > 0 || h.provisional) && (
         <p className="hour-detail-reasons">
-          {`${h.reasons?.join(" ") || ""}${h.provisional ? " Partial assessment." : ""}`}
+          {`${h.reasons?.map(reason => t(reason)).join(" ") || ""}${h.provisional ? t(" Partial assessment.") : ""}`}
         </p>
       )}
       <div className="hour-swells">
-        <h3>Swell components</h3>
+        <h3>{t("Swell components")}</h3>
         <SwellComponents condition={h} />
       </div>
     </div>
   );
 }
 function SunlightSummary({ sunlight, timezone }) {
+  const { t } = useLocale();
   return (
     <div className="sunlight-summary">
-      <dl className="sunlight-times" aria-label="Light through the day">
+      <dl className="sunlight-times" aria-label={t("Light through the day")}>
         {[
           ["firstLight", "First light"],
           ["sunrise", "Sunrise"],
@@ -782,14 +763,14 @@ function SunlightSummary({ sunlight, timezone }) {
                   d={i < 2 ? "M12 16v-6m-2 2 2-2 2 2" : "M12 10v6m-2-2 2 2 2-2"}
                 />
               </svg>
-              {label}
+              {t(label)}
             </dt>
             <dd>
               {finite(sunlight?.[key])
                 ? hourLabel(sunlight[key], timezone)
                 : sunlight
-                  ? "Not today"
-                  : "Unavailable"}
+                  ? t("Not today")
+                  : t("Unavailable")}
             </dd>
           </div>
         ))}
@@ -798,6 +779,7 @@ function SunlightSummary({ sunlight, timezone }) {
   );
 }
 function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
+  const { t, value } = useForecastDisplay();
   const chart = useRef(null);
   const [width, setWidth] = useState(740);
   useEffect(() => {
@@ -837,9 +819,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
   if (points.length < 2)
     return (
       <div>
-        <div className="forecast-notice">
-          No tide curve is available for this day.
-        </div>
+        <div className="forecast-notice">{t("No tide curve is available for this day.")}</div>
         <SunlightSummary sunlight={sunlight} timezone={zone} />
       </div>
     );
@@ -867,7 +847,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
     ["lastLight", "Last light"],
   ].map(([key, label], i) => ({
     key,
-    label,
+    label: t(label),
     time: sunlight?.[key],
     colour: i === 0 || i === 3 ? "var(--chart-civil)" : "var(--chart-solar)",
   }));
@@ -904,9 +884,9 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
     <div className="tide-chart" ref={chart}>
       <div className="section-heading">
         <div>
-          <h3>Tide and daylight</h3>
+          <h3>{t("Tide and daylight")}</h3>
           <p>
-            {`${value(current.height, " m MSL", 2)}${currentTide ? ` · ${currentTide.stage} · ${currentTide.trend}` : ""}`}
+            {`${value(current.height, " m MSL", 2)}${currentTide ? ` · ${t(currentTide.stage)} · ${t(currentTide.trend)}` : ""}`}
           </p>
         </div>
       </div>
@@ -916,14 +896,14 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
         height="250"
         role="slider"
         tabIndex={0}
-        aria-label={`Tide time on ${day}. Use arrow keys to change time. ${lightEvents.map((e) => `${e.label}: ${finite(e.time) ? hourLabel(e.time, zone) : "not on this date"}`).join(". ")}`}
+        aria-label={t("Tide time on {1}. Use arrow keys to change time. {2}", { 1: day, 2: lightEvents.map((e) => `${e.label}: ${finite(e.time) ? hourLabel(e.time, zone) : t("not on this date")}`).join(". ") })}
         aria-valuemin={0}
         aria-valuemax={points.length - 1}
         aria-valuenow={Math.min(index, points.length - 1)}
-        aria-valuetext={`${hourLabel(current.time, zone)}, ${current.height.toFixed(2)} metres relative to mean sea level`}
+        aria-valuetext={t("{1}, {2} metres relative to mean sea level", { 1: hourLabel(current.time, zone), 2: value(current.height, "", 2) })}
         {...interaction}
       >
-        <title>Tide height, first light, sunrise, sunset and last light</title>
+        <title>{t("Tide height, first light, sunrise, sunset and last light")}</title>
         <rect
           x="48"
           y="60"
@@ -967,7 +947,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
             >
               {event.label}
               <tspan x={labelX[i]} dy="16" fontWeight="600">
-                {finite(event.time) ? hourLabel(event.time, zone) : "Not today"}
+                {finite(event.time) ? hourLabel(event.time, zone) : t("Not today")}
               </tspan>
             </text>
             {finite(event.time) &&
@@ -1007,7 +987,7 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
               fill="var(--muted)"
               fontSize="11"
             >
-              {v.toFixed(1)} m
+              {value(v, " m")}
             </text>
           </g>
         ))}
@@ -1051,33 +1031,27 @@ function TideChart({ data, day, selectedTime, onTimeChange, domain }) {
           strokeWidth="2"
         />
       </svg>
-      <div className="daylight-legend" aria-label="Chart shading">
+      <div className="daylight-legend" aria-label={t("Chart shading")}>
         <span>
-          <i className="night" />
-          Night
-        </span>
+          <i className="night" />{t("Night")}</span>
         <span>
-          <i className="twilight" />
-          Twilight
-        </span>
+          <i className="twilight" />{t("Twilight")}</span>
         <span>
-          <i className="day" />
-          Daylight
-        </span>
+          <i className="day" />{t("Daylight")}</span>
       </div>
       {(sunlight?.alwaysUp || sunlight?.alwaysDown) && (
         <p className="muted-note light-explanation">
           {sunlight?.alwaysUp
-            ? "The sun stays above the horizon. "
+            ? t("The sun stays above the horizon. ")
             : sunlight?.alwaysDown
-              ? "The sun stays below the horizon. "
+              ? t("The sun stays below the horizon. ")
               : ""}
         </p>
       )}
       <div className="tide-events">
         {events.map((e) => (
           <div key={e.time}>
-            <strong>{`${e.type} tide`}</strong>
+            <strong>{t("{1} tide", { 1: e.type })}</strong>
             <span>
               {`${hourLabel(e.time, zone)} · ${value(e.height, " m", 2)}`}
             </span>

@@ -10,6 +10,7 @@ import {
   request,
 } from "../components/workspace/ui";
 import { LanguageSelector, useLocale } from "../components/locale";
+import { legalHref } from "../lib/locale/preferences.mjs";
 import { safeNext } from "../lib/lesson-input.mjs";
 
 export default function Login() {
@@ -53,11 +54,11 @@ export default function Login() {
   return (
     <main className="login-shell" lang={locale}>
       <Head>
-        <title>{t("login.title")} · MyWavePlan</title>
+        <title>{(t("login.title")) + " · MyWavePlan"}</title>
       </Head>
       <div className="login-brand">
         <Brand />
-        <LanguageSelector />
+        <LanguageSelector compact />
       </div>
       <section className="login-story" aria-label={t("login.storyLabel")}>
         <div className="login-story-copy">
@@ -150,7 +151,7 @@ export default function Login() {
           <small>{t("login.demoHint")}</small>
         </form>
         <div className="auth-help">
-          <p><Link href="/legal/privacy">{t("legal.privacy")}</Link> · <Link href="/legal/terms">{t("legal.terms")}</Link> · <Link href="/legal/storage">{t("legal.storage")}</Link></p>
+          <p><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link> · <Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link> · <Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></p>
           <strong>{t("login.help")}</strong>
           <p>
             {t("login.helpBody")}

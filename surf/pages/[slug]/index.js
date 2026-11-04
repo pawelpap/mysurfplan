@@ -1,3 +1,4 @@
+import { LanguageSelector, useLocale } from "../../components/locale";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -19,6 +20,7 @@ import { levels, lessonStatus } from "../../lib/lesson-input.mjs";
 import { ThemeSelector } from "../../components/theme";
 
 export default function PublicSchedule() {
+  const { locale, t } = useLocale();
   const router = useRouter();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const schools = useData(slug ? "/api/schools" : null);
@@ -35,7 +37,7 @@ export default function PublicSchedule() {
       (!level || l.difficulty === level),
   );
   const groups = filtered.reduce((days, lesson) => {
-    const day = dateLabel(lesson.startAt, lesson.spotTimezone);
+    const day = dateLabel(lesson.startAt, lesson.spotTimezone, locale);
     (days[day] ||= []).push(lesson);
     return days;
   }, {});
@@ -44,42 +46,41 @@ export default function PublicSchedule() {
   return (
     <>
       <Head>
-        <title>{school?.name || "School schedule"} · MyWavePlan</title>
+        <title>{(school?.name || t("School schedule")) + " · MyWavePlan"}</title>
       </Head>
-      <header className="public-header">
+      <header className="public-header" lang={locale}>
         <div>
           <Brand />
           <div className="public-header-actions">
             <ThemeSelector compact />
+            <LanguageSelector compact />
             <a
               className="button"
               href={`/login?school=${encodeURIComponent(slug)}&next=${encodeURIComponent(`/?school=${slug}`)}`}
-            >
-              Log in
-            </a>
+            >{t("Log in")}</a>
           </div>
         </div>
       </header>
-      <main className="public-main">
+      <main className="public-main" lang={locale}>
         <PageHeading
-          title={school?.name || "School schedule"}
-          description="Find your next surf lesson. Choose a session to review the details and book."
+          title={school?.name || t("School schedule")}
+          description={t("Find your next surf lesson. Choose a session to review the details and book.")}
         />
         <div className="toolbar">
           <Field
-            label="Date"
+            label={t("Date")}
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             onInput={(e) => setDate(e.currentTarget.value)}
           />
           <SelectField
-            label="Level"
+            label={t("Level")}
             value={level}
             onChange={(e) => setLevel(e.target.value)}
             options={[
-              { value: "", label: "All levels" },
-              ...levels.map((value) => ({ value, label: value })),
+              { value: "", label: t("All levels") },
+              ...levels.map((value) => ({ value, label: t(value) })),
             ]}
           />
           {(date || level) && (
@@ -89,13 +90,11 @@ export default function PublicSchedule() {
                 setDate("");
                 setLevel("");
               }}
-            >
-              Clear filters
-            </Button>
+            >{t("Clear filters")}</Button>
           )}
         </div>
         {source.loading || schools.loading ? (
-          <Loading label="Loading the schedule…" />
+          <Loading label={t("Loading the schedule…")} />
         ) : source.error || schools.error ? (
           <>
             <Message>{source.error || schools.error}</Message>
@@ -104,9 +103,7 @@ export default function PublicSchedule() {
                 source.reload();
                 schools.reload();
               }}
-            >
-              Try again
-            </Button>
+            >{t("Try again")}</Button>
           </>
         ) : Object.keys(groups).length ? (
           Object.entries(groups).map(([day, lessons]) => (
@@ -117,18 +114,16 @@ export default function PublicSchedule() {
                   <article className="public-card" key={lesson.id}>
                     <div>
                       <h3>
-                        {timeLabel(lesson.startAt, lesson.spotTimezone)} ·{" "}
-                        {lesson.difficulty}
+                        {timeLabel(lesson.startAt, lesson.spotTimezone, locale)} ·{" "}
+                        {t(lesson.difficulty)}
                       </h3>
                       <p>
-                        {lesson.spotName} · {lesson.durationMin} minutes
-                      </p>
+                        {lesson.spotName} · {lesson.durationMin} {t("minutes")}</p>
                       <p>
                         {lesson.place} · {lesson.spotTimezone}
                       </p>
                       {lesson.coaches?.length > 0 && (
-                        <p>
-                          With {lesson.coaches.map((c) => c.name).join(", ")}
+                        <p>{t("With")} {lesson.coaches.map((c) => c.name).join(", ")}
                         </p>
                       )}
                     </div>
@@ -137,17 +132,15 @@ export default function PublicSchedule() {
                         className={`pill ${lessonStatus(lesson) === "Full" ? "full" : ""}`}
                       >
                         {lessonStatus(lesson) === "Full"
-                          ? "Full"
+                          ? t("Full")
                           : lesson.capacity == null
-                            ? "Places available"
-                            : `${Math.max(0, lesson.capacity - lesson.bookedCount)} places left`}
+                            ? t("Places available")
+                            : t("{1} places left", { 1: Math.max(0, lesson.capacity - lesson.bookedCount) })}
                       </span>
                       {lessonStatus(lesson) === "Full" ? (
-                        <Button disabled>Lesson full</Button>
+                        <Button disabled>{t("Lesson full")}</Button>
                       ) : (
-                        <a className="button primary" href={bookingUrl(lesson)}>
-                          View lesson →
-                        </a>
+                        <a className="button primary" href={bookingUrl(lesson)}>{t("View lesson →")}</a>
                       )}
                     </div>
                   </article>
@@ -159,8 +152,8 @@ export default function PublicSchedule() {
           <Empty
             title={
               date || level
-                ? "No lessons match your filters"
-                : "No upcoming lessons"
+                ? t("No lessons match your filters")
+                : t("No upcoming lessons")
             }
             action={
               date || level ? (
@@ -169,25 +162,18 @@ export default function PublicSchedule() {
                     setDate("");
                     setLevel("");
                   }}
-                >
-                  Show all upcoming lessons
-                </Button>
+                >{t("Show all upcoming lessons")}</Button>
               ) : school?.contact_email ? (
-                <a className="button" href={`mailto:${school.contact_email}`}>
-                  Contact the school
-                </a>
+                <a className="button" href={`mailto:${school.contact_email}`}>{t("Contact the school")}</a>
               ) : null
             }
           >
             {date || level
-              ? "Try another date or level."
-              : "The school has not published its next sessions yet. Check back soon or contact the school for availability."}
+              ? t("Try another date or level.")
+              : t("The school has not published its next sessions yet. Check back soon or contact the school for availability.")}
           </Empty>
         )}
-        <p className="muted-note">
-          Times shown in each spot’s local time. You need a school account to
-          book.
-        </p>
+        <p className="muted-note">{t("Times shown in each spot’s local time. You need a school account to book.")}</p>
       </main>
     </>
   );
