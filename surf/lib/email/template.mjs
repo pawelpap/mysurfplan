@@ -9,7 +9,7 @@ const fontSubsets = {
 // fallback stack. Assets are shared, self-hosted and contain no recipient data.
 function fontStyles(staging) {
   const origin = staging ? 'https://staging.mywaveplan.com' : 'https://mywaveplan.com';
-  const faces = [400, 700].flatMap(weight => Object.entries(fontSubsets).map(([subset, range]) =>
+  const faces = [400, 600, 700].flatMap(weight => Object.entries(fontSubsets).map(([subset, range]) =>
     `@font-face{font-family:'Poppins';font-style:normal;font-weight:${weight};font-display:swap;src:url('${origin}/fonts/poppins/poppins-v24-${subset}-${weight}.woff2') format('woff2');unicode-range:${range};}`
   )).join('\n');
   return `<!--[if !mso]><!--><style>${faces}</style><!--<![endif]-->
@@ -19,28 +19,31 @@ function fontStyles(staging) {
 // Shared, table-based shell for email-client compatibility. Branding uses one
 // public, static image shared by every message, with no recipient/job URL data.
 // Tracking remains disabled in the provider adapter. Copy is escaped, never HTML.
-export function supportEmail({ title, paragraphs, staging = false }) {
+export function supportEmail({ title, paragraphs, staging = false, action, afterAction, language = 'en-GB' }) {
   const heading = `${staging ? '[Staging] ' : ''}${title}`;
-  const text = `MyWavePlan\n\n${heading}\n\n${paragraphs.join('\n\n')}\n\nMyWavePlan Support Team\nsupport@mywaveplan.com\nhttps://mywaveplan.com`;
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(heading)}</title>${fontStyles(staging)}</head>
+  const buttonText = action ? `\n\n${action.label}\n${action.url}` : '';
+  const text = `MyWavePlan\n\n${heading}\n\n${paragraphs.join('\n\n')}${buttonText}${afterAction ? '\n\n' + afterAction : ''}\n\nMyWavePlan Support Team\nsupport@mywaveplan.com\nhttps://mywaveplan.com`;
+  const html = `<!doctype html><html lang="${escape(language)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(heading)}</title>${fontStyles(staging)}<style>@media(max-width:380px){.email-content{padding-left:20px!important;padding-right:20px!important}}</style></head>
 <body style="margin:0;padding:0;background-color:#f2f6f6;color:#193139;font-family:${fontFamily}">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f2f6f6"><tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background-color:#ffffff;border:1px solid #dce7e8;border-radius:16px;overflow:hidden">
-<tr><td bgcolor="#087b86" style="height:5px;font-size:0;line-height:0">&nbsp;</td></tr>
-<tr><td style="padding:28px 28px 24px">
+<tr><td bgcolor="#0d6e7d" style="height:5px;font-size:0;line-height:0">&nbsp;</td></tr>
+<tr><td class="email-content" style="padding:28px 28px 24px">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
 <td width="44"><img src="https://mywaveplan.com/icons/icon-192.png" width="44" height="44" alt="" style="display:block;border:0;border-radius:10px"></td>
 <td style="padding-left:12px;color:#193139;font-family:${fontFamily};font-size:21px;font-weight:700;letter-spacing:-0.4px">MyWavePlan</td>
 </tr></table>
 </td></tr>
-<tr><td style="padding:0 28px 28px;color:#193139;font-family:${fontFamily}">
+<tr><td class="email-content" style="padding:0 28px 28px;color:#193139;font-family:${fontFamily}">
 <h1 style="margin:0 0 18px;font-family:${fontFamily};font-size:25px;line-height:1.3;font-weight:700;letter-spacing:-0.4px">${escape(heading)}</h1>
 ${paragraphs.map(p => `<p style="margin:0 0 16px;font-family:${fontFamily};font-size:16px;line-height:1.6;color:#435b63">${escape(p)}</p>`).join('')}
+${action ? `<a href="${escape(action.url)}" style="display:inline-block;padding:12px 20px;background:#0d6e7d;color:#fff;font-weight:600;text-decoration:none;border-radius:7px">${escape(action.label)}</a>` : ''}
+${afterAction ? `<p style="margin:20px 0 0;font-family:${fontFamily};font-size:14px;line-height:1.6;color:#435b63">${escape(afterAction)}</p>` : ''}
 </td></tr>
-<tr><td style="padding:22px 28px;border-top:1px solid #e1eaeb;background-color:#f8fafa;color:#435b63;font-family:${fontFamily};font-size:14px;line-height:1.7">
+<tr><td class="email-content" style="padding:22px 28px;border-top:1px solid #e1eaeb;background-color:#f8fafa;color:#435b63;font-family:${fontFamily};font-size:14px;line-height:1.7">
 <strong style="color:#193139;font-family:${fontFamily};font-weight:700">MyWavePlan Support Team</strong><br>
-<a href="mailto:support@mywaveplan.com" style="color:#087b86;font-family:${fontFamily};text-decoration:none">support@mywaveplan.com</a><br>
-<a href="https://mywaveplan.com" style="color:#087b86;font-family:${fontFamily};text-decoration:none">mywaveplan.com</a>
+<a href="mailto:support@mywaveplan.com" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">support@mywaveplan.com</a><br>
+<a href="https://mywaveplan.com" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">mywaveplan.com</a>
 </td></tr></table></td></tr></table></body></html>`;
   return { text, html };
 }

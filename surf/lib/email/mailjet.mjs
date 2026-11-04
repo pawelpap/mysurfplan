@@ -1,15 +1,31 @@
 import { eventToken } from './crypto.mjs';
 import { supportEmail } from './template.mjs';
+import { accountEmailLink } from '../account-flow.mjs';
+import { createLocale } from '../locale/index.mjs';
 
-export function deliveryCheckMessage(job, recipient, config) {
+function mailjetMessage(job, recipient, config, title, content) {
   const prefix = config.environment === 'staging' ? '[Staging] ' : '';
-  const content = supportEmail({ title: 'Email delivery check', staging: config.environment === 'staging',
-    paragraphs: ['This is an authorised delivery test for MyWavePlan. No action is needed.', 'You can reply to this email to reach our Support Team.'] });
   return { From: { Email: config.from, Name: 'MyWavePlan' },
     ReplyTo: { Email: 'support@mywaveplan.com', Name: 'MyWavePlan Support' },
-    To: [{ Email: recipient }], Subject: `${prefix}MyWavePlan email delivery check`,
+    To: [{ Email: recipient }], Subject: `${prefix}${title}`,
     TextPart: content.text, HTMLPart: content.html,
     TrackOpens: 'disabled', TrackClicks: 'disabled', CustomID: job.id, EventPayload: eventToken(job.id, config) };
+}
+
+export function deliveryCheckMessage(job, recipient, config) {
+  const content = supportEmail({ title: 'Email delivery check', staging: config.environment === 'staging',
+    paragraphs: ['This is an authorised delivery test for MyWavePlan. No action is needed.', 'You can reply to this email to reach our Support Team.'] });
+  return mailjetMessage(job, recipient, config, 'MyWavePlan email delivery check', content);
+}
+
+export function accountMessage(job, recipient, config, { token, locale }) {
+  const { t } = createLocale(locale);
+  const purpose = job.type === 'email.account_verify' ? 'verify' : 'reset';
+  const title = t(`account.mail.${purpose}Title`);
+  const content = supportEmail({ title, staging: config.environment === 'staging', language: locale,
+    paragraphs: [t(`account.mail.${purpose}Body`)], afterAction: t('account.mail.ignore'),
+    action: { label: t(`account.${purpose}Title`), url: accountEmailLink(config.environment, purpose, token, locale) } });
+  return mailjetMessage(job, recipient, config, `${title} · MyWavePlan`, content);
 }
 
 export function retryDelay(attempt, retryAfter, now = Date.now(), random = Math.random) {
@@ -20,13 +36,16 @@ export function retryDelay(attempt, retryAfter, now = Date.now(), random = Math.
 }
 
 export function createMailjetAdapter(config, fetchImpl = fetch) {
-  return async (job, recipient) => {
+  return async (job, recipient, payload) => {
     try {
+      const outbound = job.type === 'email.delivery_check'
+        ? deliveryCheckMessage(job, recipient, config)
+        : accountMessage(job, recipient, config, payload);
       // No SDK/network retries: a timeout can happen after provider acceptance.
       const response = await fetchImpl('https://api.mailjet.com/v3.1/send', {
         method: 'POST', redirect: 'error', signal: AbortSignal.timeout(8000),
         headers: { 'Content-Type': 'application/json', Authorization: `Basic ${Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString('base64')}` },
-        body: JSON.stringify({ Messages: [deliveryCheckMessage(job, recipient, config)] }),
+        body: JSON.stringify({ Messages: [outbound] }),
       });
       if (response.status === 429) return { status: 'retry', code: 'provider_throttled', retryAfter: response.headers.get('retry-after') };
       if ([400, 401, 403, 404, 413, 422].includes(response.status)) return { status: 'failed', code: `provider_rejected_${response.status}` };

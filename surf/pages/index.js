@@ -15,6 +15,7 @@ import {
   Brand,
   Button,
   Empty,
+  Field,
   Loading,
   Message,
   PageHeading,
@@ -422,6 +423,7 @@ function WorkspaceContent({ auth, session }) {
           <Profile
             session={session}
             onLogoutAll={() => logout(true)}
+            onSaved={auth.reload}
             loggingOut={loggingOut}
             onEdit={
               isAdmin(session.role)
@@ -439,19 +441,49 @@ function WorkspaceContent({ auth, session }) {
     </div>
   );
 }
-function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
+function Profile({ session, onEdit, onLogoutAll, loggingOut, onSaved }) {
   const { t } = useLocale();
+  const [edit, setEdit] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+
+  async function save(event) {
+    event.preventDefault();
+    if (!edit || busy) return;
+    setNotice('');
+    setBusy(true);
+    try {
+      await request('/api/auth/profile', { method: 'PATCH', body: JSON.stringify(edit) });
+      setEdit(null);
+      setNotice('account.profileSaved');
+      onSaved();
+    } catch (error) {
+      setNotice(error.status === 400 ? 'account.invalidName' : 'account.unavailable');
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="form-screen">
       <PageHeading
         title={t("My profile")}
         description={t("Your account and school access.")}
         action={
-          onEdit && (
-            <Button tone="primary" onClick={onEdit}>{t("Edit profile")}</Button>
-          )
+          !session.demo && !edit && <Button tone="primary" onClick={() => {
+            setNotice('');
+            setEdit({ name: session.name || '', familyName: session.familyName || '' });
+          }}>{t("Edit profile")}</Button>
         }
       />
+      {edit && <form className="surface padded auth-form" onSubmit={save}>
+        <Field label={t('account.givenName')} autoComplete="given-name" maxLength={120} required
+          value={edit.name} onChange={event => setEdit({ ...edit, name: event.target.value })} />
+        <Field label={t('account.familyName')} autoComplete="family-name" maxLength={120}
+          value={edit.familyName} onChange={event => setEdit({ ...edit, familyName: event.target.value })} />
+        <Button tone="primary" type="submit" disabled={busy}>{t('account.saveProfile')}</Button>
+        <Button onClick={() => setEdit(null)} disabled={busy}>{t('Cancel')}</Button>
+      </form>}
+      <Message success={notice === 'account.profileSaved'}>{notice && t(notice)}</Message>
       <section className="surface padded">
         <div className="account-summary">
           <Avatar person={session} />
@@ -511,7 +543,9 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut }) {
           {loggingOut ? t("Logging out…") : t("Log out everywhere")}
         </Button>
       </section>
-      {!onEdit && (
+      {onEdit ? (
+        <Button onClick={onEdit}>{t("account.manage")}</Button>
+      ) : (
         <p className="muted-note">{t("Contact support to update your account details.")}</p>
       )}
     </div>

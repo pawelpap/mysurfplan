@@ -28,7 +28,6 @@ export function emailConfig(env = process.env) {
   if (!/^[0-9a-f]{64}$/i.test(env.EMAIL_PAYLOAD_KEY) || !/^[a-z0-9_-]{1,24}$/i.test(env.EMAIL_PAYLOAD_KEY_ID || ''))
     throw new Error('email_key_invalid');
   const allowlist = (env.EMAIL_TEST_RECIPIENTS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-  // A6 is delivery readiness only. B3 must explicitly implement general sending.
   if (!allowlist.length || allowlist.length > 5 || allowlist.some(s => !validEmail(s)))
     throw new Error('email_allowlist_required');
   const from = env.EMAIL_FROM;
@@ -40,10 +39,18 @@ export function emailConfig(env = process.env) {
   if (![dailyLimit, monthlyLimit].every(Number.isInteger) || dailyLimit < 1 || monthlyLimit < dailyLimit ||
       dailyLimit > maxima[0] || monthlyLimit > maxima[1]) throw new Error('email_budget_invalid');
   return { enabled, environment, allowlist, from, dailyLimit, monthlyLimit,
+    accountFlows: env.ACCOUNT_REGISTRATION_ENABLED === 'true',
+    publicAccounts: environment === 'production' && env.ACCOUNT_REGISTRATION_ENABLED === 'true' &&
+      env.ACCOUNT_EMAIL_PUBLIC === 'true',
     apiKey: env.MAILJET_API_KEY, apiSecret: env.MAILJET_SECRET_KEY,
     payloadKey: env.EMAIL_PAYLOAD_KEY, keyId: env.EMAIL_PAYLOAD_KEY_ID,
     recipientKey: env.EMAIL_RECIPIENT_KEY, callbackSecret: env.EMAIL_CALLBACK_SECRET,
     operationsSecret: env.EMAIL_OPERATIONS_SECRET, cronSecret: env.CRON_SECRET };
+}
+
+export function recipientAllowed(config, recipient, type) {
+  return validEmail(recipient) && (config.allowlist.includes(recipient) ||
+    (config.publicAccounts && ['email.account_verify','email.account_reset'].includes(type)));
 }
 
 export function validEmail(value) {

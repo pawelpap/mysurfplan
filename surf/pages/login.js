@@ -13,7 +13,13 @@ import { LanguageSelector, useLocale } from "../components/locale";
 import { legalHref } from "../lib/locale/preferences.mjs";
 import { safeNext } from "../lib/lesson-input.mjs";
 
-export default function Login() {
+export async function getServerSideProps({ req, res }) {
+  res.setHeader("Cache-Control", "private, no-store");
+  const { accountConfig } = await import("../lib/account-server.mjs");
+  return { props: { accountFlows: Boolean(accountConfig(req)) } };
+}
+
+export default function Login({ accountFlows }) {
   const router = useRouter();
   const { locale, t } = useLocale();
   const [email, setEmail] = useState("");
@@ -151,6 +157,10 @@ export default function Login() {
           <small>{t("login.demoHint")}</small>
         </form>
         <div className="auth-help">
+          {accountFlows && <p className="account-entry-links">
+            <Link href={{ pathname: "/account/register", query: { next: safeNext(router.query.next) } }}>{t("account.registerTitle")}</Link>
+            <Link href={{ pathname: "/account/recover", query: { next: safeNext(router.query.next) } }}>{t("account.forgot")}</Link>
+          </p>}
           <p><Link href={legalHref("privacy", locale)}>{t("legal.privacy")}</Link> · <Link href={legalHref("terms", locale)}>{t("legal.terms")}</Link> · <Link href={legalHref("storage", locale)}>{t("legal.storage")}</Link></p>
           <strong>{t("login.help")}</strong>
           <p>

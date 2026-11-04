@@ -1,5 +1,8 @@
 import { decryptPayload, recipientHash } from './crypto.mjs';
 import { retryDelay } from './mailjet.mjs';
+import { recipientAllowed } from './config.mjs';
+import { validAccountToken } from '../account-flow.mjs';
+import { isLocale } from '../locale/preferences.mjs';
 
 export async function runEmailWorker({ config, store, send, now = Date.now }) {
   if (!config.enabled) return { enabled: false, processed: 0 };
@@ -13,17 +16,23 @@ export async function runEmailWorker({ config, store, send, now = Date.now }) {
       const job = await store.claim();
       if (!job) break;
       processed++;
-      let recipient;
+      let payload;
       try {
-        if (job.type !== 'email.delivery_check' || job.schema_version !== 1) throw new Error();
-        recipient = decryptPayload(job.payload, job.id, config).recipient;
-        if (!config.allowlist.includes(recipient) || recipientHash(recipient, config) !== job.recipient_hash) throw new Error();
+        if (!['email.delivery_check','email.account_verify','email.account_reset'].includes(job.type) ||
+            job.schema_version !== 1) throw new Error();
+        payload = decryptPayload(job.payload, job.id, config, job.type);
+        if (!recipientAllowed(config, payload.recipient, job.type) ||
+            recipientHash(payload.recipient, config) !== job.recipient_hash ||
+            (job.type !== 'email.delivery_check' &&
+              (!config.accountFlows || !validAccountToken(payload.token) || !isLocale(payload.locale)))) throw new Error();
       } catch {
         await store.finish(job, { status: 'failed', code: 'payload_or_recipient_invalid' });
         continue;
       }
-      if (await store.prepare(job, recipient, config) !== 'ready') continue;
-      const outcome = await send(job, recipient);
+      const preparation = await store.prepare(job, payload.recipient, config);
+      if (preparation === 'obsolete') await store.finish(job, { status: 'cancelled', code: 'account_link_obsolete' });
+      if (preparation !== 'ready') continue;
+      const outcome = await send(job, payload.recipient, payload);
       const dueAt = outcome.status === 'retry' ? new Date(now() + retryDelay(job.attempts + 1, outcome.retryAfter, now())).toISOString() : null;
       await store.finish(job, outcome, dueAt);
     }

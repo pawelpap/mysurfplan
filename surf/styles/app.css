@@ -2556,3 +2556,29 @@ summary:focus-visible {
     font-size: 18px;
   }
 }
+
+.account-shell {
+  min-height: 100dvh;
+  max-width: 35rem;
+  margin-inline: auto;
+  padding: clamp(1rem, 4vw, 2.5rem);
+}
+.account-shell .login-brand {
+  position: static;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.account-shell .login-panel {
+  width: 100%;
+  max-width: none;
+}
+.account-shell .agreement-check {
+  align-items: flex-start;
+}
+.account-entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+}
