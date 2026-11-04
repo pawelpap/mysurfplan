@@ -2577,6 +2577,11 @@ summary:focus-visible {
   width: 100%;
   max-width: none;
 }
+.account-shell .auth-help a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .account-shell .agreement-check {
   align-items: flex-start;
 }

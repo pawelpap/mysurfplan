@@ -4,7 +4,7 @@ const keys = [
   'send','resend','busy','checkTitle','checkBody','checkHelp','invalidEmail','invalidLink','completeFields',
   'termsChanged','unavailable','created','resetDone','back','forgot','support','newLink',
   'mail.verifyTitle','mail.verifyBody','mail.resetTitle','mail.resetBody','mail.ignore',
-  'givenName','familyName','saveProfile','profileSaved','invalidName','manage',
+  'givenName','familyName','saveProfile','profileSaved','invalidName','manage','privateEmailTest','retryTerms','loadingTerms',
 ];
 const messages = {
   'en-GB': [
@@ -26,7 +26,7 @@ const messages = {
     'Verify your email address','Use this link within 24 hours to verify your email and create your MyWavePlan account.',
     'Reset your password','Use this link within 30 minutes to choose a new MyWavePlan password.',
     'If you didn’t request this email, you can ignore it. You can reply to reach our Support Team.',
-    'First name','Family name (optional)','Save name','Profile updated.','Enter a valid name.','Manage account',
+    'First name','Family name (optional)','Save name','Profile updated.','Enter a valid name.','Manage account','Email access is limited to invited testers for now.','Retry loading the terms','Loading the terms…',
   ],
   'pt-PT': [
     'Criar uma conta','Introduza o seu endereço de email. Enviaremos uma ligação para o confirmar e concluir a criação da sua conta pessoal.',
@@ -47,7 +47,7 @@ const messages = {
     'Confirme o seu endereço de email','Use esta ligação no prazo de 24 horas para confirmar o seu endereço e criar uma conta MyWavePlan.',
     'Redefina a sua palavra-passe','Use esta ligação no prazo de 30 minutos para escolher uma nova palavra-passe para o MyWavePlan.',
     'Se não pediu este email, pode ignorá-lo. Para contactar a equipa de apoio, responda a esta mensagem.',
-    'Nome próprio','Apelido (facultativo)','Guardar nome','Perfil atualizado.','Introduza um nome válido.','Gerir conta',
+    'Nome próprio','Apelido (facultativo)','Guardar nome','Perfil atualizado.','Introduza um nome válido.','Gerir conta','Por agora, o envio de emails está limitado a pessoas convidadas para o teste.','Tentar carregar os termos novamente','A carregar os termos…',
   ],
   es: [
     'Crear una cuenta','Introduce tu correo electrónico. Te enviaremos un enlace para verificarlo y terminar de crear tu cuenta personal.',
@@ -68,7 +68,7 @@ const messages = {
     'Verifica tu correo electrónico','Usa este enlace en las próximas 24 horas para verificar tu correo y crear tu cuenta de MyWavePlan.',
     'Restablece tu contraseña','Usa este enlace en los próximos 30 minutos para elegir una contraseña nueva para MyWavePlan.',
     'Si no solicitaste este correo, puedes ignorarlo. Responde a este mensaje para contactar con el equipo de Soporte.',
-    'Nombre','Apellidos (opcional)','Guardar nombre','Perfil actualizado.','Introduce un nombre válido.','Gestionar cuenta',
+    'Nombre','Apellidos (opcional)','Guardar nombre','Perfil actualizado.','Introduce un nombre válido.','Gestionar cuenta','Por ahora, el envío de correos se limita a las personas invitadas a la prueba.','Volver a cargar las condiciones','Cargando las condiciones…',
   ],
   fr: [
     'Créer un compte','Saisissez votre adresse e-mail. Nous vous enverrons un lien pour la vérifier et terminer la création de votre compte personnel.',
@@ -89,7 +89,7 @@ const messages = {
     'Vérifiez votre adresse e-mail','Utilisez ce lien dans les 24 heures pour vérifier votre adresse et créer votre compte MyWavePlan.',
     'Réinitialisez votre mot de passe','Utilisez ce lien dans les 30 minutes pour choisir un nouveau mot de passe MyWavePlan.',
     'Si vous n’avez pas demandé cet e-mail, vous pouvez l’ignorer. Répondez à ce message pour joindre notre équipe d’assistance.',
-    'Prénom','Nom de famille (facultatif)','Enregistrer le nom','Profil mis à jour.','Saisissez un nom valide.','Gérer le compte',
+    'Prénom','Nom de famille (facultatif)','Enregistrer le nom','Profil mis à jour.','Saisissez un nom valide.','Gérer le compte','Pour le moment, l’envoi d’e-mails est réservé aux personnes invitées à tester le service.','Réessayer de charger les conditions','Chargement des conditions…',
   ],
 };
 
@@ -106,7 +106,7 @@ const lifecycleMessages = {
     'Choose a password different from your current one.','Check your current password and try again.',
     'Your password has changed. Log in with your new password.','Your account changed while you were making this request. Please try again.',
     'Close account',
-    'If you have no outstanding bookings or school responsibilities, your account closes immediately and you are signed out on all devices. If your account needs review, we send your request to Support and your access stays active. Contact Support separately to request deletion of personal data.',
+    'If you have no outstanding bookings or school responsibilities, your account closes immediately and you are signed out on all devices. If your account needs review, including platform administrator accounts, we record your request for Support and your access stays active. Contact Support separately to request deletion of personal data.',
     'Close my account','I understand that my account may close immediately.',
     'Support received your request on {date}.','Support reviewed the request you submitted on {date}. Contact Support for the outcome.',
     'Account closure requests','Check school ownership, upcoming bookings and retention requirements before acting. Mark a request as reviewed after following up with the account holder.',
@@ -119,7 +119,7 @@ const lifecycleMessages = {
     'Escolha uma palavra-passe diferente da atual.','Verifique a palavra-passe atual e tente novamente.',
     'A sua palavra-passe foi alterada. Inicie sessão com a nova palavra-passe.','A sua conta mudou durante o pedido. Tente novamente.',
     'Encerrar conta',
-    'Se não tiver reservas pendentes nem responsabilidades numa escola, a sua conta é encerrada de imediato e a sessão termina em todos os dispositivos. Se for necessária uma análise, enviamos o pedido à equipa de apoio e o seu acesso mantém-se ativo. Para pedir a eliminação de dados pessoais, contacte a equipa de apoio.',
+    'Se não tiver reservas pendentes nem responsabilidades numa escola, a sua conta é encerrada de imediato e a sessão termina em todos os dispositivos. Se for necessária uma análise, incluindo para contas de administradores da plataforma, registamos o pedido para a equipa de apoio e o seu acesso mantém-se ativo. Para pedir a eliminação de dados pessoais, contacte a equipa de apoio.',
     'Encerrar a minha conta','Compreendo que a minha conta pode ser encerrada de imediato.',
     'O apoio recebeu o seu pedido em {date}.','O apoio analisou o pedido que apresentou em {date}. Contacte o apoio para saber o resultado.',
     'Pedidos de encerramento de contas','Antes de agir, verifique a titularidade das escolas, as reservas futuras e as regras de conservação. Marque o pedido como analisado depois de contactar o titular da conta.',
@@ -132,7 +132,7 @@ const lifecycleMessages = {
     'Elige una contraseña distinta de la actual.','Comprueba la contraseña actual y vuelve a intentarlo.',
     'La contraseña se ha cambiado. Inicia sesión con la contraseña nueva.','Tu cuenta cambió durante la solicitud. Vuelve a intentarlo.',
     'Cerrar la cuenta',
-    'Si no tienes reservas pendientes ni responsabilidades en una escuela, tu cuenta se cierra de inmediato y se cierra la sesión en todos tus dispositivos. Si tu caso requiere revisión, enviamos tu solicitud a Soporte y mantienes el acceso. Contacta con Soporte por separado para solicitar la supresión de datos personales.',
+    'Si no tienes reservas pendientes ni responsabilidades en una escuela, tu cuenta se cierra de inmediato y se cierra la sesión en todos tus dispositivos. Si tu caso requiere revisión, como ocurre con las cuentas de administración de la plataforma, registramos tu solicitud para que Soporte la revise y mantienes el acceso. Contacta con Soporte por separado para solicitar la supresión de datos personales.',
     'Cerrar mi cuenta','Entiendo que mi cuenta puede cerrarse de inmediato.',
     'Soporte recibió tu solicitud el {date}.','Soporte revisó la solicitud que enviaste el {date}. Contacta con Soporte para conocer el resultado.',
     'Solicitudes de cierre de cuenta','Comprueba la titularidad de las escuelas, las próximas reservas y los requisitos de conservación antes de actuar. Marca la solicitud como revisada después de contactar con el titular.',
@@ -145,7 +145,7 @@ const lifecycleMessages = {
     'Choisissez un mot de passe différent de l’actuel.','Vérifiez votre mot de passe actuel et réessayez.',
     'Votre mot de passe a été modifié. Connectez-vous avec le nouveau mot de passe.','Votre compte a changé pendant la demande. Réessayez.',
     'Fermer le compte',
-    'Si vous n’avez aucune réservation en cours ou à venir et aucune responsabilité dans une école, votre compte est fermé immédiatement et vous êtes déconnecté de tous vos appareils. Si votre situation nécessite un examen, nous transmettons votre demande à l’assistance et vous gardez votre accès. Contactez l’assistance séparément pour demander la suppression de vos données personnelles.',
+    'Si vous n’avez aucune réservation en cours ou à venir et aucune responsabilité dans une école, votre compte est fermé immédiatement et vous êtes déconnecté de tous vos appareils. Si votre situation nécessite un examen, notamment pour les comptes d’administration de la plateforme, nous enregistrons votre demande pour l’assistance et vous gardez votre accès. Contactez l’assistance séparément pour demander la suppression de vos données personnelles.',
     'Fermer mon compte','Je comprends que mon compte peut être fermé immédiatement.',
     'L’assistance a reçu votre demande le {date}.','L’assistance a examiné votre demande du {date}. Contactez-la pour connaître le résultat.',
     'Demandes de fermeture de compte','Vérifiez la responsabilité des écoles, les réservations à venir et les règles de conservation avant d’agir. Marquez la demande comme examinée après avoir contacté le titulaire.',

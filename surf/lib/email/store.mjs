@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { encryptPayload, recipientHash } from './crypto.mjs';
-import { validEmail } from './config.mjs';
+import { ACCOUNT_ACTIVITY_SUBJECTS, validEmail } from './config.mjs';
 
 // query(text, values) returns rows. A future business action must pass its own
 // transaction's query here so its update and this insert commit or roll back together.
@@ -48,13 +48,13 @@ export function createJobStore(query, environment) {
       return job;
     },
     async prepare(job, recipient, config) {
-      const [row] = await query(`SELECT CASE WHEN $7='email.delivery_check' OR EXISTS (
+      const [row] = await query(`SELECT CASE WHEN $7='email.delivery_check' OR $8::boolean OR EXISTS (
         SELECT 1 FROM account_email_challenges c WHERE c.job_id=$1 AND c.expires_at>now() AND c.email=$4
           AND ((c.purpose='verify' AND NOT EXISTS(SELECT 1 FROM users WHERE lower(email)=c.email AND deleted_at IS NULL))
             OR (c.purpose='reset' AND EXISTS(SELECT 1 FROM users u WHERE u.id=c.user_id
               AND u.email_verified_at IS NOT NULL AND NOT account_is_platform(u.id))))
         ) THEN prepare_email_dispatch($1,$2,$3,$4,$5,$6) ELSE 'obsolete' END AS result`,
-        [job.id, job.lease_token, environment, recipient, config.dailyLimit, config.monthlyLimit, job.type]);
+        [job.id, job.lease_token, environment, recipient, config.dailyLimit, config.monthlyLimit, job.type, Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)]);
       return row.result;
     },
     async finish(job, outcome, dueAt = null) {

@@ -13,9 +13,11 @@ export async function getServerSideProps({ params, query, req, res }) {
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   const { accountConfig } = await import('../../lib/account-server.mjs');
+  const config = accountConfig(req);
   return { props: {
     step: params.step,
-    available: Boolean(accountConfig(req)),
+    available: Boolean(config),
+    privateEmailTest: Boolean(config && !config.publicAccounts),
     next: accountNext(query.next),
     linkLocale: isLocale(query.language) ? query.language : null,
   } };
@@ -29,7 +31,7 @@ export default function AccountPage(props) {
 }
 AccountPage.systemTheme = true;
 
-function AccountForm({ step, available, next, linkLocale }) {
+function AccountForm({ step, available, privateEmailTest, next, linkLocale }) {
   const router = useRouter();
   const { locale, t } = useLocale();
   const completing = step === 'verify' || step === 'reset';
@@ -132,7 +134,7 @@ function AccountForm({ step, available, next, linkLocale }) {
             {token === '' && <><Message>{t('account.invalidLink')}</Message><Link href={requestHref}>{t('account.newLink')}</Link></>}
           </div>
           : <>
-            <p role={sent ? 'status' : undefined}>{sent ? t('account.checkBody') : t(`account.${step}Intro`)}</p>
+            <p role={sent ? 'status' : undefined}>{sent ? t('account.checkBody') : t(privateEmailTest && !completing ? 'account.privateEmailTest' : `account.${step}Intro`)}</p>
             {sent && <p>{t('account.checkHelp')}</p>}
             <form className="auth-form" onSubmit={submit}>
               {!completing && <Field label={t('account.email')} type="email" autoComplete="email"
@@ -155,7 +157,15 @@ function AccountForm({ step, available, next, linkLocale }) {
                   </Link>
                   <label className="agreement-check"><input type="checkbox" checked={acceptedTerms === termsKey} required
                     onChange={event => setAcceptedTerms(event.target.checked ? termsKey : null)} />{t('account.accept')}</label>
-                </> : termsFailed && <Message>{t('account.unavailable')}</Message>}
+                </> : termsFailed ? <>
+                  <Message>{t('account.unavailable')}</Message>
+                  <Button onClick={() => {
+                    setTermsFailed(false);
+                    setError('');
+                    setAcceptedTerms(null);
+                    setTermsAttempt(value => value + 1);
+                  }}>{t('account.retryTerms')}</Button>
+                </> : <p role="status">{t('account.loadingTerms')}</p>}
               </>}
               <Message>{error && t(error)}</Message>
               {error === 'account.invalidLink' && <Link href={requestHref}>{t('account.newLink')}</Link>}
