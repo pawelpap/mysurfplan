@@ -1017,7 +1017,8 @@ fieldset legend {
   min-height: 100vh;
   max-width: 1220px;
   margin: auto;
-  padding: clamp(28px, 5vh, 48px) 36px 36px;
+  /* Base the vertical offset on the viewport so translated copy cannot shift the layout. */
+  padding: max(28px, calc((100dvh - 50rem) / 2)) 36px 36px;
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
   grid-template-areas: "brand brand" "story panel" "footer footer";
@@ -1148,7 +1149,7 @@ fieldset legend {
 @media (max-width: 1000px) and (min-width: 761px) {
   .login-shell {
     column-gap: 36px;
-    padding: 32px 28px;
+    padding-inline: 28px;
   }
   .login-story-copy {
     padding: 32px 28px;
