@@ -4,16 +4,16 @@ import { recipientAllowed } from './config.mjs';
 import { validAccountToken } from '../account-flow.mjs';
 import { isLocale } from '../locale/preferences.mjs';
 
-export async function runEmailWorker({ config, store, send, now = Date.now }) {
+export async function runEmailWorker({ config, store, send, jobId = null, now = Date.now }) {
   if (!config.enabled) return { enabled: false, processed: 0 };
   const started = now();
   let processed = 0;
-  await store.heartbeat();
+  if (!jobId) await store.heartbeat();
   try {
-    await store.maintain();
+    if (!jobId) await store.maintain();
     // At most three sends, eight seconds each; finish with room inside maxDuration.
-    while (processed < 3 && now() - started < 25000) {
-      const job = await store.claim();
+    while (processed < (jobId ? 1 : 3) && now() - started < 25000) {
+      const job = await store.claim(jobId);
       if (!job) break;
       processed++;
       let payload;
@@ -36,11 +36,11 @@ export async function runEmailWorker({ config, store, send, now = Date.now }) {
       const dueAt = outcome.status === 'retry' ? new Date(now() + retryDelay(job.attempts + 1, outcome.retryAfter, now())).toISOString() : null;
       await store.finish(job, outcome, dueAt);
     }
-    await store.heartbeat(true);
+    if (!jobId) await store.heartbeat(true);
     return { enabled: true, processed };
   } catch {
     // A failed completion after dispatch is recovered as unknown by the lease.
-    await store.heartbeat(false, 'worker_failed').catch(() => {});
+    if (!jobId) await store.heartbeat(false, 'worker_failed').catch(() => {});
     throw new Error('email_worker_failed');
   }
 }

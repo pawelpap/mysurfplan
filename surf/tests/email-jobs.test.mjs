@@ -110,3 +110,27 @@ test('disabled or unauthorised HTTP routes do not load the database', async () =
     assert.equal(res.code,enabled?401:503);
   }
 });
+
+test('immediate delivery shares the claim with the sweep and leaves scheduler health to the sweep', async () => {
+  const entry = { ...job, payload: encryptPayload({ recipient: 'owner@example.com' }, job.id, config),
+    recipient_hash: recipientHash('owner@example.com', config) };
+  const events = [];
+  let claimed = false;
+  const store = {
+    heartbeat: async complete => { events.push(complete ? 'complete' : 'start'); },
+    maintain: async () => { events.push('maintain'); },
+    claim: async target => {
+      assert(target === job.id || target === null);
+      if (claimed) return;
+      claimed = true;
+      return entry;
+    },
+    prepare: async () => 'ready',
+    finish: async () => { events.push('finish'); },
+  };
+  const options = { config, store, send: async () => { events.push('send'); return { status: 'accepted' }; } };
+  await runEmailWorker({ ...options, jobId: job.id });
+  assert.deepEqual(events, ['send', 'finish']);
+  await runEmailWorker(options);
+  assert.deepEqual(events, ['send', 'finish', 'start', 'maintain', 'complete']);
+});

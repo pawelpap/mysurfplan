@@ -85,3 +85,37 @@ test('scanner requests and disabled registration cannot reach the account store'
     assert.equal(res.code, expected);
   }
 });
+
+test('automatic account delivery schedules the committed allowlisted job and keeps the response generic', async () => {
+  for (const [action, email, fast] of [
+    ['register', 'test@example.invalid', true],
+    ['recover', 'test@example.invalid', true],
+    ['recover', 'other@example.invalid', true],
+    ['recover', 'test@example.invalid', false],
+  ]) {
+    let enqueued;
+    let scheduled;
+    const sql = async (parts, ...values) => {
+      const query = parts.join('?');
+      if (query.includes('auth_login_limits')) return [{ allowed: true, retry_seconds: 0 }];
+      if (query.includes('legal_documents')) return [{ version: 'pilot-v2' }];
+      if (query.includes('job_worker_status')) {
+        assert.equal(values[1], fast ? 15 : 5);
+        return [{ ready: true }];
+      }
+      if (query.includes('queue_account_email')) {
+        enqueued = values[4];
+        return [{}];
+      }
+      throw Error('Unexpected account query');
+    };
+    function schedule(_sql, _config, jobId) { assert.equal(jobId, enqueued); scheduled = jobId; }
+    const handler = accountHandler(async () => sql, env, fast ? schedule : undefined);
+    const res = { setHeader() {}, status(code) { this.code = code; return this; }, json(body) { this.body = body; } };
+    await handler({ method: 'POST', query: { action }, headers: { host, 'x-mywaveplan-request': '1' }, body: { email } }, res);
+    assert.equal(res.code, 202);
+    assert.deepEqual(res.body, { ok: true });
+    assert.equal(Boolean(enqueued), email === 'test@example.invalid');
+    assert.equal(scheduled, fast ? enqueued : undefined);
+  }
+});

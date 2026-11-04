@@ -57,10 +57,11 @@ async function accountRateLimit(req, sql, action, identifier, env) {
   return consumeLoginAttempt(sql, [{ key: key('identifier', identifier), limit: action === 'request' ? 3 : 10 }]);
 }
 
-async function deliveryReady(sql, config) {
+async function deliveryReady(sql, config, automaticDelivery) {
+  const heartbeatMinutes = automaticDelivery ? 15 : 5;
   const [status] = await sql`
     SELECT EXISTS (SELECT 1 FROM job_worker_status WHERE environment=${config.environment}
-        AND completed_at > now()-interval '5 minutes' AND last_error IS NULL)
+        AND completed_at > now()-${heartbeatMinutes}::integer * interval '1 minute' AND last_error IS NULL)
       AND NOT EXISTS (SELECT 1 FROM email_usage WHERE environment=${config.environment} AND (
         (period='day' AND starts_on=(now() AT TIME ZONE 'UTC')::date AND attempts>=${config.dailyLimit})
         OR (period='month' AND starts_on=date_trunc('month',now() AT TIME ZONE 'UTC')::date AND attempts>=${config.monthlyLimit})))
@@ -69,7 +70,7 @@ async function deliveryReady(sql, config) {
   return status?.ready === true;
 }
 
-export function accountHandler(getSql, env = process.env) {
+export function accountHandler(getSql, env = process.env, scheduleDelivery) {
   return async (req, res) => {
     res.setHeader('Cache-Control', 'private, no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
@@ -104,17 +105,19 @@ export function accountHandler(getSql, env = process.env) {
           return res.status(429).json({ ok: false, error: 'login.rateLimit' });
         }
         const terms = purpose === 'verify' ? await accountTerms(sql, locale, preview) : null;
-        if (!await deliveryReady(sql, config) || (purpose === 'verify' && terms?.version !== config.termsVersion))
+        if (!await deliveryReady(sql, config, Boolean(scheduleDelivery)) || (purpose === 'verify' && terms?.version !== config.termsVersion))
           return res.status(503).json({ ok: false, error: 'account.unavailable' });
         const type = `email.account_${purpose}`;
         const token = randomBytes(32).toString('base64url');
         const job = randomUUID();
         const payload = encryptPayload({ recipient: email, token, locale }, job, config, type);
-        if (recipientAllowed(config, email, type)) {
+        const allowed = recipientAllowed(config, email, type);
+        if (allowed) {
           await sql`SELECT queue_account_email(${purpose}, ${email}, ${recipientHash(email, config)},
             ${sessionTokenHash(token)}, ${job}::uuid, ${config.environment}, ${JSON.stringify(payload)}::jsonb, ${accountNext(body.next)})`;
         }
         await delay(Math.max(0, 450 - (Date.now() - started)));
+        if (allowed) scheduleDelivery?.(sql, config, job);
         return res.status(202).json({ ok: true });
       }
       if (!validAccountToken(body.token)) return res.status(400).json({ ok: false, error: 'account.invalidLink' });

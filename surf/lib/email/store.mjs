@@ -39,11 +39,12 @@ export function createJobStore(query, environment) {
         started_at=CASE WHEN $2 THEN job_worker_status.started_at ELSE now() END,
         completed_at=CASE WHEN $2 THEN now() ELSE job_worker_status.completed_at END,last_error=$3`, [environment, complete, error]);
     },
-    async claim() {
+    async claim(jobId = null) {
       const [job] = await query(`UPDATE job_outbox SET status='leased',lease_token=$2,lease_until=now()+interval '60 seconds',
         dispatch_started_at=NULL,updated_at=now() WHERE id=(SELECT id FROM job_outbox WHERE environment=$1
-        AND status='pending' AND due_at<=now() AND expires_at>now() ORDER BY priority DESC,due_at
-        LIMIT 1 FOR UPDATE SKIP LOCKED) RETURNING *`, [environment, randomUUID()]);
+        AND ($3::uuid IS NULL OR id=$3::uuid) AND status='pending' AND due_at<=now() AND expires_at>now()
+        ORDER BY priority DESC,due_at
+        LIMIT 1 FOR UPDATE SKIP LOCKED) RETURNING *`, [environment, randomUUID(), jobId]);
       return job;
     },
     async prepare(job, recipient, config) {
