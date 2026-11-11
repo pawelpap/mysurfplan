@@ -1,5 +1,7 @@
 # Dependency baseline
 
+11 November verified runtime: Next.js 16.4.5, React 19.2.8, Neon driver 1.1.0 and Node.js 22 with explicit Webpack. The final suite has 193 passing tests and the build passes. Runtime audit has zero findings; three moderate development-tool advisories and the existing avatar-image lint warning remain maintenance notes. No forced dependency upgrade was applied in B4. [Release](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md).
+
 Reviewed 9 September 2026 for roadmap task A2. Deployment status and verification evidence are maintained in [HANDOVER.md](HANDOVER.md).
 
 ## Runtime decision

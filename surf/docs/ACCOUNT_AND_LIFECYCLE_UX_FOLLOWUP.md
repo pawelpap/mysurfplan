@@ -1,5 +1,7 @@
 # Account, membership and removal interfaces after B2
 
+11 November status: core B3 personal account flows and B4 team/invitation/membership lists are delivered. School administrators manage only school authority; owners/platform control administration. Removed access requires renewed invitation acceptance, and unverified legacy accounts use Support. School creation/claims/transfer/closure and full export/erasure remain B5/B8; lesson cancellation work remains C4. Older B2 form/removal descriptions below are historical where superseded. [Release](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md).
+
 Recorded 9 September 2026 from the owner's B2 review. This is an explicit follow-up within B3/B4/B5/B8/C4, not a new data model or a completed UI redesign. [Roadmap](IMPLEMENTATION_ROADMAP.md) · [B2 runtime contract](MEMBERSHIP_AUTHORISATION.md).
 
 ## What B2 already supports

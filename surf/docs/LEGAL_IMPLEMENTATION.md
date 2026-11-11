@@ -1,5 +1,7 @@
 # Legal pages and evidence contract
 
+11 November publication state: privacy and browser-storage notice version 2026-11-11.1 are verified in four languages on both environments; production terms remain 2026-11-04.4. Historical acceptances were preserved. Staff email, invitation cleanup, separate provider retention and access history are disclosed; all service emails include a language-specific published privacy link. The school-processing agreement remains for B5 authorised acceptance before independent-school onboarding. Optional tracking stays off. [Release](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md).
+
 Prepared 6 October 2026 for A4/B6. Staging is the owner's review environment. Production publication needs separate approval. A4/B6 remain partial until the remaining legal and operating decisions are resolved.
 
 ## Routes and document source
