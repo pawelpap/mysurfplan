@@ -1,5 +1,7 @@
 # Small-launch monthly cost estimate
 
+11 November scheduling assumption: production has the ten-minute worker; staging cron is off outside tests. This avoids treating both databases as continuously polled in the normal operating case. B4 made no paid-service purchase; the older estimates are scenarios, not measured invoices. See the current capacity record and [release](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md).
+
 13 September storage decision: the owner selected **Vercel Blob in Frankfurt (`fra1`)** for B7 media, replacing the earlier Cloudflare R2 candidate. No storage has been provisioned by this decision. Allow **US$1–5/month of gross media usage** for the small illustrative workload below, before available shared Vercel Pro credit; this is an allowance, not a spending cap. [Media budget](#vercel-blob-media-budget).
 
 16 September timing: Vercel remains Hobby. Pro is recommended for continued deployed commercial work and required before minute scheduling; this recommendation is not a purchase or activation. The [capacity record](INFRASTRUCTURE_CAPACITY_AND_UPGRADES.md) distinguishes commercial-use timing from worker readiness. If only production polls continuously, the 0.25-CU baseline is about 180 CU-hours/30 days, roughly US$19.08 at the documented Launch rate; this is total compute for that baseline, not necessarily an additional US$19.08. Staging should stay unscheduled outside tests. Zoho Mail Lite is already paid, with a recorded €10.80 annual subtotal before tax. [Runbook](EMAIL_JOBS_RUNBOOK.md).

@@ -1,5 +1,7 @@
 # Registration on staging
 
+11 November: account flows remain available in both environments; B4 token-free invitation return destinations and four-language service-email privacy links are verified. Staging stays allowlisted and its cron/monitor are off outside tests. Production public email, ten-minute retries and monitoring remain active. Older activation steps below are historical; do not repeat account migrations or disable production scheduling. [Release](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md).
+
 A visitor requests an email first. The verified link opens the personal account form for name, password, adult confirmation and acceptance of the current terms. Account creation grants no school access. The original app destination is offered after signup and normal sign-in. Existing personal accounts can edit their name from the profile. Email and access changes follow their separate workflows.
 
 Recovery sends a link only for an active, verified account eligible for self-service recovery. The reset replaces the password and revokes existing sessions in one transaction. Platform administrators use the operator recovery procedure. The app accepts existing password hashes and uses stronger scrypt settings for newly stored hashes. The common and breached password check and session-safe legacy rehash remain open before public activation.

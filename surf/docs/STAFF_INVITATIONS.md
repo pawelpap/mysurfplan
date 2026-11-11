@@ -1,6 +1,6 @@
 # Staff invitations and team administration
 
-B4 staging candidate, 11 November 2026. [Roadmap](IMPLEMENTATION_ROADMAP.md) · [Membership authority](MEMBERSHIP_AUTHORISATION.md) · [Editable Figma review](https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ?node-id=449-147).
+B4 released on staging and production, 11 November 2026. [Roadmap](IMPLEMENTATION_ROADMAP.md) · [Membership authority](MEMBERSHIP_AUTHORISATION.md) · [Editable Figma review](https://www.figma.com/design/WVjUwzfOIGOuAID23GPIdZ?node-id=449-147).
 
 ## User journeys
 
@@ -34,7 +34,7 @@ node scripts/migrate-staff-invitations.mjs staging --apply
 
 All three B4 SQL files are additive and checksummed. Retain the schema if application code is rolled back. Existing B2-compatible code remains required; never restore legacy role authority. A rollback to pre-B4 code also loses the stricter interface, so disable affected staff mutations while repairing forwards if necessary. Do not restore a database or discard membership/audit history to undo the interface.
 
-Staging testing uses exact disposable fixture IDs and a designated test inbox. Remove those fixtures and any temporary staging cron at closeout, then verify the cron registry. Production scheduling remains separate. Production publication requires the owner's release approval and the data-use review below.
+Staging testing uses exact disposable fixture IDs and a designated test inbox. Remove those fixtures and any temporary staging cron at closeout, then verify the cron registry. Production scheduling remains separate. The owner authorised this B4 production release after independent staging tests. Future releases need their own authority.
 
 ## Data-use and publication review
 
