@@ -48,7 +48,7 @@ test('preparation rejects tampered, stale, unsupported and repeated sources', ()
 
 test('B5 resource notice preserves historical invitation storage text', () => {
   for (const language of geoapifyLegalLocales) {
-    const notice = getStorageNotice(undefined, language);
+    const notice = getStorageNotice('2026-11-11.2', language);
     assert.equal(notice.version, '2026-11-11.2');
     assert.doesNotMatch(notice.content, /Geoapify/);
     assert.match(getStorageNotice('2026-11-11.1', language).content, /mywaveplan:invitation:v1/);

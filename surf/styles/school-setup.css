@@ -9,6 +9,10 @@
 .school-setup-section .field > label { min-height: 1.6em; }
 .school-setup textarea { width: 100%; min-width: 0; resize: vertical; }
 .school-scope-note { background: var(--sea-soft); color: var(--ink); padding: 18px; border-radius: 9px; line-height: 1.7; }
+.school-setup > .muted-note { margin: 0 0 16px; }
+.school-setup > .school-scope-note { margin: 0 0 24px; }
+.school-setup > .school-settings-layout + .school-setup-section,
+.school-setup > .school-setup-section + .school-setup-section { margin-top: 24px; }
 .school-create .school-scope-note { min-height: 126px; display: flex; align-items: center; }
 .school-owner-summary { background: var(--surface-subtle); padding: 18px; display: grid; gap: 4px; overflow-wrap: anywhere; }
 .school-owner-summary strong { color: var(--sea); }

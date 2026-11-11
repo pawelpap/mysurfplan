@@ -22,7 +22,7 @@ test("the storage draft is available only to the staging host and project; exact
 
   for (const language of ["en-GB", "pt-PT", "es", "fr"]) {
     const latest = getStorageNotice(undefined, language, { preview });
-    assert.equal(latest.version, "2026-11-11.2");
+    assert.equal(latest.version, "2026-11-11.3");
     assert.equal(latest.language, language);
     assert.equal(latest.status, "staging_preview");
     assert.match(latest.content, /mywaveplan:invitation:v1/);

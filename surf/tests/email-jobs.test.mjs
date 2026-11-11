@@ -25,6 +25,13 @@ test('temporary B5 recipients extend the staging allowlist only and preserve its
  assert.throws(()=>emailConfig({...env,APP_ENVIRONMENT:'production',VERCEL_PROJECT_ID:PROJECTS.production,EMAIL_FROM:'support@mywaveplan.com',EMAIL_B5_TEST_RECIPIENTS:added}),/email_test_recipient_environment_invalid/);
  assert.throws(()=>emailConfig({...env,EMAIL_TEST_RECIPIENTS:'',EMAIL_B5_TEST_RECIPIENTS:added}),/email_allowlist_required/);
 });
+test('bounded staging email test headroom preserves the shared free daily and monthly ceiling',()=>{
+ const staging=emailConfig({...env,EMAIL_DAILY_LIMIT:'40'});assert.equal(staging.dailyLimit,40);
+ assert.throws(()=>emailConfig({...env,EMAIL_DAILY_LIMIT:'41'}),/email_budget_invalid/);
+ const production=emailConfig({...env,APP_ENVIRONMENT:'production',VERCEL_PROJECT_ID:PROJECTS.production,EMAIL_FROM:'support@mywaveplan.com',EMAIL_DAILY_LIMIT:'150',EMAIL_MONTHLY_LIMIT:'4500'});
+ assert(staging.dailyLimit+production.dailyLimit<200);assert(staging.monthlyLimit+production.monthlyLimit<6000);
+ assert.throws(()=>emailConfig({...env,APP_ENVIRONMENT:'production',VERCEL_PROJECT_ID:PROJECTS.production,EMAIL_FROM:'support@mywaveplan.com',EMAIL_DAILY_LIMIT:'151',EMAIL_MONTHLY_LIMIT:'4500'}),/email_budget_invalid/);
+});
 
 test('email defaults off and explicit project/target/isolation/budgets are required', () => {
   assert.equal(emailConfig({}).enabled, false);

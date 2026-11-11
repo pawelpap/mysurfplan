@@ -1,3 +1,4 @@
+import {ownershipEmail} from './ownership.mjs';
 import { invitationLink } from '../invitations.mjs';
 import { ACCOUNT_ACTIVITY_SUBJECTS } from './config.mjs';
 import { eventToken } from './crypto.mjs';
@@ -42,6 +43,11 @@ export function invitationMessage(job, recipient, config, { token, locale }) {
     staging:config.environment==='staging', action:{label,url:invitationLink(config.environment,token,locale)} }));
 }
 
+export function ownershipMessage(job,recipient,config,payload){
+  const content=ownershipEmail(job,config,payload);
+  return mailjetMessage(job,recipient,config,content.title,content);
+}
+
 export function accountActivityMessage(job, recipient, config) {
   const title = ACCOUNT_ACTIVITY_SUBJECTS[job.type];
   const when = new Intl.DateTimeFormat('en-GB', {
@@ -64,7 +70,7 @@ export function retryDelay(attempt, retryAfter, now = Date.now(), random = Math.
 export function createMailjetAdapter(config, fetchImpl = fetch) {
   return async (job, recipient, payload) => {
     try {
-      const outbound = job.type === 'email.staff_invitation' ? invitationMessage(job,recipient,config,payload) : job.type === 'email.delivery_check'
+      const outbound = ['email.ownership_offer','email.ownership_changed'].includes(job.type) ? ownershipMessage(job,recipient,config,payload) : job.type === 'email.staff_invitation' ? invitationMessage(job,recipient,config,payload) : job.type === 'email.delivery_check'
         ? deliveryCheckMessage(job, recipient, config)
         : Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)
           ? accountActivityMessage(job, recipient, config)

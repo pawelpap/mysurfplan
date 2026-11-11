@@ -54,7 +54,7 @@ test('new storage notices disclose explicit map loading, browser cache, private 
     fr: [/après votre choix de la charger/,/ne demande pas la position GPS/,/cache HTTP/,/n’efface pas immédiatement/,/référence active/],
   };
   for (const language of geoapifyLegalLocales) {
-    const current=getStorageNotice(undefined,language),old=getStorageNotice('2026-11-11.1',language);
+    const current=getStorageNotice(b5LegalVersion,language),old=getStorageNotice('2026-11-11.1',language);
     assert.equal(current.version,b5LegalVersion);assert.equal(current.language,language);
     assert.match(current.content,/Vercel Blob/);assert.match(current.content,/24/);assert.match(current.content,/30/);
     for(const proof of proofs[language])assert.match(current.content,proof);

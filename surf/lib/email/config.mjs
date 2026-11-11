@@ -46,8 +46,9 @@ export function emailConfig(env = process.env) {
   if (!validEmail(from) || !from.endsWith(environment === 'production' ? '@mywaveplan.com' : '@staging-mail.mywaveplan.com'))
     throw new Error('email_sender_invalid');
   const dailyLimit = Number(env.EMAIL_DAILY_LIMIT), monthlyLimit = Number(env.EMAIL_MONTHLY_LIMIT);
-  // Combined defaults stay below a shared Mailjet Free account's 200/6000 limits.
-  const maxima = environment === 'production' ? [150, 4500] : [20, 500];
+  // Combined hard caps stay below Mailjet Free: 150+40=190/day and
+  // 4500+500=5000/month. Normal staging remains20;40 permits bounded QA windows.
+  const maxima = environment === 'production' ? [150, 4500] : [40, 500];
   if (![dailyLimit, monthlyLimit].every(Number.isInteger) || dailyLimit < 1 || monthlyLimit < dailyLimit ||
       dailyLimit > maxima[0] || monthlyLimit > maxima[1]) throw new Error('email_budget_invalid');
   const publicAccounts = environment === 'production' && env.ACCOUNT_REGISTRATION_ENABLED === 'true' &&
@@ -66,7 +67,7 @@ export function recipientAllowed(config, recipient, type) {
   if (Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, type))
     return config.environment === 'production' && recipient === ACCOUNT_ACTIVITY_RECIPIENT;
   return validEmail(recipient) && (config.allowlist.includes(recipient) ||
-    (config.environment === 'production' && config.publicAccounts === true && ['email.account_verify','email.account_reset','email.staff_invitation'].includes(type)));
+    (config.environment === 'production' && config.publicAccounts === true && ['email.account_verify','email.account_reset','email.staff_invitation','email.ownership_offer','email.ownership_changed'].includes(type)));
 }
 
 export function validEmail(value) {

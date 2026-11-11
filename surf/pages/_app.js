@@ -8,6 +8,7 @@ import "../styles/locale-layout.css";
 import "../styles/school-setup.css";
 import "leaflet/dist/leaflet.css";
 import "../styles/school-branding.css";
+import "../styles/ownership.css";
 import { LocaleProvider } from "../components/locale";
 import { ThemeProvider } from "../components/theme";
 import { SpotLocationProvider } from "../components/spot-select";

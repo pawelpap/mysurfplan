@@ -20,6 +20,7 @@ export function createJobStore(query, environment) {
   return {
     async maintain() {
       await query('SELECT * FROM maintain_staff_invitations($1)', [environment]);
+      await query('SELECT * FROM maintain_school_ownership($1)', [environment]);
       await query(`DELETE FROM account_email_challenges WHERE token_hash IN (
         SELECT token_hash FROM account_email_challenges WHERE expires_at<=now() ORDER BY expires_at
         LIMIT 100 FOR UPDATE SKIP LOCKED)`, []);
@@ -52,7 +53,9 @@ export function createJobStore(query, environment) {
       const [row] = await query(`SELECT CASE WHEN ($7='email.staff_invitation' AND EXISTS (
         SELECT 1 FROM school_invitations i WHERE i.email_job_id=$1 AND i.invited_email=$4 AND i.status='pending'
         AND i.expires_at>now() AND invitation_authorised(i.invited_by,i.school_id,i.requested_roles)
-      )) OR $7='email.delivery_check' OR $8::boolean OR EXISTS (
+      )) OR ($7='email.ownership_offer' AND EXISTS(SELECT 1 FROM school_ownership_offers o WHERE o.email_job_id=$1 AND o.recipient_email=$4 AND ownership_offer_valid(o)))
+       OR ($7='email.ownership_changed' AND EXISTS(SELECT 1 FROM school_ownership_notice_jobs n JOIN users u ON u.id=n.recipient_user_id WHERE n.job_id=$1 AND lower(btrim(u.email))=$4))
+       OR $7='email.delivery_check' OR $8::boolean OR EXISTS (
         SELECT 1 FROM account_email_challenges c WHERE c.job_id=$1 AND c.expires_at>now() AND c.email=$4
           AND ((c.purpose='verify' AND NOT EXISTS(SELECT 1 FROM users WHERE lower(email)=c.email AND deleted_at IS NULL))
             OR (c.purpose='reset' AND EXISTS(SELECT 1 FROM users u WHERE u.id=c.user_id

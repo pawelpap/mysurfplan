@@ -6,6 +6,9 @@ import SchoolPilotAccess from './school-pilot-access';
 import {schoolBaseLocationInput} from '../../lib/school-onboarding.mjs';
 import SchoolBaseLocation from './school-base-location';
 import SchoolBranding from './school-branding';
+import SchoolOwnership from './school-ownership';
+import SchoolClaims from './school-claims';
+import {retainedDemoSchoolId} from '../../lib/school-artwork.mjs';
 
 const problem = error => error.message?.startsWith('schoolLocation.') ? error.message : error.status === 409 ? 'school.conflict' : error.status === 400 ? 'school.invalid' : error.status === 403 ? 'school.forbidden' : 'school.unavailable';
 const validLink = value => { try { const url=new URL(value); return url.protocol==='https:' && !url.username && !url.password; } catch { return false; } };
@@ -30,14 +33,17 @@ export default function SchoolSetup({ session, query, go, onSaved, onAgreements 
     setSaved(school); setNotice(created ? 'school.created' : 'school.saved'); source.reload(); onSaved();
     if (created) { setCreatedId(school.id); go({record:school.id}); }
   };
+  if (query.action === 'claims') return <SchoolClaims onBack={()=>go({})}/>;
   if (query.action === 'new') return <CreateDraft session={session} onCancel={()=>go({})} onSaved={school=>complete(school,true)} />;
   if (source.loading && !schools.length) return <Loading />;
   if (source.error) return <><Message>{t('school.unavailable')}</Message><Button onClick={source.reload}>{t('Try again')}</Button></>;
   if (query.record && !selected) return <Empty title={t('School not found')} action={<Button onClick={()=>go({})}>{t('school.cancel')}</Button>}>{t('school.forbidden')}</Empty>;
+  if(selected && query.action==='ownership') return <SchoolOwnership school={selected} onBack={()=>go({record:selected.id})} onSaved={()=>{setSaved(null);source.reload();onSaved();}}/>;
   if(selected && query.action==='branding') return <SchoolBranding school={selected} session={session} onBack={()=>go({record:selected.id})} onAgreements={onAgreements} onSaved={()=>{setSaved(null);source.reload();onSaved();}} />;
-  if (selected) return <SchoolSettings key={`${selected.id}:${reloadVersion}`} school={selected} onBranding={()=>go({record:selected.id,action:'branding'})} notice={notice} created={createdId===selected.id} onEditing={()=>setNotice('')} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');setCreatedId(null);go({});}} onAgreements={onAgreements} onReload={async()=>{const list=await request('/api/school-onboarding');const fresh=list.find(record=>record.id===selected.id);if(fresh){setSaved(fresh);setNotice('');setReloadVersion(value=>value+1);source.reload();}else{setSaved(null);go({});}}} />;
+  if (selected) return <SchoolSettings key={`${selected.id}:${reloadVersion}`} school={selected} onOwnership={()=>go({record:selected.id,action:'ownership'})} onBranding={()=>go({record:selected.id,action:'branding'})} notice={notice} created={createdId===selected.id} onEditing={()=>setNotice('')} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');setCreatedId(null);go({});}} onAgreements={onAgreements} onReload={async()=>{const list=await request('/api/school-onboarding');const fresh=list.find(record=>record.id===selected.id);if(fresh){setSaved(fresh);setNotice('');setReloadVersion(value=>value+1);source.reload();}else{setSaved(null);go({});}}} />;
   return <div className="school-setup">
     <PageHeading title={t('school.title')} description={t('school.intro')} action={<Button tone="primary" onClick={()=>{setNotice('');go({action:'new'});}}>{t('school.create')}</Button>} />
+    <div className="school-claim-entry"><Button onClick={()=>go({action:'claims'})}>{t('ownership.claimTitle')}</Button></div>
     {schools.length ? <div className="school-setup-list">{schools.map(school=><article className="surface school-setup-card" key={school.id}>
       <div><h2>{school.name}</h2><p className="muted-note">{t(school.owner ? 'school.owner' : school.canEdit ? 'school.admin' : 'school.readOnly')}</p></div>
       <SchoolState school={school} compact />
@@ -83,7 +89,7 @@ function SchoolState({ school, compact=false }) {
     {school.workspaceKind==='self_service' && <span>{t(school.pilotAccessStatus==='approved' ? 'school.pilotApproved' : 'school.pilotPending')}</span>}
   </div>;
 }
-function SchoolSettings({school,notice,created,onEditing,onSaved,onCancel,onAgreements,onReload,onBranding}) {
+function SchoolSettings({school,notice,created,onEditing,onSaved,onCancel,onAgreements,onReload,onBranding,onOwnership}) {
   const {locale,t}=useLocale();
   const spots=useData(`/api/school-onboarding/spots?schoolId=${encodeURIComponent(school.id)}&settings=1`);
   const legal=useData('/api/legal/records?language='+locale);
@@ -156,6 +162,7 @@ function SchoolSettings({school,notice,created,onEditing,onSaved,onCancel,onAgre
         <div className="school-form-actions"><Button type="submit" tone="primary" disabled={busy || !school.canEdit}>{t(busy?'Saving…':'school.save')}</Button><Button onClick={()=>leave(onCancel)} disabled={busy}>{t('Cancel')}</Button></div>
       </form>
     </div>
+    {school.id!==retainedDemoSchoolId&&<section className="surface school-setup-section"><h2>{t('ownership.title')}</h2><p>{t('ownership.scope')}</p><Button onClick={()=>leave(onOwnership)}>{t('ownership.title')}</Button></section>}
     <SchoolPilotAccess school={school} onSaved={onSaved} onAgreements={()=>leave(onAgreements)}/>
   </div>;
 }
