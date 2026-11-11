@@ -2,6 +2,7 @@ import { schoolMessages } from "./school-messages.mjs";
 import { schoolLocationMessages } from "./school-location-messages.mjs";
 import { brandingMessages } from "./branding-messages.mjs";
 import { pilotMessages } from "./pilot-messages.mjs";
+import { demoArtworkMessages } from "./demo-artwork-messages.mjs";
 import { invitationMessages } from "./invitation-messages.mjs";
 import { accountMessages } from "./account-messages.mjs";
 import { appMessages } from "./app-messages.mjs";
@@ -19,6 +20,7 @@ export function createLocale(preferredLocale) {
   const location = schoolLocationMessages[locale];
   const branding = brandingMessages[locale];
   const pilot = pilotMessages[locale];
+  const demoArtwork = demoArtworkMessages[locale];
   const numberFormats = new Map();
   return {
     locale,
@@ -30,6 +32,7 @@ export function createLocale(preferredLocale) {
         (Object.hasOwn(location, key) && location[key]) ||
         (Object.hasOwn(branding, key) && branding[key]) ||
         (Object.hasOwn(pilot, key) && pilot[key]) ||
+        (Object.hasOwn(demoArtwork, key) && demoArtwork[key]) ||
         (Object.hasOwn(invitation, key) && invitation[key]) ||
         (Object.hasOwn(app, key) && app[key]) ||
         (Object.hasOwn(fallback, key) && fallback[key]) || key;

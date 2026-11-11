@@ -9,9 +9,9 @@ export default function SchoolPresentation({data,privatePreview=false,email=fals
   const cover=image(brand.coverAssetId,'w1600'),logo=image(brand.logoAssetId,'w512');
   return <article className={`school-presentation ${compact?'is-compact':''} ${email?'is-email':''}`}
     style={{'--brand-accent-light':accent.light,'--brand-accent-dark':accent.dark}}>
-    <SchoolArtwork kind="cover" customUrl={cover} hasCustom={Boolean(brand.coverAssetId)} alt={brand.coverAlt||''} version={data.defaultArtworkVersion}/>
+    <SchoolArtwork kind="cover" customUrl={cover} hasCustom={Boolean(brand.coverAssetId)} alt={brand.coverAlt||''} version={data.defaultArtworkVersion} schoolId={data.schoolId}/>
     <div className="school-presentation-body">
-      <SchoolArtwork kind="logo" customUrl={logo} hasCustom={Boolean(brand.logoAssetId)} alt={brand.logoAlt||data.name} version={data.defaultArtworkVersion}/>
+      <SchoolArtwork kind="logo" customUrl={logo} hasCustom={Boolean(brand.logoAssetId)} alt={brand.logoAlt||data.name} version={data.defaultArtworkVersion} schoolId={data.schoolId}/>
       {data.demo&&<p className="branding-demo-label">{t('branding.demo')}</p>}
       <h2>{email?t('branding.sampleSubject'):data.name}</h2>
       {email?<><strong>{data.name}</strong><p>{t('branding.sampleBody')}</p></>:<>

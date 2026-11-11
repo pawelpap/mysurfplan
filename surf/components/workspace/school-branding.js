@@ -37,7 +37,7 @@ export default function SchoolBranding({school,onBack,onSaved,onAgreements,sessi
     const asset=form[`${purpose}AssetId`],alt=form[`${purpose}Alt`];
     return <section className="surface branding-section" key={purpose}>
       <h2>{t(`branding.${purpose}`)}</h2>
-      <SchoolArtwork kind={purpose} customUrl={asset?`/api/media/${asset}?variant=${purpose==='logo'?'w512':'w1600'}`:null} hasCustom={Boolean(asset)} alt={alt||''}/>
+      <SchoolArtwork kind={purpose} customUrl={asset?`/api/media/${asset}?variant=${purpose==='logo'?'w512':'w1600'}`:null} hasCustom={Boolean(asset)} alt={alt||''} version={record.preview.defaultArtworkVersion} schoolId={record.preview.schoolId}/>
       <div className="branding-image-actions"><MediaUpload purpose={purpose} schoolId={school.id} replaceAssetId={asset} disabled={!editable}
         onSaved={result=>change({...form,[`${purpose}AssetId`]:result.assetId,[`${purpose}Alt`]:alt||(purpose==='logo'?school.name:'')})}/>
         {asset&&<Button disabled={!editable} onClick={()=>change({...form,[`${purpose}AssetId`]:null,[`${purpose}Alt`]:''})}>{t('media.remove')}</Button>}
