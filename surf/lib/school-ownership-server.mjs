@@ -58,7 +58,7 @@ export function schoolOwnershipHandler({sql,requireAuth,getSessionHash,scheduleD
    };
    if(['transfer','reissue'].includes(action)||(action==='review'&&body.decision==='approve')){
     const[person]=await sql`SELECT u.id,lower(btrim(u.email))AS email,u.auth_version FROM users u WHERE ownership_account_eligible(u.id)AND(
-     (${action}='transfer'AND lower(btrim(u.email))=${body.recipientEmail||null}AND EXISTS(SELECT 1 FROM schools s JOIN school_memberships m ON m.id=s.owner_membership_id
+     (${action}='transfer'AND lower(btrim(u.email))=${body.recipientEmail||null} AND EXISTS(SELECT 1 FROM schools s JOIN school_memberships m ON m.id=s.owner_membership_id
       WHERE s.id=${body.schoolId||null}::uuid AND m.user_id=${session.userId}::uuid AND m.status='active'AND ownership_school_eligible(s)))OR
      (${action}='reissue'AND EXISTS(SELECT 1 FROM school_ownership_offers o JOIN schools s ON s.id=o.school_id JOIN school_memberships m ON m.id=s.owner_membership_id
       WHERE o.id=${body.offerId||null}::uuid AND o.school_id=${body.schoolId||null}::uuid AND o.recipient_user_id=u.id AND m.user_id=${session.userId}::uuid AND m.status='active'))OR
@@ -68,7 +68,7 @@ export function schoolOwnershipHandler({sql,requireAuth,getSessionHash,scheduleD
    }
    if(action==='accept'){
     const[offer]=await sql`SELECT o.status,o.source_owner_membership_id,s.name AS "schoolName" FROM school_ownership_offers o JOIN schools s ON s.id=o.school_id
-     WHERE o.token_hash=${body.tokenHash}AND o.recipient_user_id=${session.userId}::uuid`;
+     WHERE o.token_hash=${body.tokenHash} AND o.recipient_user_id=${session.userId}::uuid`;
     if(offer?.status==='pending'){
      const people=await sql`SELECT u.id,lower(btrim(u.email))AS email,u.auth_version,u.preferred_locale FROM users u WHERE u.id=${session.userId}::uuid OR
       u.id IN(SELECT user_id FROM school_memberships WHERE id=${offer.source_owner_membership_id}::uuid)`;

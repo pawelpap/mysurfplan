@@ -106,7 +106,7 @@ function OwnershipContent({selected,onLanguage}){
     <p>{completed?.school?.name||preview?.school?.name}</p>
     {receipt.currentlyOwner&&<Link className="button primary" href={'/?view=schools&record='+encodeURIComponent(completed?.school?.id||preview.school.id)}>{t('school.settings')}</Link>}
     <Link className="button" href="/">{t('Back to workspace')}</Link>
-   </section>:loading&&!preview?<Loading/>:!continuation?.token?<section className="surface ownership-section"><p>{t('ownership.reopenEmail')}</p><Link className="button" href="/">{t('Back to workspace')}</Link></section>:
+   </section>:loading&&!preview?<Loading/>:!continuation?.token?<section className="surface ownership-section"><p>{t('ownership.openEmail')}</p><Link className="button" href="/">{t('Back to workspace')}</Link></section>:
     !session||session.demo?<section className="surface ownership-section"><p>{t('ownership.signInHelp')}</p>
      {!continuation.stored&&<p>{t('ownership.reopenEmail')}</p>}
      {session?.demo?<Button onClick={switchAccount} disabled={busy}>{t('ownership.useAnotherAccount')}</Button>:<Link className="button primary" href={login}>{t('ownership.signIn')}</Link>}

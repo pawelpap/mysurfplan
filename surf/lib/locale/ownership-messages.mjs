@@ -1,8 +1,9 @@
-// Design copy only. Not integrated into the application.
-// Order: en-GB, pt-PT, es, fr. Legal declarations require final policy review.
+// Ownership interface copy. Order: en-GB, pt-PT, es, fr.
 // Format {date} in the active locale with timezone; format {roles} as a localised list.
 // Render interpolated values as text, never HTML. No secret values belong in copy.
 const rows = {
+ 'ownership.back':['Back','Voltar','Volver','Retour'],
+ 'ownership.openEmail':['Open the original ownership email link to review the offer.','Abra a ligação do email original de titularidade para consultar a proposta.','Abre el enlace del correo original de titularidad para revisar la propuesta.','Ouvrez le lien de l’e-mail original de propriété pour consulter la proposition.'],
  'ownership.formerOwnerRoles':['The former owner keeps these existing roles: {roles}.','O titular anterior mantém estas funções atuais: {roles}.','El titular anterior conserva estas funciones actuales: {roles}.','L’ancien propriétaire conserve ces rôles existants : {roles}.'],
  'ownership.findSchools':['Find school','Procurar escola','Buscar escuela','Rechercher une école'],
  'ownership.clearSearch':['Clear search','Limpar pesquisa','Borrar búsqueda','Effacer la recherche'],

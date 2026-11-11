@@ -99,6 +99,6 @@ function ClaimDetail({claim,review,onBack,onSaved}){
     </div>
    </>}
   </form>}
-  <Button onClick={onBack} disabled={busy}>{t('Back')}</Button>
+  <Button onClick={onBack} disabled={busy}>{t('ownership.back')}</Button>
  </section>;
 }

@@ -37,6 +37,24 @@ test('a wrong password prevents recipient lookup, mail construction and ownershi
  const res=response();await handler({method:'POST',body:{action:'transfer',schoolId:school,ownershipRevision:1,recipientEmail:'person@example.com',requestId:randomUUID(),currentPassword:'wrong',locale:'en-GB'},headers:{}},res);
  assert.equal(res.code,400);assert.equal(res.body.error,'account.currentPasswordInvalid');assert.equal(calls,1);
 });
+test('approval, transfer and acceptance SQL keep parameter boundaries valid through mail preparation',async()=>{
+ const person=randomUUID();
+ const env={SESSION_SECRET:'s'.repeat(32),APP_ENVIRONMENT:'staging',VERCEL_ENV:'production',VERCEL_PROJECT_ID:'prj_sWC9MbvG8rWtAO0YpuSNiOqZwYlO',EMAIL_ENABLED:'true',EMAIL_TEST_RECIPIENTS:'owner@example.com',EMAIL_FROM:'noreply@staging-mail.mywaveplan.com',EMAIL_DAILY_LIMIT:'40',EMAIL_MONTHLY_LIMIT:'500',EMAIL_PAYLOAD_KEY:'c'.repeat(64),EMAIL_PAYLOAD_KEY_ID:'v1'};
+ for(const key of ['MAILJET_API_KEY','MAILJET_SECRET_KEY','EMAIL_RECIPIENT_KEY','EMAIL_CALLBACK_SECRET','EMAIL_OPERATIONS_SECRET','CRON_SECRET'])env[key]='d'.repeat(32);
+ for(const action of ['review','transfer','accept']){
+  const queries=[];const sql=async(strings,...args)=>{
+   const query=strings.reduce((text,part,index)=>text+(index?'$'+index:'')+part,'');queries.push(query);
+   assert.doesNotMatch(query,/\$\d+[A-Za-z_]/,'SQL keyword cannot run into a bound parameter');
+   if(query.includes('auth_login_limits'))return[{allowed:true,retry_seconds:0}];
+   if(query.includes('school_ownership_action'))return[{data:{replayed:false}}];
+   if(query.includes('SELECT o.status'))return[{status:'pending',source_owner_membership_id:null,schoolName:'School'}];
+   return[{id:action==='accept'?actor:person,email:'owner@example.com',auth_version:1,preferred_locale:'en-GB'}];
+  };
+  const handler=schoolOwnershipHandler({sql,requireAuth:async()=>({userId:actor}),getSessionHash:()=>sessionHash,env,proof:async()=>({passwordHash:'matched-hash',authVersion:1,sessionHash})},action==='accept'?'offer':action==='review'?'claims':'manage');
+  const common={action,currentPassword:'correct',locale:'en-GB'},body=action==='review'?{...common,claimId:randomUUID(),revision:1,decision:'approve',reason:'The verified evidence supports this claim.',caseReference:'CASE-1',requestId:randomUUID()}:action==='transfer'?{...common,schoolId:school,ownershipRevision:1,recipientEmail:'owner@example.com',requestId:randomUUID()}:{...common,token,offerId:randomUUID(),ownershipRevision:1,documentId:'mywaveplan.school-processing',version:'test-v1',language:'en-GB',contentHash:'e'.repeat(64),acceptedOwnership:true,authorisedRepresentative:true,acceptedAgreement:true,consequencesVersion:'ownership-workspace/1'};
+  const res=response();await handler({method:'POST',body,headers:{}},res);assert.equal(res.code,200,action);assert.equal(res.body.ok,true);assert(queries.some(query=>query.includes('school_ownership_action')));
+ }
+});
 test('ownership worker authenticates encrypted type/recipient and never sends obsolete or malformed offers',async()=>{
  const config={enabled:true,environment:'staging',allowlist:['owner@example.com'],payloadKey:'c'.repeat(64),keyId:'v1',recipientKey:'d'.repeat(64)};
  for(const scenario of['valid-offer','invalid-kind','invalid-locale','wrong-recipient','obsolete','valid-notice']){
