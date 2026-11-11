@@ -66,7 +66,7 @@ export default function SchoolBaseMap({value,onChange,disabled=false}) {
  return <div className="school-base-map-panel">
   {!loaded?<div className="school-map-disclosure"><p>{t('schoolLocation.mapDisclosure')}</p><Button disabled={disabled} onClick={()=>{setStatus('schoolLocation.mapLoading');setLoaded(true);}}>{t('schoolLocation.loadMap')}</Button></div>:<>
    <div ref={container} className="school-base-map" role="region" tabIndex={0} aria-label={t('schoolLocation.mapLabel')} />
-   <div className="school-map-tools"><Button disabled={!ready} onClick={()=>instance.current?.zoomIn()} aria-label={t('schoolLocation.zoomIn')}>+</Button><Button disabled={!ready} onClick={()=>instance.current?.zoomOut()} aria-label={t('schoolLocation.zoomOut')}>−</Button>
+   <div className="school-map-tools"><Button className="school-map-zoom" disabled={!ready} onClick={()=>instance.current?.zoomIn()} aria-label={t('schoolLocation.zoomIn')}>+</Button><Button className="school-map-zoom" disabled={!ready} onClick={()=>instance.current?.zoomOut()} aria-label={t('schoolLocation.zoomOut')}>−</Button>
     <Button disabled={!ready||disabled} onClick={placeAtCentre}>{t('schoolLocation.pinAtCentre')}</Button>
     <Button disabled={!ready||!displayable(value)} onClick={()=>instance.current?.setView([Number(value.latitude),Number(value.longitude)],Math.max(12,instance.current.getZoom()))}>{t('schoolLocation.showPin')}</Button>
     <Button onClick={()=>{setLoaded(false);setReady(false);setStatus('');}}>{t('schoolLocation.hideMap')}</Button></div>

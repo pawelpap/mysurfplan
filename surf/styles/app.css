@@ -2441,6 +2441,16 @@ summary:focus-visible {
     grid-template-columns: 1fr 112px;
   }
 }
+@media (max-width: 600px) {
+  .public-header-actions {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    align-items:center;
+  }
+  .public-header-actions .theme-selector { justify-self:start; }
+  .public-header-actions .language-preference { justify-self:end; min-width:0; }
+  .public-header-actions > a.button { grid-column:1 / -1; width:100%; min-height:44px; }
+}
 
 /* Surf quality is semantic colour, independent of required experience. */
 .surf-score,

@@ -20,7 +20,9 @@ export function createMediaStorage({sql,env=process.env,blob=blobSdk}) {
     if(!row||!Object.hasOwn(projectIds,env.APP_ENVIRONMENT)||row.environment!==env.APP_ENVIRONMENT||row.actual_environment!==env.APP_ENVIRONMENT||
       !/^store_[A-Za-z0-9]+$/.test(row.private_store_id)||!/^store_[A-Za-z0-9]+$/.test(row.public_store_id)||row.private_store_id===row.public_store_id||
       row.private_store_id!==env.MEDIA_PRIVATE_STORE_ID||row.public_store_id!==env.MEDIA_PUBLIC_STORE_ID||
-      (env.VERCEL_PROJECT_ID&&env.VERCEL_PROJECT_ID!==projectIds[env.APP_ENVIRONMENT])||!env.VERCEL_OIDC_TOKEN||env.BLOB_READ_WRITE_TOKEN) throw new MediaServiceError();
+      (env.VERCEL_PROJECT_ID&&env.VERCEL_PROJECT_ID!==projectIds[env.APP_ENVIRONMENT])||env.BLOB_READ_WRITE_TOKEN) throw new MediaServiceError();
+    // Runtime OIDC comes from the trusted Vercel request context, not necessarily
+    // process.env. The SDK resolves fresh credentials and rejects missing auth.
     return row;
   }
   async function options(object,cfg) {

@@ -79,7 +79,7 @@ function SchoolState({ school, compact=false }) {
   const draft=school.workspaceKind==='self_service' && school.workspaceStatus==='draft';
   return <div className={`school-state ${compact?'compact':''}`} aria-label={t('school.settings')}>
     <strong>{t(draft ? 'school.draft' : school.workspaceKind==='legacy' ? 'school.legacy' : 'Active')}</strong>
-    <span>{t(school.workspaceKind==='legacy' ? 'Public schedule' : school.listingStatus==='published' ? 'Published' : 'school.notPublic')}</span>
+    <span>{t(school.workspaceKind==='legacy' ? 'Public schedule' : school.listingStatus==='published' ? 'school.published' : 'school.notPublic')}</span>
     {school.workspaceKind==='self_service' && <span>{t(school.pilotAccessStatus==='approved' ? 'school.pilotApproved' : 'school.pilotPending')}</span>}
   </div>;
 }

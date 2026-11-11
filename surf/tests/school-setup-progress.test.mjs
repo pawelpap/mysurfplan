@@ -8,10 +8,19 @@ const document = {document_id:'mywaveplan.school-processing',kind:'school_proces
 const acceptance = {...document,school_id:school.id};
 test('setup uses saved fields and exact school agreement evidence',()=>{
   assert.equal(schoolSetupProgress(school,{documents:[document],acceptances:[acceptance]}).done,5);
-  for(const change of [{school_id:'other'},{version:'v2'},{language:'es'},{content_hash:'different'}]) {
+  for(const change of [{school_id:'other'},{version:'v2'},{content_hash:'different'},{status:'staging_preview'}]) {
     assert.equal(schoolSetupProgress(school,{documents:[document],acceptances:[{...acceptance,...change}]}).done,4);
   }
   assert.equal(schoolSetupProgress({...school,description:'',contactEmail:'',operatingSpotIds:[]}).done,1);
+});
+test('changing interface language preserves a published same-version agreement without duplicating evidence',()=>{
+ const english={...acceptance,language:'en-GB',content_hash:'original-English-hash'};
+ for(const language of ['en-GB','pt-PT','es','fr']){
+  const current={...document,language,content_hash:language==='en-GB'?english.content_hash:'translated-'+language};
+  assert.equal(schoolSetupProgress(school,{documents:[current],acceptances:[english]}).done,5);
+  assert.equal(schoolSetupProgress(school,{documents:[current],acceptances:[{...english,school_id:'other'}]}).done,4);
+  assert.equal(schoolSetupProgress(school,{documents:[current],acceptances:[{...english,version:'old'}]}).done,4);
+ }
 });
 test('staging preview evidence cannot complete the published-agreement step or enable access',()=>{
   const result=schoolSetupProgress(school,{documents:[{...document,status:'staging_preview'}],acceptances:[acceptance]});

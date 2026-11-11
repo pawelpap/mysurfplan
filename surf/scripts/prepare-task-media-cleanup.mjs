@@ -10,7 +10,7 @@ assert(['rehearsal','staging','production'].includes(environment)&&manifestPath&
  'Usage: node scripts/prepare-task-media-cleanup.mjs <environment> <sanitised-manifest.json> <new-private-plan.json>');
 const stat=await fs.stat(manifestPath);assert.equal(stat.mode&0o077,0,'Sanitised fixture manifest must be private');
 const manifest=JSON.parse(await fs.readFile(manifestPath,'utf8'));assert.equal(manifest.environment,environment);
-assert(Object.keys(manifest).every(key=>['environment','prefix','userIds','schoolIds','allowedVersionPins','allowedAssetPinIds'].includes(key)),
+assert(Object.keys(manifest).every(key=>['environment','prefix','userIds','schoolIds','allowedVersionPins','allowedAssetPinIds','allowedTestEmails'].includes(key)),
  'Use a sanitised cleanup manifest, never the account/password fixture file');
 const client=await connect(environment);
 try{const plan=await preflightTaskMediaCleanup(client,manifest);

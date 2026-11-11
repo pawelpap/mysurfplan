@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {taskMediaCleanupScope,drainTaskMediaCleanup,finaliseTaskMediaCleanup} from '../lib/task-media-cleanup.mjs';
+import {taskMediaCleanupScope,preflightTaskMediaCleanup,drainTaskMediaCleanup,finaliseTaskMediaCleanup} from '../lib/task-media-cleanup.mjs';
 
 const user='11111111-1111-4111-8111-111111111111',asset='22222222-2222-4222-8222-222222222222',object='33333333-3333-4333-8333-333333333333';
 function plan(){
@@ -15,6 +15,49 @@ test('exact fixture scope rejects Demo, malformed IDs and non-task manifests',()
  assert.deepEqual(taskMediaCleanupScope(good).userIds,[user]);
  for(const change of[{schoolIds:['7abd47ea-705a-4a75-ad90-274c32c14f95']},{userIds:['not-id']},{userIds:[user,user]},{prefix:'real users'},{environment:'default'},{allowedVersionPins:'all'}])
   assert.throws(()=>taskMediaCleanupScope({...good,...change}));
+});
+test('only the two explicitly approved literal test aliases can enter a cleanup manifest',()=>{
+ const base={environment:'staging',prefix:'B5 QA aliases123',userIds:[user],schoolIds:[]};
+ const approved=['ppaplin+b5-owner@gmail.com','ppaplin+b5-recipient@gmail.com'];
+ assert.deepEqual(taskMediaCleanupScope({...base,allowedTestEmails:approved}).allowedTestEmails,approved);
+ assert.deepEqual(taskMediaCleanupScope({...base,allowedTestEmails:[]}),taskMediaCleanupScope(base),'Existing synthetic plan scopes remain compatible');
+ for(const allowedTestEmails of [['ppaplin@gmail.com'],['somebody@gmail.com'],['ppaplin+b5-other@gmail.com'],['*@gmail.com'],
+  ['PPAPLIN+B5-OWNER@gmail.com'],[approved[0],approved[0]],'all']){
+  assert.throws(()=>taskMediaCleanupScope({...base,allowedTestEmails}),e=>e.code==='unapproved_cleanup_test_email');
+ }
+});
+
+function preflightIdentityClient(record){return{async query(sql,values){
+ assert.match(sql,/^\s*SELECT\b/,'Identity preflight must remain read-only');
+ if(sql.includes('SELECT environment FROM job_environment'))return{rows:[{environment:'staging'}]};
+ if(sql.includes('SELECT id,name,email,is_demo FROM users')){
+  assert(sql.includes('id=ANY($1::uuid[])'),'Users must be selected only by recorded IDs');
+  return{rows:values[0].includes(record.id)?[record]:[]};
+ }
+ if(sql.includes('SELECT * FROM media_storage_config'))return{rows:[{environment:'staging'}]};
+ return{rows:[]};
+}};}
+test('approved aliases still require explicit recorded IDs, opt-in and strict task-name prefix',async()=>{
+ const base={environment:'staging',prefix:'B5 QA aliases123',userIds:[user],schoolIds:[]};
+ for(const email of ['ppaplin+b5-owner@gmail.com','ppaplin+b5-recipient@gmail.com']){
+  const record={id:user,name:base.prefix+' ownership test',email,is_demo:false};
+  const client=preflightIdentityClient(record);
+  await assert.rejects(preflightTaskMediaCleanup(client,base),e=>e.code==='protected_or_unverified_task_user');
+  const explicit={...base,allowedTestEmails:[email]};
+  assert.equal((await preflightTaskMediaCleanup(client,explicit)).users[0].email,email);
+  const noId=await preflightTaskMediaCleanup(client,{...explicit,userIds:[]});
+  assert.deepEqual(noId.users,[],'An allowed email never discovers or authorises an unrecorded user');
+  for(const change of [{name:'Retained real operator'},{is_demo:true},{email:'ppaplin@gmail.com'},{email:'ppaplin+b5-other@gmail.com'}])
+   await assert.rejects(preflightTaskMediaCleanup(preflightIdentityClient({...record,...change}),explicit),e=>e.code==='protected_or_unverified_task_user');
+ }
+});
+test('existing synthetic safeguards are unchanged by the explicit Gmail alias exception',async()=>{
+ const base={environment:'staging',prefix:'B5 QA aliases123',userIds:[user],schoolIds:[],allowedTestEmails:['ppaplin+b5-owner@gmail.com']};
+ const synthetic={id:user,name:base.prefix,email:'synthetic@example.invalid',is_demo:false};
+ assert.equal((await preflightTaskMediaCleanup(preflightIdentityClient(synthetic),base)).users.length,1);
+ assert.equal((await preflightTaskMediaCleanup(preflightIdentityClient({...synthetic,name:'Edited test name',email:`b5-${base.prefix.slice(-8)}-owner@example.invalid`}),base)).users.length,1);
+ await assert.rejects(preflightTaskMediaCleanup(preflightIdentityClient({...synthetic,name:'Retained external account'}),base),e=>e.code==='protected_or_unverified_task_user');
+ await assert.rejects(preflightTaskMediaCleanup(preflightIdentityClient({...synthetic,is_demo:true}),base),e=>e.code==='protected_or_unverified_task_user');
 });
 test('worker aggregate claims are not deletion evidence; metadata cannot disappear before origin verification',async()=>{
  const p=plan();let state='written',completed=null,attempts=0,assetState='deleting';

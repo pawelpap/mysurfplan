@@ -2,6 +2,9 @@ import {createHash} from 'node:crypto';
 import {isUuid} from './school-access.mjs';
 
 const demoSchool='7abd47ea-705a-4a75-ad90-274c32c14f95';
+// Explicitly approved ownership-test inboxes. This is not a Gmail/domain rule
+// and never discovers users by address instead of recorded fixture IDs.
+const approvedCleanupTestEmails=Object.freeze(['ppaplin+b5-owner@gmail.com','ppaplin+b5-recipient@gmail.com']);
 export class TaskMediaCleanupError extends Error {
  constructor(code,details={}){super(code);this.code=code;this.details=details;}
 }
@@ -16,12 +19,19 @@ export function taskMediaCleanupScope(input){
   typeof input.prefix!=='string'||!input.prefix.startsWith('B5 QA ')||input.prefix.length>100)fail('invalid_fixture_scope');
  const userIds=ids(input.userIds),schoolIds=ids(input.schoolIds);
  if(schoolIds.includes(demoSchool))fail('protected_demo_school');
+ const allowedTestEmails=input.allowedTestEmails??[];
+ if(!Array.isArray(allowedTestEmails)||allowedTestEmails.length>approvedCleanupTestEmails.length||
+  allowedTestEmails.some(email=>typeof email!=='string'||!approvedCleanupTestEmails.includes(email))||
+  new Set(allowedTestEmails).size!==allowedTestEmails.length)fail('unapproved_cleanup_test_email');
  if(!Array.isArray(input.allowedVersionPins||[])||(input.allowedVersionPins||[]).length>1000)fail('invalid_version_pins');
  const allowedVersionPins=(input.allowedVersionPins||[]).map(pin=>{
   if(!isUuid(pin?.versionId)||!isUuid(pin?.referenceId))fail('invalid_version_pin');
   return{versionId:pin.versionId.toLowerCase(),referenceId:pin.referenceId.toLowerCase()};
  });
- return{environment:input.environment,prefix:input.prefix,userIds,schoolIds,allowedVersionPins,allowedAssetPinIds:ids(input.allowedAssetPinIds||[])};
+ return{environment:input.environment,prefix:input.prefix,userIds,schoolIds,allowedVersionPins,allowedAssetPinIds:ids(input.allowedAssetPinIds||[]),
+  // Omitting the empty optional field keeps existing synthetic-plan digests
+  // compatible with the original v1 scope representation.
+  ...(allowedTestEmails.length?{allowedTestEmails:[...allowedTestEmails].sort()}:{} )};
 }
 const assetIdentity=a=>({id:a.id,owner_user_id:a.owner_user_id,owner_school_id:a.owner_school_id,uploaded_by:a.uploaded_by,
  environment:a.environment,purpose:a.purpose,source_hash:a.source_hash,fingerprint:a.fingerprint});
@@ -37,7 +47,10 @@ export async function preflightTaskMediaCleanup(client,input){
  if(actual!==expected)fail('fixture_environment_mismatch');
  const users=(await client.query('SELECT id,name,email,is_demo FROM users WHERE id=ANY($1::uuid[]) ORDER BY id',[scope.userIds])).rows;
  for(const user of users){const seededEmail=user.email.toLowerCase().startsWith(`b5-${scope.prefix.slice(-8).toLowerCase()}-`);
-  if(user.is_demo||!user.email.toLowerCase().endsWith('@example.invalid')||!(user.name===scope.prefix||user.name.startsWith(scope.prefix+' ')||seededEmail))
+  const prefixedName=user.name===scope.prefix||user.name.startsWith(scope.prefix+' ');
+  const synthetic=user.email.toLowerCase().endsWith('@example.invalid')&&(prefixedName||seededEmail);
+  const approvedAlias=scope.allowedTestEmails?.includes(user.email)&&prefixedName;
+  if(user.is_demo||!scope.userIds.includes(user.id)||!(synthetic||approvedAlias))
    fail('protected_or_unverified_task_user',{userIds:[user.id]});}
  const schools=(await client.query(`SELECT s.id,s.name,s.published_branding_version_id,
   EXISTS(SELECT 1 FROM school_creation_requests r WHERE r.school_id=s.id AND r.actor_id=ANY($2::uuid[])) AS created_by_task_actor

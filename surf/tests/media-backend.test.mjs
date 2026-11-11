@@ -54,7 +54,7 @@ test('journal precedes immutable private write; verified bytes are required befo
 
 test('store configuration and exact object paths fail closed; remote diagnostics remain private',async()=>{
  let remote=0;const sql=async()=>[cfg];const blob={async get(){remote++;throw new Error('UPSTREAM TOKEN secret');}};
- for(const change of [{APP_ENVIRONMENT:'production'},{MEDIA_PRIVATE_STORE_ID:'store_Other'},{VERCEL_OIDC_TOKEN:''},{VERCEL_PROJECT_ID:'wrong'},{BLOB_READ_WRITE_TOKEN:'static-fallback'}])
+ for(const change of [{APP_ENVIRONMENT:'production'},{MEDIA_PRIVATE_STORE_ID:'store_Other'},{VERCEL_PROJECT_ID:'wrong'},{BLOB_READ_WRITE_TOKEN:'static-fallback'}])
   await assert.rejects(createMediaStorage({sql,env:{...env,...change},blob}).readPrivateObject({...object,state:'written'}),e=>e.message==='media.unavailable');
  assert.equal(remote,0);
  const storage=createMediaStorage({sql,env,blob});

@@ -13,7 +13,7 @@ export default function SchoolBranding({school,onBack,onSaved,onAgreements,sessi
   const [notice,setNotice]=useState(''),[error,setError]=useState(''),[mode,setMode]=useState('');
   const dialog=useRef(null);
   useEffect(()=>{if(source.data?.schoolId){setRecord(source.data);setForm(source.data.details);}},[source.data]);
-  useEffect(()=>{if(mode)dialog.current?.showModal();else dialog.current?.close();},[mode]);
+  useEffect(()=>{if(mode){dialog.current?.showModal();dialog.current?.querySelector('h2')?.focus({preventScroll:true});if(dialog.current)dialog.current.scrollTop=0;}else dialog.current?.close();},[mode]);
   const dirty=Boolean(form&&record&&JSON.stringify(form)!==JSON.stringify(record.details));
   useEffect(()=>{if(!dirty)return;const warn=event=>{event.preventDefault();event.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   if(source.loading&&!record)return <Loading/>;
@@ -88,7 +88,7 @@ export default function SchoolBranding({school,onBack,onSaved,onAgreements,sessi
         <Button onClick={()=>setMode('preview')}>{t('branding.preview')}</Button></aside>
     </div>
     <dialog ref={dialog} className="branding-review-dialog" aria-labelledby="branding-review-title" onCancel={event=>{event.preventDefault();if(!busy)setMode('');}}>
-      <h2 id="branding-review-title">{t(mode==='publish'?'branding.publishReview':mode==='reset'?'branding.reset':'branding.preview')}</h2>
+      <h2 id="branding-review-title" tabIndex={-1}>{t(mode==='publish'?'branding.publishReview':mode==='reset'?'branding.reset':'branding.preview')}</h2>
       {mode==='reset'?<p>{t('branding.resetReview')}</p>:<>
         {mode==='publish'&&<p>{t('branding.publishHelp')}</p>}
         <SchoolPresentation data={mode==='publish'?record.preview:preview} privatePreview/>

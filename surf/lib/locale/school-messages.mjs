@@ -1,5 +1,6 @@
 // B5 private-school setup. School-authored content stays in its original language.
 const messages = {
+ 'school.published': ['Published', 'Publicada', 'Publicada', 'Publiée'],
  'school.requiredHelp':['Only school name and timezone are required to save a draft.','Só o nome e o fuso horário são obrigatórios para guardar um rascunho.','Solo el nombre y la zona horaria son obligatorios para guardar un borrador.','Seuls le nom et le fuseau horaire sont obligatoires pour enregistrer un brouillon.'],
  'school.invalidTimezone':['Choose a valid timezone, for example Europe/Lisbon.','Escolha um fuso horário válido, por exemplo Europe/Lisbon.','Elige una zona horaria válida, por ejemplo Europe/Lisbon.','Choisissez un fuseau horaire valide, par exemple Europe/Lisbon.'],
  'school.invalidName':['Enter a school name with at least one letter from A to Z or a number.','Introduza um nome com pelo menos uma letra de A a Z ou um número.','Introduce un nombre con al menos una letra de A a Z o un número.','Saisissez un nom avec au moins une lettre de A à Z ou un chiffre.'],

@@ -101,7 +101,7 @@
 @media(max-width:600px) {
  .school-base-map { height:280px; }
  .school-map-tools .button { flex:1 1 140px; }
- .school-map-tools .button:first-child,.school-map-tools .button:nth-child(2) { flex:0 0 44px; }
+ .school-map-tools .button.school-map-zoom { flex:0 0 44px; }
  .school-lookup-control,.school-map-disclosure { justify-items:stretch; }
  .school-lookup-control .button { width:100%; }
 }
