@@ -20,6 +20,11 @@
 .account-shell .auth-form .field small { min-block-size: 2lh; }
 .legal-tools { display: grid; grid-template-columns: minmax(0, 340px) 150px; justify-content: space-between; align-items: start; }
 .legal-tools > .legal-menu { width: 100%; min-width: 0; }
+.legal-tools .legal-menu > summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.legal-tools .legal-menu > summary::-webkit-details-marker { display: none; }
+.legal-tools .legal-menu > summary::marker { content: ''; }
+.legal-tools .legal-menu > summary::after { content: ''; width: 8px; height: 8px; flex: 0 0 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); margin-inline: 2px; }
+.legal-tools .legal-menu[open] > summary::after { transform: rotate(225deg); }
 .legal-tools > a { width: 150px; min-block-size: 50px; display: flex; align-items: center; justify-content: flex-end; }
 @media (max-width: 800px) {
   .legal-tools { grid-template-columns: minmax(0, 1fr) 120px; align-items: center; }
