@@ -11,6 +11,7 @@ import PrivacyAgreements from "../components/workspace/privacy-agreements";
 import { withSchool, schoolAccess } from "../lib/school-access.mjs";
 import People from "../components/workspace/people";
 import SchoolSetup from "../components/workspace/school-setup";
+import ProfilePhoto from "../components/workspace/profile-photo";
 import {
   Avatar,
   Brand,
@@ -490,6 +491,7 @@ function Profile({ session, onEdit, onLogoutAll, loggingOut, onSaved }) {
         <Button onClick={() => setEdit(null)} disabled={busy}>{t('Cancel')}</Button>
       </form>}
       <Message success={notice === 'account.profileSaved'}>{notice && t(notice)}</Message>
+      {!session.demo&&<ProfilePhoto session={session} onSaved={onSaved}/>}
       <section className="surface padded">
         <div className="account-summary">
           <Avatar person={session} />

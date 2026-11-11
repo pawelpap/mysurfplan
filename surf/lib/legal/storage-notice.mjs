@@ -2,6 +2,7 @@ import { storageTranslations } from "./storage-translations.mjs";
 import { storagePreviewContent, storagePreviewVersion } from "./storage-preview.mjs";
 import { legalStagingProjectId } from "./contracts.mjs";
 import { invitationStorageVersion, invitationStorageSections } from "./storage-invitations.mjs";
+import { b5LegalVersion, b5ResourceSections, b5OldResourceSentence, b5NewResourceSentence } from './b5-school-sections.mjs';
 
 export function isStorageStagingPreview(host, projectId) {
   return host === 'staging.mywaveplan.com' && projectId === legalStagingProjectId;
@@ -60,7 +61,13 @@ export function getStorageNotice(version, locale = 'en-GB', { preview = false } 
     return locale === previousStorageNotice.language ? previousStorageNotice : null;
   const translation = storageTranslations[locale];
   const current = translation ? { ...storageNotice, ...translation, language: locale } : storageNotice;
-  if (!version || version === invitationStorageVersion) {
+  if (!version || version === b5LegalVersion) {
+    const previous = storagePreviewContent[current.language] + '\n\n' + invitationStorageSections[current.language];
+    return { ...current, version: b5LegalVersion,
+      ...(preview ? { status: 'staging_preview' } : {}),
+      content: previous.replace(b5OldResourceSentence[current.language], b5NewResourceSentence[current.language]) + '\n\n' + b5ResourceSections[current.language] };
+  }
+  if (version === invitationStorageVersion) {
     return { ...current, version: invitationStorageVersion,
       ...(preview ? { status: 'staging_preview' } : {}),
       content: storagePreviewContent[current.language] + '\n\n' + invitationStorageSections[current.language] };

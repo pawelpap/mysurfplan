@@ -18,6 +18,14 @@ const env = { APP_ENVIRONMENT: 'staging', EMAIL_ENABLED: 'true', VERCEL_ENV: 'pr
 const config = emailConfig(env);
 const job = { id: randomUUID(), type: 'email.delivery_check', schema_version: 1, attempts: 0 };
 
+test('temporary B5 recipients extend the staging allowlist only and preserve its original entries',()=>{
+ const added='ppaplin+b5-owner@gmail.com,ppaplin+b5-recipient@gmail.com';
+ assert.deepEqual(emailConfig({...env,EMAIL_B5_TEST_RECIPIENTS:added}).allowlist,['owner@example.com',...added.split(',')]);
+ for(const value of ['bad',added+',third@example.com'])assert.throws(()=>emailConfig({...env,EMAIL_B5_TEST_RECIPIENTS:value}));
+ assert.throws(()=>emailConfig({...env,APP_ENVIRONMENT:'production',VERCEL_PROJECT_ID:PROJECTS.production,EMAIL_FROM:'support@mywaveplan.com',EMAIL_B5_TEST_RECIPIENTS:added}),/email_test_recipient_environment_invalid/);
+ assert.throws(()=>emailConfig({...env,EMAIL_TEST_RECIPIENTS:'',EMAIL_B5_TEST_RECIPIENTS:added}),/email_allowlist_required/);
+});
+
 test('email defaults off and explicit project/target/isolation/budgets are required', () => {
   assert.equal(emailConfig({}).enabled, false);
   for (const patch of [{ APP_ENVIRONMENT:'production' }, { VERCEL_ENV:'preview' }, { VERCEL_PROJECT_ID:PROJECTS.production },
@@ -113,7 +121,7 @@ test('worker cannot send outside allowlist and handles unknown send without retr
 });
 test('disabled or unauthorised HTTP routes do not load the database', async () => {
   for (const kind of ['worker','events','operations']) for (const enabled of [false,true]) {
-    const handler=emailHandler(kind,()=>{throw Error('database must not be loaded');},enabled?env:{});
+    const handler=emailHandler(kind,()=>{throw Error('database must not be loaded');},enabled?env:{},()=>{throw Error('maintenance must not run before worker authorisation');});
     const res={setHeader(){},status(value){this.code=value;return this;},json(value){this.body=value;}};
     await handler({method:kind==='events'?'POST':'GET',headers:{},body:{}},res);
     assert.equal(res.code,enabled?401:503);

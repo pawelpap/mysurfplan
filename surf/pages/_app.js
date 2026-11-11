@@ -6,6 +6,8 @@ import "../styles/conditions.css";
 import "../styles/team.css";
 import "../styles/locale-layout.css";
 import "../styles/school-setup.css";
+import "leaflet/dist/leaflet.css";
+import "../styles/school-branding.css";
 import { LocaleProvider } from "../components/locale";
 import { ThemeProvider } from "../components/theme";
 import { SpotLocationProvider } from "../components/spot-select";

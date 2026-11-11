@@ -97,7 +97,7 @@ function response() {
 }
 
 test("public lesson filters use the Neon parameterised query API", async () => {
-  const sql = async () => [{ id: schoolId }];
+  const sql = async () => [{ id: schoolId,operational:true }];
   let queried = false;
   sql.query = async (text, values) => {
     queried = true;
@@ -127,6 +127,14 @@ test("public lesson filters use the Neon parameterised query API", async () => {
   );
   assert.equal(res.statusCode, 200);
   assert(queried);
+});
+
+test('a published presentation without pilot access exposes no lesson or booking details',async()=>{
+  const sql=async()=>[{id:schoolId,operational:false}];
+  sql.query=async()=>{assert.fail('A non-operational school must not read lesson details');};
+  const handler=await loadHandler('public/lessons.js',sql),res=response();
+  await handler({method:'GET',query:{school:schoolId}},res);
+  assert.equal(res.statusCode,200);assert.deepEqual(res.body,{ok:true,data:[]});
 });
 
 test("school edits bind arbitrary text as values through the Neon query API", async () => {

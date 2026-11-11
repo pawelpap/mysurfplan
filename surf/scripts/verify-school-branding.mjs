@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import { randomUUID,createHash } from 'node:crypto';
+
+export async function verifySchoolBranding(client,{returnFixture=false}={}){
+ const checks=[],prefix='b5-brand-'+randomUUID();
+ const row=async(q,p=[])=> (await client.query(q,p)).rows[0];
+ const value=async(q,p=[])=>Object.values(await row(q,p))[0];
+ async function denied(q,p,code){await client.query('SAVEPOINT branding_denial');try{await client.query(q,p);assert.fail('Expected denial');}catch(e){assert.equal(e.code,code,e.message);}finally{await client.query('ROLLBACK TO SAVEPOINT branding_denial');}}
+ const person=async(label)=>value("INSERT INTO users(name,email,role,email_verified_at) VALUES($1,$2,'student',now()) RETURNING id",[label,prefix+label+'@example.invalid']);
+ const owner=await person('owner'),stranger=await person('stranger');
+ const details={name:prefix,description:'First public description',timezone:'Europe/Lisbon',contactEmail:'school@example.invalid',contactPhone:'',website:'',socialLinks:[],operatingSpotIds:[]};
+ const created=await value('SELECT create_draft_school($1,$2,$3::jsonb)',[owner,randomUUID(),details]),school=created.data.id;
+ const empty={accent:'sea',logoAssetId:null,logoAlt:'',coverAssetId:null,coverAlt:'',gallery:[]};
+ assert.equal(await value('SELECT count(*)::int FROM school_branding_drafts WHERE school_id=$1',[school]),1);
+ await denied('SELECT save_school_branding($1,$2,1,1,$3)',[stranger,school,empty],'42501');
+ await denied('SELECT save_school_branding($1,$2,1,1,$3)',[owner,school,{...empty,accent:null}],'22023');
+ await denied('SELECT save_school_branding($1,$2,1,1,$3)',[owner,school,{...empty,owner:stranger}],'22023');
+ const saved=await value('SELECT save_school_branding($1,$2,1,1,$3)',[owner,school,empty]);assert.equal(saved.revision,2);
+ assert.equal(await value('SELECT published_branding_version_id FROM schools WHERE id=$1',[school]),null);
+ checks.push('owner-only strict draft save; no publication or pilot activation');
+ await client.query("UPDATE school_base_locations SET has_fixed_base=true,address='PRIVATE HOME TEST',latitude=38.7,longitude=-9.1,public_visible=false WHERE school_id=$1",[school]);
+ const preview=await value('SELECT school_public_snapshot($1,$2)',[school,empty]);assert.equal(preview.baseLocation,null);
+ const request=randomUUID(),intent=await value('SELECT begin_school_publication($1,$2,2,1,$3)',[owner,school,request]);
+ const replay=await value('SELECT begin_school_publication($1,$2,2,1,$3)',[owner,school,request]);assert.equal(replay.id,intent.id);
+ await denied('SELECT begin_school_publication($1,$2,2,2,$3)',[owner,school,request],'23514');
+ const published=await value('SELECT finish_school_publication($1,$2)',[owner,intent.id]);assert.equal(published.publishedVersion,1);
+ assert.equal(await value('SELECT pilot_access_status FROM schools WHERE id=$1',[school]),'pending');
+ assert.equal(await value('SELECT workspace_status FROM schools WHERE id=$1',[school]),'draft');
+ const original=await value('SELECT snapshot FROM school_branding_versions WHERE id=$1',[intent.id]);assert.equal(original.baseLocation,null);
+ await client.query("UPDATE schools SET description='Private next edit',settings_revision=settings_revision+1 WHERE id=$1",[school]);
+ assert.deepEqual(await value('SELECT snapshot FROM school_branding_versions WHERE id=$1',[intent.id]),original);
+ await denied('UPDATE school_branding_versions SET snapshot=$1 WHERE id=$2',[{name:'forged'},intent.id],'23514');
+ await denied('SELECT save_school_branding($1,$2,2,1,$3)',[owner,school,empty],'40001');
+ checks.push('publication retry, immutable full snapshot, private base exclusion and independent pilot gate');
+ await value('SELECT save_school_branding($1,$2,2,2,$3)',[owner,school,{...empty,accent:'clay'}]);
+ const stale=await value('SELECT begin_school_publication($1,$2,3,2,$3)',[owner,school,randomUUID()]);
+ await value('SELECT save_school_branding($1,$2,3,2,$3)',[owner,school,empty]);
+ await denied('SELECT finish_school_publication($1,$2)',[owner,stale.id],'40001');
+ await client.query('SELECT abort_school_publication($1,$2)',[owner,stale.id]);
+ assert.equal(await value('SELECT published_branding_version_id FROM schools WHERE id=$1',[school]),intent.id);
+ checks.push('stale publish and saved reset retain the prior public pointer');
+ // A fully journalled synthetic logo proves ownership, pins and public-copy requirements.
+ const sourceHash=createHash('sha256').update('synthetic').digest('hex');
+ const reserved=await value('SELECT reserve_media_upload($1,$2,$3,$4,$5,$5,NULL)',[owner,school,'logo',randomUUID(),sourceHash]);
+ const variants=['master','w128','w512'].map(role=>({role,byteCount:100,checksum:sourceHash,width:64,height:64}));
+ const privateObjects=await value('SELECT journal_media_objects($1,$2,$3)',[owner,reserved.id,JSON.stringify(variants)]);
+ await client.query("UPDATE media_objects SET state='written' WHERE id=ANY($1::uuid[])",[privateObjects.map(o=>o.id)]);
+ await client.query('SELECT finish_media_asset($1,$2,64,64)',[owner,reserved.id]);
+ const withLogo={...empty,logoAssetId:reserved.id,logoAlt:'School logo'};
+ await value('SELECT save_school_branding($1,$2,4,2,$3)',[owner,school,withLogo]);
+ const imageIntent=await value('SELECT begin_school_publication($1,$2,5,2,$3)',[owner,school,randomUUID()]);
+ await denied('SELECT finish_school_publication($1,$2)',[owner,imageIntent.id],'23514');
+ const publicObjects=await value("SELECT journal_media_objects($1,$2,$3,'public',$4)",[owner,reserved.id,JSON.stringify(variants.filter(v=>v.role!=='master')),imageIntent.id]);
+ await client.query("UPDATE media_objects SET state='written' WHERE id=ANY($1::uuid[])",[publicObjects.map(o=>o.id)]);
+ const second=await value('SELECT finish_school_publication($1,$2)',[owner,imageIntent.id]);assert.equal(second.publishedVersion,2);
+ assert.equal(await value("SELECT count(*)::int FROM media_asset_references WHERE asset_id=$1 AND kind='publish_intent'",[reserved.id]),0);
+ assert.equal(await value("SELECT count(*)::int FROM media_asset_references WHERE asset_id=$1 AND kind='school_publication'",[reserved.id]),1);
+ await value('SELECT save_school_branding($1,$2,5,2,$3)',[owner,school,empty]);
+ assert.equal(await value("SELECT count(*)::int FROM media_asset_references WHERE asset_id=$1 AND kind='school_publication'",[reserved.id]),1);
+ await client.query('INSERT INTO school_branding_version_pins(version_id,reference_id) VALUES($1,$2)',[imageIntent.id,randomUUID()]);
+ checks.push('owned ready assets, two verified public derivatives and publication pins survive draft removal');
+ return returnFixture?{checks,fixture:{users:[owner,stranger],owner,school,assetId:reserved.id,settingsRevision:2,revision:6,withLogo}}:checks;
+}

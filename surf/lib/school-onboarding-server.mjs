@@ -25,8 +25,8 @@ export function schoolOnboardingHandler({ sql, requireAuth }) {
         : await sql`SELECT update_school_settings(${session.userId}::uuid,${body.id}::uuid,${body.revision}::integer,${details}::jsonb) AS result`;
       return res.status(create && !row.result.replayed ? 201 : 200).json({ ok: true, data: row.result.data, replayed: row.result.replayed || false });
     } catch (error) {
-      const status = error instanceof SchoolInputError ? 400 : ({ '42501': 403, '22023': 400, '23514': 409, '23505': 409, 'P0002': 404, '40001': 409, '40P01': 409 })[error?.code] || 503;
-      const code = error instanceof SchoolInputError ? error.message : status === 403 ? 'schoolSetup.forbidden' : status === 409 ? 'schoolSetup.conflict' : status === 400 ? 'schoolSetup.invalidInput' : 'schoolSetup.unavailable';
+      const status = error instanceof SchoolInputError ? 400 : ({ '42501': 403, '22023': 400, '23514': 409, '23505': 409, 'P0002': 404, 'P0004': 409, '40001': 409, '40P01': 409 })[error?.code] || 503;
+      const code = error instanceof SchoolInputError ? error.message : error?.code === 'P0004' ? 'schoolLocation.spotInUse' : status === 403 ? 'schoolSetup.forbidden' : status === 409 ? 'schoolSetup.conflict' : status === 400 ? 'schoolSetup.invalidInput' : 'schoolSetup.unavailable';
       return res.status(status).json({ ok: false, error: code });
     }
   };

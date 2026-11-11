@@ -2,7 +2,7 @@ import { sql } from "./db";
 import { normalizeEmail, normalizePhone } from "./passwords.mjs";
 export { hashPassword, normalizeEmail, normalizePhone, validatePassword, verifyPassword } from "./passwords.mjs";
 import { createSessionCodec } from "./auth-session.mjs";
-import { createSessionStore, validSessionToken } from "./auth-store.mjs";
+import { createSessionStore, validSessionToken, sessionTokenHash } from "./auth-store.mjs";
 import { isLocale } from "./locale/preferences.mjs";
 import { requireMutation } from "./request-security.mjs";
 import { isPlatformAdmin, schoolAccess, withSchool } from "./school-access.mjs";
@@ -14,6 +14,10 @@ const sessionCodec = createSessionCodec({
 });
 const sessionStore = createSessionStore(sql);
 const requestSessions = new WeakMap();
+export function authenticatedSessionHash(req) {
+  const cookie=sessionCodec.read(req.headers?.cookie);
+  return validSessionToken(cookie?.sid)?sessionTokenHash(cookie.sid):null;
+}
 const ROLES = new Set([
   "admin",
   "platform_admin",
@@ -133,8 +137,9 @@ async function userSessionPayload(user) {
   const name = typeof user?.name === "string" ? user.name.trim() : "";
   const familyName =
     typeof user?.family_name === "string" ? user.family_name.trim() : "";
-  const photoUrl =
-    typeof user?.photo_url === "string" ? user.photo_url.trim() : "";
+  const photoUrl = user.photo_mode === 'uploaded' && user.photo_asset_id
+    ? `/api/media/${user.photo_asset_id}?variant=w384`
+    : user.photo_mode === 'none' ? '' : typeof user?.photo_url === "string" ? user.photo_url.trim() : "";
   const description =
     typeof user?.description === "string" ? user.description.trim() : "";
   const payload = {
@@ -150,6 +155,8 @@ async function userSessionPayload(user) {
     name: name || null,
     familyName: familyName || null,
     photoUrl: photoUrl || null,
+    photoMode: user.photo_mode || 'legacy',
+    photoRevision: user.photo_revision || 1,
     description: description || null,
     phone: normalizePhone(user.phone) || null,
     studentEmail: role === "student" ? email || null : null,

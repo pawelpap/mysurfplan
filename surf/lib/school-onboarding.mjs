@@ -1,6 +1,6 @@
 import { isUuid } from './school-access.mjs';
 
-const fields = ['name', 'description', 'timezone', 'contactEmail', 'contactPhone', 'website', 'socialLinks', 'operatingSpotIds'];
+const fields = ['name', 'description', 'timezone', 'contactEmail', 'contactPhone', 'website', 'socialLinks', 'operatingSpotIds', 'baseLocation'];
 export class SchoolInputError extends Error {
   constructor(code = 'schoolSetup.invalidInput') { super(code); this.code = code; }
 }
@@ -19,6 +19,21 @@ function webUrl(value) {
   try { url = new URL(result); } catch { invalid(); }
   if (url.protocol !== 'https:' || !url.hostname || url.username || url.password) invalid();
   return url.href;
+}
+export function schoolBaseLocationInput(value) {
+  const invalidBase=()=>{throw new SchoolInputError('schoolLocation.invalid');};
+  if (value === undefined) return { hasFixedBase: false, address: '', latitude: null, longitude: null, publicVisible: false };
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      Object.keys(value).some(key => !['hasFixedBase','address','latitude','longitude','publicVisible'].includes(key)) ||
+      typeof value.hasFixedBase !== 'boolean' || typeof value.publicVisible !== 'boolean') invalidBase();
+  const address = text(value.address, 400);
+  if (/[\r\n\t]/.test(address)) invalidBase();
+  const { latitude, longitude, hasFixedBase, publicVisible } = value;
+  if ((latitude === null) !== (longitude === null) ||
+      (latitude !== null && (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180))) invalidBase();
+  if (!hasFixedBase && (address || latitude !== null || longitude !== null || publicVisible)) invalidBase();
+  if (publicVisible && (!hasFixedBase || latitude === null)) invalidBase();
+  return { hasFixedBase, address, latitude, longitude, publicVisible };
 }
 // Full replacement keeps both revision checks and request fingerprints unambiguous.
 export function schoolSettingsInput(body, operation) {
@@ -43,5 +58,6 @@ export function schoolSettingsInput(body, operation) {
   return {
     name, description: text(body.description, 5000), timezone, contactEmail, contactPhone,
     website: webUrl(body.website), socialLinks, operatingSpotIds,
+    ...(operation === 'create' || body.baseLocation !== undefined ? { baseLocation: schoolBaseLocationInput(body.baseLocation) } : {}),
   };
 }

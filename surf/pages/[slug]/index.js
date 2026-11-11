@@ -18,18 +18,21 @@ import {
 import { dateKey } from "../../lib/conditions/model.mjs";
 import { levels, lessonStatus } from "../../lib/lesson-input.mjs";
 import { ThemeSelector } from "../../components/theme";
+import SchoolPresentation from "../../components/workspace/school-presentation";
 
 export default function PublicSchedule() {
   const { locale, t } = useLocale();
   const router = useRouter();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const schools = useData(slug ? "/api/schools?public=1" : null);
+  const branding = useData(slug ? `/api/public/school-branding?school=${encodeURIComponent(slug)}` : null);
   const source = useData(
     slug ? `/api/public/lessons?school=${encodeURIComponent(slug)}` : null,
   );
   const [date, setDate] = useState("");
   const [level, setLevel] = useState("");
-  const school = schools.data.find((s) => s.slug === slug);
+  const published=branding.data?.schoolId?branding.data:null;
+  const school = published||schools.data.find((s) => s.slug === slug);
   const filtered = source.data.filter(
     (l) =>
       lessonStatus(l) !== "Past" &&
@@ -62,8 +65,9 @@ export default function PublicSchedule() {
         </div>
       </header>
       <main className="public-main" lang={locale}>
+        {published&&<SchoolPresentation data={published}/>}
         <PageHeading
-          title={school?.name || t("School schedule")}
+          title={published?t("School schedule"):school?.name || t("School schedule")}
           description={t("Find your next surf lesson. Choose a session to review the details and book.")}
         />
         <div className="toolbar">

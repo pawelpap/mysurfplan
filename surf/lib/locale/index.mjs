@@ -1,4 +1,7 @@
 import { schoolMessages } from "./school-messages.mjs";
+import { schoolLocationMessages } from "./school-location-messages.mjs";
+import { brandingMessages } from "./branding-messages.mjs";
+import { pilotMessages } from "./pilot-messages.mjs";
 import { invitationMessages } from "./invitation-messages.mjs";
 import { accountMessages } from "./account-messages.mjs";
 import { appMessages } from "./app-messages.mjs";
@@ -13,6 +16,9 @@ export function createLocale(preferredLocale) {
   const account = accountMessages[locale];
   const invitation = invitationMessages[locale];
   const school = schoolMessages[locale];
+  const location = schoolLocationMessages[locale];
+  const branding = brandingMessages[locale];
+  const pilot = pilotMessages[locale];
   const numberFormats = new Map();
   return {
     locale,
@@ -21,6 +27,9 @@ export function createLocale(preferredLocale) {
       const message = (Object.hasOwn(catalogue, key) && catalogue[key]) ||
         (Object.hasOwn(account, key) && account[key]) ||
         (Object.hasOwn(school, key) && school[key]) ||
+        (Object.hasOwn(location, key) && location[key]) ||
+        (Object.hasOwn(branding, key) && branding[key]) ||
+        (Object.hasOwn(pilot, key) && pilot[key]) ||
         (Object.hasOwn(invitation, key) && invitation[key]) ||
         (Object.hasOwn(app, key) && app[key]) ||
         (Object.hasOwn(fallback, key) && fallback[key]) || key;

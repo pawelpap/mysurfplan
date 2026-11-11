@@ -9,9 +9,10 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       if (req.query.public === '1') {
         res.setHeader('Cache-Control', 'no-store');
-        const rows = await sql`SELECT id,name,slug FROM schools s
+        const rows = await sql`SELECT s.id,COALESCE(v.snapshot->>'name',s.name) AS name,COALESCE(v.snapshot->>'slug',s.slug) AS slug
+          FROM schools s LEFT JOIN school_branding_versions v ON v.id=s.published_branding_version_id AND v.school_id=s.id
           WHERE school_is_operational(s) AND (workspace_kind='legacy' OR listing_status='published')
-          ORDER BY name,id`;
+          ORDER BY name,s.id`;
         return res.status(200).json({ ok: true, data: rows });
       }
       const session = await requireAuth(req, res);
@@ -70,7 +71,7 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'GET,POST,DELETE');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   } catch (err) {
-    console.error('schools api error:', err);
+    console.error('school_operation_unavailable', {code:err?.code});
     return res.status(500).json({ ok: false, error: 'Could not load or update schools. Please try again.' });
   }
 }

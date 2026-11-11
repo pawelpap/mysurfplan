@@ -35,8 +35,12 @@ export function emailConfig(env = process.env) {
   }
   if (!/^[0-9a-f]{64}$/i.test(env.EMAIL_PAYLOAD_KEY) || !/^[a-z0-9_-]{1,24}$/i.test(env.EMAIL_PAYLOAD_KEY_ID || ''))
     throw new Error('email_key_invalid');
-  const allowlist = (env.EMAIL_TEST_RECIPIENTS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-  if (!allowlist.length || allowlist.length > 5 || allowlist.some(s => !validEmail(s)))
+  const baseAllowlist = (env.EMAIL_TEST_RECIPIENTS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const taskRecipients=(env.EMAIL_B5_TEST_RECIPIENTS||'').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  if(taskRecipients.length&&(environment!=='staging'||taskRecipients.length>2||taskRecipients.some(s=>!validEmail(s))))
+    throw new Error('email_test_recipient_environment_invalid');
+  const allowlist=[...new Set([...baseAllowlist,...taskRecipients])];
+  if (!baseAllowlist.length || baseAllowlist.length > 5 || baseAllowlist.some(s => !validEmail(s)))
     throw new Error('email_allowlist_required');
   const from = env.EMAIL_FROM;
   if (!validEmail(from) || !from.endsWith(environment === 'production' ? '@mywaveplan.com' : '@staging-mail.mywaveplan.com'))

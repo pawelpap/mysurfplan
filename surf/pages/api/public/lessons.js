@@ -40,14 +40,22 @@ export default async function handler(req, res) {
         school,
       );
     const byId = isUuid
-      ? await sql`SELECT id FROM schools s WHERE id = ${school} AND school_is_operational(s) AND (workspace_kind='legacy' OR listing_status='published')`
+      ? await sql`SELECT s.id,school_is_operational(s) AS operational FROM schools s WHERE s.id = ${school}
+        AND s.deleted_at IS NULL AND s.workspace_status NOT IN ('closed','suspended')
+        AND ((school_is_operational(s) AND s.workspace_kind='legacy') OR (s.listing_status='published' AND s.published_branding_version_id IS NOT NULL))`
       : [];
     const bySlug = byId.length
       ? []
-      : await sql`SELECT id FROM schools s WHERE slug = ${school} AND school_is_operational(s) AND (workspace_kind='legacy' OR listing_status='published')`;
-    const schoolId = byId[0]?.id || bySlug[0]?.id;
+      : await sql`SELECT s.id,school_is_operational(s) AS operational FROM schools s
+        LEFT JOIN school_branding_versions v ON v.id=s.published_branding_version_id AND v.school_id=s.id
+        WHERE COALESCE(v.snapshot->>'slug',s.slug)=${school} AND s.deleted_at IS NULL
+        AND s.workspace_status NOT IN ('closed','suspended') AND
+        ((school_is_operational(s) AND s.workspace_kind='legacy') OR (s.listing_status='published' AND s.published_branding_version_id IS NOT NULL))`;
+    const selectedSchool=byId[0]||bySlug[0];
+    const schoolId = selectedSchool?.id;
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
+    if(!selectedSchool.operational)return res.status(200).json({ok:true,data:[]});
 
     const params = [];
     let where = `WHERE l.school_id = $1 AND l.deleted_at IS NULL AND l.start_at > now()`;
@@ -107,7 +115,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ ok: true, data });
   } catch (err) {
-    console.error("public lessons api error:", err);
+    console.error("public_lessons_unavailable", {code:err?.code});
     return res
       .status(500)
       .json({ ok: false, error: "Could not load lessons. Please try again." });
