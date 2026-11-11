@@ -20,9 +20,12 @@ function fontStyles(staging) {
 // public, static image shared by every message, with no recipient/job URL data.
 // Tracking remains disabled in the provider adapter. Copy is escaped, never HTML.
 export function supportEmail({ title, paragraphs, staging = false, action, afterAction, language = 'en-GB' }) {
+  const privacyLabels = { 'en-GB': 'Privacy notice', 'pt-PT': 'Aviso de privacidade', es: 'Aviso de privacidad', fr: 'Avis de confidentialité' };
+  const privacyLocale = Object.hasOwn(privacyLabels, language) ? language : 'en-GB';
+  const privacyUrl = `https://mywaveplan.com/legal/privacy?language=${privacyLocale}`;
   const heading = `${staging ? '[Staging] ' : ''}${title}`;
   const buttonText = action ? `\n\n${action.label}\n${action.url}` : '';
-  const text = `MyWavePlan\n\n${heading}\n\n${paragraphs.join('\n\n')}${buttonText}${afterAction ? '\n\n' + afterAction : ''}\n\nMyWavePlan Support Team\nsupport@mywaveplan.com\nhttps://mywaveplan.com`;
+  const text = `MyWavePlan\n\n${heading}\n\n${paragraphs.join('\n\n')}${buttonText}${afterAction ? '\n\n' + afterAction : ''}\n\nMyWavePlan Support Team\nsupport@mywaveplan.com\nhttps://mywaveplan.com\n${privacyLabels[privacyLocale]}\n${privacyUrl}`;
   const html = `<!doctype html><html lang="${escape(language)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(heading)}</title>${fontStyles(staging)}<style>@media(max-width:380px){.email-content{padding-left:20px!important;padding-right:20px!important}}</style></head>
 <body style="margin:0;padding:0;background-color:#f2f6f6;color:#193139;font-family:${fontFamily}">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f2f6f6"><tr><td align="center" style="padding:28px 12px">
@@ -43,7 +46,8 @@ ${afterAction ? `<p style="margin:20px 0 0;font-family:${fontFamily};font-size:1
 <tr><td class="email-content" style="padding:22px 28px;border-top:1px solid #e1eaeb;background-color:#f8fafa;color:#435b63;font-family:${fontFamily};font-size:14px;line-height:1.7">
 <strong style="color:#193139;font-family:${fontFamily};font-weight:700">MyWavePlan Support Team</strong><br>
 <a href="mailto:support@mywaveplan.com" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">support@mywaveplan.com</a><br>
-<a href="https://mywaveplan.com" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">mywaveplan.com</a>
+<a href="https://mywaveplan.com" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">mywaveplan.com</a><br>
+<a href="${privacyUrl}" style="color:#0d6e7d;font-family:${fontFamily};text-decoration:none">${privacyLabels[privacyLocale]}</a>
 </td></tr></table></td></tr></table></body></html>`;
   return { text, html };
 }

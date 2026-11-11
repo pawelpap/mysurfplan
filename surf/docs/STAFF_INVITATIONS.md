@@ -22,7 +22,7 @@ Expired invitations are marked in bounded batches. Invitation recipient/token re
 
 ## Verification and release
 
-Run `npm test`, `npm run build`, the endpoint-pinned migration runner and the rehearsal-only race suite. The runner permits rehearsal and staging only and verifies checksums, deployed prerequisites and existing-data fingerprints. The two historical locale changes are verified structurally on staging because their rollout did not add ledger rows; the runner does not invent those records.
+Run `npm test`, `npm run build`, the endpoint-pinned migration runner and the rehearsal-only race suite. The runner verifies checksums, deployed prerequisites and existing-data fingerprints. Production requires the explicit --production-approved release flag. The two historical locale changes are verified structurally on staging because their rollout did not add ledger rows; the runner does not invent those records.
 
 ```sh
 node scripts/migrate-staff-invitations.mjs rehearsal --rehearse
@@ -40,6 +40,8 @@ Staging testing uses exact disposable fixture IDs and a designated test inbox. R
 
 The existing school-record disclosures cover school-supplied contact details and role links. B4 adds invitation delivery through the already configured Mailjet service, school access audit records and necessary tab storage. The versioned browser-storage notice is updated to 2026-11-11.1 in all four languages; historical versions remain available unchanged.
 
-The current account-email privacy paragraph describes registration and recovery, and the school-processing agreement is not published. Before using B4 with real school staff in production, update and approve the relevant privacy/provider and school-processing text for school-directed invitation email, the invitation lifecycle and audit evidence. Staging checks use synthetic schools/accounts and the owner's designated test inbox. This review records the remaining publication work; it does not declare the app legally approved or a broader pilot complete.
+B4 requires publication and verification of privacy notice and browser-storage notice version 2026-11-11.1 in all four languages. The privacy update covers school-directed invitations, application cleanup, provider retention and access history. Terms remain unchanged. This release remains limited to operator-controlled school access. Before independent schools are onboarded through B5, publish the school-processing agreement and record acceptance by an authorised school representative. This review checks implementation and disclosure consistency; it does not establish legal approval or completion of broader school onboarding.
+
+The shared service-email footer includes a language-specific link to the published privacy notice in HTML and plain text. Open/click tracking remains disabled. The [Mailjet sending policy](https://www.mailjet.com/legal/sending-policy/) requires the privacy link. The [Send API documentation](https://dev.mailjet.com/docs/email-api/send-api-v31/send-basic-email) describes automatic recipient contacts, and the [provider retention record](https://documentation.mailjet.com/hc/en-us/articles/360042755094-How-long-are-my-statistics-kept) distinguishes provider contacts/statistics from application cleanup. Existing-account addresses and provider records are not removed by the invitation cleanup.
 
 The additional visual acceptance check compares live language changes in English, European Portuguese, Spanish and French on desktop and mobile. Shared controls and text slots reserve room for the enabled translations while keeping all text visible. This must pass before the staging deployment.

@@ -5,8 +5,9 @@ import { connect, fingerprint } from './membership-migration-support.mjs';
 import { verifyStaffInvitations } from './verify-staff-invitations.mjs';
 import { verifyInvitationRetention } from './verify-invitation-retention.mjs';
 
-const [environment, action = '--audit'] = process.argv.slice(2);
-assert(['rehearsal', 'staging'].includes(environment), 'This runner is limited to rehearsal and staging');
+const [environment, action = '--audit', ...flags] = process.argv.slice(2);
+assert(['rehearsal', 'staging', 'production'].includes(environment), 'Specify the target environment');
+assert(environment !== 'production' || flags.includes('--production-approved'), 'Production requires explicit release approval');
 assert(['--audit', '--rehearse', '--apply'].includes(action));
 const client = await connect(environment);
 const id = '20261111_staff_invitations';
@@ -32,13 +33,13 @@ try {
     if (prior) { assert.equal(prior.checksum, checksum, `Checksum mismatch: ${migration}`); continue; }
     // The November locale rollout predates ledger entries for its two files.
     // Verify the deployed structure without replaying DDL or inventing history.
-    if (environment === 'staging' && ['20261104_preferred_locale', '20261104_french_locale'].includes(migration)) {
+    if (environment !== 'rehearsal' && ['20261104_preferred_locale', '20261104_french_locale'].includes(migration)) {
       const [locale] = (await client.query(`SELECT EXISTS(SELECT 1 FROM information_schema.columns
         WHERE table_schema='public' AND table_name='users' AND column_name='preferred_locale' AND data_type='text') AS column_ok,
         (SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid='users'::regclass
           AND conname='chk_users_preferred_locale') AS rule`)).rows;
       assert(locale.column_ok && ['en-GB', 'pt-PT', 'es', 'fr'].every(value => locale.rule?.includes("'" + value + "'")),
-        'Staging locale prerequisite does not match the deployed four-language contract');
+        'Locale prerequisite does not match the deployed four-language contract');
       continue;
     }
     assert(environment === 'rehearsal' || [id, '20261111_invitation_retention', '20261111_invitation_reissue'].includes(migration), `Missing staging prerequisite: ${migration}`);

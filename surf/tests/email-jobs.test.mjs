@@ -48,7 +48,16 @@ test('template uses one recipient, static branding and disabled tracking', () =>
   assert(message.Subject.startsWith('[Staging]')); assert(message.TextPart);
   assert(message.HTMLPart.includes('https://mywaveplan.com/icons/icon-192.png'));
   assert(!message.HTMLPart.includes(job.id)); assert(!message.HTMLPart.includes('owner@example.com'));
-  assert(!/\?/.test(message.HTMLPart)); assert(message.HTMLPart.includes('MyWavePlan Support Team'));
+  // A fixed language query is presentation, never a recipient/tracking ID.
+  for (const [, href] of message.HTMLPart.matchAll(/href="([^"]+)"/g)) {
+    if (!href.startsWith('https://')) continue;
+    const link = new URL(href);
+    if (link.search) {
+      assert.equal(link.origin + link.pathname, 'https://mywaveplan.com/legal/privacy');
+      assert.deepEqual([...link.searchParams], [['language', 'en-GB']]);
+    }
+  }
+  assert(message.HTMLPart.includes('MyWavePlan Support Team'));
   assert.equal(message.CustomID,job.id);
 });
 test('email shell escapes copy and includes usable text when images are blocked', () => {
