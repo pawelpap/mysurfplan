@@ -18,14 +18,15 @@ export async function runEmailWorker({ config, store, send, jobId = null, now = 
       processed++;
       let payload;
       try {
+        const invitation = job.type === 'email.staff_invitation';
         const accountLink = job.type === 'email.account_verify' || job.type === 'email.account_reset';
-        if ((!accountLink && job.type !== 'email.delivery_check' && !Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)) ||
+        if ((!accountLink && !invitation && job.type !== 'email.delivery_check' && !Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)) ||
             job.schema_version !== 1) throw new Error();
         payload = decryptPayload(job.payload, job.id, config, job.type);
         if (!recipientAllowed(config, payload.recipient, job.type) ||
             recipientHash(payload.recipient, config) !== job.recipient_hash ||
-            (accountLink &&
-              (!config.accountFlows || !validAccountToken(payload.token) || !isLocale(payload.locale)))) throw new Error();
+            ((accountLink || invitation) &&
+              ((accountLink && !config.accountFlows) || !validAccountToken(payload.token) || !isLocale(payload.locale)))) throw new Error();
       } catch {
         await store.finish(job, { status: 'failed', code: 'payload_or_recipient_invalid' });
         continue;

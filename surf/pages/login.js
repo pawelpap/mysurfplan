@@ -9,17 +9,32 @@ import {
   Message,
   request,
 } from "../components/workspace/ui";
-import { LanguageSelector, useLocale } from "../components/locale";
-import { legalHref } from "../lib/locale/preferences.mjs";
+import { LanguageSelector, LocaleProvider, useLocale } from "../components/locale";
+import { isLocale, legalHref } from "../lib/locale/preferences.mjs";
 import { safeNext } from "../lib/lesson-input.mjs";
+import { invitationNext } from "../lib/invitation-continuation.mjs";
 
-export async function getServerSideProps({ req, res }) {
+export async function getServerSideProps({ req, res, query }) {
   res.setHeader("Cache-Control", "private, no-store");
   const { accountConfig } = await import("../lib/account-server.mjs");
-  return { props: { accountFlows: Boolean(accountConfig(req)) } };
+  return { props: { accountFlows: Boolean(accountConfig(req)), linkLocale: isLocale(query.language) ? query.language : null } };
 }
 
-export default function Login({ accountFlows }) {
+export default function Login({ accountFlows, linkLocale }) {
+  const { locale } = useLocale();
+  const [selected, setSelected] = useState(linkLocale);
+  function changeLanguage(value) {
+    setSelected(value);
+    const url = new URL(window.location.href);
+    if (value) url.searchParams.set('language', value);
+    else url.searchParams.delete('language');
+    window.history.replaceState(window.history.state, '', url.pathname + url.search);
+  }
+  return <LocaleProvider pageLocale={selected ?? locale}>
+    <LoginForm accountFlows={accountFlows} selected={selected} onLanguage={changeLanguage} />
+  </LocaleProvider>;
+}
+function LoginForm({ accountFlows, selected, onLanguage }) {
   const router = useRouter();
   const { locale, t } = useLocale();
   const [email, setEmail] = useState("");
@@ -32,6 +47,8 @@ export default function Login({ accountFlows }) {
     /^[a-z0-9-]+$/i.test(router.query.school)
       ? router.query.school
       : "";
+  const requestedNext = safeNext(router.query.next);
+  const next = requestedNext.split(/[?#]/)[0] === "/invitation" ? invitationNext(locale) : requestedNext;
   async function submit(event) {
     event.preventDefault();
     const demo = !email.trim() && password === "";
@@ -50,7 +67,7 @@ export default function Login({ accountFlows }) {
         method: "POST",
         body: JSON.stringify(demo ? { email: "", password: "" } : { email, password }),
       });
-      window.location.assign(demo ? "/?view=conditions" : safeNext(router.query.next));
+      window.location.assign(demo ? "/?view=conditions" : next);
     } catch (e) {
       const messages = { 401: "login.invalid", 429: "login.rateLimit" };
       setError(messages[e.status] || (demo ? "login.demoUnavailable" : "login.unavailable"));
@@ -64,7 +81,7 @@ export default function Login({ accountFlows }) {
       </Head>
       <div className="login-brand">
         <Brand />
-        <LanguageSelector compact />
+        <LanguageSelector compact selection={selected ?? undefined} onLocaleChange={onLanguage} />
       </div>
       <section className="login-panel" aria-labelledby="login-title">
         <p className="login-welcome">{t("login.welcome")}</p>
@@ -104,7 +121,7 @@ export default function Login({ accountFlows }) {
             >
               {t(visible ? "login.hidePassword" : "login.showPassword")}
             </button>
-            {accountFlows && <Link href={{ pathname: "/account/recover", query: { next: safeNext(router.query.next) } }}>
+            {accountFlows && <Link href={{ pathname: "/account/recover", query: { next, language: locale } }}>
               {t("account.forgot")}
             </Link>}
           </div>
@@ -114,7 +131,7 @@ export default function Login({ accountFlows }) {
               {t(busy ? "login.busy" : "login.title")}
             </Button>
             {accountFlows && <Link className="button secondary"
-              href={{ pathname: "/account/register", query: { next: safeNext(router.query.next) } }}>
+              href={{ pathname: "/account/register", query: { next, language: locale } }}>
               {t("account.registerTitle")}
             </Link>}
           </div>

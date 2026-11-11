@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useLocale } from "../locale";
 import { useState } from "react";
 import {
@@ -78,6 +79,7 @@ export default function People({ school, schools, session, query, go }) {
     return (
       <PersonDetail
         person={selected}
+        schools={schools}
         session={session}
         onBack={back}
         onEdit={() => go({ person: selected.id, action: "edit" })}
@@ -193,7 +195,7 @@ export default function People({ school, schools, session, query, go }) {
   );
 }
 
-function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
+function PersonDetail({ person, schools, session, onBack, onEdit, onRemoved }) {
   const { locale, t } = useLocale();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -229,7 +231,7 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
           <Avatar person={person} />
           <div>
             <h2>{fullName(person)}</h2>
-            <p className="muted">{t(roleName(person.role))}</p>
+            <p className="muted">{t(isPlatform(person.role) ? "workspace.platformAdmin" : "workspace.personalAccount")}</p>
           </div>
         </div>
         <dl className="detail-grid">
@@ -265,6 +267,15 @@ function PersonDetail({ person, session, onBack, onEdit, onRemoved }) {
           )}
         </dl>
       </section>
+      {isPlatform(session.role) && <section className="surface padded profile-access team-account-memberships">
+        <h2>{t('team.memberships')}</h2>
+        {person.schools?.length ? <ul>{person.schools.map(membership => <li key={membership.id}>
+          <div><strong>{membership.name}</strong><p>{[membership.owner ? t('team.owner') : '',
+            ...(membership.roles || []).map(role => t('team.' + role))].filter(Boolean).join(' · ') || t('team.noRoles')}</p>
+            <span className="pill">{t('team.' + membership.status)}</span></div>
+          {schools.some(school => school.id === membership.id) && <Link href={{ pathname: '/', query: { view: 'people', school: membership.id } }}>{t('team.manageSchool')} →</Link>}
+        </li>)}</ul> : <p>{t('team.noMemberships')}</p>}
+      </section>}
       {person.id !== session.userId && (
         <div className="danger-zone">
           <Button tone="danger" onClick={remove} disabled={busy}>{t("Deactivate person")}</Button>

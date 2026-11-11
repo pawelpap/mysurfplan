@@ -1,3 +1,4 @@
+import { invitationMessages } from "./invitation-messages.mjs";
 import { accountMessages } from "./account-messages.mjs";
 import { appMessages } from "./app-messages.mjs";
 import { catalogues } from "./catalogues.mjs";
@@ -9,6 +10,7 @@ export function createLocale(preferredLocale) {
   const fallback = catalogues[defaultLocale];
   const app = appMessages[locale] || {};
   const account = accountMessages[locale];
+  const invitation = invitationMessages[locale];
   const numberFormats = new Map();
   return {
     locale,
@@ -16,6 +18,7 @@ export function createLocale(preferredLocale) {
       if (typeof key !== "string") return "";
       const message = (Object.hasOwn(catalogue, key) && catalogue[key]) ||
         (Object.hasOwn(account, key) && account[key]) ||
+        (Object.hasOwn(invitation, key) && invitation[key]) ||
         (Object.hasOwn(app, key) && app[key]) ||
         (Object.hasOwn(fallback, key) && fallback[key]) || key;
       return message.replace(/\{(\w+)\}/g, (token, name) =>

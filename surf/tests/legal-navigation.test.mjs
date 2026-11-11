@@ -22,11 +22,14 @@ test("the storage draft is available only to the staging host and project; exact
 
   for (const language of ["en-GB", "pt-PT", "es", "fr"]) {
     const latest = getStorageNotice(undefined, language, { preview });
-    assert.equal(latest.version, "2026-11-04.2");
+    assert.equal(latest.version, "2026-11-11.1");
     assert.equal(latest.language, language);
     assert.equal(latest.status, "staging_preview");
-    assert.equal(getStorageNotice(latest.version, language), null);
-    assert.deepEqual(getStorageNotice("2026-11-04.1", language, { preview }), getStorageNotice(undefined, language));
+    assert.match(latest.content, /mywaveplan:invitation:v1/);
+    assert.equal(getStorageNotice(latest.version, language).content, latest.content);
+    assert.deepEqual(getStorageNotice("2026-11-04.1", language, { preview }), getStorageNotice("2026-11-04.1", language));
+    assert.equal(getStorageNotice("2026-11-04.2", language), null);
+    assert.doesNotMatch(getStorageNotice("2026-11-04.2", language, { preview }).content, /mywaveplan:invitation:v1/);
   }
 });
 

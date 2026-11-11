@@ -1,5 +1,7 @@
 # MyWavePlan current handover
 
+11 November B4 staging candidate: staff invitations, owner-controlled administrator grants, team administration, per-account memberships and invitation retention are implemented. Figma and independent security reviews informed the implementation. Transactional and concurrent database tests passed on the isolated branch; both additive migrations passed a staging rollback rehearsal. An additional independent visual review is checking language-switch layout stability before deployment. See [B4 scope, verification and publication gates](STAFF_INVITATIONS.md). The 4 November account release remains production's current release. Dated next-step paragraphs below that name A4/B6 or B3 are historical.
+
 Updated 17 September 2026. This is the single current handover. The [roadmap](IMPLEMENTATION_ROADMAP.md) owns task status and dependencies; the [development plan](DEVELOPMENT_PLAN.md) explains product direction. [Documentation index](README.md) · [Environment guide](ENVIRONMENTS.md) · [Reconciliation evidence](archive/decisions/PROJECT_ALIGNMENT_2026-09-16.md).
 
 ## Current release

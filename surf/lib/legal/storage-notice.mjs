@@ -1,6 +1,7 @@
 import { storageTranslations } from "./storage-translations.mjs";
 import { storagePreviewContent, storagePreviewVersion } from "./storage-preview.mjs";
 import { legalStagingProjectId } from "./contracts.mjs";
+import { invitationStorageVersion, invitationStorageSections } from "./storage-invitations.mjs";
 
 export function isStorageStagingPreview(host, projectId) {
   return host === 'staging.mywaveplan.com' && projectId === legalStagingProjectId;
@@ -59,7 +60,12 @@ export function getStorageNotice(version, locale = 'en-GB', { preview = false } 
     return locale === previousStorageNotice.language ? previousStorageNotice : null;
   const translation = storageTranslations[locale];
   const current = translation ? { ...storageNotice, ...translation, language: locale } : storageNotice;
-  if (preview && (!version || version === storagePreviewVersion)) {
+  if (!version || version === invitationStorageVersion) {
+    return { ...current, version: invitationStorageVersion,
+      ...(preview ? { status: 'staging_preview' } : {}),
+      content: storagePreviewContent[current.language] + '\n\n' + invitationStorageSections[current.language] };
+  }
+  if (preview && version === storagePreviewVersion) {
     return { ...current, version: storagePreviewVersion, status: 'staging_preview', content: storagePreviewContent[current.language] };
   }
   return !version || version === storageNotice.version ? current : null;

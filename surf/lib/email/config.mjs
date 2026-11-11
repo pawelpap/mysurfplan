@@ -62,7 +62,7 @@ export function recipientAllowed(config, recipient, type) {
   if (Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, type))
     return config.environment === 'production' && recipient === ACCOUNT_ACTIVITY_RECIPIENT;
   return validEmail(recipient) && (config.allowlist.includes(recipient) ||
-    (config.publicAccounts && ['email.account_verify','email.account_reset'].includes(type)));
+    (config.environment === 'production' && config.publicAccounts === true && ['email.account_verify','email.account_reset','email.staff_invitation'].includes(type)));
 }
 
 export function validEmail(value) {
