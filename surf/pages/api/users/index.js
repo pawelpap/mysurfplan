@@ -48,6 +48,7 @@ export default async function handler(req, res) {
     const school = b.school ? await resolveSchoolScope(b.school) : null;
     if (b.school && !school)
       return res.status(404).json({ ok: false, error: "School not found" });
+    if (school && !(await requireAuth(req, res, { schoolId: school.id }))) return;
     const roles = Array.isArray(b.roles)
       ? b.roles
       : ["coach", "school_admin"].includes(b.role)

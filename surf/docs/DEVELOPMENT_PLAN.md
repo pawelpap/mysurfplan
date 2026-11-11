@@ -2,9 +2,13 @@
 
 11 November 2026. B4 staff invitations and team administration are released on staging and production. Application source hashes match; staging has no cron and production retains its ten-minute email worker. The next build is B5 draft-school creation and onboarding. See the [release record](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md) and [current handover](HANDOVER.md). Older dated release/status notes are historical.
 
+## Current B5 work
+
+Release 1 is now authorised for implementation and staging verification. Its [implementation record](SCHOOL_ONBOARDING.md) tracks the private-draft scope and evidence. Production promotion remains subject to explicit owner approval. B7 storage is not provisioned by this authority.
+
 ## Recommendation
 
-Build B5 school onboarding next, beginning with draft-school creation, atomic accountable ownership, basic settings and school-processing acceptance. B7 media storage follows before uploaded logos/cover/gallery.
+The proposed [B5 release plan](B5_RELEASE_PLAN.md) splits delivery into school creation/text settings, branding/publication and personal profile photos with B7 media, then explicit claiming/ownership transfer. First create the draft and accountable owner atomically, with a setup checklist, name/description, timezone, contacts, website/social links, operating spots and school-processing acceptance. Keep draft, publication and pilot/trial access separate. Uploads and subscriptions do not block this first release. Release 1 implementation/staging is now authorised; storage provisioning, later releases and production promotion retain their separate approvals.
 
 The wider goal remains a self-service forecast-to-lesson journey. Complete school setup and reliable bookings before paid school subscriptions, then online lesson payments. Preserve the free surfer forecast.
 
@@ -98,7 +102,7 @@ Outcome: a person can use one account across schools, with explicit authority fo
 - [x] Core B3 registration, email verification, recovery, password change and personal profile flows are released. Eligible self-closure is live; full export/erasure remains B8. Remaining operator-created-account wording is tracked separately in the account/lifecycle follow-up.
 - [x] B4 invitations, independent roles, team management, explicit instructor claims and membership overview are released and independently verified on staging and production.
 - [ ] B5 next: atomically create a draft school and its owner membership, add basic settings/contact/timezone/spots, and separate setup/activation from public publication. Publish the school-processing agreement and record authorised acceptance before independent schools onboard.
-- [ ] Split B5 claiming, ownership transfer, richer branding and school closure into bounded releases. Never infer ownership from an email domain, old role or payment.
+- [ ] Follow the [B5 release sequence](B5_RELEASE_PLAN.md): design School settings, public presentation and a lesson-email preview coherently in Figma before branding implementation. Add save draft, preview, explicit publish, reset defaults and shared versioned branding for later C2/C4 journeys. Include personal profile photo upload/crop/replace/remove, personal ownership checks and lifecycle cleanup in this second release; these photos do not wait for claims, transfers or commerce. Then handle explicit claiming and atomic transfer with verified acceptance/recent authentication. Keep closure controls clear and full erasure/retention in B8. Never infer ownership from an email domain, old role or payment.
 - [ ] B7 before uploaded branding: separate Frankfurt Vercel Blob stores, private originals, published derivatives, validated uploads, quotas and cleanup. Basic draft-school setup can proceed first.
 - [ ] B8/B9: finish export, erasure, retention/restore execution and application MFA/sensitive-action recovery.
 - [ ] B10: continue full journey verification in every enabled language as school and lesson flows ship. Shared foundations and existing account/invitation emails already support English, European Portuguese, Spanish and French.
@@ -201,7 +205,7 @@ Keep one application with clear identity, booking, billing, catalogue, media and
 
 Use Stripe Billing for platform subscriptions and Connect for school lesson payments. Charge type affects fund flows and dispute/refund liability, so choose it explicitly. Prices and limits belong in database configuration; feature definitions, supported operations and validation remain in code. New amounts require new Stripe Price objects. [Stripe charge types](https://docs.stripe.com/connect/charges), [Stripe price management](https://docs.stripe.com/products-prices/manage-prices)
 
-Proposed operator identity, supplied by the owner: **PAWEL PAPLINSKI, tax number PT311219217**. The owner also confirmed Portuguese self-employed status, address and the privacy contact on 12 September; retain unpublished private details in the ignored drafts. Complete legal/provider review and applicable VAT/invoicing decisions before publishing the relevant documents. This information alone does not establish compliance.
+Operator identity belongs in the reviewed legal publications. Keep unpublished tax, address and other private details in ignored drafts, without duplicating them in the development plan. Complete legal/provider review and applicable VAT/invoicing decisions before publishing the relevant documents. Recorded identity alone does not establish compliance.
 
 Document purposes and lawful bases per processing activity. Terms acceptance and privacy-notice acknowledgement are separate from consent. Core account/booking processing should use the appropriate contractual or other justified basis; optional analytics, marketing and public visibility need separate controls. Consent must be freely given, specific, informed and withdrawable. [EDPB guidance](https://www.edpb.europa.eu/sme/be-compliant/process-personal-data-lawfully_en)
 
@@ -211,7 +215,7 @@ Deletion, withdrawal, export and retention are Phase 1 requirements. Financial/l
 
 ## The next implementation brief
 
-Start B5 draft-school creation and onboarding. Create the draft and owner membership atomically, add basic settings and a setup checklist, and record authorised school-processing acceptance before independent schools join. Keep publication/activation explicit. Claiming, owner transfer and closure are separate bounded releases; Demo Surf School remains unclaimed. B7 storage precedes uploaded branding.
+When B5 implementation is authorised, begin with release 1 of the [B5 release plan](B5_RELEASE_PLAN.md). Create the draft and owner membership atomically, add text settings and a setup checklist, and record authorised school-processing acceptance before independent schools join. Design branding/publication with B7 media as release 2; explicit claiming/ownership transfer is release 3. Demo Surf School remains unclaimed. Verify the currently unprovisioned-by-plan storage selection before any action.
 
 Use GPT-6.1 Terra Codex at High reasoning and normal speed, with Astra 6 High at normal speed for ownership design and independent authorisation/migration review. Prepare and verify staging before a separately authorised production release. Preserve current source parity, school boundaries, email languages and cleanup requirements.
 

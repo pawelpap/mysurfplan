@@ -2,7 +2,11 @@
 
 Updated 11 November 2026. This is the current operational handover. The [roadmap](IMPLEMENTATION_ROADMAP.md) owns task status; the [development plan](DEVELOPMENT_PLAN.md) owns product direction. [Release evidence](archive/releases/RELEASE_2026-11-11_STAFF_INVITATIONS.md) · [Environment guide](ENVIRONMENTS.md) · [Next-session brief](NEXT_SESSION_PROMPT.md).
 
-## Current release
+## B5 release 1 in progress
+
+The owner authorised private draft-school creation/text settings, staging deployment and independent user verification on 11 November. Production promotion still requires explicit approval. The [implementation record](SCHOOL_ONBOARDING.md) owns B5 evidence; the [release sequence](B5_RELEASE_PLAN.md) retains branding/B7 profile photos as release 2 and claims/transfer as release 3. Staging's B5 schema migration passed rehearsal/apply with unchanged existing data; the application candidate is not yet deployed. Production remains B4. Source parity below describes the completed B4 release, not permission to promote B5.
+
+## B4 released baseline
 
 B4 staff invitations, independent roles and team administration are live on [staging](https://staging.mywaveplan.com) and [production](https://mywaveplan.com). Both environments have identical application source. Their expected configuration difference is surf/vercel.json: staging has no schedule; production runs /api/cron/jobs every ten minutes. Staging Healthchecks is paused and production Healthchecks remains active.
 
@@ -27,11 +31,13 @@ All accounts, schools, invitations and related fixtures created solely for this 
 
 ## Next development step
 
-Start B5 with a bounded draft-school onboarding release: create a school and accountable owner membership atomically, add basic school settings/contact details/timezone/spots, and keep draft, workspace activation and public listing separate. Publish the school-processing agreement and record acceptance by an authorised representative before independent schools onboard. Preserve invitation acceptance and school boundaries.
+The proposed [B5 release plan](B5_RELEASE_PLAN.md) separates school creation/text settings, branding/publication with B7 media, and explicit claiming/ownership transfer. First create a draft school and accountable owner membership atomically, with a setup checklist, name/description, timezone, contacts, website/social links and operating spots. Keep draft, publication and pilot/trial access separate. Publish the school-processing agreement and record authorised acceptance before independent schools onboard. This first release does not require uploads or subscriptions.
 
-Use B7's selected Vercel Blob Frankfurt media foundation before adding logo, cover or gallery uploads. Claiming, ownership transfer, richer branding and closure should be separately reviewable B5 releases. Do not infer ownership from a name, email domain, old administrator role or payment. Demo Surf School's legacy ownership stays unresolved until an explicit decision.
+Design School settings, the public-school presentation and a lesson-email preview coherently in Figma before implementing branding. B7 supplies separate Frankfurt Vercel Blob stores/credentials, private originals/drafts, public published derivatives, validation, metadata stripping, crop/resize, alternative text, quotas and cleanup. Include upload/crop/replace/remove for each user’s own profile photo in this second release, with personal ownership checks and the same secure media lifecycle. Personal photos do not wait for school claims, transfers or commerce. Reuse versioned branding later in C2/C4 without adding those journeys to B5. The recorded storage selection did not provision stores; verify current state before action. The [cost estimate](LAUNCH_COST_ESTIMATE.md#vercel-blob-media-budget) records shared Pro credit and current CDN treatment.
 
-Recommended implementation model: GPT-6.1 Terra Codex, High reasoning, normal speed. Use Astra 6, High reasoning, normal speed for the ownership design and independent authorisation/migration review. New production releases need their own authority; this conversation's production approval applies to B4.
+Claiming and transfer require explicit verified acceptance, recent authentication and atomic ownership changes. Never infer ownership from a name, email domain, old role or payment. Demo Surf School's legacy ownership stays unresolved until an explicit decision. Full erasure/retention remains B8; subscriptions and payments remain D/E.
+
+Recommended implementation model: GPT-6.1 Terra Codex, High reasoning, normal speed. Propose Astra 6, High reasoning, normal speed for independent ownership/access/migration and live UI checks under the owner's applicable review authority. Release 1 implementation and staging deployment are now authorised. Storage provisioning and later releases remain proposed; B4 production authority applies to B4, so B5 production needs explicit approval.
 
 ## Remaining boundaries
 
@@ -41,6 +47,6 @@ Neon primary databases and app functions remain in Frankfurt, with environment-l
 
 ## Working-copy and release workflow
 
-This task used an isolated copy at output/b4/work/surf because the original checkout contained substantial uncommitted work and missed parts of the released email runtime. Original application files were preserved. Current remote main/staging and this isolated copy contain B4; do not deploy the older root checkout wholesale. Pre-closeout local documentation snapshots remain in output/b4/pre-closeout-docs.
+This task used an isolated copy at output/b4/work/surf because the original checkout contained substantial uncommitted work and missed parts of the released email runtime. Original application files were preserved. At B4 closeout remote main/staging and that isolated copy contained B4; B5 work is isolated at output/b5/work/surf. Production remains on B4 until separately approved; do not deploy the older root checkout wholesale. Pre-closeout local documentation snapshots remain in output/b4/pre-closeout-docs.
 
 Rehearse additive migrations on the existing isolated database, then staging, then an authorised production transaction. Applied SQL files stay immutable and checksummed. Preserve B2-compatible recovery, legal evidence, membership history and forecast settings. Do not clone environments. Use the existing MySurfPlan Chrome group, clean exact fixtures and stop local servers at closeout.

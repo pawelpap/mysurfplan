@@ -11,6 +11,10 @@ export const defaultPreferences = () => Object.fromEntries(optionalPurposes.map(
 export function legalError(message, statusCode = 400) {
   return Object.assign(new Error(message), { statusCode });
 }
+export const canRepresentSchool = relation => Boolean(relation && relation.status === 'active' &&
+  (relation.open === true || (relation.owner === true && relation.workspaceKind === 'self_service' && relation.workspaceStatus === 'draft')) &&
+  (relation.owner || relation.roles?.includes('school_admin')) && isUuid(relation.membershipId));
+
 export function validateLegalAction(body, session, document, { stagingPreview = false } = {}) {
   if (!session?.userId) throw legalError('Authentication required', 401);
   if (session.demo) throw legalError('Demo access is read-only.', 403);
@@ -41,8 +45,7 @@ export function validateLegalAction(body, session, document, { stagingPreview = 
   if (document.kind !== 'school_processing' || !isUuid(body.schoolId)) throw legalError('Choose a school.');
   const relation = session.schools?.find(s => s.id === body.schoolId);
   // Platform authority alone cannot sign for a school. No ownership inference.
-  if (!relation || relation.status !== 'active' || relation.open !== true ||
-      !(relation.owner || relation.roles?.includes('school_admin')) || !isUuid(relation.membershipId))
+  if (!canRepresentSchool(relation))
     throw legalError('An active authorised school representative is required.', 403);
   if (body.authorisedRepresentative !== true) throw legalError('Confirm your authority to represent this school.');
   return { ...result, schoolId: relation.id, membershipId: relation.membershipId };

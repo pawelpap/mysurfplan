@@ -126,6 +126,8 @@ async function userSessionPayload(user) {
     roles: a.status === "active" && a.school_open ? a.roles : [],
     owner: a.is_owner,
     open: a.school_open,
+    workspaceKind: a.workspace_kind,
+    workspaceStatus: a.workspace_status,
   }));
   const email = normalizeEmail(user?.email);
   const name = typeof user?.name === "string" ? user.name.trim() : "";
@@ -184,7 +186,7 @@ export async function requireAuth(req, res, options = {}) {
   if (options.schoolId) {
     // Check current school lifecycle even for platform administrators.
     const [school] =
-      await sql`SELECT id FROM schools WHERE id=${options.schoolId}::uuid AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended')`;
+      await sql`SELECT id FROM schools WHERE id=${options.schoolId}::uuid AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR (workspace_status='active' AND pilot_access_status='approved'))`;
     if (!school || !schoolAccess(session, options.schoolId).viewSchool) {
       res.status(403).json({ ok: false, error: "Forbidden for this school" });
       return null;

@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       const rows = await sql`
         SELECT id, name, slug, contact_email, created_at, updated_at
         FROM schools
-        WHERE id = ${id} AND deleted_at IS NULL
+        WHERE id = ${id} AND deleted_at IS NULL AND workspace_kind='legacy'
         LIMIT 1
       `;
       if (!rows.length) {
@@ -24,7 +24,11 @@ export default async function handler(req, res) {
 
     if (req.method === 'PUT' || req.method === 'PATCH') {
       if (!(await requireAuth(req, res, { roles: ['admin'] }))) return;
-      const { name, contactEmail } = req.body || {};
+      if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body) || Object.keys(req.body).some(key => !['name','contactEmail'].includes(key)))
+        return res.status(400).json({ ok: false, error: 'Invalid school fields' });
+      const { name, contactEmail } = req.body;
+      if ((name !== undefined && (typeof name !== 'string' || !name.trim() || name.trim().length > 160)) || (contactEmail !== undefined && (typeof contactEmail !== 'string' || contactEmail.length > 254)))
+        return res.status(400).json({ ok: false, error: 'Invalid school details' });
       const fields = [];
       const values = [];
 
@@ -44,8 +48,8 @@ export default async function handler(req, res) {
       try {
         const text = `
           UPDATE schools
-          SET ${fields.join(', ')}, updated_at = NOW()
-          WHERE id = $${fields.length + 1} AND deleted_at IS NULL
+          SET ${fields.join(', ')}, settings_revision=settings_revision+1, updated_at = NOW()
+          WHERE id = $${fields.length + 1} AND deleted_at IS NULL AND workspace_kind='legacy'
           RETURNING id, name, slug, contact_email, created_at, updated_at
         `;
         const rows = await sql.query(text, [...values, id]);
@@ -66,7 +70,7 @@ export default async function handler(req, res) {
       const rows = await sql`
         UPDATE schools
         SET deleted_at = now(), updated_at = now()
-        WHERE id = ${id} AND deleted_at IS NULL
+        WHERE id = ${id} AND deleted_at IS NULL AND workspace_kind='legacy'
         RETURNING id;
       `;
       if (!rows.length) {

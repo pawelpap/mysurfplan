@@ -10,7 +10,7 @@
 
 **A8 complete, 12 September:** staging and production now use Neon PostgreSQL 18.6 and Vercel application functions in Frankfurt. Each environment retained its own accounts, sessions and 17 spot calibrations. Unused legacy tables were removed. The owner waived US rollback retention; the old US project and its Vercel connections were deleted and absence verified. Login, permissions, forecasts, geolocation, mobile and recovery checks passed. No UI or forecasting-model change. [A8 release evidence](archive/releases/RELEASE_2026-09-12_EU_MIGRATION.md).
 
-Current next build: B5 draft-school creation, ownership and settings. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
+Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification; production approval remains pending. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
 
 12 September A6 follow-up: the translation-related forecast crash is reproduced and repaired through stable text rendering, with a reload fallback and regression coverage. Attribution to either reported phone is still unconfirmed. [Release evidence](archive/releases/RELEASE_2026-09-12_TRANSLATION_STABILITY.md). Central browser reporting, source maps, privacy redaction, alerts and physical-device verification remain A6 work; this maintenance repair does not mark A6 complete or move the next development task.
 
@@ -121,6 +121,8 @@ B6 policy work can progress before B3. B3 must not open registration while B6 is
 A9 defines a nullable personal `preferred_locale` and a minimal functional device preference, separate from analytics consent and school membership. Use the currently selected language through signup, invitations and recovery; resolve an account/device conflict explicitly without overwriting a saved preference merely because a browser differs. Supported browser-language matching is documented; a Portuguese browser selects pt-PT for this initial release. Language names are English, Português, Español and Français when enabled, without country flags. B10 adds approved catalogues through the same mechanism; no schema change is needed merely to add a language. School-authored text and proper spot names remain as authored unless separate translations are supplied. Monetary amounts, lesson times and forecast calculations retain their underlying values. Subsequent C5/C6 and D/E/F/V/R/M work must ship in every enabled language. Additional markets remain F8.
 
 ### School branding and customisation
+
+11 November release sequencing: follow the [B5 release plan](B5_RELEASE_PLAN.md). Release 1 covers atomic draft-school/owner creation and text settings, with school-processing acceptance before independent onboarding. Release 2 combines branding/publication with B7 media, preceded by coherent Figma designs for School settings, the public presentation and a lesson-email preview. Release 2 also includes personal profile photo upload/crop/replace/remove with personal ownership checks and the shared secure lifecycle, independently of claims/transfers/commerce. Release 3 covers explicit claiming and atomic transfer with verified acceptance/recent authentication. C2/C4 user journeys, B8 full erasure/retention and D/E commerce remain separate. This planning update does not authorise implementation, provisioning or deployment.
 
 Added 13 September at the owner's request. This expands B5/B7/C2/C4, without duplicating roadmap items. The standard branding scope belongs before G1, after personal registration and staff access. Build B7's media foundation before B5's upload controls; draft-school creation can progress separately. Review a coherent desktop/mobile design for School settings, a public school page and a lesson email before implementing the branding interface. C2 and C4 are re-estimated from M to L to cover the added scope and should be split into small staging releases. No implementation is started by this planning update.
 
@@ -352,7 +354,7 @@ Mark an implementation item complete only after its defined release is implement
 
 9 September location/localisation update: EU is now the owner's preferred initial storage policy. A8 finalises and implements the destination before real onboarding. New A9/B10 move language infrastructure and English/pt-PT/Spanish coverage ahead of G1; optional French and later market expansion remain distinct. Existing task IDs are retained, with F8 narrowed to later expansion.
 
-Current next build: B5 draft-school creation, ownership and settings. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
+Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification; production approval remains pending. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
 
 ## A4/B6 implementation evidence, 6 October 2026
 

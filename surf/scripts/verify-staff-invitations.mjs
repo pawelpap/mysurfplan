@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 
 // All fixtures belong to the caller's transaction and must be rolled back.
-export async function verifyStaffInvitations(client) {
+export async function verifyStaffInvitations(client, { selfService = false } = {}) {
   const checks = [];
   const row = async (q, p = []) => (await client.query(q, p)).rows[0];
   const scalar = async (q, p = []) => Object.values(await row(q, p))[0];
@@ -31,6 +31,8 @@ export async function verifyStaffInvitations(client) {
   const other = await scalar('INSERT INTO schools(name,workspace_status) VALUES($1,\'active\') RETURNING id', [prefix + '-other']);
   const ownerMember = await member(owner, school, []);
   await client.query('UPDATE schools SET owner_membership_id=$1 WHERE id=$2', [ownerMember, school]);
+  // Optional B5 regression fixture: explicitly approved operational self-service.
+  if (selfService) await client.query("UPDATE schools SET workspace_kind='self_service',pilot_access_status='approved' WHERE id=$1", [school]);
   const adminMember = await member(admin, school, ['school_admin']);
   const access = 'SELECT set_school_access($1,$2,$3,$4,$5)';
   await client.query(access, [owner.id, owner.id, school, ['coach'], 'active']);

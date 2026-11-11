@@ -64,7 +64,7 @@ async function getLessons(req, res) {
     const rows = await sql`
       SELECT l.id,l.school_id,sc.name AS school_name,l.start_at,l.duration_min,l.difficulty,l.place,l.spot_id,l.capacity,
        sp.name AS spot_name,sp.timezone AS spot_timezone,sp.active AS spot_active,
-       sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended') AS school_open,
+       school_is_operational(sc) AS school_open,
        access.manage,access.teach,access.mine,
        COALESCE((SELECT json_agg(json_build_object('id',c.id,'name',c.name)) FROM lesson_coaches lc JOIN coaches c ON c.id=lc.coach_id
          WHERE lc.lesson_id=l.id AND c.school_id=l.school_id AND c.deleted_at IS NULL),'[]'::json) AS coaches,
@@ -81,7 +81,7 @@ async function getLessons(req, res) {
         AND s.user_id=${session.userId}::uuid AND s.school_id=l.school_id AND s.deleted_at IS NULL) AS mine) access
       WHERE l.deleted_at IS NULL AND
        CASE WHEN ${personal} THEN access.mine WHEN ${teaching} THEN access.teach
-       ELSE l.school_id=${schoolId}::uuid AND sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended')
+       ELSE l.school_id=${schoolId}::uuid AND school_is_operational(sc)
         AND (${session.role !== "coach"} OR access.teach) END
       ORDER BY l.start_at ASC LIMIT 500`;
     return res.json({

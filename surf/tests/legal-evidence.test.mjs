@@ -67,7 +67,7 @@ test('handler respects authentication, handles stale documents and redacts stora
 });
 
 test('account overview exposes document metadata and only eligible schools without document bodies',async()=>{
-  const relation={id:schoolId,name:'Eligible school',status:'active',open:true,roles:['school_admin']};
+  const relation={id:schoolId,membershipId,name:'Eligible school',status:'active',open:true,roles:['school_admin']};
   const store={records:async id=>({subject:id,acceptances:[],notices:[]}),preview:async()=>true,document:async id=>({...document,document_id:id,content:'Private policy body'})};
   const handler=createLegalHandler({requireAuth:async()=>({...session,schools:[relation,{...relation,id:userId,roles:['student']}]}),store});
   const res=response();await handler({method:'GET'},res);
@@ -82,4 +82,13 @@ test('production overview has no staging indicator and students have no represen
   const handler=createLegalHandler({requireAuth:async()=>student,store});
   const res=response();await handler({method:'GET'},res);
   assert.equal(res.statusCode,200);assert.equal(res.body.data.preview,false);assert.deepEqual(res.body.data.schools,[]);
+});
+
+
+test('draft owner can explicitly accept an exact agreement without operational access',()=>{
+  const owner={id:schoolId,membershipId,status:'active',open:false,owner:true,roles:[],workspaceKind:'self_service',workspaceStatus:'draft'};
+  assert.equal(validateLegalAction(schoolBody,{...session,schools:[owner]},schoolDoc).membershipId,membershipId);
+  for(const change of [{owner:false},{status:'suspended'},{workspaceStatus:'closed'},{workspaceStatus:'suspended'},{workspaceKind:'legacy'}])
+    assert.throws(()=>validateLegalAction(schoolBody,{...session,schools:[{...owner,...change}]},schoolDoc),{statusCode:403});
+  assert.throws(()=>validateLegalAction(schoolBody,{...session,schools:[owner]},{...schoolDoc,status:'staging_preview'}),{statusCode:409});
 });

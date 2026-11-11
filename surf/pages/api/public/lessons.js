@@ -40,11 +40,11 @@ export default async function handler(req, res) {
         school,
       );
     const byId = isUuid
-      ? await sql`SELECT id FROM schools WHERE id = ${school} AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR listing_status='published')`
+      ? await sql`SELECT id FROM schools s WHERE id = ${school} AND school_is_operational(s) AND (workspace_kind='legacy' OR listing_status='published')`
       : [];
     const bySlug = byId.length
       ? []
-      : await sql`SELECT id FROM schools WHERE slug = ${school} AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR listing_status='published')`;
+      : await sql`SELECT id FROM schools s WHERE slug = ${school} AND school_is_operational(s) AND (workspace_kind='legacy' OR listing_status='published')`;
     const schoolId = byId[0]?.id || bySlug[0]?.id;
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
@@ -81,6 +81,7 @@ export default async function handler(req, res) {
         COALESCE(ls.booked_count, 0) AS booked_count,
         COALESCE(ls.spots_left, 0) AS spots_left
       FROM lessons l
+      JOIN schools sc ON sc.id=l.school_id AND school_is_operational(sc) AND (sc.workspace_kind='legacy' OR sc.listing_status='published')
       JOIN surf_spots sp ON sp.id=l.spot_id AND sp.active=true
       LEFT JOIN lesson_stats ls ON ls.lesson_id = l.id
       ${where}

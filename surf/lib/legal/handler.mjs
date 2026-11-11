@@ -1,4 +1,4 @@
-import { validateLegalAction } from './contracts.mjs';
+import { validateLegalAction, canRepresentSchool } from './contracts.mjs';
 import { legalDocuments } from './contracts.mjs';
 import { defaultLocale, isLocale } from '../locale/preferences.mjs';
 
@@ -21,7 +21,7 @@ export function createLegalHandler({ requireAuth, store }) {
           await store.document(d.id, { language, preview }) ||
           (language !== defaultLocale ? await store.document(d.id, { preview }) : null)
         ))).filter(Boolean).map(({ content, ...d }) => d);
-        const schools = (session.schools || []).filter(s => s.open && s.status === 'active' && (s.owner || s.roles.includes('school_admin'))).map(({ id, name }) => ({ id, name }));
+        const schools = (session.schools || []).filter(s => canRepresentSchool(s)).map(({ id, name }) => ({ id, name }));
         return res.json({ ok: true, data: { ...records, documents, schools, preview } });
       }
       const preview = await store.preview(req);

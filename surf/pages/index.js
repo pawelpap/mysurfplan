@@ -10,7 +10,7 @@ import AccountSecurity from "../components/workspace/account-security";
 import PrivacyAgreements from "../components/workspace/privacy-agreements";
 import { withSchool, schoolAccess } from "../lib/school-access.mjs";
 import People from "../components/workspace/people";
-import Schools from "../components/workspace/schools";
+import SchoolSetup from "../components/workspace/school-setup";
 import {
   Avatar,
   Brand,
@@ -43,6 +43,10 @@ function WorkspaceContent({ auth, session }) {
   const router = useRouter();
   const { locale, t } = useLocale();
   const schools = useData(session ? "/api/schools" : null);
+  const [schoolListReady, setSchoolListReady] = useState(false);
+  useEffect(() => {
+    if (schools.url && !schools.loading && !schools.error) setSchoolListReady(true);
+  }, [schools.url, schools.loading, schools.error]);
   const [menu, setMenu] = useState(false);
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
@@ -79,7 +83,8 @@ function WorkspaceContent({ auth, session }) {
       : []),
     ...(school ? ["lessons"] : []),
     ...(schoolCapabilities.manageSchool ? ["people"] : []),
-    ...(isPlatform(session?.role) ? ["accounts", "schools"] : []),
+    ...(isPlatform(session?.role) ? ["accounts"] : []),
+    "schools",
     "profile",
     "privacy",
   ];
@@ -212,7 +217,7 @@ function WorkspaceContent({ auth, session }) {
         <Button onClick={auth.reload}>{t("Try again")}</Button>
       </div>
     );
-  if (!session || (schools.loading && !schools.data.length))
+  if (!session || (schools.loading && !schoolListReady))
     return (
       <div className="auth-page">
         <Brand />
@@ -309,7 +314,7 @@ function WorkspaceContent({ auth, session }) {
           ) : (
             <strong>{school?.name || t("workspace.personalAccount")}</strong>
           )}
-          {school && (
+          {school && (school.workspace_kind === "legacy" || school.listing_status === "published") && (
             <a
               className="public-link"
               href={`/${school.slug}`}
@@ -365,7 +370,7 @@ function WorkspaceContent({ auth, session }) {
         <div className="context-line">
           <span>
             {view === "schools"
-              ? t("Platform workspace")
+              ? t("school.title")
               : ["bookings", "teaching", "profile", "privacy"].includes(view)
                 ? t("Personal workspace")
                 : school?.name || t("Personal workspace")}
@@ -412,12 +417,12 @@ function WorkspaceContent({ auth, session }) {
           />
         )}
         {view === "schools" && (
-          <Schools
-            schools={schools.data}
+          <SchoolSetup
+            session={session}
             query={router.query}
             go={(values) => go("schools", values)}
-            reload={schools.reload}
-            openLessons={(s) => go("lessons", { school: s.slug })}
+            onSaved={() => { schools.reload(); auth.reload(); }}
+            onAgreements={() => go("privacy")}
           />
         )}
         {view === "profile" && (

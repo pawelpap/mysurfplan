@@ -64,3 +64,9 @@ Latest application release: [11 November staff invitations](archive/releases/REL
 ## Legal implementation, 6 October 2026
 
 [Legal routes, evidence contracts, current/provider roles and publication gates](LEGAL_IMPLEMENTATION.md) · [Staging release and validation](archive/releases/RELEASE_2026-10-06_LEGAL_STAGING.md). Full owner-specific text is in ignored `docs/private/` and the authorised staging database. A4/B6 remain partial; production approval is pending. The owner-selected GA4/Meta Pixel/LinkedIn Insight Tag/Google Ads/Microsoft Clarity stack remains inactive for C5/C6.
+
+## Next school-onboarding releases
+
+The [B5 release plan](B5_RELEASE_PLAN.md) separates text-only school creation, branding/publication and personal profile photos with B7 media, and explicit claiming/ownership transfer. It records proposed scope and authority boundaries after B4 closeout.
+
+[B5 private-school implementation and verification](SCHOOL_ONBOARDING.md) tracks release 1. Production promotion is a separate approval.

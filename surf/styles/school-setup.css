@@ -1,0 +1,69 @@
+/* B5: private setup uses the existing workspace tokens and Poppins font. */
+.school-setup { max-width: 1140px; }
+.school-setup .heading-row { align-items: flex-start; }
+.school-setup .page-heading p { min-height: 3em; max-width: 760px; }
+.school-create { max-width: 760px; }
+.school-setup-section { padding: 24px; display: grid; gap: 22px; min-width: 0; scroll-margin-top: 24px; }
+.school-setup-section h2, .school-setup-section p, .school-checklist h2 { margin: 0; }
+.school-setup-section .field { min-width: 0; }
+.school-setup-section .field > label { min-height: 1.6em; }
+.school-setup textarea { width: 100%; min-width: 0; resize: vertical; }
+.school-scope-note { background: var(--sea-soft); color: var(--ink); padding: 18px; border-radius: 9px; line-height: 1.7; }
+.school-create .school-scope-note { min-height: 126px; display: flex; align-items: center; }
+.school-owner-summary { background: var(--surface-subtle); padding: 18px; display: grid; gap: 4px; overflow-wrap: anywhere; }
+.school-owner-summary strong { color: var(--sea); }
+.school-owner-summary span { font-size: 14px; }
+.school-form-actions { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.school-form-actions .button:first-child { min-width: 260px; }
+.school-state { display: grid; gap: 6px; padding: 20px 24px; background: var(--sea-soft); border-radius: 10px; margin-bottom: 24px; }
+.school-state strong { color: var(--sea); }
+.school-state span { color: var(--muted); font-size: 14px; }
+.school-state.compact { margin: 0; background: none; padding: 0; }
+.school-settings-layout { display: grid; grid-template-columns: minmax(0,760px) minmax(250px,318px); gap: 24px; align-items: start; }
+.school-settings-form { grid-column: 1; grid-row: 1; display: grid; gap: 24px; min-width: 0; }
+.school-checklist { grid-column: 2; grid-row: 1; padding: 24px; display: grid; gap: 14px; min-width: 0; }
+.school-checklist p { min-height: 3em; margin: 0; }
+.school-checklist progress { width: 100%; accent-color: var(--sea); height: 8px; }
+.school-checklist ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+.school-checklist a { display: block; text-decoration: none; color: var(--ink); }
+.school-checklist a small { display: block; color: var(--muted); margin-left: 24px; }
+.school-checklist-details > summary { display: none; }
+
+.school-spots { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; min-width: 0; }
+.school-spots label { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-subtle); border-radius: 6px; font-size: 14px; overflow-wrap: anywhere; }
+.school-spots input { width: 18px; height: 18px; flex: 0 0 18px; accent-color: var(--sea); }
+.school-setup-list { display: grid; gap: 16px; }
+.school-setup-card { display: grid; grid-template-columns: minmax(0,1fr) minmax(180px,1fr) 250px; gap: 24px; padding: 24px; align-items: center; }
+.school-setup-card h2 { font-size: 19px; margin: 0 0 8px; overflow-wrap: anywhere; }
+.school-setup-card p { margin: 0; }
+@media(max-width:1100px) {
+ .school-settings-layout { grid-template-columns: minmax(0,1fr); }
+ .school-checklist { grid-column: 1; grid-row: 1; }
+ .school-settings-form { grid-column: 1; grid-row: 2; }
+ .school-checklist p { min-height: 0; }
+ .school-checklist-details > summary { display: block; cursor: pointer; color: var(--sea); border: 1px solid var(--line); border-radius: 7px; padding: 12px; }
+ .school-checklist-details:not([open]) > ol { display: none; }
+ .school-checklist-details[open] > ol { margin-top: 16px; }
+ .school-setup-card { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+ .school-setup-card > .button { grid-column: 1/-1; width: 100%; }
+}
+@media(max-width:600px) {
+ .school-setup-section,.school-checklist,.school-setup-card { padding: 20px; }
+ .school-form-actions { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; }
+ .school-form-actions .button { width: 100%; min-width: 0; }
+ .school-create .school-scope-note { min-height: 180px; }
+ .school-setup-section .field > label { min-height: 1.6em; }
+ .school-spots { grid-template-columns: minmax(0,1fr); }
+ .school-setup-card { grid-template-columns: minmax(0,1fr); }
+ .school-state { padding: 20px; }
+ .school-setup .page-heading .heading-row { flex-direction: column; }
+ .school-setup .page-heading .heading-row > .button { width: 100%; }
+}
+
+.school-next-step { font-size: 14px; line-height: 1.6; }
+.school-checklist .school-next-step { min-height: 3.2em; }
+.school-setup-section #school-description { min-width:0; scroll-margin-top:24px; }
+
+@media(max-width:760px) {
+ .school-setup-section, .school-setup-section #school-description { scroll-margin-top:96px; }
+}

@@ -23,7 +23,7 @@ export default function PublicSchedule() {
   const { locale, t } = useLocale();
   const router = useRouter();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
-  const schools = useData(slug ? "/api/schools" : null);
+  const schools = useData(slug ? "/api/schools?public=1" : null);
   const source = useData(
     slug ? `/api/public/lessons?school=${encodeURIComponent(slug)}` : null,
   );

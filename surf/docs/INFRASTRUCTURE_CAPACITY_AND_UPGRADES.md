@@ -14,6 +14,12 @@ Commercial-only purchases are scheduled immediately before the first use that re
 
 The [monthly estimate](LAUNCH_COST_ESTIMATE.md) retains approximately €90–120/month for the conservative two-continuously-polled-endpoints scenario, outbound email and the already-active mailbox. The intended activation schedules production only, with staging off outside tests. The earlier €50 minimal forecast configuration assumes suitable free tiers and excludes those new flows. Database continuous active time is now explicit. This is a future scenario, not measured billing or approval to purchase.
 
+## B5/B7 media checkpoint, 11 November
+
+The [B5 release plan](B5_RELEASE_PLAN.md) puts text-only draft-school creation first, then branding/publication and personal profile photos with B7 media, then explicit claiming/transfer. Storage was selected but not provisioned in the recorded plan. Verify current state before action; this update authorises no provisioning or deployment. Keep separate Frankfurt stores and credentials for staging/production, private originals/drafts and public published derivatives. Neon stores references and metadata.
+
+The [media budget](LAUNCH_COST_ESTIMATE.md#vercel-blob-media-budget) now reflects shared Pro usage credit and current Flat Rate CDN treatment for public Blob delivery. Small-pilot image use may fit remaining credit; operations, private delivery and processing still count. Check actual team usage and controls rather than treating the estimate as a cap.
+
 ## Historical account findings, 8 September
 
 | Service | Verified state | Evidence and limits of this check |
