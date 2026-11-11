@@ -4,7 +4,7 @@
 
 ## Current B5 work
 
-Release 1 is now authorised for implementation and staging verification. Its [implementation record](SCHOOL_ONBOARDING.md) tracks the private-draft scope and evidence. Production promotion remains subject to explicit owner approval. B7 storage is not provisioned by this authority.
+All three B5 stages are authorised for incremental staging implementation and Astra verification. Its [implementation record](SCHOOL_ONBOARDING.md) tracks the private-draft scope and evidence. After every stage passes, run integrated automated and Astra browser/security/migration checks, then present prepared accounts/data and a concise acceptance checklist for the owner’s complete staging review. No B5 production promotion is permitted before that review and explicit approval. B7 storage provisioning belongs to stage 2, after current-state and cost-control checks; production remains B4.
 
 ## Recommendation
 
@@ -217,7 +217,7 @@ Deletion, withdrawal, export and retention are Phase 1 requirements. Financial/l
 
 When B5 implementation is authorised, begin with release 1 of the [B5 release plan](B5_RELEASE_PLAN.md). Create the draft and owner membership atomically, add text settings and a setup checklist, and record authorised school-processing acceptance before independent schools join. Design branding/publication with B7 media as release 2; explicit claiming/ownership transfer is release 3. Demo Surf School remains unclaimed. Verify the currently unprovisioned-by-plan storage selection before any action.
 
-Use GPT-6.1 Terra Codex at High reasoning and normal speed, with Astra 6 High at normal speed for ownership design and independent authorisation/migration review. Prepare and verify staging before a separately authorised production release. Preserve current source parity, school boundaries, email languages and cleanup requirements.
+Use GPT-6.1 Sol at High reasoning and normal speed, with Astra 6 High at normal speed for ownership design and independent authorisation/migration review. Prepare and verify staging before a separately authorised production release. Preserve current source parity, school boundaries, email languages and cleanup requirements.
 
 ## Legal implementation update, 6 October 2026
 

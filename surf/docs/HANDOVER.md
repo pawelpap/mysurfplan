@@ -4,7 +4,7 @@ Updated 11 November 2026. This is the current operational handover. The [roadmap
 
 ## B5 release 1 in progress
 
-The owner authorised private draft-school creation/text settings, staging deployment and independent user verification on 11 November. Production promotion still requires explicit approval. The [implementation record](SCHOOL_ONBOARDING.md) owns B5 evidence; the [release sequence](B5_RELEASE_PLAN.md) retains branding/B7 profile photos as release 2 and claims/transfer as release 3. Staging's B5 schema migration passed rehearsal/apply with unchanged existing data; the application candidate is not yet deployed. Production remains B4. Source parity below describes the completed B4 release, not permission to promote B5.
+The owner authorised all three B5 stages for incremental staging implementation and Astra verification on 11 November. Complete stage 1, then branding/publication/B7 media including personal photos, then claims/transfer. Each stage must pass before proceeding. Production promotion is blocked until the owner reviews the integrated complete B5 staging experience and explicitly approves it. No B5 stage is promoted separately. The [implementation record](SCHOOL_ONBOARDING.md) owns B5 evidence; the [release sequence](B5_RELEASE_PLAN.md) retains branding/B7 profile photos as release 2 and claims/transfer as release 3. Staging's B5 schema migration passed rehearsal/apply with unchanged existing data; stage 1 application commit 3d9e637f39907da4f297c1bcf38c65a1d6ad3657 is READY and passed live API checks. Astra's human review is running. Production remains B4. Source parity below describes the completed B4 release, not permission to promote B5.
 
 ## B4 released baseline
 
@@ -37,7 +37,7 @@ Design School settings, the public-school presentation and a lesson-email previe
 
 Claiming and transfer require explicit verified acceptance, recent authentication and atomic ownership changes. Never infer ownership from a name, email domain, old role or payment. Demo Surf School's legacy ownership stays unresolved until an explicit decision. Full erasure/retention remains B8; subscriptions and payments remain D/E.
 
-Recommended implementation model: GPT-6.1 Terra Codex, High reasoning, normal speed. Propose Astra 6, High reasoning, normal speed for independent ownership/access/migration and live UI checks under the owner's applicable review authority. Release 1 implementation and staging deployment are now authorised. Storage provisioning and later releases remain proposed; B4 production authority applies to B4, so B5 production needs explicit approval.
+Recommended implementation model: GPT-6.1 Sol, High reasoning, normal speed. Propose Astra 6, High reasoning, normal speed for independent ownership/access/migration and live UI checks under the owner's applicable review authority. Release 1 implementation and staging deployment are now authorised. Storage provisioning and later releases remain proposed; B4 production authority applies to B4, so B5 production needs explicit approval.
 
 ## Remaining boundaries
 

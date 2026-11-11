@@ -10,7 +10,7 @@
 
 **A8 complete, 12 September:** staging and production now use Neon PostgreSQL 18.6 and Vercel application functions in Frankfurt. Each environment retained its own accounts, sessions and 17 spot calibrations. Unused legacy tables were removed. The owner waived US rollback retention; the old US project and its Vercel connections were deleted and absence verified. Login, permissions, forecasts, geolocation, mobile and recovery checks passed. No UI or forecasting-model change. [A8 release evidence](archive/releases/RELEASE_2026-09-12_EU_MIGRATION.md).
 
-Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification; production approval remains pending. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
+Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification as the first of three B5 stages. Follow branding/B7 media including personal photos, then claims/transfer, with per-stage tests and Astra review. Complete integrated staging acceptance and explicit owner production approval before any B5 promotion. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
 
 12 September A6 follow-up: the translation-related forecast crash is reproduced and repaired through stable text rendering, with a reload fallback and regression coverage. Attribution to either reported phone is still unconfirmed. [Release evidence](archive/releases/RELEASE_2026-09-12_TRANSLATION_STABILITY.md). Central browser reporting, source maps, privacy redaction, alerts and physical-device verification remain A6 work; this maintenance repair does not mark A6 complete or move the next development task.
 
@@ -354,7 +354,7 @@ Mark an implementation item complete only after its defined release is implement
 
 9 September location/localisation update: EU is now the owner's preferred initial storage policy. A8 finalises and implements the destination before real onboarding. New A9/B10 move language infrastructure and English/pt-PT/Spanish coverage ahead of G1; optional French and later market expansion remain distinct. Existing task IDs are retained, with F8 narrowed to later expansion.
 
-Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification; production approval remains pending. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
+Current build: B5 release 1 private draft-school creation, ownership and text settings, authorised for staging implementation/independent verification as the first of three B5 stages. Follow branding/B7 media including personal photos, then claims/transfer, with per-stage tests and Astra review. Complete integrated staging acceptance and explicit owner production approval before any B5 promotion. The earlier A4/B6 → A9 → B3 account sequence is historical; the relevant account flows have been released.
 
 ## A4/B6 implementation evidence, 6 October 2026
 

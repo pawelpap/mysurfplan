@@ -9,33 +9,39 @@ const zones = ['Europe/Lisbon','Atlantic/Azores','Europe/Madrid','Europe/Paris',
 const formValues = school => ({name:school?.name || '',description:school?.description || '',timezone:school?.timezone || 'Europe/Lisbon',contactEmail:school?.contactEmail || '',contactPhone:school?.contactPhone || '',website:school?.website || '',socialLinks:school?.socialLinks?.join('\n') || '',operatingSpotIds:school?.operatingSpotIds || []});
 
 export default function SchoolSetup({ session, query, go, onSaved, onAgreements }) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
+  useEffect(() => {
+    for (const input of document.querySelectorAll('.school-setup [data-error-key]')) {
+      if (input.validity?.customError) input.setCustomValidity(t(input.dataset.errorKey));
+    }
+  }, [locale, t]);
   const source = useData('/api/school-onboarding');
   const [saved, setSaved] = useState(null);
   const [notice, setNotice] = useState('');
+  const [createdId, setCreatedId] = useState(null);
   const schools = source.data;
   const selected = (saved?.id === query.record ? saved : null) || schools.find(school => school.id === query.record);
   const complete = async (school, created) => {
     setSaved(school); setNotice(created ? 'school.created' : 'school.saved'); source.reload(); onSaved();
-    if (created) go({record:school.id});
+    if (created) { setCreatedId(school.id); go({record:school.id}); }
   };
   if (query.action === 'new') return <CreateDraft session={session} onCancel={()=>go({})} onSaved={school=>complete(school,true)} />;
   if (source.loading && !schools.length) return <Loading />;
   if (source.error) return <><Message>{t('school.unavailable')}</Message><Button onClick={source.reload}>{t('Try again')}</Button></>;
   if (query.record && !selected) return <Empty title={t('School not found')} action={<Button onClick={()=>go({})}>{t('school.cancel')}</Button>}>{t('school.forbidden')}</Empty>;
-  if (selected) return <SchoolSettings key={`${selected.id}:${selected.revision}`} school={selected} notice={notice} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');go({});}} onAgreements={onAgreements} onReload={()=>{setSaved(null);setNotice('');source.reload();}} />;
+  if (selected) return <SchoolSettings key={`${selected.id}:${selected.revision}`} school={selected} notice={notice} created={createdId===selected.id} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');setCreatedId(null);go({});}} onAgreements={onAgreements} onReload={()=>{setSaved(null);setNotice('');source.reload();}} />;
   return <div className="school-setup">
     <PageHeading title={t('school.title')} description={t('school.intro')} action={<Button tone="primary" onClick={()=>{setNotice('');go({action:'new'});}}>{t('school.create')}</Button>} />
     {schools.length ? <div className="school-setup-list">{schools.map(school=><article className="surface school-setup-card" key={school.id}>
       <div><h2>{school.name}</h2><p className="muted-note">{t(school.owner ? 'school.owner' : school.canEdit ? 'school.admin' : 'school.readOnly')}</p></div>
       <SchoolState school={school} compact />
-      <Button onClick={()=>{setNotice('');go({record:school.id});}}>{t(school.canEdit?'school.continue':'school.viewSettings')}</Button>
+      <Button onClick={()=>{setNotice('');setCreatedId(null);go({record:school.id});}}>{t(school.canEdit?'school.continue':'school.viewSettings')}</Button>
     </article>)}</div> : <Empty title={t('school.empty')}>{t('school.privateHelp')}</Empty>}
   </div>;
 }
 function TimezoneField({ value, onChange, disabled }) {
   const { t } = useLocale();
-  return <Field label={t('school.timezone')} hint={t('school.timezoneHelp')}>{id=><><input id={id} list={`${id}-zones`} required maxLength={100} value={value} onChange={event=>{event.target.setCustomValidity('');onChange(event);}} onBlur={event=>{try{new Intl.DateTimeFormat('en-GB',{timeZone:event.target.value}).format();event.target.setCustomValidity('');}catch{event.target.setCustomValidity(t('school.invalidTimezone'));}}} onInvalid={event=>event.target.setCustomValidity(t('school.invalidTimezone'))} disabled={disabled} autoComplete="off" /><datalist id={`${id}-zones`}>{zones.map(zone=><option key={zone} value={zone} />)}</datalist></>}</Field>;
+  return <Field label={t('school.timezone')} hint={t('school.timezoneHelp')}>{id=><><input id={id} data-error-key="school.invalidTimezone" list={`${id}-zones`} required maxLength={100} value={value} onChange={event=>{event.target.setCustomValidity('');onChange(event);}} onBlur={event=>{try{new Intl.DateTimeFormat('en-GB',{timeZone:event.target.value}).format();event.target.setCustomValidity('');}catch{event.target.setCustomValidity(t('school.invalidTimezone'));}}} onInvalid={event=>event.target.setCustomValidity(t('school.invalidTimezone'))} disabled={disabled} autoComplete="off" /><datalist id={`${id}-zones`}>{zones.map(zone=><option key={zone} value={zone} />)}</datalist></>}</Field>;
 }
 function CreateDraft({ session, onCancel, onSaved }) {
   const { t } = useLocale();
@@ -54,7 +60,7 @@ function CreateDraft({ session, onCancel, onSaved }) {
     <PageHeading title={t('school.create')} description={t('school.createIntro')} back={{label:t('school.title'),onClick:onCancel}} />
     <form className="surface school-setup-section" onSubmit={submit}>
       <p className="school-scope-note">{t('school.privateHelp')}</p>
-      <Field label={t('school.name')} required maxLength={160} value={name} pattern=".*[a-zA-Z0-9].*" onChange={event=>{event.target.setCustomValidity('');setName(event.target.value);}} onInvalid={event=>event.target.setCustomValidity(t('school.invalidName'))} disabled={busy} autoComplete="organization" />
+      <Field label={t('school.name')} data-error-key="school.invalidName" required maxLength={160} value={name} pattern=".*[a-zA-Z0-9].*" onChange={event=>{event.target.setCustomValidity('');setName(event.target.value);}} onInvalid={event=>event.target.setCustomValidity(t('school.invalidName'))} disabled={busy} autoComplete="organization" />
       <TimezoneField value={timezone} onChange={event=>setTimezone(event.target.value)} disabled={busy} />
       <div className="school-owner-summary"><strong>{t('school.owner')}</strong><span>{[session.name,session.familyName].filter(Boolean).join(' ')}</span><span>{session.email}</span></div>
       <Message>{error && t(error)}</Message>
@@ -71,7 +77,7 @@ function SchoolState({ school, compact=false }) {
     {school.workspaceKind==='self_service' && <span>{t(school.pilotAccessStatus==='approved' ? 'school.pilotApproved' : 'school.pilotPending')}</span>}
   </div>;
 }
-function SchoolSettings({school,notice,onSaved,onCancel,onAgreements,onReload}) {
+function SchoolSettings({school,notice,created,onSaved,onCancel,onAgreements,onReload}) {
   const {locale,t}=useLocale();
   const spots=useData('/api/spots');
   const legal=useData('/api/legal/records?language='+locale);
@@ -103,10 +109,10 @@ function SchoolSettings({school,notice,onSaved,onCancel,onAgreements,onReload}) 
       await onSaved(updated);
     }catch(error){setError(problem(error));}finally{setBusy(false);}
   }
-  const field=(key,type='text')=><Field label={t('school.'+key.replace('contactEmail','email').replace('contactPhone','phone'))} type={type} maxLength={key==='name'?160:key==='contactPhone'?40:key==='contactEmail'?254:2048} required={key==='name'} value={values[key]} pattern={key==='name'?'.*[a-zA-Z0-9].*':key==='website'?'https://.*':undefined} onChange={event=>{event.target.setCustomValidity('');change(key,event.target.value);}} onBlur={event=>{if(key==='website' && event.target.value)event.target.setCustomValidity(validLink(event.target.value)?'':t('school.invalidLink'));if(key==='contactPhone' && event.target.value)event.target.setCustomValidity(/^\+?[0-9 ()\-./]{3,40}$/.test(event.target.value)?'':t('school.invalidPhone'));}} onInvalid={event=>event.target.setCustomValidity(t(key==='website'?'school.invalidLink':key==='name'?'school.invalidName':key==='contactEmail'?'school.invalidEmail':'school.invalidPhone'))} disabled={busy || !school.canEdit} />;
+  const field=(key,type='text')=><Field label={t('school.'+key.replace('contactEmail','email').replace('contactPhone','phone'))} type={type} data-error-key={key==='website'?'school.invalidLink':key==='name'?'school.invalidName':key==='contactEmail'?'school.invalidEmail':'school.invalidPhone'} maxLength={key==='name'?160:key==='contactPhone'?40:key==='contactEmail'?254:2048} required={key==='name'} value={values[key]} pattern={key==='name'?'.*[a-zA-Z0-9].*':key==='website'?'https://.*':undefined} onChange={event=>{event.target.setCustomValidity('');change(key,event.target.value);}} onBlur={event=>{if(key==='website' && event.target.value)event.target.setCustomValidity(validLink(event.target.value)?'':t('school.invalidLink'));if(key==='contactPhone' && event.target.value)event.target.setCustomValidity(/^\+?[0-9 ()\-./]{3,40}$/.test(event.target.value)?'':t('school.invalidPhone'));}} onInvalid={event=>event.target.setCustomValidity(t(key==='website'?'school.invalidLink':key==='name'?'school.invalidName':key==='contactEmail'?'school.invalidEmail':'school.invalidPhone'))} disabled={busy || !school.canEdit} />;
   return <div className="school-setup">
     <PageHeading title={t('school.settings')} description={`${school.name} · ${t(school.owner?'school.owner':'school.admin')}`} back={{label:t('school.title'),onClick:()=>leave(onCancel)}} />
-    <Message success>{notice && t(notice)}</Message>
+    <Message success>{created && t('school.created')}</Message>
     <SchoolState school={school} />
     <p className="muted-note">{t('school.requiredHelp')}</p>
     {!school.canEdit && <p className="school-scope-note">{t('school.readOnly')}</p>}
@@ -126,7 +132,7 @@ function SchoolSettings({school,notice,onSaved,onCancel,onAgreements,onReload}) 
           <p className="muted-note">{t('school.renameHelp')}</p>
         </section>
         <section className="surface school-setup-section" id="school-contact"><h2>{t('school.contact')}</h2><div className="form-grid">{field('contactEmail','email')}{field('contactPhone','tel')}</div>{field('website','url')}
-          <Field label={t('school.social')} hint={t('school.socialHelp')}>{id=><textarea id={id} rows={3} value={values.socialLinks} onChange={event=>{event.target.setCustomValidity('');change('socialLinks',event.target.value);}} onBlur={event=>{const links=event.target.value.split('\n').map(link=>link.trim()).filter(Boolean);event.target.setCustomValidity(links.length<=5 && links.every(validLink)?'':t('school.invalidSocial'));}} disabled={busy || !school.canEdit} maxLength={10244} />}</Field>
+          <Field label={t('school.social')} hint={t('school.socialHelp')}>{id=><textarea id={id} data-error-key="school.invalidSocial" rows={3} value={values.socialLinks} onChange={event=>{event.target.setCustomValidity('');change('socialLinks',event.target.value);}} onBlur={event=>{const links=event.target.value.split('\n').map(link=>link.trim()).filter(Boolean);event.target.setCustomValidity(links.length<=5 && links.every(validLink)?'':t('school.invalidSocial'));}} disabled={busy || !school.canEdit} maxLength={10244} />}</Field>
         </section>
         <section className="surface school-setup-section" id="school-spots"><h2>{t('school.spots')}</h2><p className="muted-note">{t('school.spotsHelp')}</p>
           {spots.loading ? <Loading/> : spots.error ? <><Message>{t('school.unavailable')}</Message><Button onClick={spots.reload}>{t('Try again')}</Button></> : <fieldset className="school-spots"><legend className="sr-only">{t('school.spots')}</legend>{spots.data.map(spot=><label key={spot.id}><input type="checkbox" checked={values.operatingSpotIds.includes(spot.id)} disabled={busy || !school.canEdit} onChange={event=>change('operatingSpotIds',event.target.checked?[...values.operatingSpotIds,spot.id]:values.operatingSpotIds.filter(id=>id!==spot.id))}/><span>{spot.name}</span></label>)}</fieldset>}
@@ -136,8 +142,8 @@ function SchoolSettings({school,notice,onSaved,onCancel,onAgreements,onReload}) 
           {progress.preview && <p className="school-scope-note">{t('school.previewAgreement')}</p>}
           <Button onClick={()=>leave(onAgreements)}>{t('school.reviewAgreement')}</Button>
         </section>
-        <Message>{error && t(error)}</Message>
         {error==='school.conflict' && <Button onClick={()=>leave(onReload)}>{t('school.reload')}</Button>}
+        <div className="school-save-status"><p role="status">{notice==='school.saved' ? t('school.saved') : ''}</p><Message>{error && t(error)}</Message></div>
         <div className="school-form-actions"><Button type="submit" tone="primary" disabled={busy || !school.canEdit}>{t(busy?'Saving…':'school.save')}</Button><Button onClick={()=>leave(onCancel)} disabled={busy}>{t('Cancel')}</Button></div>
       </form>
     </div>

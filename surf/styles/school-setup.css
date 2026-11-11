@@ -67,3 +67,7 @@
 @media(max-width:760px) {
  .school-setup-section, .school-setup-section #school-description { scroll-margin-top:96px; }
 }
+
+.school-save-status { min-height:4em; }
+.school-save-status > p { margin:0; padding:10px 0; color:var(--success-ink); line-height:1.6; }
+.school-save-status > p:empty { padding:0; }
