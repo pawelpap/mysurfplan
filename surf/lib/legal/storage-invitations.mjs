@@ -1,0 +1,15 @@
+export const invitationStorageVersion = '2026-11-11.1';
+export const invitationStorageSections = {
+  'en-GB': `## Continuing a staff invitation
+
+When you open a staff invitation, mywaveplan:invitation:v1 in session storage keeps its private link token in that browser tab while you sign in or create an account. The token is not placed in the login or signup address. This entry is needed only to continue the invitation. It is cleared when you accept or dismiss the invitation, when an invalid link is detected, or when the tab session ends. Its saved expiry is seven days; opening the page again does not extend it. The server checks the invitation's own expiry and permissions before granting access. If tab storage is unavailable, reopen the original invitation email after signing in.`,
+  'pt-PT': `## Continuar um convite para a equipa
+
+Ao abrir um convite, a entrada mywaveplan:invitation:v1 no armazenamento da sessão guarda o código privado do link nesse separador enquanto inicia sessão ou cria uma conta. O código não é incluído no endereço de início de sessão ou de registo. Esta entrada serve apenas para continuar o convite. É apagada ao aceitar ou dispensar o convite, quando é detetado um link inválido ou quando termina a sessão do separador. A validade guardada é de sete dias; voltar a abrir a página não a prolonga. O servidor verifica a validade e as permissões do convite antes de conceder acesso. Se este armazenamento não estiver disponível, volte a abrir o e-mail original após iniciar sessão.`,
+  es: `## Continuar una invitación al equipo
+
+Al abrir una invitación, la entrada mywaveplan:invitation:v1 en el almacenamiento de sesión guarda el código privado del enlace en esa pestaña mientras inicias sesión o creas una cuenta. El código no se incluye en la dirección de inicio de sesión o registro. Esta entrada solo sirve para continuar la invitación. Se elimina al aceptar o descartar la invitación, al detectar un enlace no válido o al terminar la sesión de la pestaña. Su validez guardada es de siete días; volver a abrir la página no la amplía. El servidor comprueba la validez y los permisos de la invitación antes de conceder acceso. Si este almacenamiento no está disponible, vuelve a abrir el correo original después de iniciar sesión.`,
+  fr: `## Reprendre une invitation à l’équipe
+
+Lorsque vous ouvrez une invitation, l’entrée mywaveplan:invitation:v1 du stockage de session conserve le code privé du lien dans cet onglet pendant votre connexion ou la création de votre compte. Le code ne figure pas dans l’adresse de connexion ou d’inscription. Cette entrée sert uniquement à reprendre l’invitation. Elle est supprimée lorsque vous acceptez ou fermez l’invitation, lorsqu’un lien non valide est détecté ou à la fin de la session de l’onglet. Sa durée enregistrée est de sept jours ; rouvrir la page ne la prolonge pas. Le serveur vérifie la validité et les autorisations de l’invitation avant d’accorder l’accès. Si ce stockage est indisponible, rouvrez l’e-mail d’origine après votre connexion.`,
+};

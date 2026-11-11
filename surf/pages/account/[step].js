@@ -116,14 +116,17 @@ function AccountForm({ step, available, privateEmailTest, next, linkLocale }) {
   const requestHref = '/account/' + (verifying ? 'register' : 'recover');
   const title = t(`account.${step}Title`);
   return (
-    <main className="account-shell" lang={locale}>
+    <main className={"account-shell account-step-" + step} lang={locale} data-account-state={sent ? 'sent' : 'form'}>
       <Head><title>{title + ' · MyWavePlan'}</title></Head>
       <header className="login-brand">
         <Brand />
         <LanguageSelector compact selection={linkLocale ?? undefined}
-          onLocaleChange={linkLocale ? selected => router.replace({
-            pathname: router.pathname, query: { step, ...(selected ? { language: selected } : {}) },
-          }, undefined, { shallow: false }) : undefined} />
+          onLocaleChange={linkLocale ? selected => {
+            const query = { ...router.query, step, next };
+            if (selected) query.language = selected;
+            else delete query.language;
+            router.replace({ pathname: router.pathname, query }, undefined, { shallow: false });
+          } : undefined} />
       </header>
       <section className="login-panel" aria-labelledby="account-title">
         <p className="login-welcome">MyWavePlan</p>
@@ -134,8 +137,8 @@ function AccountForm({ step, available, privateEmailTest, next, linkLocale }) {
             {token === '' && <><Message>{t('account.invalidLink')}</Message><Link href={requestHref}>{t('account.newLink')}</Link></>}
           </div>
           : <>
-            <p role={sent ? 'status' : undefined}>{sent ? t('account.checkBody') : t(privateEmailTest && !completing ? 'account.privateEmailTest' : `account.${step}Intro`)}</p>
-            {sent && <p>{t('account.checkHelp')}</p>}
+            <p className="account-intro" role={sent ? 'status' : undefined}>{sent ? t('account.checkBody') : t(privateEmailTest && !completing ? 'account.privateEmailTest' : `account.${step}Intro`)}</p>
+            {sent && <p className="account-sent-help">{t('account.checkHelp')}</p>}
             <form className="auth-form" onSubmit={submit}>
               {!completing && <Field label={t('account.email')} type="email" autoComplete="email"
                 maxLength={254} required value={email} onChange={event => setEmail(event.target.value)} />}

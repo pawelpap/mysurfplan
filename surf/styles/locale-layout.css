@@ -1,0 +1,34 @@
+/* Keep shared controls in stable slots when translated labels change length. */
+.language-control { flex: 0 0 90px; width: 90px; }
+.login-footer-links a { display: flex; }
+.sidebar-footer > .button,
+.sidebar-footer > .legal-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-block-size: 44px;
+  margin: 0;
+}
+.sidebar-footer .account-button > span:last-child { min-width: 0; flex: 1; }
+.sidebar-footer > .account-button { min-block-size: 64px; }
+.sidebar-footer .account-button small { line-height: 1.4; min-block-size: 2lh; }
+.sidebar-footer .language-preference { min-block-size: 88px; }
+.account-shell #account-title { min-block-size: 2lh; }
+.account-shell .account-intro { min-block-size: 2lh; }
+.account-shell .account-sent-help { min-block-size: 2lh; }
+.account-shell .auth-form .field small { min-block-size: 2lh; }
+.legal-tools { display: grid; grid-template-columns: minmax(0, 340px) 150px; justify-content: space-between; align-items: start; }
+.legal-tools > .legal-menu { width: 100%; min-width: 0; }
+.legal-tools > a { width: 150px; min-block-size: 50px; display: flex; align-items: center; justify-content: flex-end; }
+@media (max-width: 800px) {
+  .legal-tools { grid-template-columns: minmax(0, 1fr) 120px; align-items: center; }
+  .legal-tools > a { width: 120px; min-block-size: 74px; }
+  .legal-tools .legal-menu > summary { min-block-size: calc(2lh + 26px); }
+}
+@media (max-width: 760px) {
+  .account-shell .account-intro { min-block-size: 3lh; }
+  .account-shell[data-account-state="sent"] .account-intro { min-block-size: 4lh; }
+  .account-shell .account-sent-help { min-block-size: 3lh; }
+  .account-shell .agreement-check { min-block-size: calc(2lh + 26px); }
+}

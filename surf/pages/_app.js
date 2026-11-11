@@ -3,6 +3,8 @@ import "../styles/fonts.css";
 import "../styles/themes.css";
 import "../styles/app.css";
 import "../styles/conditions.css";
+import "../styles/team.css";
+import "../styles/locale-layout.css";
 import { LocaleProvider } from "../components/locale";
 import { ThemeProvider } from "../components/theme";
 import { SpotLocationProvider } from "../components/spot-select";

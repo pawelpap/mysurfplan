@@ -1,5 +1,7 @@
 # MyWavePlan documentation
 
+11 November current work: [B4 staff invitations and team administration](STAFF_INVITATIONS.md) is being verified for staging, including an independent language-switch layout review. Public account flows were released on 4 November. Older September/October next-step descriptions below are historical; use the current handover first.
+
 17 September: the owner reviewed and approved the small-surf/window and São Pedro calibration changes. Both environments now have matching application behaviour, all 17 calibration revisions, default profile v2 and the bounded forecast archive. [Production release and verification](archive/releases/RELEASE_2026-09-17_FORECAST_PRODUCTION.md). Earlier staging-only records are historical.
 
 [Application email and job operations](EMAIL_JOBS_RUNBOOK.md) records the disabled-by-default foundation, branded Support emails and activation checklist before registration. [Release status](archive/releases/RELEASE_2026-09-13_EMAIL_JOBS.md).
