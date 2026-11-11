@@ -20,7 +20,7 @@
 .team-member:only-child { border-radius: 12px; }
 .team-member:hover { background: var(--surface-hover); }
 .team-member strong { font-weight: 500; overflow-wrap: anywhere; }
-.team-invitation { display: grid; grid-template-columns: minmax(190px, 1.2fr) minmax(150px, 1fr) auto; gap: 24px; padding: 22px 24px; border-bottom: 1px solid var(--line); align-items: center; }
+.team-invitation { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 220px; gap: 24px; padding: 22px 24px; border-bottom: 1px solid var(--line); align-items: center; }
 .team-invitation:last-child { border-bottom: 0; }
 .team-invitation strong { font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
 .team-invitation-identity { display: flex; flex-direction: column; gap: 6px; }
@@ -89,7 +89,7 @@
  .team-role-coach small { min-block-size: 2lh; }
  .team-role-school_admin small { min-block-size: 3lh; }
  .team-form .team-record-help { min-block-size: 3lh; }
- .team-member > span:nth-child(2) { min-block-size: 2lh; }
+ .team-member > span:nth-child(2) { display: flex; align-items: center; min-block-size: 2lh; }
  .team-screen section > .muted-note { min-block-size: 2lh; }
  .invitation-content h1 { min-block-size: 2lh; }
  .invitation-content[data-state="signedout"] .invitation-intro,
@@ -113,4 +113,12 @@
  .invitation-content[data-state="wrong"] .invitation-intro { min-block-size: 5lh; }
  .invitation-content[data-state="signedout"] .invitation-card > .muted-note { min-block-size: calc(3lh + 17px); }
  .invitation-content > .muted-note { min-block-size: 3lh; }
+}
+/* The workspace sidebar leaves too little room for four member columns on tablets. */
+@media (min-width: 761px) and (max-width: 1000px) {
+ .team-member { grid-template-columns: minmax(0, 1fr) 90px; gap: 10px 16px; padding: 18px; }
+ .team-member > strong { grid-column: 1; }
+ .team-member > span:nth-child(2) { grid-column: 1; grid-row: 2; display: flex; align-items: center; min-block-size: 2lh; }
+ .team-member > .pill { grid-column: 2; grid-row: 1; }
+ .team-member > .row-action { grid-column: 2; grid-row: 2; }
 }
