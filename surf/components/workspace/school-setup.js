@@ -19,6 +19,7 @@ export default function SchoolSetup({ session, query, go, onSaved, onAgreements 
   const [saved, setSaved] = useState(null);
   const [notice, setNotice] = useState('');
   const [createdId, setCreatedId] = useState(null);
+  const [reloadVersion, setReloadVersion] = useState(0);
   const schools = source.data;
   const selected = (saved?.id === query.record ? saved : null) || schools.find(school => school.id === query.record);
   const complete = async (school, created) => {
@@ -29,7 +30,7 @@ export default function SchoolSetup({ session, query, go, onSaved, onAgreements 
   if (source.loading && !schools.length) return <Loading />;
   if (source.error) return <><Message>{t('school.unavailable')}</Message><Button onClick={source.reload}>{t('Try again')}</Button></>;
   if (query.record && !selected) return <Empty title={t('School not found')} action={<Button onClick={()=>go({})}>{t('school.cancel')}</Button>}>{t('school.forbidden')}</Empty>;
-  if (selected) return <SchoolSettings key={`${selected.id}:${selected.revision}`} school={selected} notice={notice} created={createdId===selected.id} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');setCreatedId(null);go({});}} onAgreements={onAgreements} onReload={()=>{setSaved(null);setNotice('');source.reload();}} />;
+  if (selected) return <SchoolSettings key={`${selected.id}:${reloadVersion}`} school={selected} notice={notice} created={createdId===selected.id} onEditing={()=>setNotice('')} onSaved={school=>complete(school,false)} onCancel={()=>{setNotice('');setCreatedId(null);go({});}} onAgreements={onAgreements} onReload={async()=>{const list=await request('/api/school-onboarding');const fresh=list.find(record=>record.id===selected.id);if(fresh){setSaved(fresh);setNotice('');setReloadVersion(value=>value+1);source.reload();}else{setSaved(null);go({});}}} />;
   return <div className="school-setup">
     <PageHeading title={t('school.title')} description={t('school.intro')} action={<Button tone="primary" onClick={()=>{setNotice('');go({action:'new'});}}>{t('school.create')}</Button>} />
     {schools.length ? <div className="school-setup-list">{schools.map(school=><article className="surface school-setup-card" key={school.id}>
@@ -77,7 +78,7 @@ function SchoolState({ school, compact=false }) {
     {school.workspaceKind==='self_service' && <span>{t(school.pilotAccessStatus==='approved' ? 'school.pilotApproved' : 'school.pilotPending')}</span>}
   </div>;
 }
-function SchoolSettings({school,notice,created,onSaved,onCancel,onAgreements,onReload}) {
+function SchoolSettings({school,notice,created,onEditing,onSaved,onCancel,onAgreements,onReload}) {
   const {locale,t}=useLocale();
   const spots=useData('/api/spots');
   const legal=useData('/api/legal/records?language='+locale);
@@ -99,14 +100,14 @@ function SchoolSettings({school,notice,created,onSaved,onCancel,onAgreements,onR
     return ()=>window.removeEventListener('beforeunload',warn);
   },[dirty]);
   function leave(action){if(!dirty || window.confirm(t('school.unsaved')))action();}
-  const change=(field,value)=>setValues(previous=>({...previous,[field]:value}));
+  const change=(field,value)=>{onEditing();setValues(previous=>({...previous,[field]:value}));};
   async function submit(event){
     event.preventDefault();if(busy || !school.canEdit)return;
-    setBusy(true);setError('');
+    onEditing();setBusy(true);setError('');
     try {
       const payload={...values,id:school.id,revision:school.revision,socialLinks:values.socialLinks.split('\n').map(value=>value.trim()).filter(Boolean)};
       const updated=await request('/api/school-onboarding',{method:'PATCH',body:JSON.stringify(payload)});
-      await onSaved(updated);
+      await onSaved(updated);setValues(formValues(updated));
     }catch(error){setError(problem(error));}finally{setBusy(false);}
   }
   const field=(key,type='text')=><Field label={t('school.'+key.replace('contactEmail','email').replace('contactPhone','phone'))} type={type} data-error-key={key==='website'?'school.invalidLink':key==='name'?'school.invalidName':key==='contactEmail'?'school.invalidEmail':'school.invalidPhone'} maxLength={key==='name'?160:key==='contactPhone'?40:key==='contactEmail'?254:2048} required={key==='name'} value={values[key]} pattern={key==='name'?'.*[a-zA-Z0-9].*':key==='website'?'https://.*':undefined} onChange={event=>{event.target.setCustomValidity('');change(key,event.target.value);}} onBlur={event=>{if(key==='website' && event.target.value)event.target.setCustomValidity(validLink(event.target.value)?'':t('school.invalidLink'));if(key==='contactPhone' && event.target.value)event.target.setCustomValidity(/^\+?[0-9 ()\-./]{3,40}$/.test(event.target.value)?'':t('school.invalidPhone'));}} onInvalid={event=>event.target.setCustomValidity(t(key==='website'?'school.invalidLink':key==='name'?'school.invalidName':key==='contactEmail'?'school.invalidEmail':'school.invalidPhone'))} disabled={busy || !school.canEdit} />;
@@ -142,7 +143,7 @@ function SchoolSettings({school,notice,created,onSaved,onCancel,onAgreements,onR
           {progress.preview && <p className="school-scope-note">{t('school.previewAgreement')}</p>}
           <Button onClick={()=>leave(onAgreements)}>{t('school.reviewAgreement')}</Button>
         </section>
-        {error==='school.conflict' && <Button onClick={()=>leave(onReload)}>{t('school.reload')}</Button>}
+        {error==='school.conflict' && <Button onClick={()=>leave(async()=>{try{await onReload();}catch{setError('school.unavailable');}})}>{t('school.reload')}</Button>}
         <div className="school-save-status"><p role="status">{notice==='school.saved' ? t('school.saved') : ''}</p><Message>{error && t(error)}</Message></div>
         <div className="school-form-actions"><Button type="submit" tone="primary" disabled={busy || !school.canEdit}>{t(busy?'Saving…':'school.save')}</Button><Button onClick={()=>leave(onCancel)} disabled={busy}>{t('Cancel')}</Button></div>
       </form>
