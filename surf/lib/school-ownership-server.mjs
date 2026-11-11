@@ -27,7 +27,12 @@ export function schoolOwnershipHandler({sql,requireAuth,getSessionHash,scheduleD
      const search=typeof req.query.search==='string'?req.query.search.trim():'';if(search.length>160)throw new OwnershipInputError();
      const rows=await sql`SELECT id,name,slug,ownership_revision AS "ownershipRevision" FROM schools s WHERE ownership_claimable(s)
       AND (${search}='' OR strpos(lower(name),lower(${search}))>0)ORDER BY lower(name),id LIMIT 100`;
-     return res.json({ok:true,data:{schools:rows,canSubmit:ability.canSubmit,canReview:ability.canReview}});
+     const schools=rows.map(row=>{
+      const ownershipRevision=Number(row.ownershipRevision);
+      if(!Number.isSafeInteger(ownershipRevision)||ownershipRevision<1)throw new OwnershipInputError('ownership.unavailable',503);
+      return {...row,ownershipRevision};
+     });
+     return res.json({ok:true,data:{schools,canSubmit:ability.canSubmit,canReview:ability.canReview}});
     }
     if(!ability.canSubmit||(view==='review'&&!ability.canReview))throw new OwnershipInputError('ownership.forbidden',403);
     const rows=await sql`SELECT ownership_claim_json(c,${view==='review'})||CASE WHEN ${view==='review'} THEN jsonb_build_object('canReview',c.claimant_id<>${session.userId}::uuid AND c.status='submitted')ELSE '{}'::jsonb END AS data

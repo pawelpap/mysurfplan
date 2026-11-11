@@ -1,5 +1,7 @@
 // B5 private-school setup. School-authored content stays in its original language.
 const messages = {
+ 'school.setupState':['School setup: {status}','Configuração da escola: {status}','Configuración de la escuela: {status}','Configuration de l’école : {status}'],
+ 'school.presentationState':['Public presentation: {status}','Apresentação pública: {status}','Presentación pública: {status}','Présentation publique : {status}'],
  'school.published': ['Published', 'Publicada', 'Publicada', 'Publiée'],
  'school.requiredHelp':['Only school name and timezone are required to save a draft.','Só o nome e o fuso horário são obrigatórios para guardar um rascunho.','Solo el nombre y la zona horaria son obligatorios para guardar un borrador.','Seuls le nom et le fuseau horaire sont obligatoires pour enregistrer un brouillon.'],
  'school.invalidTimezone':['Choose a valid timezone, for example Europe/Lisbon.','Escolha um fuso horário válido, por exemplo Europe/Lisbon.','Elige una zona horaria válida, por ejemplo Europe/Lisbon.','Choisissez un fuseau horaire valide, par exemple Europe/Lisbon.'],

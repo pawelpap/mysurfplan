@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
 import {schoolOwnershipHandler} from '../lib/school-ownership-server.mjs';
+import {ownershipInput} from '../lib/school-ownership.mjs';
 import {runEmailWorker} from '../lib/email/worker.mjs';import {encryptPayload,recipientHash} from '../lib/email/crypto.mjs';
 const actor=randomUUID(),school=randomUUID(),token='a'.repeat(43),sessionHash='b'.repeat(64);
 const response=()=>({headers:{},code:200,setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(body){this.body=body;return this;}});
@@ -12,6 +13,18 @@ test('unverified accounts receive only public target projections and cannot infe
  const handler=schoolOwnershipHandler({sql,requireAuth:async()=>({userId:actor}),getSessionHash:()=>sessionHash},'claims');
  const res=response();await handler({method:'GET',query:{view:'targets',search:'Public'}},res);assert.equal(res.body.data.canSubmit,false);assert.equal(res.body.data.canReview,false);
  assert.deepEqual(Object.keys(res.body.data.schools[0]),['id','name','slug','ownershipRevision']);assert.equal(calls.length,2);assert(!calls[1].q.includes('base_'));
+});
+test('claim target revisions cross the database bigint boundary as safe JSON numbers usable for submission',async()=>{
+ for(const revision of ['1','9007199254740992']){
+  const sql=async strings=>strings.join('?').includes('canSubmit')?[{canSubmit:true,canReview:false}]:[{id:school,name:'Public school',slug:'public-school',ownershipRevision:revision}];
+  const handler=schoolOwnershipHandler({sql,requireAuth:async()=>({userId:actor}),getSessionHash:()=>sessionHash},'claims');
+  const res=response();await handler({method:'GET',query:{view:'targets'}},res);
+  if(revision==='1'){
+   assert.equal(res.code,200);const target=res.body.data.schools[0];assert.equal(target.ownershipRevision,1);
+   const input=ownershipInput({action:'submit',schoolId:target.id,ownershipRevision:target.ownershipRevision,statement:'I am authorised to manage this school workspace.',requestId:randomUUID()},'claims');
+   assert.equal(input.body.ownershipRevision,1);
+  }else{assert.equal(res.code,503);assert.deepEqual(res.body,{ok:false,error:'ownership.unavailable'});}
+ }
 });
 test('token preview sends only a server hash to SQL and wrong-account errors contain no offer details',async()=>{
  const calls=[];const sql=async(strings,...args)=>{const q=strings.join('?');calls.push({q,args});if(q.includes('auth_login_limits'))return[{allowed:true,retry_seconds:0}];throw Object.assign(new Error('ownership.wrongAccount'),{code:'42501'});};
