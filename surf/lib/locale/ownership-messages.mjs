@@ -189,10 +189,10 @@ const rows = {
     'Vos rôles actuels seront conservés : {roles}. La propriété change séparément.',
   ],
   'ownership.noAddedRoles': [
-    'This transfer does not add an administrator or instructor role. Any other existing access remains subject to its own permissions.',
-    'Esta transferência não acrescenta funções de administração ou de instrução. Qualquer outro acesso existente continua sujeito às respetivas permissões.',
-    'Esta transferencia no añade funciones de administración ni de instrucción. Cualquier otro acceso existente sigue sujeto a sus propios permisos.',
-    'Ce transfert n’ajoute aucun rôle d’administrateur ou de moniteur. Tout autre accès existant reste soumis à ses propres autorisations.',
+    'This ownership change does not add an administrator or instructor role. Any other existing access remains subject to its own permissions.',
+    'Esta alteração de titularidade não acrescenta funções de administração ou de instrução. Qualquer outro acesso existente continua sujeito às respetivas permissões.',
+    'Este cambio de titularidad no añade funciones de administración ni de instrucción. Cualquier otro acceso existente sigue sujeto a sus propios permisos.',
+    'Ce changement de propriété n’ajoute aucun rôle d’administrateur ou de moniteur. Tout autre accès existant reste soumis à ses propres autorisations.',
   ],
   'ownership.currentPassword': [
     'Your current password', 'A sua palavra-passe atual', 'Tu contraseña actual', 'Votre mot de passe actuel',

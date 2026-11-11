@@ -111,7 +111,7 @@ function OwnershipContent({selected,onLanguage}){
      {!continuation.stored&&<p>{t('ownership.reopenEmail')}</p>}
      {session?.demo?<Button onClick={switchAccount} disabled={busy}>{t('ownership.useAnotherAccount')}</Button>:<Link className="button primary" href={login}>{t('ownership.signIn')}</Link>}
      <Button onClick={exit} disabled={busy}>{t('ownership.exit')}</Button>
-    </section>:!preview||!identityMatches?<section className="surface ownership-section"><p>{t('ownership.signedInAs',{email:session.email})}</p><p>{t('ownership.wrongAccount')}</p>
+    </section>:!preview||!identityMatches?<section className="surface ownership-section"><p>{t('ownership.signedInAs',{email:session.email})}</p>{!error&&<p>{t('ownership.wrongAccount')}</p>}
      {!continuation.stored&&<p>{t('ownership.reopenEmail')}</p>}
      <div className="ownership-actions"><Button onClick={switchAccount} disabled={busy}>{t('ownership.useAnotherAccount')}</Button><Button onClick={()=>setAttempt(n=>n+1)} disabled={busy}>{t('ownership.tryAgain')}</Button><Button onClick={exit} disabled={busy}>{t('ownership.exit')}</Button></div>
     </section>:<section className="surface ownership-section"><OwnershipHeading>{preview.school.name}</OwnershipHeading><OwnershipState status={preview.offer.status}/>
