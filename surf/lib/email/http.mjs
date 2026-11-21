@@ -6,7 +6,7 @@ import { recordDeliveryEvents } from './events.mjs';
 import { reportEmailHealth } from './monitor.mjs';
 
 // Database loading is deliberately deferred until after method/auth checks.
-export function emailHandler(kind, getQuery, env = process.env) {
+export function emailHandler(kind, getQuery, env = process.env, maintenance = null) {
   return async (req, res) => {
     res.setHeader('Cache-Control', 'private, no-store');
     const methods = kind === 'worker' ? ['GET'] : kind === 'events' ? ['POST'] : ['GET','POST'];
@@ -25,6 +25,7 @@ export function emailHandler(kind, getQuery, env = process.env) {
       const store = createJobStore(query, config.environment);
       if (kind === 'worker') {
         const result = await runEmailWorker({ config, store, send: createMailjetAdapter(config) });
+        if(maintenance){try{result.mediaMaintenance=await maintenance();}catch{result.mediaMaintenance={ok:false};console.error('media_maintenance_unavailable');}}
         if (req.headers['user-agent'] === 'vercel-cron/1.0') await reportEmailHealth(query, config);
         return res.status(200).json(result);
       }

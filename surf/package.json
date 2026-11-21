@@ -14,11 +14,14 @@
     "@neaps/tide-predictor": "0.11.0",
     "@neondatabase/serverless": "1.1.0",
     "@next/env": "16.4.5",
+    "@vercel/blob": "2.9.0",
     "@vercel/functions": "3.10.6",
+    "leaflet": "1.9.4",
     "next": "16.4.5",
     "pg": "8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "0.35.5",
     "suncalc": "2.0.2"
   },
   "engines": {

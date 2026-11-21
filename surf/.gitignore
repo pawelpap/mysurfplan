@@ -5,3 +5,4 @@ node_modules
 
 # Unpublished operator/legal drafts and mailbox correspondence
 docs/private/
+.env*

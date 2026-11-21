@@ -124,7 +124,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "GET,POST,DELETE");
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   } catch (err) {
-    console.error("coaches api error:", err);
+    console.error("coaches_unavailable", {code:err?.code});
     return res
       .status(500)
       .json({

@@ -3,6 +3,7 @@ import { requireMutation } from "../../../lib/request-security.mjs";
 import { sql } from "lib/db";
 import { requireAuth } from "../../../lib/auth";
 import { validateLesson } from "../../../lib/lesson-input.mjs";
+import { schoolLessonError } from "../../../lib/school-lesson-errors.mjs";
 
 /**
  * GET /api/lessons?school=<slug|id>
@@ -64,7 +65,7 @@ async function getLessons(req, res) {
     const rows = await sql`
       SELECT l.id,l.school_id,sc.name AS school_name,l.start_at,l.duration_min,l.difficulty,l.place,l.spot_id,l.capacity,
        sp.name AS spot_name,sp.timezone AS spot_timezone,sp.active AS spot_active,
-       sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended') AS school_open,
+       school_is_operational(sc) AS school_open,
        access.manage,access.teach,access.mine,
        COALESCE((SELECT json_agg(json_build_object('id',c.id,'name',c.name)) FROM lesson_coaches lc JOIN coaches c ON c.id=lc.coach_id
          WHERE lc.lesson_id=l.id AND c.school_id=l.school_id AND c.deleted_at IS NULL),'[]'::json) AS coaches,
@@ -81,7 +82,7 @@ async function getLessons(req, res) {
         AND s.user_id=${session.userId}::uuid AND s.school_id=l.school_id AND s.deleted_at IS NULL) AS mine) access
       WHERE l.deleted_at IS NULL AND
        CASE WHEN ${personal} THEN access.mine WHEN ${teaching} THEN access.teach
-       ELSE l.school_id=${schoolId}::uuid AND sc.deleted_at IS NULL AND sc.workspace_status NOT IN ('closed','suspended')
+       ELSE l.school_id=${schoolId}::uuid AND school_is_operational(sc)
         AND (${session.role !== "coach"} OR access.teach) END
       ORDER BY l.start_at ASC LIMIT 500`;
     return res.json({
@@ -127,66 +128,26 @@ async function createLesson(req, res) {
     const schoolId = await resolveSchoolId(school);
     if (!schoolId)
       return res.status(404).json({ ok: false, error: "School not found" });
-    if (
-      !(await requireAuth(req, res, {
-        roles: ["admin", "school_admin"],
-        schoolId,
-      }))
-    )
-      return;
+    const session = await requireAuth(req, res, {roles:["admin","school_admin"],schoolId});
+    if (!session) return;
     let input;
     try {
       input = validateLesson(req.body);
     } catch (error) {
       return res.status(400).json({ ok: false, error: error.message });
     }
-    const {
-      startAt,
-      durationMin,
-      difficulty,
-      place,
-      capacity,
-      coachIds,
-      spotId,
-    } = input;
-    const [spot] =
-      await sql`SELECT id FROM surf_spots WHERE id=${spotId} AND active=true`;
-    if (!spot)
-      return res.status(400).json({
-        ok: false,
-        error: "Choose an active surf spot from the list.",
-      });
-    if (coachIds.length) {
-      const valid =
-        await sql`SELECT id FROM coaches WHERE school_id = ${schoolId} AND id = ANY(${coachIds}::uuid[]) AND deleted_at IS NULL`;
-      if (valid.length !== coachIds.length)
-        return res
-          .status(400)
-          .json({ ok: false, error: "Choose instructors from this school." });
-    }
-    const rows = await sql`
-      WITH created AS (
-        INSERT INTO lessons (school_id, start_at, duration_min, difficulty, place, capacity, spot_id)
-        VALUES (${schoolId}, ${startAt}, ${durationMin}, ${difficulty}, ${place}, ${capacity}, ${spotId})
-        RETURNING *
-      ), assigned AS (
-        INSERT INTO lesson_coaches (lesson_id, coach_id)
-        SELECT l.id, c.id FROM created l JOIN coaches c ON c.id = ANY(${coachIds}::uuid[]) AND c.school_id = l.school_id AND c.deleted_at IS NULL
-        RETURNING id
-      )
-      SELECT id, school_id, start_at, duration_min, difficulty, place, capacity, spot_id FROM created
-    `;
-    const row = rows[0];
+    const [result] = await sql`SELECT mutate_school_lesson(${session.userId}::uuid,${schoolId}::uuid,'create',NULL,${JSON.stringify(input)}::jsonb) AS data`;
+    const row = result.data;
     return res.status(201).json({
       ok: true,
       data: {
         id: row.id,
-        schoolId: row.school_id,
-        startAt: row.start_at,
-        durationMin: row.duration_min,
+        schoolId: row.schoolId,
+        startAt: row.startAt,
+        durationMin: row.durationMin,
         difficulty: row.difficulty,
         place: row.place,
-        spotId: row.spot_id,
+        spotId: row.spotId,
         capacity: row.capacity,
         bookedCount: 0,
         attendees: [],
@@ -194,10 +155,7 @@ async function createLesson(req, res) {
       },
     });
   } catch (error) {
-    console.error("lesson creation failed:", error);
-    return res.status(500).json({
-      ok: false,
-      error: "Could not create the lesson. Please try again.",
-    });
+    const problem=schoolLessonError(error);
+    return res.status(problem.status).json({ok:false,error:problem.message});
   }
 }

@@ -19,14 +19,17 @@ export async function runEmailWorker({ config, store, send, jobId = null, now = 
       let payload;
       try {
         const invitation = job.type === 'email.staff_invitation';
+        const ownershipOffer=job.type==='email.ownership_offer', ownershipChanged=job.type==='email.ownership_changed';
         const accountLink = job.type === 'email.account_verify' || job.type === 'email.account_reset';
-        if ((!accountLink && !invitation && job.type !== 'email.delivery_check' && !Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)) ||
+        if ((!accountLink && !invitation && !ownershipOffer && !ownershipChanged && job.type !== 'email.delivery_check' && !Object.hasOwn(ACCOUNT_ACTIVITY_SUBJECTS, job.type)) ||
             job.schema_version !== 1) throw new Error();
         payload = decryptPayload(job.payload, job.id, config, job.type);
         if (!recipientAllowed(config, payload.recipient, job.type) ||
             recipientHash(payload.recipient, config) !== job.recipient_hash ||
-            ((accountLink || invitation) &&
-              ((accountLink && !config.accountFlows) || !validAccountToken(payload.token) || !isLocale(payload.locale)))) throw new Error();
+            ((accountLink || invitation || ownershipOffer) &&
+              ((accountLink && !config.accountFlows) || !validAccountToken(payload.token) || !isLocale(payload.locale))) ||
+            (ownershipOffer && !['claim','transfer'].includes(payload.kind)) ||
+            (ownershipChanged && (!isLocale(payload.locale) || !['new','previous'].includes(payload.audience) || typeof payload.schoolName!=='string' || payload.schoolName.length>160))) throw new Error();
       } catch {
         await store.finish(job, { status: 'failed', code: 'payload_or_recipient_invalid' });
         continue;

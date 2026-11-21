@@ -36,7 +36,7 @@ export function createSessionStore(sql) {
       if (!validSessionToken(token)) return null;
       const rows = await sql`
         SELECT u.id, u.school_id, u.role, u.is_demo, u.name, u.family_name, u.email, u.phone,
-               u.photo_url, u.description, u.preferred_locale, sc.slug AS school_slug,
+               u.photo_url,u.photo_mode,u.photo_asset_id,u.photo_revision,u.description, u.preferred_locale, sc.slug AS school_slug,
                account_is_platform(u.id) AS platform,
                (SELECT authority FROM identity_migration_state WHERE singleton) AS authority,
                COALESCE((SELECT json_agg(a ORDER BY lower(a.name),a.school_id) FROM account_school_access a WHERE a.user_id=u.id),'[]'::json) AS school_access

@@ -1,7 +1,7 @@
 import { sql } from "./db";
 export async function listAccounts(id = null) {
   const rows =
-    await sql`SELECT u.id,u.name,u.family_name,u.email,u.phone,u.description,u.photo_url,u.created_at,u.updated_at,u.last_login_at,u.disabled_at,
+    await sql`SELECT u.id,u.name,u.family_name,u.email,u.phone,u.description,CASE WHEN u.photo_mode='legacy' THEN u.photo_url ELSE NULL END AS photo_url,u.created_at,u.updated_at,u.last_login_at,u.disabled_at,
  EXISTS(SELECT 1 FROM platform_role_assignments p WHERE p.user_id=u.id AND p.revoked_at IS NULL) AS platform,
  COALESCE((SELECT json_agg(json_build_object('id',a.school_id,'name',a.name,'roles',a.roles,'status',a.status,'owner',a.is_owner)) FROM account_school_access a WHERE a.user_id=u.id),'[]'::json) AS schools
  FROM users u WHERE u.deleted_at IS NULL AND (${id}::uuid IS NULL OR u.id=${id}::uuid)

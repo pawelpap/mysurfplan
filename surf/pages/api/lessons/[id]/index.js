@@ -2,6 +2,7 @@ import { requireMutation } from '../../../../lib/request-security.mjs';
 import { sql } from "lib/db";
 import { requireAuth } from "../../../../lib/auth";
 import { isUuid, validateLesson } from "../../../../lib/lesson-input.mjs";
+import { schoolLessonError } from "../../../../lib/school-lesson-errors.mjs";
 
 export default async function handler(req, res) {
   if (!requireMutation(req, res)) return;
@@ -18,16 +19,11 @@ export default async function handler(req, res) {
       await sql`SELECT id, school_id FROM lessons WHERE id = ${id} AND deleted_at IS NULL LIMIT 1`;
     if (!lesson)
       return res.status(404).json({ ok: false, error: "Lesson not found" });
-    if (
-      !(await requireAuth(req, res, {
-        roles: ["admin", "school_admin"],
-        schoolId: lesson.school_id,
-      }))
-    )
-      return;
-    if (req.method === "DELETE") {
-      await sql`UPDATE lessons SET deleted_at = now(), updated_at = now() WHERE id = ${id} AND school_id = ${lesson.school_id} AND deleted_at IS NULL`;
-      return res.status(200).json({ ok: true });
+    const session = await requireAuth(req,res,{roles:["admin","school_admin"],schoolId:lesson.school_id});
+    if (!session) return;
+    if(req.method==='DELETE') {
+      await sql`SELECT mutate_school_lesson(${session.userId}::uuid,${lesson.school_id}::uuid,'delete',${id}::uuid,NULL)`;
+      return res.status(200).json({ok:true});
     }
     let input;
     try {
@@ -35,45 +31,10 @@ export default async function handler(req, res) {
     } catch (error) {
       return res.status(400).json({ ok: false, error: error.message });
     }
-    const { startAt, durationMin, difficulty, place, capacity, spotId } = input;
-    const [spot] =
-      await sql`SELECT id FROM surf_spots WHERE id=${spotId} AND active=true`;
-    if (!spot)
-      return res
-        .status(400)
-        .json({
-          ok: false,
-          error: "Choose an active surf spot from the list.",
-        });
-    const rows = await sql`
-      UPDATE lessons SET start_at = ${startAt}, duration_min = ${durationMin}, difficulty = ${difficulty}, place = ${place}, spot_id = ${spotId}, capacity = ${capacity}, updated_at = now()
-      WHERE id = ${id} AND school_id = ${lesson.school_id} AND deleted_at IS NULL
-        AND (${capacity}::integer IS NULL OR ${capacity}::integer >= (SELECT count(*) FROM bookings WHERE lesson_id = ${id} AND status = 'booked'))
-      RETURNING id, start_at, duration_min, difficulty, place, capacity
-    `;
-    if (!rows.length)
-      return res.status(409).json({
-        ok: false,
-        error: "Capacity cannot be lower than the number of current bookings.",
-      });
-    const row = rows[0];
-    return res.status(200).json({
-      ok: true,
-      data: {
-        id: row.id,
-        startAt: row.start_at,
-        durationMin: row.duration_min,
-        difficulty: row.difficulty,
-        place: row.place,
-        spotId,
-        capacity: row.capacity,
-      },
-    });
+    const [result]=await sql`SELECT mutate_school_lesson(${session.userId}::uuid,${lesson.school_id}::uuid,'update',${id}::uuid,${JSON.stringify(input)}::jsonb) AS data`;
+    return res.status(200).json({ok:true,data:result.data});
   } catch (error) {
-    console.error("lesson update failed:", error);
-    return res.status(500).json({
-      ok: false,
-      error: "Could not update the lesson. Please try again.",
-    });
+    const problem=schoolLessonError(error);
+    return res.status(problem.status).json({ok:false,error:problem.message});
   }
 }

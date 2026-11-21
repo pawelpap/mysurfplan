@@ -1,7 +1,6 @@
 import { useLocale } from "../locale";
 import { useState } from "react";
 import { LessonConditions } from "../conditions/shared";
-import SpotSelect from "../spot-select";
 import { zonedFields, zonedDateTimeToISO } from "../../lib/conditions/time.mjs";
 import { dateKey } from "../../lib/conditions/model.mjs";
 import { lessonMatchesConditions } from "../../lib/conditions/presentation.mjs";
@@ -376,7 +375,7 @@ function localDateTime(value) {
 }
 function LessonForm({ school, lesson, onCancel, onSaved }) {
   const { t } = useLocale();
-  const spots = useData("/api/spots");
+  const spots = useData(`/api/school-onboarding/spots?schoolId=${encodeURIComponent(school.id)}`);
   const [form, setForm] = useState({
     date: lesson
       ? zonedFields(lesson.startAt, lesson.spotTimezone).date
@@ -467,13 +466,15 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
             required
             {...bind("durationMin")}
           />
-          <SpotSelect
-            spots={spots.data}
+          <SelectField
+            label={t('schoolLocation.lessonSpot')}
             required
-            placeholder={
-              spots.loading ? t("Loading spots…") : t("Choose a surf spot")
-            }
-            {...bind("spotId")}
+            options={[
+              {value:'',label:spots.loading?t('Loading spots…'):t('Choose a surf spot')},
+              ...(lesson?.spotId && !spots.data.some(spot=>spot.id===lesson.spotId)?[{value:lesson.spotId,label:`${lesson.spotName || lesson.place} · ${t('schoolLocation.spotUnavailable')}`}]:[]),
+              ...spots.data.map(spot=>({value:spot.id,label:spot.name})),
+            ]}
+            {...bind('spotId')}
           />
           <Field
             label={t("Meeting point")}
@@ -498,6 +499,7 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
           />
         </div>
         {spots.error && <Message>{spots.error}</Message>}
+        {!spots.loading&&!spots.error&&!spots.data.length&&<p className="school-scope-note">{t('schoolLocation.noLessonSpots')}</p>}
         <FormActions
           busy={
             busy || spots.loading || Boolean(spots.error) || !spots.data.length
@@ -514,7 +516,7 @@ function LessonForm({ school, lesson, onCancel, onSaved }) {
 function InstructorForm({ school, lesson, onCancel, onSaved }) {
   const { locale, t } = useLocale();
   const source = useData(
-    `/api/coaches?school=${encodeURIComponent(school.slug)}`,
+    `/api/school-onboarding/teaching-members?schoolId=${encodeURIComponent(school.id)}`,
   );
   const [selected, setSelected] = useState(lesson.coaches.map((c) => c.id));
   const [busy, setBusy] = useState(false);
@@ -570,7 +572,7 @@ function InstructorForm({ school, lesson, onCancel, onSaved }) {
             </div>
           </fieldset>
         ) : (
-          <p>{t("No instructors are available for this school.")}</p>
+          <p>{t('schoolLocation.noTeachingMembers')}</p>
         )}
         <FormActions
           busy={busy || source.loading || Boolean(source.error)}

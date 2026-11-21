@@ -2,7 +2,7 @@ import { sql } from "./db";
 import { normalizeEmail, normalizePhone } from "./passwords.mjs";
 export { hashPassword, normalizeEmail, normalizePhone, validatePassword, verifyPassword } from "./passwords.mjs";
 import { createSessionCodec } from "./auth-session.mjs";
-import { createSessionStore, validSessionToken } from "./auth-store.mjs";
+import { createSessionStore, validSessionToken, sessionTokenHash } from "./auth-store.mjs";
 import { isLocale } from "./locale/preferences.mjs";
 import { requireMutation } from "./request-security.mjs";
 import { isPlatformAdmin, schoolAccess, withSchool } from "./school-access.mjs";
@@ -14,6 +14,10 @@ const sessionCodec = createSessionCodec({
 });
 const sessionStore = createSessionStore(sql);
 const requestSessions = new WeakMap();
+export function authenticatedSessionHash(req) {
+  const cookie=sessionCodec.read(req.headers?.cookie);
+  return validSessionToken(cookie?.sid)?sessionTokenHash(cookie.sid):null;
+}
 const ROLES = new Set([
   "admin",
   "platform_admin",
@@ -126,13 +130,16 @@ async function userSessionPayload(user) {
     roles: a.status === "active" && a.school_open ? a.roles : [],
     owner: a.is_owner,
     open: a.school_open,
+    workspaceKind: a.workspace_kind,
+    workspaceStatus: a.workspace_status,
   }));
   const email = normalizeEmail(user?.email);
   const name = typeof user?.name === "string" ? user.name.trim() : "";
   const familyName =
     typeof user?.family_name === "string" ? user.family_name.trim() : "";
-  const photoUrl =
-    typeof user?.photo_url === "string" ? user.photo_url.trim() : "";
+  const photoUrl = user.photo_mode === 'uploaded' && user.photo_asset_id
+    ? `/api/media/${user.photo_asset_id}?variant=w384`
+    : user.photo_mode === 'none' ? '' : typeof user?.photo_url === "string" ? user.photo_url.trim() : "";
   const description =
     typeof user?.description === "string" ? user.description.trim() : "";
   const payload = {
@@ -148,6 +155,8 @@ async function userSessionPayload(user) {
     name: name || null,
     familyName: familyName || null,
     photoUrl: photoUrl || null,
+    photoMode: user.photo_mode || 'legacy',
+    photoRevision: user.photo_revision || 1,
     description: description || null,
     phone: normalizePhone(user.phone) || null,
     studentEmail: role === "student" ? email || null : null,
@@ -184,7 +193,7 @@ export async function requireAuth(req, res, options = {}) {
   if (options.schoolId) {
     // Check current school lifecycle even for platform administrators.
     const [school] =
-      await sql`SELECT id FROM schools WHERE id=${options.schoolId}::uuid AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended')`;
+      await sql`SELECT id FROM schools WHERE id=${options.schoolId}::uuid AND deleted_at IS NULL AND workspace_status NOT IN ('closed','suspended') AND (workspace_kind='legacy' OR (workspace_status='active' AND pilot_access_status='approved'))`;
     if (!school || !schoolAccess(session, options.schoolId).viewSchool) {
       res.status(403).json({ ok: false, error: "Forbidden for this school" });
       return null;

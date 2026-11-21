@@ -40,6 +40,6 @@ The staging cron registry is empty and its Healthchecks check is paused. Product
 
 ## Next step and recovery
 
-Next is B5 draft-school creation, accountable ownership, settings and school-processing acceptance. B7 provides the media foundation before uploaded branding. Use High-reasoning Codex implementation with Astra High ownership/authorisation review. G1 remains a future pilot gate; billing, online payments and optional trackers are not activated by B4.
+Next is the proposed [B5 release sequence](../../B5_RELEASE_PLAN.md): atomic draft-school/owner creation and text settings; branding/publication and personal profile photos with B7 media after coherent Figma design; then explicit claiming/atomic transfer. School-processing acceptance precedes independent onboarding. The planning addendum authorises no B5 implementation, storage provisioning or deployment. Use High-reasoning Codex implementation with Astra High ownership/authorisation review. G1 remains a future pilot gate; billing, online payments and optional trackers are not activated by B4.
 
 Keep the additive schema and immutable policy versions if application code is rolled back. Use B2-compatible recovery and repair forwards; do not discard membership/audit history or copy a database. Historical release approval does not authorise a later unrelated production release.
